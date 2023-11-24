@@ -3,4 +3,4 @@ alias cl='clear'
 alias ff='fdfind --type f --hidden --exclude .git | fzf-tmux -p --reverse | xargs nvim'
 
 export PATH=~/.config/scripts:$PATH
-eval "$(oh-my-posh init bash --config ~theme/neg.omp.json)"
+eval "$(oh-my-posh init bash --config ~/.config/bash/neg.omp.json)"
