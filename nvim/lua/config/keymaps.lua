@@ -18,5 +18,3 @@ map("n", "<c-/>", lazyterm, { desc = "Terminal (cwd)" })
 map("n", "<c-_>", lazyterm, { desc = "which_key_ignore" })
 
 map("t", "<C-\\>", "<cmd>close<cr>", { desc = "Hide Terminal" })
---Neotree
--- map("n", "<leader>e", "<cmd>Neotree<cr>", { desc = "Neotree CWD" })
