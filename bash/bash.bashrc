@@ -7,7 +7,8 @@ bind 'set completion-ignore-case on'
 
 alias v='nvim'
 alias cl='clear'
-alias ff='fdfind --type f --hidden --exclude .git | fzf-tmux -p --reverse | xargs nvim'
+alias ff='fdfind --type f --hidden --exclude .git | fzf-tmux -p --reverse'
+alias of='fdfind --type f --hidden --exclude .git | fzf-tmux -p --reverse | xargs nvim'
 alias td='tmux detach'
 
 export PATH=~/.config/scripts:$PATH
