@@ -1,8 +1,9 @@
 # import this file in bashrc
-# bind 'set completion-ignore-case on'
 # if [ -f ~/.config/bash/bash.bashrc ]; then
 # 	. ~/.config/bash/bash.bashrc
 # fi
+
+bind 'set completion-ignore-case on'
 
 alias v='nvim'
 alias cl='clear'
