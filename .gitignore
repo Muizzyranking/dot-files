@@ -2,7 +2,6 @@
 !.gitignore
 
 !/nvim
-!/nvim_bk
 !/tmux
 !/scripts
 !/bash
