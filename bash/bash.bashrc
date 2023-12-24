@@ -14,6 +14,5 @@ alias td='tmux detach'
 export PATH=~/.config/scripts:$PATH
 export PATH=~/.local/bin:$PATH
 
-#create a symbolic link to starship
-ln -s ~/.config/bash/starship.toml ~/.config/starship.toml
 eval "$(starship init bash)"
+export STARSHIP_CONFIG=~/.config/starship.toml
