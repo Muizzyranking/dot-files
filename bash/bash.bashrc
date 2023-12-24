@@ -13,4 +13,7 @@ alias td='tmux detach'
 
 export PATH=~/.config/scripts:$PATH
 export PATH=~/.local/bin:$PATH
-eval "$(oh-my-posh init bash --config ~/.config/bash/neg.omp.json)"
+
+#create a symbolic link to starship
+ln -s ~/.config/bash/starship.toml ~/.config/starship.toml
+eval "$(starship init bash)"
