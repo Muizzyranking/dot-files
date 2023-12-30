@@ -1,20 +1,16 @@
 -- Keymaps are automatically loaded on the VeryLazy event
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps her
-local Util = require("lazyvim.util")
-local map = Util.safe_keymap_set
--- quit
-map("n", "<C-q>", "<cmd>qa<cr>", { desc = "Quit all" })
+local set = vim.keymap.set
+-- local opts = { noremap = true, silent = true }
+-- local maps = require("lazyvim.util")
+set("n", "x", '"_x')
 
--- floating terminal
-local lazyterm = function()
-  Util.terminal(nil, { cwd = Util.root() })
-end
-map("n", "<leader>ft", lazyterm, { desc = "Terminal (root dir)" })
-map("n", "<c-\\>", function()
-  Util.terminal()
-end, { desc = "Terminal (cwd)" })
-map("n", "<c-/>", lazyterm, { desc = "Terminal (cwd)" })
-map("n", "<c-_>", lazyterm, { desc = "which_key_ignore" })
+-- Select all
+set("n", "<C-a>", "gg<S-v>G")
 
-map("t", "<C-\\>", "<cmd>close<cr>", { desc = "Hide Terminal" })
+--toggleterm
+set("n", "<C-\\>", "<cmd>ToggleTerm<CR>", { desc = "Open Terminal" })
+set("t", "<C-\\>", "<cmd>close<cr>", { desc = "Hide Terminal" })
+
+set("n", "<C-q>", "<cmd>qa<cr>", { desc = "Quit all" })
