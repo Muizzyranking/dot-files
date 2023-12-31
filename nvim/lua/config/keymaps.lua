@@ -11,6 +11,5 @@ set("n", "<C-a>", "gg<S-v>G")
 
 --toggleterm
 set("n", "<C-\\>", "<cmd>ToggleTerm<CR>", { desc = "Open Terminal" })
-set("t", "<C-\\>", "<cmd>close<cr>", { desc = "Hide Terminal" })
-
+--
 set("n", "<C-q>", "<cmd>qa<cr>", { desc = "Quit all" })

@@ -37,27 +37,12 @@ return {
         vim.opt.foldcolumn = "0"
         vim.opt.signcolumn = "no"
       end,
-      open_mapping = [[<F7>]],
+      open_mapping = [[<c-\>]],
       shading_factor = 2,
       direction = "float",
       float_opts = { border = "rounded" },
     },
   },
-  -- {
-  --   "akinsho/toggleterm.nvim",
-  --   opts = {
-  --     highlights = {
-  --       border = "Normal",
-  --     },
-  --   },
-  --   -- float_opts = {
-  --   --   -- border = "single", --'double' | 'shadow' | 'curved' | ... other options supported by win open
-  --   --   -- like `size`, width and height can be a number or function which is passed the current terminal
-  --   --   width = 10,
-  --   --   height = 10,
-  --   --   winblend = 3,
-  --   -- },
-  -- },
   {
     "nvimdev/dashboard-nvim",
     event = "VimEnter",
