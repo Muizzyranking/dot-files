@@ -1,23 +1,14 @@
 return {
   {
-    "echasnovski/mini.animate",
+    "nvim-lualine/lualine.nvim",
     event = "VeryLazy",
-    opts = function(_, opts)
-      opts.scroll = {
-        enable = false,
-      }
-    end,
+    opts = {
+      options = {
+        globalstatus = false,
+        theme = "cyberdream",
+      },
+    },
   },
-  -- {
-  --   "nvim-lualine/lualine.nvim",
-  --   event = "VeryLazy",
-  --   opts = {
-  --     options = {
-  --       globalstatus = false,
-  --       theme = "dracula",
-  --     },
-  --   },
-  -- },
   {
     "akinsho/toggleterm.nvim",
     cmd = { "ToggleTerm", "TermExec" },
@@ -63,5 +54,12 @@ return {
     "smjonas/inc-rename.nvim",
     cmd = "IncRename",
     config = true,
+  },
+
+  {
+    "rcarriga/nvim-notify",
+    opts = {
+      background_colour = "#000000",
+    },
   },
 }
