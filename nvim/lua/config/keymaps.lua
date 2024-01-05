@@ -13,3 +13,7 @@ set("n", "<C-a>", "gg<S-v>G")
 set("n", "<C-\\>", "<cmd>ToggleTerm<CR>", { desc = "Open Terminal" })
 --
 set("n", "<C-q>", "<cmd>qa<cr>", { desc = "Quit all" })
+
+-- set jj as esc key
+set("i", "jj", "<esc>", { desc = "Esc" })
+set("v", "jj", "<esc>", { desc = "Esc" })
