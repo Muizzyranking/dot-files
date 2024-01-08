@@ -12,8 +12,12 @@ set("n", "<C-a>", "gg<S-v>G")
 --toggleterm
 set("n", "<C-\\>", "<cmd>ToggleTerm<CR>", { desc = "Open Terminal" })
 --
-set("n", "<C-q>", "<cmd>qa<cr>", { desc = "Quit all" })
+set("n", "<C-Q>", "<cmd>qa<cr>", { desc = "Quit all" })
+set("n", "<C-q>", "<cmd>q<cr>", { desc = "Quit" })
 
 -- set jj as esc key
 set("i", "jj", "<esc>", { desc = "Esc" })
 set("v", "jj", "<esc>", { desc = "Esc" })
+
+set("n", "E", "$", { noremap = false })
+set("n", "B", "^", { noremap = false })
