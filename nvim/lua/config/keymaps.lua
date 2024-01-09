@@ -19,5 +19,13 @@ set("n", "<C-q>", "<cmd>q<cr>", { desc = "Quit" })
 set("i", "jj", "<esc>", { desc = "Esc" })
 set("v", "jj", "<esc>", { desc = "Esc" })
 
-set("n", "E", "$", { noremap = false })
+-- go to the end of a line
+set("n", "E", "$")
+set("i", "<C-e>", "<esc>A", { noremap = false })
+
+-- go to beginning of the line
 set("n", "B", "^", { noremap = false })
+set("i", "<C-b>", "<esc>I", { noremap = false })
+
+--go to next line
+set("i", "<C-o>", "<esc>o", { noremap = false })
