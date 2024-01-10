@@ -60,5 +60,3 @@ Install Starship
 ```
 curl -sS https://starship.rs/install.sh | sh
 ```
-
-Add starship to bashrc
