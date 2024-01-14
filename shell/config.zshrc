@@ -109,11 +109,11 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias v='nvim'
 alias cl='clear'
-alias ff='fdfind --type f --hidden --exclude .git | fzf-tmux -p --reverse'
-alias of='fdfind --type f --hidden --exclude .git | fzf-tmux -p --reverse | xargs nvim'
+alias ff='fd --type f --hidden --exclude .git | fzf-tmux -p --reverse'
+alias of='fd --type f --hidden --exclude .git | fzf-tmux -p --reverse | xargs nvim'
 alias td='tmux detach'
 alias lg='lazygit'
-alias fdir='cd "$(fdfind --type d --hidden --exclude .git | fzf-tmux -p --reverse)"'
+alias fdir='cd "$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse)"'
 
 tns() {
     tmux new -s $1
