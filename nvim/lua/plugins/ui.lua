@@ -5,7 +5,7 @@ return {
     opts = {
       options = {
         globalstatus = false,
-        theme = "cyberdream",
+        theme = "NeoSolarized",
       },
     },
   },
