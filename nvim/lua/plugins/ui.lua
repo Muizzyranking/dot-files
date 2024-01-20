@@ -1,14 +1,14 @@
 return {
-  {
-    "nvim-lualine/lualine.nvim",
-    event = "VeryLazy",
-    opts = {
-      options = {
-        globalstatus = false,
-        theme = "NeoSolarized",
-      },
-    },
-  },
+  -- {
+  --   "nvim-lualine/lualine.nvim",
+  --   event = "VeryLazy",
+  --   opts = {
+  --     options = {
+  --       globalstatus = false,
+  --       theme = "NeoSolarized",
+  --     },
+  --   },
+  -- },
   {
     "akinsho/toggleterm.nvim",
     cmd = { "ToggleTerm", "TermExec" },
