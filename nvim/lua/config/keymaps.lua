@@ -17,7 +17,6 @@ set("n", "<C-q>", "<cmd>q<cr>", { desc = "Quit" })
 
 -- set jj as esc key
 set("i", "jj", "<esc>", { desc = "Esc" })
-set("v", "jj", "<esc>", { desc = "Esc" })
 
 -- go to the end of a line
 set("n", "E", "$")
