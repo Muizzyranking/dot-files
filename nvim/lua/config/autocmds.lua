@@ -9,3 +9,13 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.wo.conceallevel = 0
   end,
 })
+
+vim.api.nvim_exec(
+  [[
+  augroup CFileSettings
+    autocmd!
+    autocmd FileType c setlocal noexpandtab | setlocal tabstop=8 | setlocal shiftwidth=8
+  augroup END
+]],
+  false
+)
