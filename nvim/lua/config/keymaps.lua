@@ -3,8 +3,8 @@
 -- Add any additional keymaps her
 local set = vim.keymap.set
 -- local opts = { noremap = true, silent = true }
--- local maps = require("lazyvim.util")
-set("n", "x", '"_x')
+
+-- set("n", "x", '"_x')
 
 -- Select all
 set("n", "<C-a>", "gg<S-v>G")
