@@ -114,6 +114,8 @@ alias of='fd --type f --hidden --exclude .git | fzf-tmux -p --reverse | xargs nv
 alias td='tmux detach'
 alias lg='lazygit'
 alias fdir='cd "$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse)"'
+alias cv='NVIM_APPNAME=nvim-custom nvim'
+alias kv='NVIM_APPNAME=nvim-mine nvim'
 
 tns() {
     tmux new -s $1
