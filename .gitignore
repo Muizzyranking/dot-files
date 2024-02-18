@@ -6,5 +6,7 @@
 !/scripts
 !/README.md
 !/shell
+!/nvim-custom
+!/nvim-mine
 
 tmux/plugins
