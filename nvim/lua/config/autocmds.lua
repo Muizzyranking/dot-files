@@ -11,6 +11,7 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+--do not expand tabs in C file
 vim.api.nvim_exec(
   [[
   augroup CFileSettings
