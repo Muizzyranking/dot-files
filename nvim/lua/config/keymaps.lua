@@ -5,15 +5,13 @@ local del = vim.keymap.del
 local set = vim.keymap.set
 -- local opts = { noremap = true, silent = true }
 
-del("n", "<c-/>")
-
 -- set("n", "x", '"_x')
 
 -- Select all
 set("n", "<C-a>", "gg<S-v>G", { desc = "Select all" })
 
 --toggleterm
-set("n", "<C-\\>", "<cmd>ToggleTerm<CR>", { desc = "Open Terminal" })
+set("n", "<C-_>", "<cmd>ToggleTerm<CR>", { desc = "Open Terminal" })
 
 --use ctrl-q to quit
 set("n", "<C-Q>", "<cmd>qa<cr>", { desc = "Quit all" })
@@ -39,10 +37,15 @@ set("i", "<C-o>", "<esc>o", { noremap = false })
 set("n", ";", ":")
 
 --dont copy when pasting
-set("n", "p", '"_dP')
 set("v", "p", '"_dP')
 
 --comment with <leader>/
 set("n", "<leader>/", "gcc", { remap = true, silent = true })
 set("v", "<leader>/", "gc", { remap = true, silent = true })
 set("x", "<leader>/", "gc", { remap = true, silent = true })
+
+--run betty on the current file
+set("n", "<leader>rb", "<cmd>!betty %<cr>", { silent = true, desc = "Run betty on current file" })
+
+--run pycodestyle on the current file
+set("n", "<leader>rp", "<cmd>!pycodestyle %<cr>", { silent = true, desc = "Run betty on current file" })
