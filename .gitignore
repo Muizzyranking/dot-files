@@ -1,12 +1,15 @@
+# ignore all files in .config directory
 /*
-!.gitignore
 
+# files to be tracked
+!.gitignore
 !/nvim
 !/tmux
 !/scripts
 !/README.md
 !/shell
 !/nvim-custom
-!/nvim-mine
+!/konsole
 
+# ignore plugins in tmux diectory
 tmux/plugins
