@@ -16,7 +16,7 @@ vim.api.nvim_exec(
   [[
   augroup CFileSettings
     autocmd!
-    autocmd FileType c setlocal noexpandtab | setlocal tabstop=8 | setlocal shiftwidth=8
+    autocmd FileType c setlocal noexpandtab | setlocal tabstop=8 | setlocal shiftwidth=8 | setlocal autoindent | setlocal smartindent
   augroup END
 ]],
   false
