@@ -1,4 +1,4 @@
-Fetch the repo
+Fetch the repository
 ```
 git init
 git remote add origin $url
