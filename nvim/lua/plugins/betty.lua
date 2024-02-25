@@ -1,7 +1,9 @@
 return {
   "bstevary/betty-in-vim",
   lazy = true,
-  event = { "BufWritePost *.c" },
+  event = {
+    "BufWritePost *.c",
+  },
   dependencies = {
     -- "neovim/nvim-lspconfig",
     "nvim-lua/plenary.nvim",
