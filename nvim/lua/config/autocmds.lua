@@ -12,11 +12,21 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 --do not expand tabs in C file
+-- vim.api.nvim_exec(
+--   [[
+--   augroup CFileSettings
+--     autocmd!
+--     autocmd FileType c, h setlocal noexpandtab | setlocal tabstop=8 | setlocal shiftwidth=8 | setlocal autoindent | setlocal smartindent
+--   augroup END
+-- ]],
+--   false
+-- )
+
 vim.api.nvim_exec(
   [[
   augroup CFileSettings
     autocmd!
-    autocmd FileType c setlocal noexpandtab | setlocal tabstop=8 | setlocal shiftwidth=8 | setlocal autoindent | setlocal smartindent
+    autocmd BufRead,BufNewFile *.c,*.h setlocal noexpandtab | setlocal tabstop=8 | setlocal shiftwidth=8 | setlocal autoindent | setlocal smartindent
   augroup END
 ]],
   false
