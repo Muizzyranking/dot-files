@@ -12,20 +12,24 @@ require("lazy").setup({
     spec = {
         -- add LazyVim and import its plugins
         { "LazyVim/LazyVim",                                    import = "lazyvim.plugins", opts = { colorscheme = "catppuccin-macchiato" } },
-        -- import any extras modules here
         -- { import = "lazyvim.plugins.extras.lang.typescript" },
-        { import = "lazyvim.plugins.extras.coding.copilot" },
-        { import = "lazyvim.plugins.extras.formatting.prettier" },
-        { import = "lazyvim.plugins.extras.formatting.black" },
         -- { import = "lazyvim.plugins.extras.coding.yanky" },
         { import = "lazyvim.plugins.extras.coding.codeium" },
+        { import = "lazyvim.plugins.extras.coding.copilot" },
+        { import = "lazyvim.plugins.extras.test.core" },
+
+        --python
+        { import = "lazyvim.plugins.extras.lang.python" },
+        { import = "lazyvim.plugins.extras.formatting.black" },
+
+        { import = "lazyvim.plugins.extras.formatting.prettier" },
         { import = "lazyvim.plugins.extras.dap.core" },
         { import = "lazyvim.plugins.extras.dap.nlua" },
-        -- { import = "lazyvim.plugins.extras.lang.json" },
         { import = "lazyvim.plugins.extras.ui.mini-animate" },
         { import = "lazyvim.plugins.extras.editor.leap" },
-        { import = "lazyvim.plugins.extras.lang.python" },
+
         -- { import = "lazyvim.plugins.extras.lang.go" },
+        -- { import = "lazyvim.plugins.extras.lang.json" },
         { import = "plugins" },
     },
     defaults = {
