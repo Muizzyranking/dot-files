@@ -5,7 +5,7 @@ sudo dnf update -y
 sudo dnf upgrade -y
 
 # Install packages from your list
-curl https://raw.githubusercontent.com/muizzyranking/dotfiles/scripts/packages | xargs sudo dnf install -y
+curl https://raw.githubusercontent.com/Muizzyranking/dot-files/master/scripts/packages | xargs sudo dnf install -y
 sudo dnf copr enable atim/lazygit -y
 sudo dnf install lazygit -y
 if [ $? -ne 0 ]; then
