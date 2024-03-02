@@ -8,3 +8,5 @@ opt.tabstop = 4
 opt.shiftwidth = 4
 
 opt.iskeyword:append({ "-" })
+opt.swapfile = false
+opt.backup = false
