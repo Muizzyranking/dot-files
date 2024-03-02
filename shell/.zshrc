@@ -7,18 +7,10 @@ fi
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
-
-
-
-
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
-
-
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time oh-my-zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
+#Theme
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Uncomment the following line to use hyphen-insensitive completion.
@@ -30,14 +22,8 @@ HYPHEN_INSENSITIVE="true"
 # zstyle ':omz:update' mode auto      # update automatically without asking
 # zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 
-# Uncomment the following line to change how often to auto-update (in days).
-# zstyle ':omz:update' frequency 13
-
 # Uncomment the following line if pasting URLs and other text is messed up.
 # DISABLE_MAGIC_FUNCTIONS="true"
-
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
 
 # Uncomment the following line to disable auto-setting terminal title.
 # DISABLE_AUTO_TITLE="true"
@@ -77,34 +63,19 @@ source $ZSH/oh-my-zsh.sh
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
-alias v='nvim'
-alias cl='clear'
-alias ff='fd --type f --hidden --exclude .git | fzf-tmux -p --reverse'
-alias of='fd --type f --hidden --exclude .git | fzf-tmux -p --reverse | xargs nvim'
-alias td='tmux detach'
-alias lg='lazygit'
-alias fdir='cd "$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse)"'
-alias cv='NVIM_APPNAME=nvim-custom nvim'
-alias chmod='chmod +x'
-alias install='sudo dnf install'
 
-tns() {
-    tmux new -s $1
-}
+# ZSH ALIASES
+# Stored in $ALIASES 
+if [ -f ~/.config/shell/.zsh_alaises ]; then
+   source ~/.config/shell/.zsh_alaises
+fi
 
-export PATH=~/.config/scripts:$PATH
+#ZSH ENV for easy navigation
+if [ -f ~/.config/shell/.zshenv ]; then
+   source ~/.config/shell/.zshenv
 
-export PATH=~/.local/bin:$PATH
+fi
 
-export PATH=/snap/bin:$PATH
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
