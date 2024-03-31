@@ -27,26 +27,25 @@ set("v", "B", "^", { noremap = true, silent = true })
 set("i", "<C-b>", "<esc>I", { noremap = true, silent = true })
 
 --go to next line in insert mode
-set("i", "<C-o>", "<esc>o", { noremap = true, silent = true })
+set("i", "<C-o>", "<esc>o")
 
---use ; to go to command mode
-set("n", ";", ":", { noremap = true })
+--dont copy when pasting over text
+set("v", "p", '"_dP', { remap = true, silent = true })
 
---dont copy when pasting
-set("v", "p", '"_dP', { noremap = true, silent = true })
+--dont copy when changing text
+-- set("v", "c", '"_dc', { remap = true, silent = true })
 
 --comment with <leader>/
-set("n", "<leader>/", "gcc", { noremap = true, })
-set("v", "<leader>/", "gc", { noremap = true, })
-set("x", "<leader>/", "gc", { noremap = true, })
+set("n", "<leader>/", "gcc", { remap = true, desc = "Comment" })
+set("v", "<leader>/", "gc", { remap = true, desc = "Comment" })
+set("x", "<leader>/", "gc", { remap = true, desc = "Comment" })
 
 --run betty on the current file
 -- set("n", "<leader>rb", "<cmd>!betty %<cr>", { silent = true, desc = "Run betty on current file" })
 
 --run pycodestyle on the current file
-set("n", "<leader>rp", "<cmd>!pycodestyle %<cr>",
-    { desc = "Run pycodestyle on current file" })
+-- set("n", "<leader>rp", "<cmd>!pycodestyle %<cr>", { desc = "Run pycodestyle on current file" })
 
 --using <tab> and <s-tab> for indenting and dedenting
-set("v", "<tab>", ">", { desc = "indent", noremap = true, silent = true })
-set("v", "<s-tab>", "<", { desc = "dedent", noremap = true, silent = true })
+set("v", "<tab>", ">", { desc = "indent", remap = true, silent = true })
+set("v", "<s-tab>", "<", { desc = "dedent", remap = true, silent = true })

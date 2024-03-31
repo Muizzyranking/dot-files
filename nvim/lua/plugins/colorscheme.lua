@@ -1,32 +1,16 @@
 return {
-  {
-    "scottmckendry/cyberdream.nvim",
-    lazy = true,
-    config = function()
-      require("cyberdream").setup({
-        transparent = true,
-        italic_comments = true,
-        hide_fillchars = true,
-        borderless_telescope = true,
-      })
-    end,
-  },
-  {
-    "folke/tokyonight.nvim",
-    lazy = true,
-    opts = {
-      style = "night",
-      transparent = true,
-      styles = {
-        comments = { italic = true },
-        keywords = { italic = true },
-        functions = { italic = true },
-        variables = { italic = true },
-        sidebar = "transparent",
-        floats = "transparent",
-      },
-    },
-  },
+  -- {
+  --   "scottmckendry/cyberdream.nvim",
+  --   lazy = true,
+  --   config = function()
+  --     require("cyberdream").setup({
+  --       transparent = true,
+  --       italic_comments = true,
+  --       hide_fillchars = true,
+  --       borderless_telescope = true,
+  --     })
+  --   end,
+  -- },
   {
     "catppuccin/nvim",
     lazy = false,

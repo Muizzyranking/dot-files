@@ -1,13 +1,18 @@
 return {
-  "bstevary/betty-in-vim",
-  lazy = true,
-  event = {
-    "BufWritePost *.c",
+  {
+    "bstevary/betty-in-vim",
+    event = {
+      "FileType c",
+    },
+    dependencies = {
+      -- "neovim/nvim-lspconfig",
+      "nvim-lua/plenary.nvim",
+      "dense-analysis/ale",
+      "nvim-treesitter/nvim-treesitter",
+    },
   },
-  dependencies = {
-    -- "neovim/nvim-lspconfig",
-    "nvim-lua/plenary.nvim",
-    "dense-analysis/ale",
-    "nvim-treesitter/nvim-treesitter",
+  {
+    "densse-analysis/ale",
+    lazy = true,
   },
 }

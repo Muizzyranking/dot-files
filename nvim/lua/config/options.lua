@@ -10,3 +10,5 @@ opt.shiftwidth = 4
 opt.iskeyword:append({ "-" })
 opt.swapfile = false
 opt.backup = false
+
+-- vim.g.autoformat = false
