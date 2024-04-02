@@ -1,13 +1,15 @@
-export PATH=~/.config/scripts:$PATH
 export PATH=~/.local/bin:$PATH
 export PATH=/snap/bin:$PATH
 export EDITOR=nvim
 
+dotfile_dir=$HOME/dot-files
 #Config files
-export CONFIG=~/.config
-export NVIMRC=~/.config/nvim/
-export ZSHRC=~/.config/shell/.zshrc
-export ZSHENV=~/.config/shell/.zshenv
-export ALIASES=~/.config/shell/.zsh_alaises
-export TMUXRC=~/.config/tmux/tmux.conf
+export CONFIG=$dotfile_dir/config
+export NVIMRC=$dotfile_dir/config/nvim/
+export ZSHRC=$dotfile_dir/shell/.zshrc
+export ZSHENV=$dotfile_dir/shell/.zshenv
+export ALIASES=~$dotfile_dir/shell/.zsh_alaises
+export TMUXRC=$dotfile_dir/config/tmux/tmux.conf
+
 export PATH=~/.npm-global/bin:$PATH
+export PATH=~$dotfile_dir/scripts:$PATH

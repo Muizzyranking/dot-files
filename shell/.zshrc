@@ -64,15 +64,16 @@ source $ZSH/oh-my-zsh.sh
 # export ARCHFLAGS="-arch x86_64"
 
 
+dotfiles_dir="$HOME/dot-files"
 # ZSH ALIASES
 # Stored in $ALIASES 
-if [ -f ~/.config/shell/.zsh_alaises ]; then
-   source ~/.config/shell/.zsh_alaises
+if [ -f $dotfiles_dir/shell/.zsh_alaises ]; then
+   source $dotfiles_dir/shell/.zsh_alaises
 fi
 
 #ZSH ENV for easy navigation
-if [ -f ~/.config/shell/.zshenv ]; then
-   source ~/.config/shell/.zshenv
+if [ -f $dotfiles_dir/shell/.zshenv ]; then
+   source $dotfiles_dir/shell/.zshenv
 
 fi
 
