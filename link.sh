@@ -3,7 +3,6 @@
 # Settings
 dotfiles_dir="$HOME/dot-files"
 config_dir="$HOME/.config"
-home_dir="$HOME"
 
 # Check if $HOME/.config exists
 if [[ -d "$config_dir" ]]; then
@@ -27,16 +26,20 @@ else
 fi
 
 # Handle .zshrc
-if [[ -f "$home_dir/.zshrc" ]]; then
-	rm "$home_dir/.zshrc" || exit 5 # Delete existing .zshrc (exit on failure)
+if [[ -f "$HOME/.zshrc" ]]; then
+	rm "$HOME/.zshrc" || exit 5 # Delete existing .zshrc (exit on failure)
 fi
 
-if [[ -f "$home_dir/.p10k.zsh" ]]; then
-	rm "$home_dir/.p10k.zsh" || exit 6 # Delete existing .zshrc (exit on failure)
+if [[ -f "$HOME/.p10k.zsh" ]]; then
+	rm "$HOME/.p10k.zsh" || exit 6 # Delete existing .zshrc (exit on failure)
 fi
 
-ln -s "$dotfiles_dir/.zshrc" "$home_dir/.zshrc" || exit 7
-ln -s "$dotfiles_dir/.p10k.zsh" "$home_dir/.p10k.zsh" || exit 8
-source "$home_dir/.zshrc" || exit 9
+ln -s "$dotfiles_dir/shell/.zshrc" "$HOME/.zshrc" || exit 7
+ln -s "$dotfiles_dir/shell/.p10k.zsh" "$HOME/.p10k.zsh" || exit 8
 
-ln -s "$dotfiles_dir/local/konsole/Catppuccin-Mocha.colorscheme" "$home_dir/.local/share/konsole"
+echo "Successfully link ZSh"
+
+if [[ -f "$HOME/.local/share/konsole/catpuccin.colorscheme" ]]; then
+	rm "$HOME/.local/share/konsole/catpuccin.colorscheme" || exit 6 # Delete existing .zshrc (exit on failure)
+fi
+ln -s "$dotfiles_dir/local/konsole/Catppuccin-Mocha.colorscheme" "$HOME/.local/share/konsole/catpuccin.colorscheme"
