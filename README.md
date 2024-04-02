@@ -1,3 +1,13 @@
 # My dotfiles
 
-curl -sL https://raw.githubusercontent.com/Muizzyranking/dot-files/master/scripts/install.sh | sudo bash
+## Cloning the repo
+
+```
+cd ~
+git clone git@github.com:Muizzyranking/dot-files.git
+```
+## Installing packages
+```
+cd ~/dot-files
+./install.sh
+```
