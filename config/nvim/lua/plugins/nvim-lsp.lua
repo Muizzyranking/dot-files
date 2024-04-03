@@ -6,6 +6,7 @@ return {
       emmet_ls = {},
       cssls = {},
       html = {},
+      sqlls = {},
     },
   },
 }
