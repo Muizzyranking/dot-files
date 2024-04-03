@@ -18,7 +18,7 @@ if [[ -d "$config_dir" ]]; then
 
 	# Create the symlink
 	ln -s "$dotfiles_dir/config/nvim" "$config_dir/nvim" || exit 3 # Exit on failure
-	ln -s "$dotfiles_dir/config/nvim" "$config_dir/tmux" || exit 4 # Exit on failure
+	ln -s "$dotfiles_dir/config/tmux" "$config_dir/tmux" || exit 4 # Exit on failure
 
 	echo "Successfully linked configuration"
 else
