@@ -19,6 +19,9 @@ return {
       ["markdown.mdx"] = { { "prettierd", "prettier" } },
       ["graphql"] = { { "prettierd", "prettier" } },
       ["handlebars"] = { { "prettierd", "prettier" } },
+      ["bash"] = { "shfmt" },
+      ["zsh"] = { "shfmt" },
+      ["sh"] = { "shfmt" },
     },
   },
 }
