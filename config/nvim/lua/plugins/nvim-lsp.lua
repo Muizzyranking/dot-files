@@ -7,6 +7,9 @@ return {
       cssls = {},
       html = {},
       sqlls = {},
+      bashls = {
+        filetypes = { "sh", "zsh", "bash" },
+      },
     },
   },
 }
