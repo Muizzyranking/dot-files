@@ -10,7 +10,7 @@ alias cv='NVIM_APPNAME=nvim-custom nvim'
 alias install='sudo dnf install'
 alias update='sudo dnf update'
 
-alias nvimrc='cd $NVIMRC'
+alias nvimrc='$EDITOR $NVIMRC'
 alias tmuxrc='$EDITOR $TMUXRC'
 alias zshrc='$EDITOR $ZSHRC'
 alias aliases='$EDITOR $ALIASES'
