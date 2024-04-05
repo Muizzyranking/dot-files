@@ -14,7 +14,7 @@ require("lazy").setup({
     {
       "LazyVim/LazyVim",
       import = "lazyvim.plugins",
-      opts = { colorscheme = "catppuccin-macchiato" },
+      opts = { colorscheme = "catppuccin" },
     },
     -- { import = "lazyvim.plugins.extras.lang.typescript" },
     { import = "lazyvim.plugins.extras.coding.yanky" },
@@ -36,6 +36,7 @@ require("lazy").setup({
 
     -- { import = "lazyvim.plugins.extras.dap.core" },
     -- { import = "lazyvim.plugins.extras.dap.nlua" },
+
     -- { import = "lazyvim.plugins.extras.ui.mini-animate" },
     { import = "lazyvim.plugins.extras.editor.leap" },
 
@@ -54,6 +55,7 @@ require("lazy").setup({
   },
   install = { colorscheme = { "catppuccin" } },
   checker = { enabled = false }, -- automatically check for plugin updates
+  change_detection = { notify = false }, -- notify when a plugin is changed
   performance = {
     rtp = {
       -- disable some rtp plugins
