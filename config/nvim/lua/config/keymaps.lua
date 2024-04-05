@@ -35,11 +35,6 @@ set("v", "p", '"_dP', { remap = true, silent = true })
 --dont copy when changing text
 -- set("v", "c", '"_dc', { remap = true, silent = true })
 
---comment with <leader>/
-set("n", "<leader>/", "gcc", { remap = true, desc = "Comment" })
-set("v", "<leader>/", "gc", { remap = true, desc = "Comment" })
-set("x", "<leader>/", "gc", { remap = true, desc = "Comment" })
-
 --run betty on the current file
 -- set("n", "<leader>rb", "<cmd>!betty %<cr>", { silent = true, desc = "Run betty on current file" })
 
