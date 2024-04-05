@@ -5,14 +5,13 @@ return {
       "FileType c",
     },
     dependencies = {
-      -- "neovim/nvim-lspconfig",
       "nvim-lua/plenary.nvim",
       "dense-analysis/ale",
       "nvim-treesitter/nvim-treesitter",
     },
   },
   {
-    "densse-analysis/ale",
+    "dense-analysis/ale",
     lazy = true,
   },
 }
