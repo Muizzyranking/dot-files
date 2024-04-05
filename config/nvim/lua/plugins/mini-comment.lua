@@ -1,3 +1,4 @@
+local comment = "<leader>/"
 return {
   "echasnovski/mini.comment",
   opts = {
@@ -12,6 +13,19 @@ return {
           return nil
         end
       end,
+    },
+    mappings = {
+      comment = comment,
+
+      -- Toggle comment on current line
+      comment_line = comment,
+
+      -- Toggle comment on visual selection
+      comment_visual = comment,
+
+      -- Define 'comment' textobject (like `dgc` - delete whole comment block)
+      -- Works also in Visual mode if mapping differs from `comment_visual`
+      textobject = comment,
     },
   },
 }
