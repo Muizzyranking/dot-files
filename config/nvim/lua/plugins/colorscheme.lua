@@ -1,22 +1,22 @@
 return {
-  -- {
-  --   "scottmckendry/cyberdream.nvim",
-  --   lazy = true,
-  --   config = function()
-  --     require("cyberdream").setup({
-  --       transparent = true,
-  --       italic_comments = true,
-  --       hide_fillchars = true,
-  --       borderless_telescope = true,
-  --     })
-  --   end,
-  -- },
+  {
+    "scottmckendry/cyberdream.nvim",
+    config = function()
+      require("cyberdream").setup({
+        transparent = true,
+        italic_comments = true,
+        hide_fillchars = true,
+        borderless_telescope = true,
+      })
+    end,
+  },
+
   {
     "catppuccin/nvim",
-    lazy = false,
     priority = 1000,
     name = "catppuccin",
     opts = {
+      flavour = "macchiato",
       styles = {
         comments = { "italic" },
         functions = { "italic" },
