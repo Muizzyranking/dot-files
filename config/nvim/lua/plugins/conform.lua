@@ -2,6 +2,11 @@ return {
   "stevearc/conform.nvim",
   optional = true,
   opts = {
+    formatters = {
+      ["sql-formatter"] = {
+        command = "/home/muizzyranking/.npm-global/bin/sql-formatter",
+      },
+    },
     formatters_by_ft = {
       ["javascript"] = { { "prettierd", "prettier" } },
       ["javascriptreact"] = { { "prettierd", "prettier" } },
@@ -22,6 +27,7 @@ return {
       ["bash"] = { "shfmt" },
       ["zsh"] = { "shfmt" },
       ["sh"] = { "shfmt" },
+      ["sql"] = { "sql-formatter" },
     },
   },
 }
