@@ -4,7 +4,7 @@ return {
   opts = {
     formatters = {
       ["sql-formatter"] = {
-        command = "/home/muizzyranking/.npm-global/bin/sql-formatter",
+        command = "/home/muizzyranking/.local/share/nvim/mason/bin/sql-formatter",
       },
     },
     formatters_by_ft = {
