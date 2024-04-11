@@ -16,9 +16,13 @@ if [[ -d "$config_dir" ]]; then
 		mv "tmux" "tmux.bk" || exit 2 # Rename to nvim.bk (exit on failure)
 	fi
 
+	if [[ -d "nvim-custom" ]]; then
+		mv "nvim-custom" "nvim-custom.bk" || exit 2 # Rename to nvim.bk (exit on failure)
+	fi
 	# Create the symlink
-	ln -s "$dotfiles_dir/config/nvim" "$config_dir/nvim" || exit 3 # Exit on failure
-	ln -s "$dotfiles_dir/config/tmux" "$config_dir/tmux" || exit 4 # Exit on failure
+	ln -s "$dotfiles_dir/config/nvim" "$config_dir/nvim" || exit 3               # Exit on failure
+	ln -s "$dotfiles_dir/config/nvim-custom" "$config_dir/nvim-custom" || exit 4 # Exit on failure
+	ln -s "$dotfiles_dir/config/tmux" "$config_dir/tmux" || exit 4               # Exit on failure
 
 	echo "Successfully linked configuration"
 else
