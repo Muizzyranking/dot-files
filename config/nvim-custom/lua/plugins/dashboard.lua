@@ -25,17 +25,23 @@ return {
 				header = vim.split(logo, "\n"),
 				center = {
 					{
-						action = "Telescope oldfiles",
-						desc = " Recent files",
+						action = "Neotree",
+						desc = " Tree",
 						icon = " ",
-						key = "r",
+						key = "e",
 					},
-					{
-						action = "Telescope find_files",
-						desc = " Find file",
-						icon = " ",
-						key = "f",
-					},
+					-- {
+					-- 	action = "Telescope oldfiles",
+					-- 	desc = " Recent files",
+					-- 	icon = " ",
+					-- 	key = "r",
+					-- },
+					-- {
+					-- 	action = "Telescope find_files",
+					-- 	desc = " Find file",
+					-- 	icon = " ",
+					-- 	key = "f",
+					-- },
 					{
 						action = "ene | startinsert",
 						desc = " New file",
@@ -49,20 +55,20 @@ return {
 						icon = " ",
 						key = "g",
 					},
-					{
-						action = function()
-							require("telescope.builtin").find_files({ cwd = vim.fn.stdpath("config") })
-						end,
-						desc = " Config",
-						icon = " ",
-						key = "c",
-					},
-					{
-						-- action = 'lua require("persistence").load()',
-						desc = " Restore Session",
-						icon = " ",
-						key = "s",
-					},
+					-- {
+					-- 	action = function()
+					-- 		require("telescope.builtin").find_files({ cwd = vim.fn.stdpath("config") })
+					-- 	end,
+					-- 	desc = " Config",
+					-- 	icon = " ",
+					-- 	key = "c",
+					-- },
+					-- {
+					-- 	-- action = 'lua require("persistence").load()',
+					-- 	desc = " Restore Session",
+					-- 	icon = " ",
+					-- 	key = "s",
+					-- },
 					{
 						action = "Lazy",
 						desc = " Lazy",
