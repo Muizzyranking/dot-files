@@ -1,6 +1,7 @@
 return {
   {
     "scottmckendry/cyberdream.nvim",
+    enabled = false,
     config = function()
       require("cyberdream").setup({
         transparent = true,
