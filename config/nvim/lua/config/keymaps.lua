@@ -6,9 +6,6 @@ set("n", "x", '"_x')
 -- Select all
 set("n", "<C-a>", "gg<S-v>G", { desc = "Select all", noremap = true, silent = true })
 
---toggleterm
-set("n", "<C-_>", "<cmd>ToggleTerm<CR>", { desc = "Open Terminal", noremap = true, silent = true })
-
 --use ctrl-q to quit
 set("n", "<C-Q>", "<cmd>qa<cr>", { desc = "Quit all", noremap = true, silent = true })
 set("n", "<C-q>", "<cmd>q<cr>", { desc = "Quit", noremap = true, silent = true })
@@ -33,7 +30,6 @@ set("i", "<C-o>", "<esc>o")
 set("v", "p", '"_dP', { remap = true, silent = true })
 
 --dont copy when changing text
--- set("v", "c", '"_dc', { remap = true, silent = true })
 
 --run betty on the current file
 -- set("n", "<leader>rb", "<cmd>!betty %<cr>", { silent = true, desc = "Run betty on current file" })
@@ -44,3 +40,6 @@ set("v", "p", '"_dP', { remap = true, silent = true })
 --using <tab> and <s-tab> for indenting and dedenting
 set("v", "<tab>", ">", { desc = "indent", remap = true, silent = true })
 set("v", "<s-tab>", "<", { desc = "dedent", remap = true, silent = true })
+
+-- make file executable
+set("n", "<leader>cx", "<cmd>!chmod +x %<cr>", { desc = "Make executable" })
