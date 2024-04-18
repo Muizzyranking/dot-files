@@ -1,7 +1,9 @@
 local servers = {
-  -- "prettierd",
-  -- "prettier",
+  "prettierd",
+  "prettier",
   "sql-formatter",
+  "autopep8",
+  "flake8",
 }
 
 return {
