@@ -19,3 +19,7 @@ alias aliases='$EDITOR $ALIASES'
 tns() {
     tmux new -s $1
 }
+
+pyenv(){
+    python3 -m venv venv --prompt="$1" && source venv/bin/activate
+}
