@@ -27,6 +27,4 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:
 echo "Installing Tmux Plugin Manager (TPM)..."
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
-echo "Switching to Zsh..."
-chsh -s "$(which zsh)"
 source ~/.zshrc
