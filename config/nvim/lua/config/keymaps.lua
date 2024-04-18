@@ -42,4 +42,4 @@ set("v", "<tab>", ">", { desc = "indent", remap = true, silent = true })
 set("v", "<s-tab>", "<", { desc = "dedent", remap = true, silent = true })
 
 -- make file executable
-set("n", "<leader>cx", "<cmd>!chmod +x %<cr>", { desc = "Make executable" })
+set("n", "<leader>cx", "<cmd>!chmod +x %<cr>", { desc = "Make file executable", silent = true })
