@@ -11,4 +11,5 @@ opt.iskeyword:append({ "-" })
 opt.swapfile = false
 opt.backup = false
 
--- vim.g.autoformat = false
+-- disable auto format
+vim.g.autoformat = false
