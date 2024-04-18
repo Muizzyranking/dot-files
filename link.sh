@@ -10,14 +10,14 @@ if [[ -d "$config_dir" ]]; then
 
 	# Handle existing 'nvim' directory
 	if [[ -d "nvim" ]]; then
-		mv "nvim" "nvim.bk" || exit 2 # Rename to nvim.bk (exit on failure)
+		rm -r "nvim"  || exit 2 # Rename to nvim.bk (exit on failure)
 	fi
 	if [[ -d "tmux" ]]; then
-		mv "tmux" "tmux.bk" || exit 2 # Rename to nvim.bk (exit on failure)
+		rm -r "tmux" || exit 2 # Rename to nvim.bk (exit on failure)
 	fi
 
 	if [[ -d "nvim-custom" ]]; then
-		mv "nvim-custom" "nvim-custom.bk" || exit 2 # Rename to nvim.bk (exit on failure)
+		rm -r "nvim-custom" || exit 2 # Rename to nvim.bk (exit on failure)
 	fi
 	# Create the symlink
 	ln -s "$dotfiles_dir/config/nvim" "$config_dir/nvim" || exit 3               # Exit on failure
