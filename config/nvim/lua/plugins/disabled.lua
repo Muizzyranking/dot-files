@@ -10,10 +10,10 @@ return {
     "folke/tokyonight.nvim",
     enabled = false,
   },
-  {
-    "echasnovski/mini.indentscope",
-    enabled = false,
-  },
+  -- {
+  --   "echasnovski/mini.indentscope",
+  --   enabled = false,
+  -- },
   {
     "dstein64/vim-startuptime",
     enabled = false,
