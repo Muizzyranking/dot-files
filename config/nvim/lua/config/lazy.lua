@@ -25,7 +25,7 @@ require("lazy").setup({
     { import = "lazyvim.plugins.extras.coding.codeium" },
     { import = "lazyvim.plugins.extras.coding.copilot" },
 
-    -- { import = "lazyvim.plugins.extras.test.core" },
+    { import = "lazyvim.plugins.extras.test.core" },
 
     --markdown
     -- { import = "lazyvim.plugins.extras.lang.markdown" },
@@ -44,6 +44,7 @@ require("lazy").setup({
 
     -- { import = "lazyvim.plugins.extras.lang.go" },
     { import = "lazyvim.plugins.extras.lang.json" },
+    { import = "lazyvim.plugins.extras.util.project" },
     { import = "plugins" },
   },
   defaults = {
