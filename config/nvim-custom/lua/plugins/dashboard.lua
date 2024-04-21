@@ -25,7 +25,7 @@ return {
 				header = vim.split(logo, "\n"),
 				center = {
 					{
-						action = "Neotree",
+						action = "Neotree toggle left",
 						desc = " Tree",
 						icon = " ",
 						key = "e",

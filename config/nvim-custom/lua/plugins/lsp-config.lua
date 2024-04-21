@@ -5,6 +5,7 @@ return {
 		event = { "BufReadPost", "BufWritePost", "BufNewFile" },
 		dependencies = {
 			"williamboman/mason.nvim",
+			{ "folke/neodev.nvim", opts = {} },
 			"williamboman/mason-lspconfig.nvim",
 			{
 				"folke/neoconf.nvim",
@@ -135,9 +136,13 @@ return {
 			local ensure_installed = vim.tbl_keys(servers or {})
 			vim.list_extend(ensure_installed, {
 				"stylua", -- Used to format lua code
+                "autopep8"
+                "prettier"
+                "prettierd"
 			})
-			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
-			-- require'lspconfig'.pyright.setup{}
+			require("mason-tool-installer").setup({
+				ensure_installed = ensure_installed,
+			})
 
 			require("mason-lspconfig").setup({
 				handlers = {
