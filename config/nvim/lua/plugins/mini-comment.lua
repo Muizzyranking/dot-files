@@ -1,4 +1,5 @@
 local comment = "<leader>/"
+
 return {
   "echasnovski/mini.comment",
   opts = {
@@ -8,13 +9,13 @@ return {
 
         --use custom comment for c files
         if filetype == "c" then
-          return "/*%s*/" -- Return desired comment style for C
+          return "/*%s*/"
         end
 
         -- for some reason sql comment doesnt work
         -- after setting custom comment for c
         if filetype == "sql" then
-          return "--%s" --
+          return "--%s"
         end
       end,
     },
