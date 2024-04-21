@@ -13,3 +13,6 @@ opt.backup = false
 
 -- disable auto format
 vim.g.autoformat = false
+
+-- disable providers
+vim.g.loaded_ruby_provider = 0
