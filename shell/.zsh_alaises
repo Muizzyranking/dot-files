@@ -1,14 +1,21 @@
 alias v='nvim'
 alias cl='clear'
+
+ # fuzzy find files
 alias ff='fd --type f --hidden --exclude .git | fzf-tmux -p --reverse'
+
+# fuzzy find files and open in nvim
 alias of='fd --type f --hidden --exclude .git | fzf-tmux -p --reverse | xargs nvim'
-alias td='tmux detach'
-alias lg='lazygit'
+
+# fuzzy find directories and cd into them
 alias fdir='cd "$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse)"'
 
+alias td='tmux detach'
+alias lg='lazygit'
+
 alias cv='NVIM_APPNAME=nvim-custom nvim'
-alias install='sudo dnf install'
-alias update='sudo dnf update'
+alias install='sudo dnf install -y'
+alias update='sudo dnf update -y'
 
 alias nvimrc='$EDITOR $NVIMRC'
 alias tmuxrc='$EDITOR $TMUXRC'
