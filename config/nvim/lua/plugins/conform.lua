@@ -13,7 +13,9 @@ return {
       },
     },
     formatters_by_ft = {
+      -- use semi standard prettier formatter to format javascript
       ["javascript"] = { "semi-prettier" },
+
       ["javascriptreact"] = { { "prettierd", "prettier" } },
       ["typescript"] = { { "prettierd", "prettier" } },
       ["typescriptreact"] = { { "prettierd", "prettier" } },
@@ -29,9 +31,13 @@ return {
       ["markdown.mdx"] = { { "prettierd", "prettier" } },
       ["graphql"] = { { "prettierd", "prettier" } },
       ["handlebars"] = { { "prettierd", "prettier" } },
+
       ["bash"] = { "shfmt" },
-      ["sh"] = { "shfmt" },
+      ["sh"] = { "beautysh" },
+      ["zsh"] = { "beautysh" },
+
       ["sql"] = { "sql-formatter" },
+
       ["python"] = { "autopep8" },
     },
   },
