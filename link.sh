@@ -41,7 +41,7 @@ fi
 ln -s "$dotfiles_dir/shell/.zshrc" "$HOME/.zshrc" || exit 7
 ln -s "$dotfiles_dir/shell/.p10k.zsh" "$HOME/.p10k.zsh" || exit 8
 
-echo "Successfully link ZSh"
+echo "Successfully link ZSh and P10k"
 
 if [[ -f "$HOME/.local/share/konsole/catpuccin.colorscheme" ]]; then
 	rm "$HOME/.local/share/konsole/catpuccin.colorscheme" || exit 6 # Delete existing .zshrc (exit on failure)

@@ -4,10 +4,11 @@ tmux
 git
 nodejs
 npm
-python
+python3
 gcc
 g++
 ripgrep
 fd-find
 fzf
 tldr
+eza
