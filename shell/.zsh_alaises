@@ -1,4 +1,5 @@
 alias v='nvim'
+alias vi='nvim-nightly'
 alias cl='clear'
 
  # fuzzy find files
@@ -14,14 +15,16 @@ alias td='tmux detach'
 alias lg='lazygit'
 
 alias cv='NVIM_APPNAME=nvim-custom nvim'
-alias install='sudo dnf install -y'
-alias update='sudo dnf update -y'
+alias install='sudo dnf install -y -q'
+alias update='sudo dnf update -y -q'
 
 alias nvimrc='$EDITOR $NVIMRC'
 alias tmuxrc='$EDITOR $TMUXRC'
 alias zshrc='$EDITOR $ZSHRC'
 alias aliases='$EDITOR $ALIASES'
 
+alias ls='eza --color=always --icons=always --no-time --no-user'
+# alias la=''"
 
 tns() {
     tmux new -s $1
