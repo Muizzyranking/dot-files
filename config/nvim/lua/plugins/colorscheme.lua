@@ -1,7 +1,7 @@
 return {
   {
     "scottmckendry/cyberdream.nvim",
-    enabled = false,
+    enabled = true,
     config = function()
       require("cyberdream").setup({
         transparent = true,
@@ -21,8 +21,8 @@ return {
       styles = {
         comments = { "italic" },
         functions = { "italic" },
-        -- keywords = { "italic" },
-        -- strings = { "italic" },
+        keywords = { "italic" },
+        strings = { "italic" },
         variables = { "italic" },
       },
       transparent_background = true,
@@ -58,16 +58,6 @@ return {
         treesitter = true,
         which_key = true,
       },
-      -- highlight_overrides = {
-      --   all = function(colors)
-      --     return {
-      --       diagnosticvirtualtexterror = { bg = colors.none },
-      --       diagnosticvirtualtextwarn = { bg = colors.none },
-      --       diagnosticvirtualtexthint = { bg = colors.none },
-      --       diagnosticvirtualtextinfo = { bg = colors.none },
-      --     }
-      --   end,
-      -- },
       color_overrides = {
         mocha = {
           -- i don't think these colours are pastel enough by default!

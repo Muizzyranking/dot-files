@@ -1,13 +1,15 @@
 return {
   {
     "nvim-treesitter/nvim-treesitter",
-    incremental_selection = {
-      enable = true,
-      keymaps = {
-        init_selection = "<M-space>",
-        node_incremental = "<M-space>",
-        scope_incremental = false,
-        node_decremental = "<bs>",
+    opts = {
+      incremental_selection = {
+        enable = true,
+        keymaps = {
+          init_selection = "<C-\\>",
+          node_incremental = "<C-\\>",
+          scope_incremental = false,
+          node_decremental = "<bs>",
+        },
       },
     },
   },
@@ -15,8 +17,11 @@ return {
     {
       "nvim-treesitter/nvim-treesitter",
       opts = function(_, opts)
+        local parsers = {
+          "sql",
+        }
         if type(opts.ensure_installed) == "table" then
-          vim.list_extend(opts.ensure_installed, { "sql" })
+          vim.list_extend(opts.ensure_installed, parsers)
         end
       end,
     },
