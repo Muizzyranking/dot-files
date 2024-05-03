@@ -4,6 +4,7 @@ local servers = {
   "sql-formatter",
   "autopep8",
   "flake8",
+  "shellcheck",
 }
 
 return {
