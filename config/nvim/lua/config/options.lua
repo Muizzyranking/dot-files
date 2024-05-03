@@ -11,6 +11,15 @@ opt.iskeyword:append({ "-" })
 opt.swapfile = false
 opt.backup = false
 
+opt.fillchars = {
+    foldopen = "",
+    foldclose = "",
+    fold = " ",
+    foldsep = " ",
+    diff = "╱",
+    eob = " ",
+}
+
 -- disable auto format
 vim.g.autoformat = false
 
