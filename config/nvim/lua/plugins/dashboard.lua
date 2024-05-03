@@ -37,6 +37,12 @@ return {
         header = vim.split(logo, "\n"),
         center = {
           {
+            action = require("config.custom-func").new_file,
+            desc = " Creates new File",
+            icon = " ",
+            key = "n",
+          },
+          {
             action = " Neotree",
             desc = " File Explorer",
             icon = " ",
