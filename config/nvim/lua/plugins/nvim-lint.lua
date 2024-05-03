@@ -6,6 +6,8 @@ return {
       linters_by_ft = {
         fish = { "fish" },
         python = { "flake8" },
+        bash = { "shellcheck" },
+        sh = { "shellcheck" },
       },
     },
   },
