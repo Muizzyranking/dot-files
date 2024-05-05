@@ -1,3 +1,4 @@
+local new_file = require("config.functions")
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
@@ -24,22 +25,20 @@ map("i", "jj", "<Esc>", { desc = "Go to normal mode" })
 
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 vim.opt.hlsearch = true
-vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
+map("n", "<Esc>", "<cmd>nohlsearch<CR>")
 
 -- Diagnostic keymaps
 map("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous [D]iagnostic message" })
 map("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next [D]iagnostic message" })
-map("n", "<leader>d", vim.diagnostic.open_float, { desc = "Show diagnostic [E]rror messages" })
-map("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
 
 --
 map("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 
 -- lazygit
-map("n", "<leader>gg", ":LazyGit<cr>", { desc = "Open LazyGit",  silent = true,})
+map("n", "<leader>gg", ":LazyGit<cr>", { desc = "Open LazyGit", silent = true, })
 
 -- comment with leader /
 -- map("{n, v}", "<leader>/")
 
 -- lazy
-vim.keymap.set("n", "<leader>l", ":Lazy<cr>", { desc = "Lazy", silent = true })
+map("n", "<leader>l", ":Lazy<cr>", { desc = "Lazy", silent = true })
