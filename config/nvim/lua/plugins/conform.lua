@@ -33,7 +33,7 @@ return {
       ["handlebars"] = { { "prettierd", "prettier" } },
 
       ["bash"] = { "shfmt" },
-      ["sh"] = { "beautysh" },
+      ["sh"] = { "shfmt" },
       ["zsh"] = { "beautysh" },
 
       ["sql"] = { "sql-formatter" },
