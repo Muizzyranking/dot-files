@@ -15,21 +15,23 @@ alias td='tmux detach'
 alias lg='lazygit'
 
 alias cv='NVIM_APPNAME=nvim-custom nvim'
-alias install='sudo dnf install -y -q'
-alias update='sudo dnf update -y -q'
+alias install='sudo dnf install -y'
+alias update='sudo dnf update -y'
 
 alias nvimrc='$EDITOR $NVIMRC'
 alias tmuxrc='$EDITOR $TMUXRC'
 alias zshrc='$EDITOR $ZSHRC'
 alias aliases='$EDITOR $ALIASES'
 
-alias ls='eza --color=always --icons=always --no-time --no-user'
+alias ls='eza --color=always --icons=always'
+alias cd='z'
 # alias la=''"
 
 tns() {
     tmux new -s $1
 }
 
+# creates a python virtual environment with the given name and activates it
 pyenv(){
     python3 -m venv venv --prompt="$1" && source venv/bin/activate
 }

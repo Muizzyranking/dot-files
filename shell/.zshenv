@@ -3,6 +3,7 @@ export PATH=/snap/bin:$PATH
 export PATH=$dotfile_dir/neovim-nightly/bin:$PATH
 
 export EDITOR=nvim
+export BAT_THEME="Catppuccin Macchiato"
 
 dotfile_dir=~/dot-files
 

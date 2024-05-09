@@ -31,11 +31,6 @@ HYPHEN_INSENSITIVE="true"
 # Uncomment the following line to enable command auto-correction.
 ENABLE_CORRECTION="true"
 
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
-
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
@@ -60,10 +55,6 @@ source $ZSH/oh-my-zsh.sh
 #   export EDITOR='mvim'
 # fi
 
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
-
 dotfiles_dir="$HOME/dot-files"
 # ZSH ALIASES
 # Stored in $ALIASES 
@@ -81,4 +72,8 @@ fi
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 fpath+=${ZDOTDIR:-~}/.zsh_functions
+
 eval $(thefuck --alias)
+eval "$(zoxide init zsh)"
+
+export PATH=$dotfile_dir/neovim-nightly/bin:$PATH
