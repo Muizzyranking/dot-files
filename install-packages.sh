@@ -2,40 +2,6 @@
 
 # File containing the list of packages
 package_list_file="packages"
-dotfiles_dir="$HOME/dot-files"
-config_dir="$HOME/.config"
-
-create_symlink() {
-	local source_dir="$1"
-	local target_dir="$2"
-	local target_name="$3"
-
-	if [[ -d "$target_dir/$target_name" ]]; then
-		print_message warning "$target_name directory already exists. Removing"
-		#shellcheck disable=SC2115
-		rm -r "$target_dir/$target_name"
-		if [[ -d "$target_dir/$target_name" ]]; then
-			print_message error "Failed to remove $target_name directory"
-			return 1
-		else
-			print_message success "Successfully removed $target_name directory"
-			print_message info "Creating symbolic link for $target_name"
-			ln -s "$source_dir/$target_name" "$target_dir/$target_name" || {
-				print_message error "Failed to create symbolic link for $target_name"
-				return 1
-			}
-			print_message success "Successfully created symbolic link for $target_name"
-
-		fi
-	else
-		print_message info "Creating symbolic link for $target_name"
-		ln -s "$source_dir/$target_name" "$target_dir/$target_name" || {
-			print_message error "Failed to create symbolic link for $target_name"
-			return 1
-		}
-		print_message success "Successfully created symbolic link for $target_name"
-	fi
-}
 
 print_message() {
 	# colors
@@ -63,16 +29,12 @@ print_message() {
 		;;
 	esac
 }
-print_message info "-------------------------------"
 print_message info "Starting installation..."
-print_message info "-------------------------------"
-echo -e "\n"
 
 print_message info "Updating package manager..."
 # Update and upgrade the package manager
 sudo dnf update -y -q
 print_message success "Package manager updated successfully."
-echo -e "\n"
 
 print_message info "Installing packages..."
 echo -e "\n"
@@ -179,108 +141,7 @@ else
 	print_message warning "Tmux Plugin Manager (TPM) already installed, skipping."
 fi
 
-echo -e "\n"
-echo "---------------------------------------"
-print_message info "Installation complete! Check for any errors"
-echo "---------------------------------------"
-echo -e "\n"
-
-echo "---------------------------------------"
-print_message info "Creating symlinks..."
-echo "---------------------------------------"
-
-if cd "$config_dir"; then
-	print_message success "Successfully changed directory to $HOME/.config"
-else
-	print_message warning "$HOME/.config directory does not exist. Creating it."
-	if mkdir -p "$config_dir" && cd "$config_dir"; then
-		print_message success "Successfully created $HOME/.config directory"
-	else
-		print_message error "Failed to create $HOME/.config directory"
-		exit 1
-	fi
-fi
-
-echo -e "\n"
-print_message info "Creating symbolic link for bat"
-echo -e "\n"
-create_symlink "$dotfiles_dir/config" "$config_dir" "bat" || {
-	print_message error "Failed to create symbolic link for bat"
-	exit 1
-}
-
-echo -e "\n"
-print_message info "Creating symbolic link for kitty"
-echo -e "\n"
-create_symlink "$dotfiles_dir/config" "$config_dir" "kitty" || {
-	print_message error "Failed to create symbolic link for kitty"
-	exit 1
-}
-echo -e "\n"
-print_message info "Creating symbolic link for lazygit"
-echo -e "\n"
-create_symlink "$dotfiles_dir/config" "$config_dir" "lazygit" || {
-	print_message error "Failed to create symbolic link for lazygit"
-	exit 1
-}
-echo -e "\n"
-print_message info "Creating symbolic link for lazyvim"
-echo -e "\n"
-create_symlink "$dotfiles_dir/config" "$config_dir" "lazyvim" || {
-	print_message error "Failed to create symbolic link for lazyvim"
-	exit 1
-}
-echo -e "\n"
-print_message info "Creating symbolic link for neofetch"
-echo -e "\n"
-create_symlink "$dotfiles_dir/config" "$config_dir" "neofetch" || {
-	print_message error "Failed to create symbolic link for neofetch"
-	exit 1
-}
-echo -e "\n"
-print_message info "Creating symbolic link for nvim"
-echo -e "\n"
-create_symlink "$dotfiles_dir/config" "$config_dir" "nvim" || {
-	print_message error "Failed to create symbolic link for nvim"
-	exit 1
-}
-echo -e "\n"
-print_message info "Creating symbolic link for tmux"
-echo -e "\n"
-create_symlink "$dotfiles_dir/config" "$config_dir" "tmux" || {
-	print_message error "Failed to create symbolic link for tmux"
-	exit 1
-}
-
-if [ -f "$HOME/.zshrc" ]; then
-	print_message warning "File $HOME/.zshrc exists. Removing"
-	rm "$HOME/.zshrc" || {
-		print_message error "Failed to remove $HOME/.zshrc"
-		exit 1
-	}
-	print_message success "Successfully removed $HOME/.zshrc"
-fi
-ln -s "$dotfiles_dir/shell/.zshrc" "$HOME/.zshrc" || {
-	print_message error "Failed to create symbolic link for .zshrc"
-	exit 1
-}
-
-if [ -f "$HOME/.p10k.zsh" ]; then
-	print_message warning "File $HOME/.p10k.zsh exists. Removing"
-	rm "$HOME/.zshrc" || {
-		print_message error "Failed to remove $HOME/.p10k.zsh"
-		exit 1
-	}
-	print_message success "Successfully removed $HOME/.p10k.zsh"
-fi
-ln -s "$dotfiles_dir/shell/.p10k.zsh" "$HOME/.p10k.zsh" || {
-	print_message error "Failed to create symbolic link for .p10k.zsh"
-	exit 1
-}
-
-echo "---------------------------------------"
-print_message success "Created symlinks..."
-echo "---------------------------------------"
+print_message info "Installation complete!"
 
 print_message info "To apply the changes, run the following command:"
 print_message info "\n\t\$ source ~/.zshrc"

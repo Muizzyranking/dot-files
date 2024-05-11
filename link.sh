@@ -1,49 +1,136 @@
 #!/bin/bash
 
-# Settings
 dotfiles_dir="$HOME/dot-files"
 config_dir="$HOME/.config"
 
-# Check if $HOME/.config exists
-if [[ -d "$config_dir" ]]; then
-	cd "$config_dir" || exit 1 # Change directory (exit on failure)
+# Colors
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 
-	# Handle existing 'nvim' directory
-	if [[ -d "nvim" ]]; then
-		rm -r "nvim"  || exit 2 # Rename to nvim.bk (exit on failure)
-	fi
-	if [[ -d "tmux" ]]; then
-		rm -r "tmux" || exit 2 # Rename to nvim.bk (exit on failure)
-	fi
+# Print message with color based on type
+print_message() {
+	case "$1" in
+	error)
+		echo -e "${RED}Error: $2${NC}"
+		;;
+	warning)
+		echo -e "${YELLOW}Warning: $2${NC}"
+		;;
+	success)
+		echo -e "${GREEN}Success: $2${NC}"
+		;;
+	info)
+		echo -e "${BLUE}Info: $2${NC}"
+		;;
+	*)
+		echo "$2"
+		;;
+	esac
+}
 
-	if [[ -d "nvim-custom" ]]; then
-		rm -r "nvim-custom" || exit 2 # Rename to nvim.bk (exit on failure)
-	fi
-	# Create the symlink
-	ln -s "$dotfiles_dir/config/nvim" "$config_dir/nvim" || exit 3               # Exit on failure
-	ln -s "$dotfiles_dir/config/nvim-custom" "$config_dir/nvim-custom" || exit 4 # Exit on failure
-	ln -s "$dotfiles_dir/config/tmux" "$config_dir/tmux" || exit 4               # Exit on failure
+# Create symbolic link
+create_symlink() {
+	local source_dir="$1"
+	local target_dir="$2"
+	local target_name="$3"
 
-	echo "Successfully linked configuration"
+	if [[ -d "$target_dir/$target_name" ]]; then
+		print_message warning "$target_name directory already exists. Removing"
+		#shellcheck disable=SC2115
+		rm -r "$target_dir/$target_name" || {
+			print_message error "Failed to remove $target_name directory"
+			return 1
+		}
+		print_message success "Successfully removed $target_name directory"
+		print_message info "Creating symbolic link for $target_name"
+		ln -s "$source_dir/$target_name" "$target_dir/$target_name" || {
+			print_message error "Failed to create symbolic link for $target_name"
+			return 1
+		}
+		print_message success "Successfully created symbolic link for $target_name"
+	else
+		print_message info "Creating symbolic link for $target_name"
+		ln -s "$source_dir/$target_name" "$target_dir/$target_name" || {
+			print_message error "Failed to create symbolic link for $target_name"
+			return 1
+		}
+		print_message success "Successfully created symbolic link for $target_name"
+	fi
+}
+
+# Try to change directory to $config_dir, create it if it doesn't exist
+if cd "$config_dir"; then
+	echo "Directory $config_dir exists."
 else
-	echo "$HOME/.config directory does not exist."
+	print_message warning "$HOME/.config directory does not exist. Creating it."
+	if mkdir -p "$config_dir" && cd "$config_dir"; then
+		print_message success "Successfully created $HOME/.config directory"
+	else
+		print_message error "Failed to create $HOME/.config directory"
+		exit 1
+	fi
 fi
 
-# Handle .zshrc
-if [[ -f "$HOME/.zshrc" ]]; then
-	rm "$HOME/.zshrc" || exit 5 # Delete existing .zshrc (exit on failure)
+echo -e "\n"
+print_message info "Creating symbolic link for bat"
+echo -e "\n"
+create_symlink "$dotfiles_dir/config" "$config_dir" "bat" || exit 1
+
+echo -e "\n"
+print_message info "Creating symbolic link for kitty"
+echo -e "\n"
+create_symlink "$dotfiles_dir/config" "$config_dir" "kitty" || exit 1
+
+echo -e "\n"
+print_message info "Creating symbolic link for lazyvim"
+echo -e "\n"
+create_symlink "$dotfiles_dir/config" "$config_dir" "lazyvim" || exit 1
+
+echo -e "\n"
+print_message info "Creating symbolic link for lazygit"
+echo -e "\n"
+create_symlink "$dotfiles_dir/config" "$config_dir" "lazygit" || exit 1
+
+echo -e "\n"
+print_message info "Creating symbolic link for neofetch"
+echo -e "\n"
+create_symlink "$dotfiles_dir/config" "$config_dir" "neofetch" || exit 1
+
+echo -e "\n"
+print_message info "Creating symbolic link for nvim"
+echo -e "\n"
+create_symlink "$dotfiles_dir/config" "$config_dir" "nvim" || exit 1
+
+echo -e "\n"
+print_message info "Creating symbolic link for tmux"
+echo -e "\n"
+create_symlink "$dotfiles_dir/config" "$config_dir" "tmux" || exit 1
+
+if [ -f "$HOME/.zshrc" ]; then
+	print_message warning "File $HOME/.zshrc exists. Removing"
+	rm "$HOME/.zshrc" || {
+		print_message error "Failed to remove $HOME/.zshrc"
+		exit 1
+	}
+	print_message success "Successfully removed $HOME/.zshrc"
 fi
+ln -s "$dotfiles_dir/shell/.zshrc" "$HOME/.zshrc" || {
+	print_message error "Failed to create symbolic link for .zshrc"
+	exit 1
+}
 
-if [[ -f "$HOME/.p10k.zsh" ]]; then
-	rm "$HOME/.p10k.zsh" || exit 6 # Delete existing .zshrc (exit on failure)
+if [ -f "$HOME/.p10k.zsh" ]; then
+	print_message warning "File $HOME/.p10k.zsh exists. Removing"
+	rm "$HOME/.zshrc" || {
+		print_message error "Failed to remove $HOME/.p10k.zsh"
+		exit 1
+	}
+	print_message success "Successfully removed $HOME/.p10k.zsh"
 fi
-
-ln -s "$dotfiles_dir/shell/.zshrc" "$HOME/.zshrc" || exit 7
-ln -s "$dotfiles_dir/shell/.p10k.zsh" "$HOME/.p10k.zsh" || exit 8
-
-echo "Successfully link ZSh and P10k"
-
-if [[ -f "$HOME/.local/share/konsole/catpuccin.colorscheme" ]]; then
-	rm "$HOME/.local/share/konsole/catpuccin.colorscheme" || exit 6 # Delete existing .zshrc (exit on failure)
-fi
-ln -s "$dotfiles_dir/local/konsole/Catppuccin-Mocha.colorscheme" "$HOME/.local/share/konsole/catpuccin.colorscheme"
+ln -s "$dotfiles_dir/shell/.p10k.zsh" "$HOME/.p10k.zsh" || {
+	print_message error "Failed to create symbolic link for .p10k.zsh"
+	exit 1
+}
