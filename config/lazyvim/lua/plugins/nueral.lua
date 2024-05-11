@@ -26,7 +26,7 @@ return {
       "nvim-telescope/telescope.nvim",
     },
     opts = {
-      api_key_cmd = "sk-proj-CZW0gai2aumXlCe4wHGiT3BlbkFJqVLjClTMaHJ9gxZEH1WQ",
+      api_key_cmd = "",
     },
   },
   {
