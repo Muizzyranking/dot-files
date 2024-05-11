@@ -1,5 +1,8 @@
 {
     "diagnostics.disable": [
-        "undefined-field"
+        "undefined-field",
+        "missing-fields",
+        "assign-type-mismatch",
+        "need-check-nil"
     ]
 }
