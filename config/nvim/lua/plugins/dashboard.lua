@@ -1,12 +1,3 @@
--- local logo = [[
---
---     ███╗   ███╗██╗   ██╗██╗███████╗███████╗██╗   ██╗██████╗  █████╗ ███╗   ██╗██╗  ██╗██╗███╗   ██╗ ██████╗
---     ████╗ ████║██║   ██║██║╚══███╔╝╚══███╔╝╚██╗ ██╔╝██╔══██╗██╔══██╗████╗  ██║██║ ██╔╝██║████╗  ██║██╔════╝
---     ██╔████╔██║██║   ██║██║  ███╔╝   ███╔╝  ╚████╔╝ ██████╔╝███████║██╔██╗ ██║█████╔╝ ██║██╔██╗ ██║██║  ███╗
---     ██║╚██╔╝██║██║   ██║██║ ███╔╝   ███╔╝    ╚██╔╝  ██╔══██╗██╔══██║██║╚██╗██║██╔═██╗ ██║██║╚██╗██║██║   ██║
---     ██║ ╚═╝ ██║╚██████╔╝██║███████╗███████╗   ██║   ██║  ██║██║  ██║██║ ╚████║██║  ██╗██║██║ ╚████║╚██████╔╝
---     ╚═╝     ╚═╝ ╚═════╝ ╚═╝╚══════╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝
--- ]]
 local logo = [[
 ┈╭━━━━━━━━━━━╮┈
 ┈┃╭━━━╮┊╭━━━╮┃┈
@@ -17,13 +8,13 @@ local logo = [[
 ┈┃┃╰┻┻┻┻┻┻┻╯┃┃┈
 ┈╰━━━━━━━━━━━╯┈
 =MUIZZYRANKING=
+
 ]]
+
 return {
   "nvimdev/dashboard-nvim",
   event = "VimEnter",
   opts = function()
-    local logo = logo
-
     logo = string.rep("\n", 8) .. logo .. "\n\n"
 
     local opts = {
@@ -37,22 +28,23 @@ return {
         header = vim.split(logo, "\n"),
         center = {
           {
-            action = require("config.custom-func").new_file,
-            desc = " Creates new File",
+            action = require("config.functions").new_file,
+            desc = " New file",
             icon = " ",
             key = "n",
           },
+
           {
-            action = " Neotree",
-            desc = " File Explorer",
+            action = function()
+              if vim.bo.filetype == "neo-tree" then
+                vim.cmd.Neotree("close")
+              else
+                vim.cmd.Neotree("toggle")
+              end
+            end,
+            desc = " File explorer",
             icon = " ",
             key = "e",
-          },
-          {
-            action = LazyVim.telescope("files"),
-            desc = " Find File",
-            icon = " ",
-            key = "f",
           },
           {
             action = "Telescope projects",
@@ -62,16 +54,36 @@ return {
           },
           {
             action = "Telescope oldfiles",
-            desc = " Recent Files",
+            desc = " Recent files",
             icon = " ",
             key = "r",
           },
-          { action = [[lua LazyVim.telescope.config_files()()]], desc = " Config", icon = " ", key = "c" },
+          {
+            action = "Telescope find_files",
+            desc = " Find files",
+            icon = " ",
+            key = "f",
+          },
+
+          {
+            action = "Telescope live_grep",
+            desc = " Find text",
+            icon = " ",
+            key = "g",
+          },
           {
             action = 'lua require("persistence").load()',
             desc = " Restore Session",
             icon = " ",
             key = "s",
+          },
+          {
+            action = function()
+              require("telescope.builtin").find_files({ cwd = vim.fn.stdpath("config") })
+            end,
+            desc = " Config",
+            icon = " ",
+            key = "c",
           },
           {
             action = "Lazy",
