@@ -49,6 +49,7 @@ return {
             key = "e",
           },
           {
+            ---@diagnostic disable-next-line: undefined-global
             action = LazyVim.telescope("files"),
             desc = " Find File",
             icon = " ",
