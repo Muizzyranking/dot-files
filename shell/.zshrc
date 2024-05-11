@@ -37,7 +37,7 @@ ENABLE_CORRECTION="true"
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
-plugins=( git sudo fzf fzf-tab zsh-history-substring-search history copypath zsh-autosuggestions zsh-syntax-highlighting encode64)
+plugins=( git sudo fzf zsh-history-substring-search history copypath zsh-autosuggestions zsh-syntax-highlighting encode64)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -73,7 +73,7 @@ fi
 
 fpath+=${ZDOTDIR:-~}/.zsh_functions
 
-eval $(thefuck --alias)
+eval "$(thefuck --alias)"
 eval "$(zoxide init zsh)"
 
 export PATH=$dotfile_dir/neovim-nightly/bin:$PATH
