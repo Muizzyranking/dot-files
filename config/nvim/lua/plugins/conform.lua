@@ -1,7 +1,35 @@
-return {
+return { -- Autoformat
   "stevearc/conform.nvim",
-  optional = true,
+  event = "BufWritePre",
+  cmd = { "ConformInfo" },
+  keys = {
+    {
+      "<leader>cf",
+      function()
+        require("conform").format({ async = true, lsp_fallback = true })
+      end,
+      mode = "n",
+      desc = "Format buffer",
+    },
+    {
+      "<leader>cF",
+      function()
+        require("conform").format({ formatters = { "injected" }, timeout_ms = 3000 })
+      end,
+      mode = { "n", "v" },
+      desc = "Format Injected Langs",
+    },
+  },
   opts = {
+    notify_on_error = true,
+    -- i do not want format on save
+    format_on_save = function(bufnr)
+      -- Disable with a global or buffer-local variable
+      if not vim.g.autoformat then
+        return
+      end
+      return { timeout_ms = 500, lsp_fallback = true }
+    end,
     formatters = {
       -- sql formatter doesnt seem to work unless i do this
       ["sql-formatter"] = {
@@ -39,6 +67,7 @@ return {
       ["sql"] = { "sql-formatter" },
 
       ["python"] = { "autopep8" },
+      ["lua"] = { "stylua" },
     },
   },
 }
