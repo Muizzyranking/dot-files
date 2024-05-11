@@ -1,5 +1,8 @@
 {
     "diagnostics.disable": [
         "undefined-field"
+    ],
+    "diagnostics.globals": [
+        "LazyVim"
     ]
 }
