@@ -1,6 +1,8 @@
 alias v='nvim'
-alias vi='nvim-nightly'
+alias vi='nvim'
 alias cl='clear'
+alias lv='NVIM_APPNAME=lazyvim nvim'
+alias cat='bat'
 
  # fuzzy find files
 alias ff='fd --type f --hidden --exclude .git | fzf-tmux -p --reverse'
@@ -14,7 +16,6 @@ alias fdir='cd "$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse)"'
 alias td='tmux detach'
 alias lg='lazygit'
 
-alias cv='NVIM_APPNAME=nvim-custom nvim'
 alias install='sudo dnf install -y'
 alias update='sudo dnf update -y'
 
