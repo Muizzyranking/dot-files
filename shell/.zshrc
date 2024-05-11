@@ -58,22 +58,21 @@ source $ZSH/oh-my-zsh.sh
 dotfiles_dir="$HOME/dot-files"
 # ZSH ALIASES
 # Stored in $ALIASES 
-if [ -f $dotfiles_dir/shell/.zsh_alaises ]; then
-   source $dotfiles_dir/shell/.zsh_alaises
+if [ -f "$dotfiles_dir/shell/.zsh_alaises" ]; then
+   source "$dotfiles_dir/shell/.zsh_alaises"
 fi
 
 #ZSH ENV for easy navigation
-if [ -f $dotfiles_dir/shell/.zshenv ]; then
-   source $dotfiles_dir/shell/.zshenv
+if [ -f "$dotfiles_dir/shell/.zshenv" ]; then
+   source "$dotfiles_dir/shell/.zshenv"
 
 fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-fpath+=${ZDOTDIR:-~}/.zsh_functions
+fpath+=$"ZDOTDIR:-~"/.zsh_functions
 
 eval "$(thefuck --alias)"
 eval "$(zoxide init zsh)"
 
-export PATH=$dotfile_dir/neovim-nightly/bin:$PATH

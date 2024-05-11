@@ -3,7 +3,7 @@ export PATH=/snap/bin:$PATH
 export PATH=$dotfile_dir/neovim-nightly/bin:$PATH
 
 export EDITOR=nvim
-export BAT_THEME="Catppuccin Macchiato"
+export BAT_THEME="Catppuccin Mocha"
 
 dotfile_dir=~/dot-files
 
@@ -18,4 +18,6 @@ export TMUXRC=$dotfile_dir/config/tmux/tmux.conf
 export PATH=~/.npm-global/bin:$PATH
 export PATH=$dotfile_dir/scripts:$PATH
 
-source $dotfile_dir/shell/alx-info
+# source $dotfile_dir/shell/alx-info
+export PATH=$dotfile_dir/neovim-nightly/bin:$PATH
+
