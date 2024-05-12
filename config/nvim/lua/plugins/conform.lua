@@ -62,10 +62,9 @@ return { -- Autoformat
 
       ["bash"] = { "shfmt" },
       ["sh"] = { "shfmt" },
-      ["zsh"] = { "beautysh" },
+      -- ["zsh"] = { "beautysh" },
 
       ["sql"] = { "sql-formatter" },
-
       ["python"] = { "autopep8" },
       ["lua"] = { "stylua" },
     },
