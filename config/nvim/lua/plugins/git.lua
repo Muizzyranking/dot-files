@@ -17,7 +17,7 @@ return {
     "kdheepak/lazygit.nvim",
     cmd = "LazyGit",
     keys = {
-      { "n", "<leader>gg", "<cmd>LazyGit<cr>", { noremap = true, silent = true } },
+      { "<leader>gg", "<cmd>LazyGit<cr>", { noremap = true, silent = true } },
     },
     dependencies = {
       "nvim-telescope/telescope.nvim",
