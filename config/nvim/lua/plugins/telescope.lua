@@ -34,8 +34,8 @@ return { -- Fuzzy Finder (files, lsp, etc)
         mappings = {
           i = {
             ["<c-t>"] = trouble.open_with_trouble,
-            ["<C-f>"] = actions.preview_scrolling_down,
-            ["<C-b>"] = actions.preview_scrolling_up,
+            -- ["<C-f>"] = actions.preview_scrolling_down,
+            ["<C-u>"] = actions.preview_scrolling_up,
             ["<C-d>"] = actions.delete_buffer,
             ["<C-c>"] = actions.close,
           },

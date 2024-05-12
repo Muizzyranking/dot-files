@@ -1,5 +1,3 @@
-local comment = "<leader>/"
-
 return {
   -- mini pairs (automatically close brackets, quotes, etc.)
   {
@@ -110,48 +108,6 @@ return {
     end,
   },
 
-  -- mini comment (toggle comments)
-  -- TODO:  Change to numToStr/comment.nvim
-  {
-    "echasnovski/mini.comment",
-    event = "VeryLazy",
-    dependencies = {
-      "JoosepAlviste/nvim-ts-context-commentstring",
-      lazy = true,
-      opts = {
-        enable_autocmd = false,
-      },
-    },
-    opts = {
-      options = {
-        custom_commentstring = function()
-          local filetype = vim.bo.filetype -- Get the current filetype
-
-          --use custom comment for c files
-          if filetype == "c" then
-            return "/*%s*/"
-          end
-
-          -- for some reason sql comment doesnt work
-          -- after setting custom comment for c
-          if filetype == "sql" then
-            return "--%s"
-          end
-          return require("ts_context_commentstring.internal").calculate_commentstring() or vim.bo.commentstring
-        end,
-      },
-      mappings = {
-
-        -- Toggle comment on current line
-        comment_line = comment,
-
-        -- Toggle comment on visual selection
-        comment_visual = comment,
-      },
-    },
-  },
-
-  -- mini comments
   {
     "echasnovski/mini.surround",
     event = { "BufRead", "BufNewFile" },
@@ -203,7 +159,7 @@ return {
     end,
   },
 
-  -- mini animate (smooth scrolling and resizing)
+  -- mini animate (smooth scrolling)
   -- not neccessary, but i like it
   {
     "echasnovski/mini.animate",

@@ -120,26 +120,26 @@ return {
     end,
   },
   -- treesitter context
-  {
-    "nvim-treesitter/nvim-treesitter-context",
-    event = { "BufReadPost", "BufNewFile", "BufWritePre", "VeryLazy" },
-    enabled = true,
-    opts = { mode = "cursor", max_lines = 3 },
-    keys = {
-      {
-        "<leader>ut",
-        function()
-          local tsc = require("treesitter-context")
-          local util = require("config.util")
-          tsc.toggle()
-          if util.get_upvalue(tsc.toggle, "enabled") then
-            util.info("Enabled Treesitter Context", { title = "Option" })
-          else
-            util.warn("Disabled Treesitter Context", { title = "Option" })
-          end
-        end,
-        desc = "Toggle Treesitter Context",
-      },
-    },
-  },
+  -- {
+  --   "nvim-treesitter/nvim-treesitter-context",
+  --   -- event = { "BufReadPost", "BufNewFile", "BufWritePre", "VeryLazy" },
+  --   -- enabled = true,
+  --   opts = { mode = "cursor", max_lines = 3 },
+  --   keys = {
+  --     {
+  --       "<leader>ut",
+  --       function()
+  --         local tsc = require("treesitter-context")
+  --         local util = require("config.util")
+  --         tsc.toggle()
+  --         if util.get_upvalue(tsc.toggle, "enabled") then
+  --           util.info("Enabled Treesitter Context", { title = "Option" })
+  --         else
+  --           util.warn("Disabled Treesitter Context", { title = "Option" })
+  --         end
+  --       end,
+  --       desc = "Toggle Treesitter Context",
+  --     },
+  --   },
+  -- },
 }

@@ -20,6 +20,7 @@ return {
     local icons = require("config.util").icons
     local mode = util.lualine_mode
     local lsp = util.lualine_lsp
+    local fts = util.lualine_fts
     local colors = {
       [""] = util.fg("Special"),
       ["Normal"] = util.fg("Special"),
@@ -32,7 +33,7 @@ return {
         icons_enabled = true,
         theme = "auto",
         globalstatus = true,
-        -- component_separators = { left = "", right = "" },
+        component_separators = { left = "", right = "" },
         -- section_separators = { right = "", left = "" },
         section_separators = { left = "", right = "" },
 
@@ -53,9 +54,9 @@ return {
       sections = {
         lualine_a = {
           mode,
-          file_name,
         },
         lualine_b = {
+          file_name,
           "branch",
           {
             "diff",
@@ -75,8 +76,6 @@ return {
               end
             end,
           },
-        },
-        lualine_c = {
           {
             "diagnostics",
             symbols = {
@@ -85,6 +84,16 @@ return {
               info = icons.diagnostics.Info,
               hint = icons.diagnostics.Info,
             },
+          },
+        },
+        lualine_c = {
+          "%=",
+          {
+            "harpoon2",
+            -- indicators = { " ", "󰎩 ", "󰎬 ", "󰎮 ", "󰎰 " },
+            -- active_indicators = { "󰎤 ", "󰎧 ", "󰎪 ", "󰎭 ", "󰲨 " },
+            -- -- _separator = " ",
+            -- color = { gui = "bold" },
           },
         },
         lualine_x = {
@@ -136,7 +145,6 @@ return {
         },
         lualine_y = {
           {
-            -- copied from lazyvim obviously
             function()
               local icon = require("config.util").icons.kinds.Copilot
               local status = require("copilot.api").status.data
@@ -161,13 +169,9 @@ return {
             end,
           },
           lsp,
+          fts,
         },
         lualine_z = {
-          -- {
-          --   function()
-          --     return " " .. os.date("%R")
-          --   end,
-          -- },
           "progress",
           "location",
         },
