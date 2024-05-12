@@ -19,5 +19,4 @@ export PATH=~/.npm-global/bin:$PATH
 export PATH=$dotfile_dir/scripts:$PATH
 
 # source $dotfile_dir/shell/alx-info
-export PATH=$dotfile_dir/neovim-nightly/bin:$PATH
 
