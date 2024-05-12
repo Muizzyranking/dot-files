@@ -1,6 +1,7 @@
 local func = require("config.functions")
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
+-- vim.keymap.del("n")
 
 vim.opt.showmode = false
 local set = vim.keymap.set
@@ -35,6 +36,11 @@ set("n", "<leader>w-", "<C-W>s", { desc = "Split Window Below", remap = true })
 set("n", "<leader>w|", "<C-W>v", { desc = "Split Window Right", remap = true })
 set("n", "<leader>-", "<C-W>s", { desc = "Split Window Below", remap = true })
 set("n", "<leader>|", "<C-W>v", { desc = "Split Window Right", remap = true })
+-- Resize window using <ctrl> arrow keys
+set("n", "<C-Up>", "<cmd>resize +2<cr>", { desc = "Increase Window Height" })
+set("n", "<C-Down>", "<cmd>resize -2<cr>", { desc = "Decrease Window Height" })
+set("n", "<C-Left>", "<cmd>vertical resize -2<cr>", { desc = "Decrease Window Width" })
+set("n", "<C-Right>", "<cmd>vertical resize +2<cr>", { desc = "Increase Window Width" })
 
 ------------------------
 -- Keymaps for saving and quitting
@@ -47,23 +53,25 @@ set("n", "<leader>qq", "<cmd>qa<cr>", { desc = "Quit file", silent = true })
 ------------------------
 -- Keymaps for search
 ------------------------
-set("n", "n", "'Nn'[v:searchforward].'zv'", { expr = true, desc = "Next Search Result" })
+-- https://github.com/mhinz/vim-galore#saner-behavior-of-n-and-n
+set("n", "N", "'Nn'[v:searchforward].'zv'", { expr = true, desc = "Next Search Result" })
 set("x", "n", "'Nn'[v:searchforward]", { expr = true, desc = "Next Search Result" })
 set("o", "n", "'Nn'[v:searchforward]", { expr = true, desc = "Next Search Result" })
 set("n", "N", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Prev Search Result" })
 set("x", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
 set("o", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
+
 set("n", "<Esc>", "<cmd>nohlsearch<CR>") -- Clear search highlight on pressing <Esc> in normal mode
 
 ------------------------
 -- Keymaps for editing
 ------------------------
 set("i", "<C-o>", "<esc>o", { desc = "Go to next line" })
--- set("i", "<C-b>", "<esc>I", { desc = "Go to begginin of line" })
+set("i", "<C-i>", "<esc>I", { desc = "Go to begginin of line" })
 -- WARN: C-b not working
-set("i", "<C-b>", "<esc>I", { desc = "Go to beginning of line", noremap = true, silent = true }) -- Go to beginning of line
+-- set("i", "<C-b>", "<esc>I", { desc = "Go to beginning of line", noremap = true, silent = true }) -- Go to beginning of line
 set("n", "B", "^", { desc = "Go to beginning of line" })
-set("i", "<C-e>", "<esc>A", { desc = "Go to end of line" })
+set("i", "<C-a>", "<esc>A", { desc = "Go to end of line" })
 set("n", "E", "$", { desc = "Go to end of line" })
 set("i", "jj", "<Esc>", { desc = "Go to normal mode" })
 set("n", "<BS>", '"_ciw', { desc = "Change inner word" })
@@ -76,7 +84,6 @@ set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 ------------------------
 -- Keymaps for miscellaneous
 ------------------------
-set("n", "<leader>gg", ":LazyGit<cr>", { desc = "Open LazyGit", silent = true })
 set("n", "<leader>cx", "<cmd>!chmod +x %<cr>", { desc = "Make file executable", silent = true })
 
 set("n", "<leader>uw", func.toggle_line_wrap, { desc = "Toggle line wrap" })
@@ -98,6 +105,10 @@ set({ "v", "x" }, "P", '"_dp')
 set({ "n", "v", "x" }, "c", '"_c')
 set({ "n" }, "ciw", '"_ciw')
 
+-- delete without yanking
+set({ "v", "x" }, "<leader>d", '"_d', { desc = "Delete without yanking" })
+set({ "n" }, "<leader>d", '"_dd', { desc = "Delete without yanking" })
+
 -- Select all
 set("n", "<C-a>", "gg<S-v>G", { desc = "Select all", noremap = true, silent = true })
 
@@ -108,3 +119,8 @@ set("v", "<Tab>", ">gv", { noremap = false, silent = true })
 
 --esc with jj
 set("i", "jj", "<Esc>", { desc = "Go to normal mode" })
+
+-- Add undo break-points
+set("i", ",", ",<c-g>u")
+set("i", ".", ".<c-g>u")
+set("i", ";", ";<c-g>u")

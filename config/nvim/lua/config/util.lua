@@ -360,9 +360,33 @@ M.lualine_lsp = {
 
     local unique_client_names = table.concat(buf_client_names, ", ")
     local lsp_icon = M.icons.ui.ActiveLSP
-    local language_servers = string.format("LSP: " .. "%s %s", lsp_icon, unique_client_names)
+    local language_servers = string.format("%s %s", lsp_icon, unique_client_names)
 
     return language_servers
+  end,
+  color = { gui = "bold" },
+  cond = conditions.hide_in_width,
+}
+
+M.lualine_fts = {
+  function()
+    local buf_fts_names = {}
+    local ok, conform = pcall(require, "conform")
+    ---@diagnostic disable-next-line: param-type-mismatch
+    local formatters = table.concat(conform.formatters_by_ft[vim.bo.filetype], " ")
+    if ok then
+      for formatter in formatters:gmatch("%w+") do
+        if formatter then
+          table.insert(buf_fts_names, formatter)
+        end
+      end
+    end
+
+    local ft_name = table.concat(buf_fts_names, ", ")
+
+    local ft_icon = " "
+    local fts = string.format("%s %s", ft_icon, ft_name)
+    return fts
   end,
   color = { gui = "bold" },
   cond = conditions.hide_in_width,
