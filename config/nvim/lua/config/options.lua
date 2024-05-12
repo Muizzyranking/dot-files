@@ -12,7 +12,8 @@ opt.backup = false -- Disable backup files
 opt.mouse:append("a") -- Enable mouse support
 opt.showmode = false -- Don't show the mode, since it's already in the status line
 opt.signcolumn = "yes" -- Keep signcolumn on by default
-opt.scrolloff = 10 -- Minimal number of screen lines to keep above and below the cursor
+opt.scrolloff = 4 -- Minimal number of screen lines to keep above and below the cursor
+opt.sidescrolloff = 8
 opt.confirm = true -- Confirm before quitting unsaved buffers
 
 -----------------------------------------------------------
@@ -29,6 +30,10 @@ opt.fillchars = {
   eob = " ",
 }
 opt.wrap = false -- Disable line wrapping
+-- smooth scrolling available in neovim >= 0.10.0
+if vim.fn.has("nvim-0.10") == 1 then
+  opt.smoothscroll = true -- Smooth scrolling
+end
 
 -----------------------------------------------------------
 -- Undo and Backup
@@ -45,7 +50,7 @@ opt.foldenable = true -- Disable folding by default
 opt.foldlevel = 99 -- Set maximum fold level
 vim.g.markdown_folding = 1 -- Enable markdown folding
 vim.o.foldcolumn = "0" -- Set foldcolumn width
-vim.o.foldlevelstart = 100 -- Set initial folding level
+vim.o.foldlevelstart = 99 -- Set initial folding level
 
 -----------------------------------------------------------
 -- Search and Highlighting
