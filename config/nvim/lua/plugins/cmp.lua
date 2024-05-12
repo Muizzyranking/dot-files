@@ -92,7 +92,7 @@ return { -- Autocompletion
         format = function(_, item)
           local icons = require("config.util").icons.kinds
           if icons[item.kind] then
-            item.kind = icons[item.kind]
+            item.kind = icons[item.kind] .. " " .. item.kind
           end
           return item
         end,
