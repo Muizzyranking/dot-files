@@ -2,7 +2,7 @@ return {
   {
     "linux-cultist/venv-selector.nvim",
     cmd = "VenvSelect",
-    event = "VeryLazy",
+    -- event = "VeryLazy",
     opts = {
       dap_enabled = false,
       name = {
