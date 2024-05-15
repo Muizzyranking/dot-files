@@ -14,18 +14,18 @@ return {
     end
   end,
   config = function()
-    local util = require("config.util")
-    local file_name = util.lualine_file
+    local utils = require("config.utils")
+    local file_name = utils.lualine_file
     local lualine = require("lualine")
-    local icons = require("config.util").icons
-    local mode = util.lualine_mode
-    local lsp = util.lualine_lsp
-    local fts = util.lualine_fts
+    local icons = require("config.utils").icons
+    local mode = utils.lualine_mode
+    local lsp = utils.lualine_lsp
+    -- local fts = util.lualine_fts
     local colors = {
-      [""] = util.fg("Special"),
-      ["Normal"] = util.fg("Special"),
-      ["Warning"] = util.fg("DiagnosticError"),
-      ["InProgress"] = util.fg("DiagnosticWarn"),
+      [""] = utils.fg("Special"),
+      ["Normal"] = utils.fg("Special"),
+      ["Warning"] = utils.fg("DiagnosticError"),
+      ["InProgress"] = utils.fg("DiagnosticWarn"),
     }
 
     lualine.setup({
@@ -54,6 +54,7 @@ return {
       sections = {
         lualine_a = {
           mode,
+          "mode",
         },
         lualine_b = {
           file_name,
@@ -90,10 +91,7 @@ return {
           "%=",
           {
             "harpoon2",
-            -- indicators = { " ", "󰎩 ", "󰎬 ", "󰎮 ", "󰎰 " },
-            -- active_indicators = { "󰎤 ", "󰎧 ", "󰎪 ", "󰎭 ", "󰲨 " },
-            -- -- _separator = " ",
-            -- color = { gui = "bold" },
+            color = { gui = "bold" },
           },
         },
         lualine_x = {
@@ -122,7 +120,7 @@ return {
             cond = function()
               return package.loaded["noice"] and require("noice").api.status.command.has()
             end,
-            color = util.fg("Statement"),
+            color = utils.fg("Statement"),
           },
           {
             function()
@@ -131,8 +129,9 @@ return {
             cond = function()
               return package.loaded["noice"] and require("noice").api.status.mode.has()
             end,
-            color = util.fg("Constant"),
+            color = utils.fg("Constant"),
           },
+          -- NOTE: for dap, not setting up dap for now
           -- {
           -- 	function()
           -- 		return "  " .. require("dap").status()
@@ -140,13 +139,13 @@ return {
           -- 	cond = function()
           -- 		return package.loaded["dap"] and require("dap").status() ~= ""
           -- 	end,
-          -- 	-- color = util.fg("Debug"),
+          -- 	-- color = utils.fg("Debug"),
           -- },
         },
         lualine_y = {
           {
             function()
-              local icon = require("config.util").icons.kinds.Copilot
+              local icon = require("config.utils").icons.kinds.Copilot
               local status = require("copilot.api").status.data
               return icon .. (status.message or "")
             end,
@@ -154,7 +153,7 @@ return {
               if not package.loaded["copilot"] then
                 return
               end
-              local ok, clients = pcall(util.get_clients, { name = "copilot", bufnr = 0 })
+              local ok, clients = pcall(utils.get_clients, { name = "copilot", bufnr = 0 })
               if not ok then
                 return false
               end
@@ -168,8 +167,9 @@ return {
               return colors[status.status] or colors[""]
             end,
           },
+          -- utils.cmp_source("codieum", icons.Codieum),
           lsp,
-          fts,
+          -- fts,
         },
         lualine_z = {
           "progress",

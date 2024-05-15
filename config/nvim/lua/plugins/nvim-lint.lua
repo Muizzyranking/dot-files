@@ -1,6 +1,7 @@
 return {
   "mfussenegger/nvim-lint",
-  event = { "BufReadPost", "BufNewFile", "BufWritePre" },
+  -- event = { "BufReadPost", "BufNewFile", "BufWritePre" },
+  event = { "LazyFile" },
   opts = {
     -- Event to trigger linters
     events = { "BufWritePost", "BufReadPost", "InsertLeave" },
@@ -69,9 +70,9 @@ return {
       ctx.dirname = vim.fn.fnamemodify(ctx.filename, ":h")
       names = vim.tbl_filter(function(name)
         local linter = lint.linters[name]
-        local util = require("config.util")
+        local utils = require("config.utils")
         if not linter then
-          util.warn("Linter not found: " .. name, { title = "nvim-lint" })
+          utils.warn("Linter not found: " .. name, { title = "nvim-lint" })
         end
         return linter and not (type(linter) == "table" and linter.condition and not linter.condition(ctx))
       end, names)

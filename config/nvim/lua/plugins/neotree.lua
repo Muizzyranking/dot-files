@@ -31,7 +31,7 @@ return {
     },
   },
   config = function()
-    local icons = require("config.util").icons.neotree
+    -- local icons = require("config.utils").icons.neotree
     local git_available = vim.fn.executable("git") == 1
     -- local sources = {
     --   { source = "filesystem", display_name = icons.folder .. " " .. "Files" },

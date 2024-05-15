@@ -1,4 +1,4 @@
-local util = require("config.util")
+local utils = require("config.utils")
 return {
   {
     "nvim-neotest/neotest",
@@ -13,7 +13,7 @@ return {
       output = { open_on_run = true },
       quickfix = {
         open = function()
-          if util.has("trouble.nvim") then
+          if utils.has("trouble.nvim") then
             require("trouble").open({ mode = "quickfix", focus = false })
           else
             vim.cmd("copen")
@@ -33,7 +33,7 @@ return {
         },
       }, neotest_ns)
 
-      if util.has("trouble.nvim") then
+      if utils.has("trouble.nvim") then
         opts.consumers = opts.consumers or {}
         opts.consumers.trouble = function(client)
           client.listeners.results = function(adapter_id, results, partial)
@@ -41,7 +41,6 @@ return {
               return
             end
             local tree = assert(client:get_position(nil, { adapter = adapter_id }))
-
             local failed = 0
             for pos_id, result in pairs(results) do
               if result.status == "failed" and tree:get_key(pos_id) then

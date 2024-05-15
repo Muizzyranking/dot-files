@@ -1,8 +1,8 @@
 return {
-
   { -- LSP Configuration & Plugins
     "neovim/nvim-lspconfig",
-    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
+    -- event = { "BufReadPost", "BufWritePost", "BufNewFile" },
+    event = "LazyFile",
     dependencies = {
       {
         "williamboman/mason.nvim",
@@ -14,7 +14,7 @@ return {
           },
         },
       },
-      { "folke/neodev.nvim", opts = {} },
+      -- { "folke/neodev.nvim", opts = {} },
       "williamboman/mason-lspconfig.nvim",
       {
         "folke/neoconf.nvim",
@@ -35,7 +35,7 @@ return {
     },
 
     config = function()
-      local icons = require("config.util").icons.diagnostics
+      local icons = require("config.utils").icons.diagnostics
       vim.fn.sign_define("DiagnosticSignError", { text = icons.Error, texthl = "DiagnosticSignError" })
       vim.fn.sign_define("DiagnosticSignWarn", { text = icons.Warn, texthl = "DiagnosticSignWarn" })
       vim.fn.sign_define("DiagnosticSignInfo", { text = icons.Info, texthl = "DiagnosticSignInfo" })
@@ -71,6 +71,19 @@ return {
           map("<leader>ca", vim.lsp.buf.code_action, "Code Action")
           map("[d", vim.diagnostic.goto_prev, "Go to previous Diagnostic message")
           map("]d", vim.diagnostic.goto_next, "Go to next Diagnostic message")
+
+          local diagnostic_goto = function(next, severity)
+            local go = next and vim.diagnostic.goto_next or vim.diagnostic.goto_prev
+            severity = severity and vim.diagnostic.severity[severity] or nil
+            return function()
+              go({ severity = severity })
+            end
+          end
+
+          map("]e", diagnostic_goto(true, "ERROR"), "Next Error")
+          map("[e", diagnostic_goto(false, "ERROR"), "Prev Error")
+          map("]w", diagnostic_goto(true, "WARN"), "Next Warning")
+          map("[w", diagnostic_goto(false, "WARN"), "Prev Warning")
 
           -- The following two autocommands are used to highlight references of the
           -- word under your cursor when your cursor rests there for a little while.
@@ -109,6 +122,8 @@ return {
 
       require("mason-tool-installer").setup({
         ensure_installed = ensure_installed,
+        run_on_start = true,
+        start_delay = 0,
       })
 
       require("mason-lspconfig").setup({

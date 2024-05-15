@@ -8,8 +8,8 @@ return {
       styles = {
         comments = { "italic" },
         functions = { "italic" },
-        -- keywords = { "italic" },
-        -- strings = { "italic" },
+        keywords = { "italic" },
+        strings = { "italic" },
         variables = { "italic" },
       },
       transparent_background = true,

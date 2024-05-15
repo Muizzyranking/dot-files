@@ -49,7 +49,7 @@ return {
       silent = true,
       expr = true,
       desc = "Scroll forward",
-      mode = { "i", "n", "s" },
+      mode = { "n" },
     },
     {
       "<c-b>",
@@ -61,7 +61,7 @@ return {
       silent = true,
       expr = true,
       desc = "Scroll backward",
-      mode = { "i", "n", "s" },
+      mode = { "n"},
     },
   },
 }

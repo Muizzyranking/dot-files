@@ -13,19 +13,19 @@ return {
     keys = function()
       local keys = {
         {
-          "<leader>H",
+          "<leader>m",
           function()
             require("harpoon"):list():add()
           end,
-          desc = "Harpoon File",
+          desc = "Mark File",
         },
         {
-          "<leader>h",
+          "<leader>M",
           function()
             local harpoon = require("harpoon")
             harpoon.ui:toggle_quick_menu(harpoon:list())
           end,
-          desc = "Harpoon Quick Menu",
+          desc = "View Marked Files",
         },
       }
 
@@ -35,7 +35,7 @@ return {
           function()
             require("harpoon"):list():select(i)
           end,
-          desc = "Harpoon to File " .. i,
+          desc = "Marked File " .. i,
         })
       end
       return keys

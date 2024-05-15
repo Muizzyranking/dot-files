@@ -3,7 +3,8 @@ return {
   {
     "folke/todo-comments.nvim",
     cmd = { "TodoTrouble", "TodoTelescope" },
-    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
+    -- event = { "BufReadPost", "BufWritePost", "BufNewFile" },
+    event = "LazyFile",
     config = true,
     keys = {
       {

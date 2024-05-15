@@ -23,6 +23,7 @@ return { -- Fuzzy Finder (files, lsp, etc)
     local actions = require("telescope.actions")
     local trouble = require("trouble.providers.telescope")
 
+
     require("telescope").setup({
 
       -- You can put your default mappings / updates / etc. in here
@@ -59,6 +60,7 @@ return { -- Fuzzy Finder (files, lsp, etc)
     -- Enable telescope extensions, if they are installed
     pcall(require("telescope").load_extension, "fzf")
     pcall(require("telescope").load_extension, "ui-select")
+    pcall(require("telescope").load_extension, "harpoon")
     local new_file = require("config.functions").new_file
 
     map("<leader>fn", new_file, "Create new file")

@@ -2,6 +2,12 @@ return { -- Autocompletion
   "hrsh7th/nvim-cmp",
   event = "InsertEnter",
   dependencies = {
+    -- {
+    --   "Exafunction/codeium.nvim",
+    --   cmd = "Codeium",
+    --   build = ":Codeium Auth",
+    --   opts = {},
+    -- },
     {
       "L3MON4D3/LuaSnip",
       build = (function()
@@ -37,13 +43,10 @@ return { -- Autocompletion
         ["<C-n>"] = cmp.mapping.select_next_item(),
         -- Select the [p]revious item
         ["<C-p>"] = cmp.mapping.select_prev_item(),
-
         -- Accept ([y]es) the completion.
         ["<Cr>"] = cmp.mapping.confirm({ select = true }),
-
         -- Manually trigger a completion from nvim-cmp.
         ["<C-Tab>"] = cmp.mapping.complete({}),
-
         -- <c-l> will move you to the right of each of the expansion locations.
         -- <c-h> is similar, except moving you backwards.
         ["<C-l>"] = cmp.mapping(function()
@@ -51,7 +54,6 @@ return { -- Autocompletion
             luasnip.expand_or_jump()
           end
         end, { "i", "s" }),
-
         ["<C-h>"] = cmp.mapping(function()
           if luasnip.locally_jumpable(-1) then
             luasnip.jump(-1)
@@ -63,11 +65,17 @@ return { -- Autocompletion
         { name = "lspconfig" },
         { name = "luasnip" },
         { name = "path" },
+        { name = "buffer" },
         {
           name = "copilot",
           group_index = 1,
           priority = 100,
         },
+        -- {
+        --   name = "codeium",
+        --   group_index = 1,
+        --   priority = 100,
+        -- },
       },
       sorting = {
         defaults.sorting,
@@ -75,14 +83,14 @@ return { -- Autocompletion
       },
       window = {
         completion = {
-          winhighlight = "Normal:Pmenu,FloatBorder:Pmenu,Search:None",
+          -- winhighlight = "Normal:Pmenu,FloatBorder:Pmenu,Search:None",
           border = "rounded",
           col_offset = 0,
           side_padding = 0,
         },
         documentation = {
           border = "rounded",
-          winhighlight = "Normal:CmpDoc,FloatBorder:CmpDoc,Search:None",
+          -- winhighlight = "Normal:CmpDoc,FloatBorder:CmpDoc,Search:None",
           max_width = 80,
           max_height = 12,
         },
@@ -90,7 +98,7 @@ return { -- Autocompletion
       auto_bracket = {},
       formatting = {
         format = function(_, item)
-          local icons = require("config.util").icons.kinds
+          local icons = require("config.utils").icons.kinds
           if icons[item.kind] then
             item.kind = icons[item.kind] .. " " .. item.kind
           end

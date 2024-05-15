@@ -3,7 +3,8 @@ return {
     "nvim-treesitter/nvim-treesitter",
     version = false,
     build = ":TSUpdate",
-    event = { "BufReadPost", "BufNewFile", "BufWritePre", "VeryLazy" },
+    -- event = { "BufReadPost", "BufNewFile", "BufWritePre", "VeryLazy" },
+    event = { "LazyFile", "VeryLazy" },
     init = function(plugin)
       -- PERF: add nvim-treesitter queries to the rtp and it's custom query predicates early
       -- This is needed because a bunch of plugins no longer `require("nvim-treesitter")`, which
@@ -15,7 +16,11 @@ return {
     end,
     dependencies = {
       "nvim-treesitter/nvim-treesitter-textobjects",
-      "windwp/nvim-ts-autotag",
+      {
+        "windwp/nvim-ts-autotag",
+        -- event = "LazyFile",
+        -- opts = {},
+      },
     },
     opts = {
       textobjects = {
@@ -89,6 +94,7 @@ return {
         "luap",
         "vim",
         "xml",
+        "puppet",
       },
 
       -- Install parsers synchronously (only applied to `ensure_installed`)
@@ -130,12 +136,12 @@ return {
   --       "<leader>ut",
   --       function()
   --         local tsc = require("treesitter-context")
-  --         local util = require("config.util")
+  --         local utils = require("config.util")
   --         tsc.toggle()
-  --         if util.get_upvalue(tsc.toggle, "enabled") then
-  --           util.info("Enabled Treesitter Context", { title = "Option" })
+  --         if utils.get_upvalue(tsc.toggle, "enabled") then
+  --           utils.info("Enabled Treesitter Context", { title = "Option" })
   --         else
-  --           util.warn("Disabled Treesitter Context", { title = "Option" })
+  --           utils.warn("Disabled Treesitter Context", { title = "Option" })
   --         end
   --       end,
   --       desc = "Toggle Treesitter Context",

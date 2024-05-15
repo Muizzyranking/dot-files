@@ -19,11 +19,11 @@ return {
     opts = {},
     config = function(_, opts)
       local copilot_cmp = require("copilot_cmp")
-      local util = require("config.util")
+      local utils = require("config.utils")
       copilot_cmp.setup(opts)
       -- attach cmp source whenever copilot attaches
       -- fixes lazy-loading issues with the copilot cmp source
-      util.on_attach(function(client)
+      utils.on_attach(function(client)
         if client.name == "copilot" then
           copilot_cmp._on_insert_enter({})
         end
