@@ -1,11 +1,11 @@
 local func = require("config.functions")
+local utils = require("config.utils")
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 -- vim.keymap.del("n")
 
 vim.opt.showmode = false
 local set = vim.keymap.set
-
 
 ------------------------
 -- Keymaps for moving chunks of text/code
@@ -103,6 +103,8 @@ set("n", "<leader>uf", func.toggle_autoformat, { desc = "Toggle Autoformat (Glob
 -- set("n", "<leader>uF", func.toggle_autoformat_buffer, { desc = "Toggle Autoformat (Buffer)" })
 
 -- buffers
+-- if not utils.has("bufferline.nvim") then
+set("n", "<S-h>", "<cmd>bp<cr>", { desc = "Prev buffer", silent = true })
+set("n", "<S-l>", "<cmd>bn<cr>", { desc = "Next buffer", silent = true })
 set("n", "<leader>bd", "<cmd>bd<cr>", { desc = "Delete buffer", silent = true })
-set("n", "<S-h>", "<cmd>bnext<cr>", { desc = "Prev buffer", silent = true })
-set("n", "<S-l>", "<cmd>bNext<cr>", { desc = "Next buffer", silent = true })
+-- end
