@@ -1,5 +1,5 @@
 local M = {}
-local util = require("config.util")
+local utils = require("config.utils")
 
 -----------------------------------------------------------
 -- Create a new file
@@ -42,10 +42,10 @@ function M.toggle_diagnostics()
 
   if enabled then
     vim.diagnostic.enable()
-    util.info("Enabled diagnostics", { title = "Diagnostics" })
+    utils.info("Enabled diagnostics", { title = "Diagnostics" })
   else
     vim.diagnostic.disable()
-    util.warn("Disabled diagnostics", { title = "Diagnostics" })
+    utils.warn("Disabled diagnostics", { title = "Diagnostics" })
   end
 end
 
@@ -56,10 +56,10 @@ function M.toggle_line_wrap()
   local wrapped = vim.opt.wrap:get()
   vim.opt.wrap = not wrapped -- Toggle wrap based on current state
   if wrapped then
-    util.warn("Line wrap disabled.", { title = "Option" })
+    utils.warn("Line wrap disabled.", { title = "Option" })
   else
     vim.opt.wrap = true -- Toggle wrap based on current state
-    util.info("Line wrap enabled.", { title = "Option" })
+    utils.info("Line wrap enabled.", { title = "Option" })
   end
 end
 
@@ -70,10 +70,10 @@ function M.toggle_spell()
   local spell = vim.opt.spell:get()
   vim.opt.spell = not spell -- Toggle wrap based on current state
   if spell then
-    util.warn("Spell disabled.", { title = "Option" })
+    utils.warn("Spell disabled.", { title = "Option" })
   else
     vim.opt.spell = true -- Toggle wrap based on current state
-    util.info("Spell enabled.", { title = "Option" })
+    utils.info("Spell enabled.", { title = "Option" })
   end
 end
 
@@ -83,10 +83,21 @@ end
 function M.toggle_autoformat()
   if vim.g.autoformat == nil or not vim.g.autoformat then
     vim.g.autoformat = true
-    util.info("Auto Format enabled.", { title = "Option" })
+    utils.info("Auto Format enabled.", { title = "Option" })
   else
     vim.g.autoformat = false
-    util.warn("Auto Format disabled.", { title = "Option" })
+    utils.warn("Auto Format disabled.", { title = "Option" })
+  end
+end
+
+function M.make_file_executable()
+  local cmd = "chmod +x " .. vim.fn.expand("%")
+  local output = vim.fn.system(cmd)
+
+  if vim.v.shell_error == 0 then
+    utils.info("File made executable", { title = "Option" })
+  else
+    utils.warn("Error making file executable: " .. output, { title = "Options" })
   end
 end
 

@@ -14,6 +14,7 @@ vim.opt.rtp:prepend(vim.env.LAZY or lazypath)
 
 vim.keymap.set("n", "<leader>l", ":Lazy<cr>", { desc = "Lazy", silent = true })
 
+require("config.lazyfile").setup()
 require("lazy").setup({
   spec = {
     { import = "plugins" },
@@ -26,6 +27,9 @@ require("lazy").setup({
     version = true, -- always use the latest git commit
   },
   install = { colorscheme = { "catppuccin" } },
+  ui = {
+    border = "rounded",
+  },
   checker = { enabled = false }, -- automatically check for plugin updates
   performance = {
     rtp = {

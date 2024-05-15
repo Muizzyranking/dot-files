@@ -19,7 +19,7 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 
 -----------------------------------------------------------
 -- Enable spell checking for certain file types
--- TODO: make this options in ftplugins
+-- TODO: put this options in ftplugins
 -----------------------------------------------------------
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   group = augroup("spell_check"),
@@ -50,6 +50,7 @@ vim.api.nvim_create_autocmd("FileType", {
     "help",
     "lspinfo",
     "man",
+    "help",
     "notify",
     "qf",
     "query",

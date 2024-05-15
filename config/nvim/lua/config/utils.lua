@@ -22,6 +22,7 @@ function M.fg(name)
   ---@type {foreground?:number}?
   ---@diagnostic disable-next-line: deprecated
   local hl = vim.api.nvim_get_hl and vim.api.nvim_get_hl(0, { name = name, link = false })
+    ---@diagnostic disable-next-line: deprecated
     or vim.api.nvim_get_hl_by_name(name, true)
   ---@diagnostic disable-next-line: undefined-field
   local fg = hl and (hl.fg or hl.foreground)
@@ -391,5 +392,45 @@ M.lualine_fts = {
   color = { gui = "bold" },
   cond = conditions.hide_in_width,
 }
+
+function M.cmp_source(name, icon)
+  local started = false
+  local function status()
+    if not package.loaded["cmp"] then
+      return
+    end
+    for _, s in ipairs(require("cmp").core.sources) do
+      if s.name == name then
+        if s.source:is_available() then
+          started = true
+        else
+          return started and "error" or nil
+        end
+        if s.status == s.SourceStatus.FETCHING then
+          return "pending"
+        end
+        return "ok"
+      end
+    end
+  end
+
+  local colors = {
+    ok = M.fg("Special"),
+    error = M.fg("DiagnosticError"),
+    pending = M.fg("DiagnosticWarn"),
+  }
+
+  return {
+    function()
+      return icon
+    end,
+    cond = function()
+      return status() ~= nil
+    end,
+    color = function()
+      return colors[status()] or colors.ok
+    end,
+  }
+end
 
 return M

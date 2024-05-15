@@ -20,6 +20,7 @@ opt.confirm = true -- Confirm before quitting unsaved buffers
 -- UI
 -----------------------------------------------------------
 opt.termguicolors = true -- Enable true color support
+opt.inccommand = "nosplit" -- Don't Preview substitutions live, as you type!
 -- Customize fold characters
 opt.fillchars = {
   foldopen = "",
@@ -86,7 +87,6 @@ opt.completeopt = { "menuone", "noinsert", "noselect" }
 -----------------------------------------------------------
 opt.backspace = { "eol", "indent", "start" } -- Allow backspace in insert mode
 opt.iskeyword:append("-") -- Treat dash as a word character
-opt.inccommand = "split" -- Preview substitutions live, as you type!
 opt.splitright = true -- Configure how new splits should be opened
 opt.splitbelow = true -- Configure how new splits should be opened
 opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" } -- Set session options
@@ -94,3 +94,7 @@ opt.spelllang = { "en" } -- Set spell languages
 vim.g.autoformat = false -- Disable autoformat by default
 vim.g.loaded_ruby_provider = 0 -- Disable Ruby providers
 vim.g.loaded_perl_provider = 0 -- Disable Perl providers
+
+opt.pumblend = 10 -- Popup blend
+opt.pumheight = 10 -- Maximum number of entries in a popup
+-- opt.conceallevel = 2 -- Hide * markup for bold and italic, but not markers with substitutions

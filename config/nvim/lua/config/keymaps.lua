@@ -6,6 +6,7 @@ vim.g.maplocalleader = " "
 vim.opt.showmode = false
 local set = vim.keymap.set
 
+
 ------------------------
 -- Keymaps for moving chunks of text/code
 ------------------------
@@ -22,10 +23,15 @@ set("v", "<A-k>", ":m '<-2<cr>gv=gv", { desc = "Move Up" })
 set({ "n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 set({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 set({ "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
-set({ "n", "t" }, "<C-h>", "<C-w>h", { desc = "Go to left window", remap = true })
-set({ "n", "t" }, "<C-j>", "<C-w>j", { desc = "Go to lower window", remap = true })
-set({ "n", "t" }, "<C-k>", "<C-w>k", { desc = "Go to upper window", remap = true })
-set({ "n", "t" }, "<C-l>", "<C-w>l", { desc = "Go to right window", remap = true })
+set({ "n" }, "<C-h>", "<C-w>h", { desc = "Go to left window", remap = true })
+set({ "n" }, "<C-j>", "<C-w>j", { desc = "Go to lower window", remap = true })
+set({ "n" }, "<C-k>", "<C-w>k", { desc = "Go to upper window", remap = true })
+set({ "n" }, "<C-l>", "<C-w>l", { desc = "Go to right window", remap = true })
+set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
+set("t", "<C-h>", "<cmd>wincmd h<cr>", { desc = "Go to Left Window" })
+set("t", "<C-j>", "<cmd>wincmd j<cr>", { desc = "Go to Lower Window" })
+set("t", "<C-k>", "<cmd>wincmd k<cr>", { desc = "Go to Upper Window" })
+set("t", "<C-l>", "<cmd>wincmd l<cr>", { desc = "Go to Right Window" })
 
 ------------------------
 -- Keymaps for window management
@@ -60,67 +66,43 @@ set("o", "n", "'Nn'[v:searchforward]", { expr = true, desc = "Next Search Result
 set("n", "N", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Prev Search Result" })
 set("x", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
 set("o", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
-
 set("n", "<Esc>", "<cmd>nohlsearch<CR>") -- Clear search highlight on pressing <Esc> in normal mode
 
 ------------------------
 -- Keymaps for editing
 ------------------------
-set("i", "<C-o>", "<esc>o", { desc = "Go to next line" })
-set("i", "<C-i>", "<esc>I", { desc = "Go to begginin of line" })
--- WARN: C-b not working
--- set("i", "<C-b>", "<esc>I", { desc = "Go to beginning of line", noremap = true, silent = true }) -- Go to beginning of line
-set("n", "B", "^", { desc = "Go to beginning of line" })
-set("i", "<C-a>", "<esc>A", { desc = "Go to end of line" })
-set("n", "E", "$", { desc = "Go to end of line" })
-set("i", "jj", "<Esc>", { desc = "Go to normal mode" })
-set("n", "<BS>", '"_ciw', { desc = "Change inner word" })
-
-------------------------
--- Keymaps for terminal
-------------------------
-set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
-
-------------------------
--- Keymaps for miscellaneous
-------------------------
-set("n", "<leader>cx", "<cmd>!chmod +x %<cr>", { desc = "Make file executable", silent = true })
-
-set("n", "<leader>uw", func.toggle_line_wrap, { desc = "Toggle line wrap" })
-set("n", "<leader>ud", func.toggle_diagnostics, { desc = "Toggle Diagnostics" })
-set("n", "<leader>us", func.toggle_spell, { desc = "Toggle Spell" })
-set("n", "<leader>uf", func.toggle_autoformat, { desc = "Toggle Autoformat (Global)" })
--- set("n", "<leader>uF", func.toggle_autoformat_buffer, { desc = "Toggle Autoformat (Buffer)" })
-
-set("n", "x", '"_x')
-
--- buffers
-set("n", "<leader>bd", "<cmd>bd<cr>", { desc = "Delete buffer", silent = true })
-set("n", "<S-h>", "<cmd>bnext<cr>", { desc = "Prev buffer", silent = true })
-set("n", "<S-l>", "<cmd>bNext<cr>", { desc = "Next buffer", silent = true })
-
+set("i", "<C-o>", "<esc>o", { desc = "Go to next line" }) -- go to next line in insert
+set("i", "<C-b>", "<esc>I", { desc = "Go to beginning of line" }) -- Go to beginning of line in insert
+set({ "n", "v" }, "B", "^", { desc = "Go to beginning of line" }) -- go to beginning of line in normal
+set("i", "<C-e>", "<esc>A", { desc = "Go to end of line" }) -- go to end of line in insert
+set({ "n", "v" }, "E", "$", { desc = "Go to end of line" }) -- go to end of line in normal
+set("i", "jj", "<Esc>", { desc = "Go to normal mode" }) -- esc with jj
+set("n", "<BS>", '"_ciw', { desc = "Change inner word" }) -- change word
+set("n", "x", '"_x') -- delete text without yanking
+set({ "v", "x" }, "<leader>d", '"_d', { desc = "Delete without yanking" }) -- delete selected without yanking
+set({ "n" }, "<leader>d", '"_dd', { desc = "Delete without yanking" }) -- delete line without yanking
+set("n", "<C-a>", "gg<S-v>G", { desc = "Select all", noremap = true, silent = true }) -- select all
+--using <tab> and <s-tab> for indenting and dedenting
+set("v", "<S-Tab>", "<gv", { noremap = false, silent = true })
+set("v", "<Tab>", ">gv", { noremap = false, silent = true })
 -- paste over currently selected text without yanking it
 set({ "v", "x" }, "p", '"_dP')
 set({ "v", "x" }, "P", '"_dp')
 set({ "n", "v", "x" }, "c", '"_c')
 set({ "n" }, "ciw", '"_ciw')
 
--- delete without yanking
-set({ "v", "x" }, "<leader>d", '"_d', { desc = "Delete without yanking" })
-set({ "n" }, "<leader>d", '"_dd', { desc = "Delete without yanking" })
+------------------------
+-- Keymaps for miscellaneous
+------------------------
+-- set("n", "<leader>cx", "<cmd>!chmod +x %<cr>", { desc = "Make file executable", silent = true })
+set("n", "<leader>cx", func.make_file_executable, { desc = "Make file executable", silent = true })
+set("n", "<leader>uw", func.toggle_line_wrap, { desc = "Toggle line wrap" })
+set("n", "<leader>ud", func.toggle_diagnostics, { desc = "Toggle Diagnostics" })
+set("n", "<leader>us", func.toggle_spell, { desc = "Toggle Spell" })
+set("n", "<leader>uf", func.toggle_autoformat, { desc = "Toggle Autoformat (Global)" })
+-- set("n", "<leader>uF", func.toggle_autoformat_buffer, { desc = "Toggle Autoformat (Buffer)" })
 
--- Select all
-set("n", "<C-a>", "gg<S-v>G", { desc = "Select all", noremap = true, silent = true })
-
--- better indenting
---using <tab> and <s-tab> for indenting and dedenting
-set("v", "<S-Tab>", "<gv", { noremap = false, silent = true })
-set("v", "<Tab>", ">gv", { noremap = false, silent = true })
-
---esc with jj
-set("i", "jj", "<Esc>", { desc = "Go to normal mode" })
-
--- Add undo break-points
-set("i", ",", ",<c-g>u")
-set("i", ".", ".<c-g>u")
-set("i", ";", ";<c-g>u")
+-- buffers
+set("n", "<leader>bd", "<cmd>bd<cr>", { desc = "Delete buffer", silent = true })
+set("n", "<S-h>", "<cmd>bnext<cr>", { desc = "Prev buffer", silent = true })
+set("n", "<S-l>", "<cmd>bNext<cr>", { desc = "Next buffer", silent = true })
