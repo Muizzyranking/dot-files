@@ -18,5 +18,10 @@ export TMUXRC=$dotfile_dir/config/tmux/tmux.conf
 export PATH=~/.npm-global/bin:$PATH
 export PATH=$dotfile_dir/scripts:$PATH
 
+#ALX INFO
+export SERVER_1=35.153.192.177
+export SERVER_2=54.90.21.58
+export LB=34.229.55.152
+
 # source $dotfile_dir/shell/alx-info
 
