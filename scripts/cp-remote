@@ -1,36 +1,26 @@
 #!/usr/bin/env bash
 # copies files from local storage to a remote server
 
-if [ "$#" -lt 2 ] || [ $# -gt 3 ]; then
-    echo "Usage: $(basename "$0") PATH_TO_FILE IP PATH_TO_SSH_KEY (optional)"
-    exit 1
+if [ "$#" -lt 2 ] || [ "$#" -gt 3 ]; then
+	echo "Usage: $(basename "$0") PATH_TO_FILE IP"
+	exit 1
 fi
 
-PATH_TO_FILE=$1
+# Check if the first argument is '-r'
+if [ "$1" == "-r" ]; then
+	RECURSIVE="-r"
+	shift # Remove the '-r' option from arguments
+else
+	RECURSIVE=""
+fi
+
+PATH_TO_FILE_OR_DIRECTORY=$1
 IP=$2
 USERNAME=ubuntu
-# PATH_TO_SSH_KEY=$4
+PATH_TO_SSH_KEY="$HOME/.ssh/id_rsa"
 
-if [ -z "$4" ]; then
-    PATH_TO_SSH_KEY="$3"
-else
-    if [ -f "$HOME/.ssh/id_rsa" ]; then
-    PATH_TO_SSH_KEY="$HOME/.ssh/id_rsa"
-    else
-        echo "No SSH key found"
-        exit 1
-    fi
-fi
-
-# Handle if no key was found
-if [ -z "$PATH_TO_SSH_KEY" ]; then
-    # Fallback to using the 4th argument
-    PATH_TO_SSH_KEY="$4"
-fi
-
-if [ ! -f "$PATH_TO_FILE" ]; then
-    echo "File not found"
+if [ ! -e "$PATH_TO_FILE_OR_DIRECTORY" ]; then
+    echo "File or directory not found"
     exit 1
 fi
-
-scp -o StrictHostKeyChecking=no -i "$PATH_TO_SSH_KEY" "$PATH_TO_FILE" "$USERNAME@$IP":~/
+scp -o StrictHostKeyChecking=no -i "$PATH_TO_SSH_KEY" "$RECURSIVE" "$PATH_TO_FILE_OR_DIRECTORY" "$USERNAME@$IP":~/
