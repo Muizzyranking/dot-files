@@ -21,8 +21,10 @@ return { -- Fuzzy Finder (files, lsp, etc)
       vim.keymap.set("n", key, action, { desc = desc })
     end
     local actions = require("telescope.actions")
-    local trouble = require("trouble.providers.telescope")
 
+    local open_with_trouble = function(...)
+      return require("trouble.providers.telescope").open_with_trouble(...)
+    end
 
     require("telescope").setup({
 
@@ -34,7 +36,7 @@ return { -- Fuzzy Finder (files, lsp, etc)
         winblend = 0,
         mappings = {
           i = {
-            ["<c-t>"] = trouble.open_with_trouble,
+            ["<c-t>"] = open_with_trouble,
             -- ["<C-f>"] = actions.preview_scrolling_down,
             ["<C-u>"] = actions.preview_scrolling_up,
             ["<C-d>"] = actions.delete_buffer,
@@ -43,7 +45,7 @@ return { -- Fuzzy Finder (files, lsp, etc)
           n = {
             ["q"] = actions.close,
             ["<C-d>"] = actions.delete_buffer,
-            ["<C-t>"] = trouble.open_with_trouble,
+            ["<C-t>"] = open_with_trouble,
             ["<C-f>"] = actions.preview_scrolling_down,
             ["<C-b>"] = actions.preview_scrolling_up,
           },
@@ -60,7 +62,6 @@ return { -- Fuzzy Finder (files, lsp, etc)
     -- Enable telescope extensions, if they are installed
     pcall(require("telescope").load_extension, "fzf")
     pcall(require("telescope").load_extension, "ui-select")
-    pcall(require("telescope").load_extension, "harpoon")
     local new_file = require("config.functions").new_file
 
     map("<leader>fn", new_file, "Create new file")

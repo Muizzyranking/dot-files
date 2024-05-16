@@ -17,7 +17,8 @@ return {
       no_bold = false,
       default_integrations = true,
       integrations = {
-        -- harpoon = true,
+        dashboard = true,
+        harpoon = true,
         -- fidget = true,
         cmp = true,
         -- flash = true,
@@ -29,6 +30,7 @@ return {
         mini = true,
         leap = true,
         overseer = true,
+        markdown = true,
         native_lsp = {
           enabled = true,
           underlines = {
@@ -38,7 +40,6 @@ return {
             information = { "undercurl" },
           },
         },
-        navic = { enabled = true, custom_bg = "lualine" },
         neotest = true,
         noice = true,
         notify = true,

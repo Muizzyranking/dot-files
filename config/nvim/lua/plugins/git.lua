@@ -1,8 +1,7 @@
 return {
   { -- Adds git related signs to the gutter, as well as utilities for managing changes
     "lewis6991/gitsigns.nvim",
-    lazy = false,
-    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
+    event = "LazyFile",
     opts = {
       signs = {
         add = { text = "▎" },
@@ -17,7 +16,11 @@ return {
     "kdheepak/lazygit.nvim",
     cmd = "LazyGit",
     keys = {
-      { "<leader>gg", "<cmd>LazyGit<cr>", { noremap = true, silent = true } },
+      {
+        "<leader>gg",
+        "<cmd>LazyGit<cr>",
+        desc = "LazyGit",
+      },
     },
     dependencies = {
       "nvim-telescope/telescope.nvim",

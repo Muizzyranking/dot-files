@@ -12,6 +12,7 @@ return {
       ["["] = { name = "+prev" },
       ["<leader>b"] = { name = "+buffer" },
       ["<leader>c"] = { name = "+code" },
+      ["<leader>C"] = { name = "+compiler" },
       ["<leader>f"] = { name = "+file/find" },
       ["<leader>g"] = { name = "+git" },
       ["<leader>gh"] = { name = "+hunks" },
@@ -21,7 +22,7 @@ return {
       ["<leader>w"] = { name = "+windows" },
       ["<leader>x"] = { name = "+diagnostics/quickfix" },
       ["<leader>t"] = { name = "+tests" },
-      ["<leader>r"] = { name = "+runner" },
+      -- ["<leader>r"] = { name = "+refactor" },
     },
   },
   config = function(_, opts)

@@ -27,7 +27,6 @@ return {
       ["Warning"] = utils.fg("DiagnosticError"),
       ["InProgress"] = utils.fg("DiagnosticWarn"),
     }
-
     lualine.setup({
       options = {
         icons_enabled = true,
@@ -91,28 +90,11 @@ return {
           "%=",
           {
             "harpoon2",
-            color = { gui = "bold" },
+            _separator = " ",
+            no_harpoon = "",
           },
         },
         lualine_x = {
-          {
-            overseer = require("overseer"),
-            "overseer",
-            label = "", -- Prefix for task counts
-            colored = true, -- Color the task icons and counts
-            -- symbols = {
-            --   [overseer.STATUS.FAILURE] = "F:",
-            --   [overseer.STATUS.CANCELED] = "C:",
-            --   [overseer.STATUS.SUCCESS] = "S:",
-            --   [overseer.STATUS.RUNNING] = "R:",
-            -- },
-            unique = false, -- Unique-ify non-running task count by name
-            name = nil, -- List of task names to search for
-            name_not = false, -- When true, invert the name search
-            status = nil, -- List of task statuses to display
-            status_not = false, -- When true, invert the status search
-          },
-
           {
             function()
               return require("noice").api.status.command.get()
@@ -169,7 +151,6 @@ return {
           },
           -- utils.cmp_source("codieum", icons.Codieum),
           lsp,
-          -- fts,
         },
         lualine_z = {
           "progress",

@@ -33,19 +33,6 @@ return {
             icon = " ",
             key = "n",
           },
-
-          {
-            action = function()
-              if vim.bo.filetype == "neo-tree" then
-                vim.cmd.Neotree("close")
-              else
-                vim.cmd.Neotree("toggle")
-              end
-            end,
-            desc = " File explorer",
-            icon = " ",
-            key = "e",
-          },
           {
             action = "Telescope projects",
             desc = " Projects",
@@ -63,13 +50,6 @@ return {
             desc = " Find files",
             icon = " ",
             key = "f",
-          },
-
-          {
-            action = "Telescope live_grep",
-            desc = " Find text",
-            icon = " ",
-            key = "g",
           },
           {
             action = 'lua require("persistence").load()',

@@ -5,7 +5,6 @@ return {
     "nvim-tree/nvim-web-devicons",
     "MunifTanjim/nui.nvim",
   },
-  event = "VeryLazy",
   keys = {
     {
       "<leader>E",

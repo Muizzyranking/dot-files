@@ -35,22 +35,22 @@ return {
 	cmd = { "CompilerOpen", "CompilerToggleResults", "CompilerRedo" },
 	keys = {
 		{
-			"<leader>ro",
+			"<leader>Co",
 			"<cmd>CompilerOpen<CR>",
 			desc = "Open compiler window",
 		},
 		{
-			"<leader>rt",
+			"<leader>Ct",
 			"<cmd>CompilerToggleResults<CR>",
 			desc = "Toggle compiler results",
 		},
 		{
-			"<leader>rs",
+			"<leader>Cs",
 			"<cmd>CompilerStop<CR>",
 			desc = "Stop all tasks",
 		},
 		{
-			"<leader>rr",
+			"<leader>Cr",
 			"<cmd>CompilerRedo<CR>",
 			desc = "Redo last task",
 		},
