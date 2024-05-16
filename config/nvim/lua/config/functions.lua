@@ -35,7 +35,9 @@ local enabled = true
 function M.toggle_diagnostics()
   -- if this Neovim version supports checking if diagnostics are enabled
   -- then use that for the current state
+  ---@diagnostic disable-next-line: deprecated
   if vim.diagnostic.is_disabled then
+    ---@diagnostic disable-next-line: deprecated
     enabled = not vim.diagnostic.is_disabled()
   end
   enabled = not enabled
@@ -44,6 +46,7 @@ function M.toggle_diagnostics()
     vim.diagnostic.enable()
     utils.info("Enabled diagnostics", { title = "Diagnostics" })
   else
+    ---@diagnostic disable-next-line: deprecated
     vim.diagnostic.disable()
     utils.warn("Disabled diagnostics", { title = "Diagnostics" })
   end

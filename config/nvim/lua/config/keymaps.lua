@@ -78,7 +78,7 @@ set("i", "<C-e>", "<esc>A", { desc = "Go to end of line" }) -- go to end of line
 set({ "n", "v" }, "E", "$", { desc = "Go to end of line" }) -- go to end of line in normal
 set("i", "jj", "<Esc>", { desc = "Go to normal mode" }) -- esc with jj
 set("n", "<BS>", '"_ciw', { desc = "Change inner word" }) -- change word
-set("n", "x", '"_x') -- delete text without yanking
+set({ "n", "v", "x" }, "x", '"_x') -- delete text without yanking
 set({ "v", "x" }, "<leader>d", '"_d', { desc = "Delete without yanking" }) -- delete selected without yanking
 set({ "n" }, "<leader>d", '"_dd', { desc = "Delete without yanking" }) -- delete line without yanking
 set("n", "<C-a>", "gg<S-v>G", { desc = "Select all", noremap = true, silent = true }) -- select all

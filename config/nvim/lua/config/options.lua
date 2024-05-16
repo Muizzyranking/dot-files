@@ -98,3 +98,10 @@ vim.g.loaded_perl_provider = 0 -- Disable Perl providers
 opt.pumblend = 10 -- Popup blend
 opt.pumheight = 10 -- Maximum number of entries in a popup
 -- opt.conceallevel = 2 -- Hide * markup for bold and italic, but not markers with substitutions
+
+-- Diagnostic signs
+local icons = require("config.utils").icons.diagnostics
+vim.fn.sign_define("DiagnosticSignError", { text = icons.Error, texthl = "DiagnosticSignError" })
+vim.fn.sign_define("DiagnosticSignWarn", { text = icons.Warn, texthl = "DiagnosticSignWarn" })
+vim.fn.sign_define("DiagnosticSignInfo", { text = icons.Info, texthl = "DiagnosticSignInfo" })
+vim.fn.sign_define("DiagnosticSignHint", { text = icons.Hint, texthl = "DiagnosticSignHint" })
