@@ -45,7 +45,7 @@ return {
 
       --  This function gets run when an LSP attaches to a particular buffer.
       vim.api.nvim_create_autocmd("LspAttach", {
-        group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
+        group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
         callback = function(event)
           local map = function(keys, func, desc)
             vim.keymap.set("n", keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
@@ -117,7 +117,7 @@ return {
       require("mason-tool-installer").setup({
         ensure_installed = ensure_installed,
         run_on_start = true,
-        start_delay = 0,
+        start_delay = 2,
       })
 
       require("mason-lspconfig").setup({
@@ -128,6 +128,14 @@ return {
             -- by the server configuration above. Useful when disabling
             -- certain features of an LSP (for example, turning off formatting for tsserver)
             server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
+
+            local setup_fn = server.setup
+            if setup_fn then
+              if setup_fn(nil, server) then
+                return
+              end
+            end
+
             require("lspconfig")[server_name].setup(server)
           end,
         },

@@ -68,7 +68,7 @@ return { -- Autocompletion
         { name = "buffer" },
         {
           name = "copilot",
-          group_index = 1,
+          group_index = 2,
           priority = 100,
         },
         -- {
