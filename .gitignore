@@ -1,3 +1,4 @@
 config/tmux/plugins
 neovim-nightly
 config/lazygit/state.yml
+scripts/vin

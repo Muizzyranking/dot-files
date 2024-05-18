@@ -345,7 +345,7 @@ M.lualine_lsp = {
   function()
     ---@diagnostic disable-next-line: deprecated
     local buf_clients = vim.lsp.get_active_clients({ bufnr = 0 })
-    if #buf_clients == 0 then
+    if #buf_clients == 1 then
       return "LSP: Inactive"
     end
     -- local buf_ft = vim.bo.filetype
