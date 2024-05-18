@@ -1,5 +1,5 @@
 local func = require("config.functions")
-local utils = require("config.utils")
+-- local utils = require("config.utils")
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 -- vim.keymap.del("n")

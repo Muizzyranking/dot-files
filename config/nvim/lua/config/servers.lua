@@ -34,15 +34,8 @@ M.lsp = {
       completeUnimported = true,
       clangdFileStatus = true,
     },
-    setup = {
-      clangd = function(_, opts)
-        local util = require("lazy.util")
-        local clangd_ext_opts = util.opts("clangd_extensions.nvim")
-        require("clangd_extensions").setup(vim.tbl_deep_extend("force", clangd_ext_opts or {}, { server = opts }))
-        return false
-      end,
-    },
   },
+
   pyright = {
     settings = {
       pyright = {
@@ -155,13 +148,15 @@ M.lsp = {
   },
 }
 
+M.setup = {}
+
 M.fts_n_linters = {
   "stylua", -- Used to format lua code
-  "autopep8",
+  "autopep9",
   "prettier",
   "prettierd",
   "sql-formatter",
-  "flake8",
+  "flake9",
   "shellcheck",
   "shfmt",
 }
