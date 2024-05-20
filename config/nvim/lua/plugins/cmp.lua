@@ -98,7 +98,7 @@ return { -- Autocompletion
       auto_bracket = {},
       formatting = {
         format = function(_, item)
-          local icons = require("config.utils").icons.kinds
+          local icons = require("utils.icons").kinds
           if icons[item.kind] then
             item.kind = icons[item.kind] .. " " .. item.kind
           end

@@ -1,6 +1,8 @@
+local utils = require("utils")
+local builtin = require("telescope.builtin")
 return { -- Fuzzy Finder (files, lsp, etc)
   "nvim-telescope/telescope.nvim",
-  event = "VimEnter",
+  cmd = "Telescope",
   branch = "0.1.x",
   dependencies = {
     "nvim-lua/plenary.nvim",
@@ -10,18 +12,81 @@ return { -- Fuzzy Finder (files, lsp, etc)
       cond = function()
         return vim.fn.executable("make") == 1
       end,
+      config = function()
+        utils.on_load("telescope.nvim", function()
+          pcall(require("telescope").load_extension, "fzf")
+        end)
+      end,
     },
-    { "nvim-telescope/telescope-ui-select.nvim" },
-
+    {
+      -- project management
+      {
+        "ahmedkhalf/project.nvim",
+        opts = {
+          manual_mode = true,
+        },
+        event = "VeryLazy",
+        config = function(_, opts)
+          require("project_nvim").setup(opts)
+          utils.on_load("telescope.nvim", function()
+            require("telescope").load_extension("projects")
+          end)
+        end,
+        keys = {
+          { "<leader>fp", "<Cmd>Telescope projects<CR>", desc = "Projects" },
+        },
+      },
+    },
     { "nvim-tree/nvim-web-devicons" },
   },
+  keys = {
+    { "<leader>fh", builtin.help_tags, desc = "Find Help Tags" },
+    { "<leader>fk", builtin.keymaps, desc = "Find Keymaps" },
+    { "<leader>ff", builtin.find_files, desc = "Find Files" },
+    -- map("n", "<leader>ss", builtin.builtin, { desc = "[S]earch [S]elect Telescope" })
+    { "<leader>sw", builtin.grep_string, desc = "Search word under cursor" },
+    { "<leader>fg", builtin.live_grep, desc = "Find by Grep" },
+    { "<leader>fd", builtin.diagnostics, desc = "Find Diagnostics" },
+    { "<leader>fR", builtin.resume, desc = "Search Resume" },
+    { "<leader>fr", builtin.oldfiles, desc = "Find Recent Files" },
+    -- { "<leader>fb", builtin.buffers, desc = "Find Buffers" },
+    { "<leader>fb", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", desc = "Find Buffers" },
+    { "<leader>,", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", desc = "Find Buffers" },
+    { "<leader>fm", builtin.man_pages, desc = "Find Man Pages" },
+    { "<leader>:", builtin.command_history, desc = "Command History" },
+    -- { "<leader>gs", builtin.git_status, desc = "Git Status (Telescope)" },
+    { "<leader>gC", builtin.git_commits, desc = "Git Commit (Telescope)" },
+    { "<leader>gf", builtin.git_files, desc = "Git files (Telescope)" },
+    {
+      "<leader>fw",
+      function()
+        builtin.current_buffer_fuzzy_find(require("telescope.themes").get_dropdown({
+          winblend = 0,
+          previewer = false,
+        }))
+      end,
+      desc = "Find in Current Buffer",
+    },
+    {
+      "<leader>fW",
+      function()
+        builtin.live_grep({
+          grep_open_files = true,
+          prompt_title = "Live Grep in Open Files",
+        })
+      end,
+      desc = "Find in Open Files",
+    },
+    {
+      "<leader>fc",
+      function()
+        builtin.find_files({ cwd = vim.fn.stdpath("config") })
+      end,
+      desc = "Find Config Files",
+    },
+  },
   config = function()
-    local builtin = require("telescope.builtin")
-    local map = function(key, action, desc)
-      vim.keymap.set("n", key, action, { desc = desc })
-    end
     local actions = require("telescope.actions")
-
     local open_with_trouble = function(...)
       return require("trouble.providers.telescope").open_with_trouble(...)
     end
@@ -52,56 +117,11 @@ return { -- Fuzzy Finder (files, lsp, etc)
         },
       },
       -- pickers = {}
-      extensions = {
-        ["ui-select"] = {
-          require("telescope.themes").get_dropdown(),
-        },
-      },
+      -- extensions = {
+      --   ["ui-select"] = {
+      --     require("telescope.themes").get_dropdown(),
+      --   },
+      -- },
     })
-
-    -- Enable telescope extensions, if they are installed
-    pcall(require("telescope").load_extension, "fzf")
-    pcall(require("telescope").load_extension, "ui-select")
-    local new_file = require("config.functions").new_file
-
-    map("<leader>fn", new_file, "Create new file")
-    map("<leader>fh", builtin.help_tags, "Find Help Tags")
-    map("<leader>fk", builtin.keymaps, "Find Keymaps")
-    map("<leader>ff", builtin.find_files, "Find Files")
-    -- map("n", "<leader>ss", builtin.builtin, { desc = "[S]earch [S]elect Telescope" })
-    map("<leader>sw", builtin.grep_string, "Search word under cursor")
-    map("<leader>fg", builtin.live_grep, "Find by Grep")
-    map("<leader>fd", builtin.diagnostics, "Find Diagnostics")
-    map("<leader>fR", builtin.resume, "Search Resume")
-    map("<leader>fr", builtin.oldfiles, "Find Recent Files")
-    -- map("<leader>fb", builtin.buffers, "Find Buffers")
-    map("<leader>fb", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", "Find Buffers")
-    map("<leader>fm", builtin.man_pages, "Find Man Pages")
-    map("<leader>:", builtin.command_history, "Command History")
-
-    map("<leader>gs", builtin.git_status, "Git Status (Telescope)")
-    map("<leader>gc", builtin.git_commits, "Git Commit (Telescope)")
-    map("<leader>gf", builtin.git_files, "Git files (Telescope)")
-
-    vim.keymap.set("n", "<leader>fw", function()
-      builtin.current_buffer_fuzzy_find(require("telescope.themes").get_dropdown({
-        winblend = 0,
-        previewer = false,
-      }))
-    end, { desc = "Find in Current Buffer" })
-
-    -- Also possible to pass additional configuration options.
-    --  See `:help telescope.builtin.live_grep()` for information about particular keys
-    vim.keymap.set("n", "<leader>fW", function()
-      builtin.live_grep({
-        grep_open_files = true,
-        prompt_title = "Live Grep in Open Files",
-      })
-    end, { desc = "Find in Open Files" })
-
-    -- Shortcut for searching your neovim configuration files
-    vim.keymap.set("n", "<leader>fc", function()
-      builtin.find_files({ cwd = vim.fn.stdpath("config") })
-    end, { desc = "Find Config Files" })
   end,
 }

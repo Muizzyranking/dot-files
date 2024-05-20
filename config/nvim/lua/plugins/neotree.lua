@@ -8,29 +8,17 @@ return {
   keys = {
     {
       "<leader>E",
-      function()
-        if vim.bo.filetype == "neo-tree" then
-          vim.cmd.Neotree("close")
-        else
-          vim.cmd.Neotree("float")
-        end
-      end,
+      "<cmd>Neotree toggle float<cr>",
       desc = "Float File Explorer",
     },
     {
       "<leader>e",
-      function()
-        if vim.bo.filetype == "neo-tree" then
-          vim.cmd.Neotree("close")
-        else
-          vim.cmd.Neotree("toggle")
-        end
-      end,
+      "<cmd>Neotree toggle left<cr>",
       desc = "Left File Explorer",
     },
   },
   config = function()
-    -- local icons = require("config.utils").icons.neotree
+    -- local icons = require("utils.icons").neotree
     local git_available = vim.fn.executable("git") == 1
     -- local sources = {
     --   { source = "filesystem", display_name = icons.folder .. " " .. "Files" },

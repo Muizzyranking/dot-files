@@ -7,6 +7,11 @@ return {
   },
   keys = {
     {
+      "<leader>P",
+      "<cmd>YankyClearHistory<CR>",
+      desc = "Clear Yank History",
+    },
+    {
       "<leader>p",
       function()
         require("telescope").extensions.yank_history.yank_history({})

@@ -1,8 +1,9 @@
+-- local utils = require("config.utils")
 return {
   { -- LSP Configuration & Plugins
     "neovim/nvim-lspconfig",
-    -- event = { "BufReadPost", "BufWritePost", "BufNewFile" },
-    event = "LazyFile",
+    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
+    -- event = "LazyFile",
     dependencies = {
       {
         "williamboman/mason.nvim",
@@ -14,7 +15,7 @@ return {
           },
         },
       },
-      -- { "folke/neodev.nvim", opts = {} },
+      { "folke/neodev.nvim", opts = {} },
       "williamboman/mason-lspconfig.nvim",
       {
         "folke/neoconf.nvim",
@@ -62,6 +63,8 @@ return {
           map("<leader>fS", require("telescope.builtin").lsp_dynamic_workspace_symbols, "Workspace Symbols")
           -- map("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
           -- Execute a code action, usually your cursor needs to be on top of an error
+          -- TODO: figure out a way to use code action without telescope
+          -- NOTE: always load telescope before using code action
           map("<leader>ca", vim.lsp.buf.code_action, "Code Action")
           map("[d", vim.diagnostic.goto_prev, "Go to previous Diagnostic message")
           map("]d", vim.diagnostic.goto_next, "Go to next Diagnostic message")

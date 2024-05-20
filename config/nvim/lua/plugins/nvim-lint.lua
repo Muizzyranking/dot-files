@@ -70,9 +70,9 @@ return {
       ctx.dirname = vim.fn.fnamemodify(ctx.filename, ":h")
       names = vim.tbl_filter(function(name)
         local linter = lint.linters[name]
-        local utils = require("config.utils")
+        local notify = require("utils.notify")
         if not linter then
-          utils.warn("Linter not found: " .. name, { title = "nvim-lint" })
+          notify.warn("Linter not found: " .. name, { title = "nvim-lint" })
         end
         return linter and not (type(linter) == "table" and linter.condition and not linter.condition(ctx))
       end, names)

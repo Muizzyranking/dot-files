@@ -14,13 +14,13 @@ return {
     end
   end,
   config = function()
-    local utils = require("config.utils")
-    local file_name = utils.lualine_file
+    local utils = require("utils")
+    local lualine_utils = require("utils.lualine")
+    local file_name = lualine_utils.file
     local lualine = require("lualine")
-    local icons = require("config.utils").icons
-    local mode = utils.lualine_mode
-    local lsp = utils.lualine_lsp
-    -- local fts = util.lualine_fts
+    local icons = require("utils.icons")
+    local mode = lualine_utils.mode
+    local lsp = lualine_utils.lsp
     local colors = {
       [""] = utils.fg("Special"),
       ["Normal"] = utils.fg("Special"),
@@ -127,7 +127,7 @@ return {
         lualine_y = {
           {
             function()
-              local icon = require("config.utils").icons.kinds.Copilot
+              local icon = require("utils.icons").kinds.Copilot
               local status = require("copilot.api").status.data
               return icon .. (status.message or "")
             end,

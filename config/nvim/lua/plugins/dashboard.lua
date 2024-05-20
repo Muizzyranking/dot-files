@@ -28,7 +28,7 @@ return {
         header = vim.split(logo, "\n"),
         center = {
           {
-            action = require("config.functions").new_file,
+            action = require("utils.helper").new_file,
             desc = " New file",
             icon = " ",
             key = "n",

@@ -59,8 +59,7 @@ return {
       --     }
       --   end,
       -- },
-      color_overrides = {
-      },
+      color_overrides = {},
     },
   },
 }

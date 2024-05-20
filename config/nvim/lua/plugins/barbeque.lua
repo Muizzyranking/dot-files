@@ -24,6 +24,7 @@ return {
     require("barbecue").setup({
       create_autocmd = false, -- prevent barbecue from updating itself automatically
       show_dirname = false,
+      show_basename = false,
     })
     -- vim.keymap.set("n", "<leader>bz", require("barbecue").toggle(), { noremap = true, silent = true })
 

@@ -3,7 +3,12 @@ return {
   {
     "echasnovski/mini.pairs",
     event = { "BufRead", "BufNewFile" },
-    opts = {},
+    opts = {
+      mappings = {
+        ["<"] = { action = "open", pair = "<>", neigh_pattern = "[^\\]." },
+        [">"] = { action = "close", pair = "<>", neigh_pattern = "[^\\]." },
+      },
+    },
   },
   -- mini ai for better text objects
   {
