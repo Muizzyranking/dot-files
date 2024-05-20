@@ -3,6 +3,8 @@
         "undefined-field",
         "missing-fields",
         "assign-type-mismatch",
-        "need-check-nil"
+        "need-check-nil",
+        "deprecated",
+        "undefined-doc-name"
     ]
 }
