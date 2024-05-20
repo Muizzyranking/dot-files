@@ -2,7 +2,7 @@
 return {
   {
     "akinsho/bufferline.nvim",
-    enabled = false,
+    -- enabled = false,
     event = "VeryLazy",
     keys = {
       { "<leader>bp", "<Cmd>BufferLineTogglePin<CR>", desc = "Toggle pin" },
@@ -29,7 +29,7 @@ return {
         diagnostics = "nvim_lsp",
         always_show_bufferline = true,
         diagnostics_indicator = function(_, _, diag)
-          local icons = require("config.utils").icons.diagnostics
+          local icons = require("utils.icons").diagnostics
           local ret = (diag.error and icons.Error .. diag.error .. " " or "")
             .. (diag.warning and icons.Warn .. diag.warning or "")
           return vim.trim(ret)
@@ -50,6 +50,7 @@ return {
       vim.api.nvim_create_autocmd("BufAdd", {
         callback = function()
           vim.schedule(function()
+            ---@diagnostic disable-next-line: undefined-global
             pcall(nvim_bufferline)
           end)
         end,
