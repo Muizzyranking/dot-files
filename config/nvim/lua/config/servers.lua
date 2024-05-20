@@ -64,9 +64,9 @@ M.lsp = {
   cssls = {},
   html = {},
   sqlls = {},
-  bashls = {
-    filetypes = { "sh", "zsh", "bash" },
-  },
+  -- bashls = {
+  --   filetypes = { "sh", "zsh", "bash" },
+  -- },
   eslint = {
     settings = {
       -- helps eslint find the eslintrc when it's placed in a subfolder instead of the cwd root
@@ -152,11 +152,11 @@ M.setup = {}
 
 M.fts_n_linters = {
   "stylua", -- Used to format lua code
-  "autopep9",
+  "autopep8",
   "prettier",
   "prettierd",
   "sql-formatter",
-  "flake9",
+  "flake8",
   "shellcheck",
   "shfmt",
 }

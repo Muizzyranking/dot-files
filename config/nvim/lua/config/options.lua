@@ -1,5 +1,7 @@
 local opt = vim.opt
 
+vim.o.background = "dark"
+
 -----------------------------------------------------------
 -- General
 -----------------------------------------------------------
@@ -14,11 +16,14 @@ opt.showmode = false -- Don't show the mode, since it's already in the status li
 opt.signcolumn = "yes" -- Keep signcolumn on by default
 opt.scrolloff = 4 -- Minimal number of screen lines to keep above and below the cursor
 opt.sidescrolloff = 8
-opt.confirm = true -- Confirm before quitting unsaved buffers
 
+opt.confirm = true -- Confirm before quitting unsaved buffers
 -----------------------------------------------------------
 -- UI
 -----------------------------------------------------------
+opt.winminwidth = 5 -- Minimum window width
+opt.signcolumn = "yes" -- Always show the signcolumn, otherwise it would shift the text each time
+-- vim.opt.numberwidth = 1
 opt.termguicolors = true -- Enable true color support
 opt.inccommand = "nosplit" -- Don't Preview substitutions live, as you type!
 -- Customize fold characters
@@ -50,7 +55,6 @@ opt.foldmethod = "indent" -- Set folding method
 opt.foldenable = true -- Disable folding by default
 opt.foldlevel = 99 -- Set maximum fold level
 vim.g.markdown_folding = 1 -- Enable markdown folding
-vim.o.foldcolumn = "0" -- Set foldcolumn width
 vim.o.foldlevelstart = 99 -- Set initial folding level
 
 -----------------------------------------------------------
@@ -91,7 +95,9 @@ opt.splitright = true -- Configure how new splits should be opened
 opt.splitbelow = true -- Configure how new splits should be opened
 opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" } -- Set session options
 opt.spelllang = { "en" } -- Set spell languages
-vim.g.autoformat = false -- Disable autoformat by default
+opt.spell = false -- Disable spell checking by default
+-- vim.g.autoformat = false -- Disable autoformat by default
+vim.g.disable_autoformat = true
 vim.g.loaded_ruby_provider = 0 -- Disable Ruby providers
 vim.g.loaded_perl_provider = 0 -- Disable Perl providers
 
@@ -100,7 +106,7 @@ opt.pumheight = 10 -- Maximum number of entries in a popup
 -- opt.conceallevel = 2 -- Hide * markup for bold and italic, but not markers with substitutions
 
 -- Diagnostic signs
-local icons = require("config.utils").icons.diagnostics
+local icons = require("utils.icons").diagnostics
 vim.fn.sign_define("DiagnosticSignError", { text = icons.Error, texthl = "DiagnosticSignError" })
 vim.fn.sign_define("DiagnosticSignWarn", { text = icons.Warn, texthl = "DiagnosticSignWarn" })
 vim.fn.sign_define("DiagnosticSignInfo", { text = icons.Info, texthl = "DiagnosticSignInfo" })

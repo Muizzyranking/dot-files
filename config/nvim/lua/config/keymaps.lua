@@ -1,11 +1,16 @@
-local func = require("config.functions")
--- local utils = require("config.utils")
+local helper = require("utils.helper")
+local notify = require("utils.notify")
+local git = require("utils.git")
+
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 -- vim.keymap.del("n")
 
 vim.opt.showmode = false
 local set = vim.keymap.set
+
+set("n", "<leader>gb", git.blame_line, { desc = "Git Blame Line" })
+set("n", "<leader>fn", helper.new_file, { desc = "Create new file" })
 
 ------------------------
 -- Keymaps for moving chunks of text/code
@@ -95,16 +100,38 @@ set({ "n" }, "ciw", '"_ciw')
 -- Keymaps for miscellaneous
 ------------------------
 -- set("n", "<leader>cx", "<cmd>!chmod +x %<cr>", { desc = "Make file executable", silent = true })
-set("n", "<leader>cx", func.make_file_executable, { desc = "Make file executable", silent = true })
-set("n", "<leader>uw", func.toggle_line_wrap, { desc = "Toggle line wrap" })
-set("n", "<leader>ud", func.toggle_diagnostics, { desc = "Toggle Diagnostics" })
-set("n", "<leader>us", func.toggle_spell, { desc = "Toggle Spell" })
-set("n", "<leader>uf", func.toggle_autoformat, { desc = "Toggle Autoformat (Global)" })
--- set("n", "<leader>uF", func.toggle_autoformat_buffer, { desc = "Toggle Autoformat (Buffer)" })
+set("n", "<leader>cx", helper.make_file_executable, { desc = "Make file executable", silent = true })
+set("n", "<leader>uw", helper.toggle_line_wrap, { desc = "Toggle line wrap" })
+set("n", "<leader>ud", helper.toggle_diagnostics, { desc = "Toggle Diagnostics" })
+set("n", "<leader>us", helper.toggle_spell, { desc = "Toggle Spell" })
+set("n", "<leader>uf", helper.toggle_autoformat, { desc = "Toggle Autoformat (Global)" })
+set("n", "<leader>uF", function()
+  helper.toggle_autoformat(true)
+end, { desc = "Toggle Autoformat (Buffer)" })
+set("n", "<leader>uT", function()
+  if vim.b.ts_highlight then
+    vim.treesitter.stop()
+  else
+    vim.treesitter.start()
+  end
+end, { desc = "Toggle Treesitter Highlight" })
 
 -- buffers
 -- if not utils.has("bufferline.nvim") then
-set("n", "<S-h>", "<cmd>bp<cr>", { desc = "Prev buffer", silent = true })
-set("n", "<S-l>", "<cmd>bn<cr>", { desc = "Next buffer", silent = true })
+set("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Prev buffer", silent = true })
+set("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next buffer", silent = true })
 set("n", "<leader>bd", "<cmd>bd<cr>", { desc = "Delete buffer", silent = true })
 -- end
+
+set("n", "<UP>", function()
+  notify.warn("Use k", { desc = "options" })
+end)
+set("n", "<DOWN>", function()
+  notify.warn("Use j", { desc = "options" })
+end)
+set("n", "<LEFT>", function()
+  notify.warn("Use h", { desc = "options" })
+end)
+set("n", "<RIGHT>", function()
+  notify.warn("Use l", { desc = "options" })
+end)
