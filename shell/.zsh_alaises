@@ -1,5 +1,4 @@
 alias v='nvim'
-alias vi='vin'
 alias cl='clear'
 alias lv='NVIM_APPNAME=lazyvim nvim'
 alias cat='bat'

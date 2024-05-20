@@ -24,4 +24,4 @@ export SERVER_2=54.90.21.58
 export LB=34.229.55.152
 
 # source $dotfile_dir/shell/alx-info
-
+export PATH=~/nvim-linux64/bin:$PATH
