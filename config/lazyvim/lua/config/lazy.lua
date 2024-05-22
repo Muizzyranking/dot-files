@@ -26,6 +26,7 @@ require("lazy").setup({
     { import = "lazyvim.plugins.extras.coding.copilot" },
 
     { import = "lazyvim.plugins.extras.test.core" },
+    { import = "lazyvim.plugins.extras.editor.refactoring" },
 
     --markdown
     -- { import = "lazyvim.plugins.extras.lang.markdown" },
