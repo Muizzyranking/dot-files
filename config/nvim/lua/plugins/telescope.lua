@@ -40,20 +40,26 @@ return { -- Fuzzy Finder (files, lsp, etc)
     { "nvim-tree/nvim-web-devicons" },
   },
   keys = {
-    { "<leader>fh", builtin.help_tags, desc = "Find Help Tags" },
+    -- I don't use help tags
+    -- { "<leader>fh", builtin.help_tags, desc = "Find Help Tags" },
     { "<leader>fk", builtin.keymaps, desc = "Find Keymaps" },
     { "<leader>ff", builtin.find_files, desc = "Find Files" },
-    -- map("n", "<leader>ss", builtin.builtin, { desc = "[S]earch [S]elect Telescope" })
     { "<leader>sw", builtin.grep_string, desc = "Search word under cursor" },
     { "<leader>fg", builtin.live_grep, desc = "Find by Grep" },
     { "<leader>fd", builtin.diagnostics, desc = "Find Diagnostics" },
     { "<leader>fR", builtin.resume, desc = "Search Resume" },
     { "<leader>fr", builtin.oldfiles, desc = "Find Recent Files" },
-    -- { "<leader>fb", builtin.buffers, desc = "Find Buffers" },
     { "<leader>fb", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", desc = "Find Buffers" },
     { "<leader>,", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", desc = "Find Buffers" },
     { "<leader>fm", builtin.man_pages, desc = "Find Man Pages" },
     { "<leader>:", builtin.command_history, desc = "Command History" },
+    {
+      "<leader>uc",
+      function()
+        builtin.colorscheme({ enable_preview = true })
+      end,
+      desc = "colorscheme",
+    },
     -- { "<leader>gs", builtin.git_status, desc = "Git Status (Telescope)" },
     { "<leader>gC", builtin.git_commits, desc = "Git Commit (Telescope)" },
     { "<leader>gf", builtin.git_files, desc = "Git files (Telescope)" },
@@ -125,3 +131,4 @@ return { -- Fuzzy Finder (files, lsp, etc)
     })
   end,
 }
+
