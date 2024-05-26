@@ -21,12 +21,14 @@ return {
     local icons = require("utils.icons")
     local mode = lualine_utils.mode
     local lsp = lualine_utils.lsp
+    local harpoon = lualine_utils.harpoon
     local colors = {
       [""] = utils.fg("Special"),
       ["Normal"] = utils.fg("Special"),
       ["Warning"] = utils.fg("DiagnosticError"),
       ["InProgress"] = utils.fg("DiagnosticWarn"),
     }
+
     lualine.setup({
       options = {
         icons_enabled = true,
@@ -43,7 +45,7 @@ return {
         winbar = { "" },
         --},
         ignore_focus = { "" },
-        always_divide_middle = true,
+        always_divide_middle = false,
         refresh = {
           statusline = 1000,
           tabline = 1000,
@@ -89,12 +91,22 @@ return {
         lualine_c = {
           "%=",
           {
-            "harpoon2",
-            _separator = " ",
-            no_harpoon = "",
+            harpoon,
           },
         },
         lualine_x = {
+          -- {
+          --
+          --   -- "overseer",
+          --   -- -- label = "", -- Prefix for task counts
+          --   -- -- colored = true, -- Color the task icons and counts
+          --   -- -- unique = false, -- Unique-ify non-running task count by name
+          --   -- -- name = nil, -- List of task names to search for
+          --   -- -- name_not = false, -- When true, invert the name search
+          --   -- -- status = nil, -- List of task statuses to display
+          --   -- -- status_not = false, -- When true, invert the status search
+          --   -- cond = nil,
+          -- },
           {
             function()
               return require("noice").api.status.command.get()
@@ -169,6 +181,7 @@ return {
       winbar = {},
       inactive_winbar = {},
       extensions = {
+        "oil",
         "neo-tree",
         "lazy",
         "overseer",

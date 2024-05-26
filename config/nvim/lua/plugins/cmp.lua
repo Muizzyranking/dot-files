@@ -16,18 +16,25 @@ return { -- Autocompletion
         end
         return "make install_jsregexp"
       end)(),
+      dependencies = {
+        {
+          "rafamadriz/friendly-snippets",
+          config = function()
+            require("luasnip.loaders.from_vscode").lazy_load()
+          end,
+        },
+      },
     },
     "saadparwaiz1/cmp_luasnip",
-
     "hrsh7th/cmp-nvim-lsp",
     "hrsh7th/cmp-path",
+    "hrsh7th/cmp-buffer",
     "zbirenbaum/copilot-cmp",
   },
   config = function()
-    -- See `:help cmp`
     local cmp = require("cmp")
     local luasnip = require("luasnip")
-    local defaults = require("cmp.config.default")()
+    -- local defaults = require("cmp.config.default")()
     luasnip.config.setup({})
 
     cmp.setup({
@@ -36,8 +43,9 @@ return { -- Autocompletion
           luasnip.lsp_expand(args.body)
         end,
       },
-      completion = { completeopt = "menu,menuone,noinsert" },
-
+      completion = {
+        completeopt = "menu,menuone,noinsert",
+      },
       mapping = cmp.mapping.preset.insert({
         -- Select the [n]ext item
         ["<C-n>"] = cmp.mapping.select_next_item(),
@@ -49,48 +57,46 @@ return { -- Autocompletion
         ["<C-Tab>"] = cmp.mapping.complete({}),
         -- <c-l> will move you to the right of each of the expansion locations.
         -- <c-h> is similar, except moving you backwards.
-        ["<C-l>"] = cmp.mapping(function()
+        ["<Tab>"] = cmp.mapping(function()
           if luasnip.expand_or_locally_jumpable() then
             luasnip.expand_or_jump()
           end
         end, { "i", "s" }),
-        ["<C-h>"] = cmp.mapping(function()
+        ["<S-Tab>"] = cmp.mapping(function()
           if luasnip.locally_jumpable(-1) then
             luasnip.jump(-1)
           end
         end, { "i", "s" }),
       }),
       sources = {
+        {
+          name = "copilot",
+          group_index = 1,
+          priority = 100,
+        },
         { name = "nvim_lsp" },
         { name = "lspconfig" },
         { name = "luasnip" },
         { name = "path" },
         { name = "buffer" },
-        {
-          name = "copilot",
-          group_index = 2,
-          priority = 100,
-        },
         -- {
         --   name = "codeium",
         --   group_index = 1,
         --   priority = 100,
         -- },
       },
-      sorting = {
-        defaults.sorting,
-        comparators = { require("clangd_extensions.cmp_scores") },
-      },
+      -- sorting = {
+      --   defaults.sorting,
+      --   comparators = { require("clangd_extensions.cmp_scores") },
+      -- },
       window = {
         completion = {
-          -- winhighlight = "Normal:Pmenu,FloatBorder:Pmenu,Search:None",
           border = "rounded",
           col_offset = 0,
           side_padding = 0,
         },
         documentation = {
           border = "rounded",
-          -- winhighlight = "Normal:CmpDoc,FloatBorder:CmpDoc,Search:None",
           max_width = 80,
           max_height = 12,
         },

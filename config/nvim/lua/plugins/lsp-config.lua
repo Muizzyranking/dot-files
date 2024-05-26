@@ -2,8 +2,8 @@
 return {
   { -- LSP Configuration & Plugins
     "neovim/nvim-lspconfig",
-    event = { "BufReadPost", "BufWritePost", "BufNewFile" },
-    -- event = "LazyFile",
+    -- event = { "BufReadPost", "BufWritePost", "BufNewFile" },
+    event = "LazyFile",
     dependencies = {
       {
         "williamboman/mason.nvim",
@@ -11,7 +11,7 @@ return {
           {
             "<leader>cm",
             "<cmd>Mason<cr>",
-            { desc = "Mason" },
+            desc = "Mason",
           },
         },
       },
@@ -29,7 +29,7 @@ return {
           {
             "<leader>cI",
             "<cmd>MasonToolsInstall<cr>",
-            { desc = "Install Missing Servers" },
+            desc = "Install Missing Servers",
           },
         },
       },
@@ -63,8 +63,6 @@ return {
           map("<leader>fS", require("telescope.builtin").lsp_dynamic_workspace_symbols, "Workspace Symbols")
           -- map("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
           -- Execute a code action, usually your cursor needs to be on top of an error
-          -- TODO: figure out a way to use code action without telescope
-          -- NOTE: always load telescope before using code action
           map("<leader>ca", vim.lsp.buf.code_action, "Code Action")
           map("[d", vim.diagnostic.goto_prev, "Go to previous Diagnostic message")
           map("]d", vim.diagnostic.goto_next, "Go to next Diagnostic message")
@@ -104,9 +102,8 @@ return {
 
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
-      -- capabilities.textDocument.foldingRange = {
-      --   dynamicRegistration = false,
-      --   lineFoldingOnly = true,
+      -- capabilities.textDocument.inlayHint = {
+      --   dynamicRegistration = true,
       -- }
 
       local servers = require("config.servers").lsp
@@ -131,14 +128,6 @@ return {
             -- by the server configuration above. Useful when disabling
             -- certain features of an LSP (for example, turning off formatting for tsserver)
             server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-
-            local setup_fn = server.setup
-            if setup_fn then
-              if setup_fn(nil, server) then
-                return
-              end
-            end
-
             require("lspconfig")[server_name].setup(server)
           end,
         },

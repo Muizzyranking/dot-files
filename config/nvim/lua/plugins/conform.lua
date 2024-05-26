@@ -1,4 +1,4 @@
-return { -- Autoformat
+return {
   "stevearc/conform.nvim",
   event = "BufWritePre",
   cmd = { "ConformInfo" },
@@ -22,7 +22,6 @@ return { -- Autoformat
   },
   opts = {
     notify_on_error = true,
-    -- i do not want format on save
     format_on_save = function(bufnr)
       -- Disable with a global or buffer-local variable
       if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then

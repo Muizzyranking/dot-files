@@ -41,13 +41,13 @@ return {
       return keys
     end,
   },
-  {
-    "letieu/harpoon-lualine",
-    -- dependencies = {
-    --   {
-    --     "ThePrimeagen/harpoon",
-    --     branch = "harpoon2",
-    --   },
-    -- },
-  },
+  -- {
+  --   "letieu/harpoon-lualine",
+  --   dependencies = {
+  --     {
+  --       "ThePrimeagen/harpoon",
+  --       branch = "harpoon2",
+  --     },
+  --   },
+  -- },
 }

@@ -29,38 +29,39 @@ return {
   },
   -- mini comment (toggle comments)
   -- NOTE: Neovim >= 0.10.0 has comment built in
-  -- {
-  --   "echasnovski/mini.comment",
-  --   event = "VeryLazy",
-  --   dependencies = {
-  --     "JoosepAlviste/nvim-ts-context-commentstring",
-  --     lazy = true,
-  --     opts = {
-  --       enable_autocmd = false,
-  --     },
-  --   },
-  --   opts = {
-  --     options = {
-  --       custom_commentstring = function()
-  --         local filetype = vim.bo.filetype -- Get the current filetype
-  --         --use custom comment for c files
-  --         if filetype == "c" then
-  --           return "/*%s*/"
-  --         end
-  --         -- for some reason sql comment doesnt work
-  --         -- after setting custom comment for c
-  --         if filetype == "sql" then
-  --           return "--%s"
-  --         end
-  --         return require("ts_context_commentstring.internal").calculate_commentstring() or vim.bo.commentstring
-  --       end,
-  --     },
-  --     mappings = {
-  --       -- Toggle comment on current line
-  --       comment_line = comment,
-  --       -- Toggle comment on visual selection
-  --       comment_visual = comment,
-  --     },
-  --   },
-  -- },
+  -- TODO: remove when nvim add supports for customisation
+  {
+    "echasnovski/mini.comment",
+    event = "VeryLazy",
+    dependencies = {
+      "JoosepAlviste/nvim-ts-context-commentstring",
+      lazy = true,
+      opts = {
+        enable_autocmd = false,
+      },
+    },
+    opts = {
+      options = {
+        custom_commentstring = function()
+          local filetype = vim.bo.filetype -- Get the current filetype
+          --use custom comment for c files
+          if filetype == "c" then
+            return "/*%s*/"
+          end
+          -- for some reason sql comment doesnt work
+          -- after setting custom comment for c
+          if filetype == "sql" then
+            return "--%s"
+          end
+          return require("ts_context_commentstring.internal").calculate_commentstring() or vim.bo.commentstring
+        end,
+      },
+      mappings = {
+        -- Toggle comment on current line
+        comment_line = comment,
+        -- Toggle comment on visual selection
+        comment_visual = comment,
+      },
+    },
+  },
 }

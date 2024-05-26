@@ -17,7 +17,7 @@ return {
     },
     opts = {
       options = {
-        separator_style = "padded_slope",
+        separator_style = "",
         close_command = function(n)
           require("mini.bufremove").delete(n, false)
         end,

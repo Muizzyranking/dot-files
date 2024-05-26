@@ -18,10 +18,6 @@ return {
       "nvim-treesitter/nvim-treesitter",
       "nvim-treesitter/nvim-treesitter-textobjects",
     },
-    -- keys = {
-    --   { "a", mode = { "x", "o" } },
-    --   { "i", mode = { "x", "o" } },
-    -- },
     opts = function()
       local ai = require("mini.ai")
       return {

@@ -123,12 +123,11 @@ return { -- Fuzzy Finder (files, lsp, etc)
         },
       },
       -- pickers = {}
-      -- extensions = {
-      --   ["ui-select"] = {
-      --     require("telescope.themes").get_dropdown(),
-      --   },
-      -- },
+      extensions = {
+        ["ui-select"] = {
+          require("telescope.themes").get_dropdown(),
+        },
+      },
     })
   end,
 }
-

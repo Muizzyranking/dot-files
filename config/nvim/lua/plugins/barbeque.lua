@@ -15,7 +15,6 @@ return {
       "<leader>ub",
       function()
         require("barbecue.ui").toggle()
-        -- if require("babequ")
       end,
       desc = "Code Winbar",
     },
@@ -26,7 +25,6 @@ return {
       show_dirname = false,
       show_basename = false,
     })
-    -- vim.keymap.set("n", "<leader>bz", require("barbecue").toggle(), { noremap = true, silent = true })
 
     vim.api.nvim_create_autocmd({
       "WinScrolled", -- or WinResized on NVIM-v0.9 and higher

@@ -21,7 +21,7 @@ return {
         harpoon = true,
         -- fidget = true,
         cmp = true,
-        -- flash = true,
+        flash = true,
         gitsigns = true,
         illuminate = true,
         indent_blankline = { enabled = true },
