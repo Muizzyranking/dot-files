@@ -47,7 +47,6 @@ M.mode_map = {
   ["no"] = " ",
   ["nov"] = " ",
   ["noV"] = " ",
-  ["no�"] = " ",
   ["niI"] = " ",
   ["niR"] = " ",
   ["niV"] = " ",
@@ -55,6 +54,7 @@ M.mode_map = {
   ["v"] = "󰈈 ",
   ["vs"] = "󰈈 ",
   ["V"] = "󰈈 ",
+  [""] = "󰈈 ",
   ["Vs"] = "󰈈 ",
   ["VB"] = "󰈈 ",
   ["V-BLOCK"] = "󰈈 ",
@@ -114,5 +114,32 @@ M.lsp = {
   color = { gui = "bold" },
   cond = conditions.hide_in_width,
 }
+
+local lualine_require = require("lualine_require")
+M.harpoon = lualine_require.require("lualine.component"):extend()
+
+local hl = require("utils.harpoon-lualine")
+
+local default_options = {
+  icon = "󰀱 ",
+  indicators = { "1", "2", "3", "4" },
+  active_indicators = { "[1]", "[2]", "[3]", "[4]" },
+  _separator = " ",
+  -- no_harpoon = "Harpoon not loaded",
+}
+
+function M.harpoon:init(options)
+  M.harpoon.super.init(self, options)
+  self.options = vim.tbl_deep_extend("keep", self.options or {}, default_options)
+end
+
+function M.harpoon:update_status()
+  local harpoon_loaded = package.loaded["harpoon"] ~= nil
+  if not harpoon_loaded then
+    return
+  end
+
+  return hl.status(self.options)
+end
 
 return M
