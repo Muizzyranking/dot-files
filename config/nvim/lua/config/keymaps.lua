@@ -83,6 +83,7 @@ set("i", "<C-e>", "<esc>A", { desc = "Go to end of line" }) -- go to end of line
 set({ "n", "v" }, "E", "$", { desc = "Go to end of line" }) -- go to end of line in normal
 set("i", "jj", "<Esc>", { desc = "Go to normal mode" }) -- esc with jj
 set("n", "<BS>", '"_ciw', { desc = "Change inner word" }) -- change word
+set("i", "", "", { desc = "Delete word" }) -- delete word with <c-bs>
 set({ "n", "v", "x" }, "x", '"_x') -- delete text without yanking
 set({ "v", "x" }, "<leader>d", '"_d', { desc = "Delete without yanking" }) -- delete selected without yanking
 set({ "n" }, "<leader>d", '"_dd', { desc = "Delete without yanking" }) -- delete line without yanking
@@ -115,6 +116,10 @@ set("n", "<leader>uT", function()
     vim.treesitter.start()
   end
 end, { desc = "Toggle Treesitter Highlight" })
+set("n", "<leader>ci", function()
+  ---@diagnostic disable-next-line: missing-parameter
+  vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+end, { desc = "Toggle Inlay  hint" }) -- toggle inlay hint
 
 -- buffers
 -- if not utils.has("bufferline.nvim") then

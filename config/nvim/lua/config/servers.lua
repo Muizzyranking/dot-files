@@ -1,4 +1,14 @@
 local M = {}
+local inlay_hints_settings = {
+  includeInlayEnumMemberValueHints = true,
+  includeInlayFunctionLikeReturnTypeHints = true,
+  includeInlayFunctionParameterTypeHints = true,
+  includeInlayParameterNameHints = "literal",
+  includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+  includeInlayPropertyDeclarationTypeHints = true,
+  includeInlayVariableTypeHints = false,
+  includeInlayVariableTypeHintsWhenTypeMatchesName = false,
+}
 
 M.lsp = {
   -- lsp config here to mak things less cluttered
@@ -36,7 +46,7 @@ M.lsp = {
     },
   },
 
-  pyright = {
+  basedpyright = {
     settings = {
       pyright = {
         -- Using Ruff's import organizer
@@ -50,6 +60,7 @@ M.lsp = {
       },
     },
   },
+  -- NOTE: keymap to organze imports is in plugins
   ruff_lsp = {
     on_attach = function(client, bufnr)
       if client.name == "ruff_lsp" then
@@ -76,32 +87,22 @@ M.lsp = {
 
   tsserver = {
     ---@diagnostic disable-next-line: missing-fields
+    -- root_dir = function(...)
+    --   return require("lspconfig.util").root_pattern(".git")(...)
+    -- end,
     root_dir = function(...)
-      return require("lspconfig.util").root_pattern(".git")(...)
+      local util = require("lspconfig.util")
+      local root_pattern = util.root_pattern(".git", "package.json", "tsconfig.json", "jsconfig.json")
+      local root_dir = root_pattern(...) or util.path.dirname(...)
+      return root_dir
     end,
     single_file_support = false,
     settings = {
       typescript = {
-        inlayHints = {
-          includeInlayParameterNameHints = "literal",
-          includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-          includeInlayFunctionParameterTypeHints = true,
-          includeInlayVariableTypeHints = false,
-          includeInlayPropertyDeclarationTypeHints = true,
-          includeInlayFunctionLikeReturnTypeHints = true,
-          includeInlayEnumMemberValueHints = true,
-        },
+        inlayHints = inlay_hints_settings,
       },
       javascript = {
-        inlayHints = {
-          includeInlayParameterNameHints = "all",
-          includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-          includeInlayFunctionParameterTypeHints = true,
-          includeInlayVariableTypeHints = true,
-          includeInlayPropertyDeclarationTypeHints = true,
-          includeInlayFunctionLikeReturnTypeHints = true,
-          includeInlayEnumMemberValueHints = true,
-        },
+        inlayHints = inlay_hints_settings,
       },
       completions = {
         completeFunctionCalls = true,
@@ -128,6 +129,10 @@ M.lsp = {
   lua_ls = {
     settings = {
       Lua = {
+        hint = {
+          enable = true,
+          arrayIndex = "Disable",
+        },
         runtime = { version = "LuaJIT" },
         workspace = {
           checkThirdParty = false,
@@ -159,6 +164,9 @@ M.fts_n_linters = {
   "flake8",
   "shellcheck",
   "shfmt",
+  "jsonlint",
+  -- "eslint_d",
+  -- "markdownlint",
 }
 
 return M

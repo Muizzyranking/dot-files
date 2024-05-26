@@ -18,7 +18,12 @@ require("config.lazyfile").setup()
 require("lazy").setup({
   spec = {
     { import = "plugins" },
-    { import = "plugins.lang" },
+    { import = "plugins.lang.python" },
+    { import = "plugins.lang.json" },
+    { import = "plugins.lang.markdown" },
+    -- { import = "plugins.lang.c" },
+    -- { import = "plugins.lang.markdown" },
+    -- { import = "plugins.suspended.bufferline" },
   },
   defaults = {
     lazy = true,
