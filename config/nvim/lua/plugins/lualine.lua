@@ -95,18 +95,17 @@ return {
           },
         },
         lualine_x = {
-          -- {
-          --
-          --   -- "overseer",
-          --   -- -- label = "", -- Prefix for task counts
-          --   -- -- colored = true, -- Color the task icons and counts
-          --   -- -- unique = false, -- Unique-ify non-running task count by name
-          --   -- -- name = nil, -- List of task names to search for
-          --   -- -- name_not = false, -- When true, invert the name search
-          --   -- -- status = nil, -- List of task statuses to display
-          --   -- -- status_not = false, -- When true, invert the status search
-          --   -- cond = nil,
-          -- },
+          {
+
+            "overseer",
+            label = "", -- Prefix for task counts
+            colored = true, -- Color the task icons and counts
+            unique = false, -- Unique-ify non-running task count by name
+            name = nil, -- List of task names to search for
+            name_not = false, -- When true, invert the name search
+            status = nil, -- List of task statuses to display
+            status_not = false, -- When true, invert the status search
+          },
           {
             function()
               return require("noice").api.status.command.get()
