@@ -151,4 +151,9 @@ M.is_relative_path = function(path)
   return string.sub(path, 1, 1) ~= "/"
 end
 
+-- Function to check if running inside tmux
+M.is_in_tmux = function()
+  return os.getenv("TMUX") ~= nil
+end
+
 return M
