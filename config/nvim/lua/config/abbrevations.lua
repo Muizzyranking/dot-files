@@ -5,4 +5,3 @@ end
 
 abbrev("dont", "don't")
 abbrev("Dont", "Don't")
-abbrev("i", "I")
