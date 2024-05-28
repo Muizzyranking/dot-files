@@ -6,7 +6,10 @@ return {
     opts = {
       adapters = {
         ["neotest-python"] = {
-          runner = "unnittest",
+          -- Here you can specify the settings for the adapter, i.e.
+          -- runner = {  "pytest",  "unittest" },
+          runner = "unittest",
+          -- python = ".venv/bin/python",
         },
       },
       status = { virtual_text = true },
