@@ -11,8 +11,6 @@ return {
       python = { "flake8" },
       bash = { "shellcheck" },
       sh = { "shellcheck" },
-      -- javascript = { "eslint_d" },
-      -- typescript = { "eslint_d" },
       -- markdown = { "markdownlint" },
 
       -- Use the "*" filetype to run linters on all filetypes.
@@ -25,6 +23,16 @@ return {
   config = function(_, opts)
     local M = {}
     local lint = require("lint")
+    for name, linter in pairs(opts.linters) do
+      if type(linter) == "table" and type(lint.linters[name]) == "table" then
+        ---@diagnostic disable-next-line: param-type-mismatch
+        lint.linters[name] = vim.tbl_deep_extend("force", lint.linters[name], linter)
+      else
+        lint.linters[name] = linter
+      end
+    end
+    lint.linters_by_ft = opts.linters_by_ft
+
     local debounce_timer = nil
 
     function M.debounce(ms, fn)
