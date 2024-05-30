@@ -102,25 +102,25 @@ return {
 
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
-      -- capabilities.textDocument.inlayHint = {
-      --   dynamicRegistration = true,
-      -- }
 
       local servers = require("config.servers").lsp
       local fts_n_linters = require("config.servers").fts_n_linters
+      local on_attach = require("config.servers").on_attach
 
       require("mason").setup()
 
-      local ensure_installed = vim.tbl_keys(servers or {})
-      vim.list_extend(ensure_installed, fts_n_linters)
+      local server_bin = vim.tbl_keys(servers or {})
 
       require("mason-tool-installer").setup({
-        ensure_installed = ensure_installed,
+        ensure_installed = fts_n_linters,
         run_on_start = true,
         start_delay = 2,
       })
 
+      require("mason-lspconfig").setup({})
+
       require("mason-lspconfig").setup({
+        ensure_installed = server_bin,
         handlers = {
           function(server_name)
             local server = servers[server_name] or {}
@@ -128,6 +128,7 @@ return {
             -- by the server configuration above. Useful when disabling
             -- certain features of an LSP (for example, turning off formatting for tsserver)
             server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
+            server.on_attach = on_attach
             require("lspconfig")[server_name].setup(server)
           end,
         },

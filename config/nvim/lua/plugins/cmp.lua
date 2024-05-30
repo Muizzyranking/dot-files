@@ -36,6 +36,7 @@ return { -- Autocompletion
     local luasnip = require("luasnip")
     -- local defaults = require("cmp.config.default")()
     luasnip.config.setup({})
+    require("luasnip.loaders.from_lua").lazy_load({ paths = "~/.config/nvim/lua/snippets/" })
 
     cmp.setup({
       snippet = {
@@ -57,14 +58,33 @@ return { -- Autocompletion
         ["<C-Tab>"] = cmp.mapping.complete({}),
         -- <c-l> will move you to the right of each of the expansion locations.
         -- <c-h> is similar, except moving you backwards.
-        ["<Tab>"] = cmp.mapping(function()
-          if luasnip.expand_or_locally_jumpable() then
-            luasnip.expand_or_jump()
+        -- ["<Tab>"] = cmp.mapping(function()
+        --   if luasnip.expand_or_locally_jumpable() then
+        --     luasnip.expand_or_jump()
+        --   end
+        -- end, { "i", "s" }),
+        -- ["<S-Tab>"] = cmp.mapping(function()
+        --   if luasnip.locally_jumpable(-1) then
+        --     luasnip.jump(-1)
+        --   end
+        -- end, { "i", "s" }),
+        ["<Tab>"] = cmp.mapping(function(fallback)
+          if cmp.visible() then
+            cmp.select_next_item()
+          elseif luasnip.locally_jumpable(1) then
+            luasnip.jump(1)
+          else
+            fallback()
           end
         end, { "i", "s" }),
-        ["<S-Tab>"] = cmp.mapping(function()
-          if luasnip.locally_jumpable(-1) then
+
+        ["<S-Tab>"] = cmp.mapping(function(fallback)
+          if cmp.visible() then
+            cmp.select_prev_item()
+          elseif luasnip.locally_jumpable(-1) then
             luasnip.jump(-1)
+          else
+            fallback()
           end
         end, { "i", "s" }),
       }),
