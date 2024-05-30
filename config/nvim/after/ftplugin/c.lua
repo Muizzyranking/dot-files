@@ -3,5 +3,3 @@ vim.opt.shiftwidth = 8
 vim.opt.softtabstop = 8
 vim.opt.expandtab = false
 vim.g.disable_autoformat = false -- enable auto format in lua files.
-
-vim.keymap.set("n", "<leader>ch", "<cmd>ClangdSwitchSourceHeader<cr>", { desc = "Switch Source/Header (C/C++)" })
