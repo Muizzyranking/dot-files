@@ -60,52 +60,88 @@ M.lsp = {
       },
     },
   },
-  -- NOTE: keymap to organze imports is in plugins
-  ruff_lsp = {
-    on_attach = function(client, bufnr)
-      if client.name == "ruff_lsp" then
-        client.server_capabilities.hoverProvider = false
-      end
-    end,
-  },
-
+  ruff_lsp = {},
   marksman = {},
-
   emmet_ls = {},
   cssls = {},
   html = {},
   sqlls = {},
-  -- bashls = {
-  --   filetypes = { "sh", "zsh", "bash" },
-  -- },
+  bashls = {
+    filetypes = { "sh", "bash" },
+  },
   eslint = {
     settings = {
-      -- helps eslint find the eslintrc when it's placed in a subfolder instead of the cwd root
       workingDirectories = { mode = "auto" },
     },
   },
 
-  tsserver = {
-    ---@diagnostic disable-next-line: missing-fields
-    -- root_dir = function(...)
-    --   return require("lspconfig.util").root_pattern(".git")(...)
-    -- end,
-    root_dir = function(...)
-      local util = require("lspconfig.util")
-      local root_pattern = util.root_pattern(".git", "package.json", "tsconfig.json", "jsconfig.json")
-      local root_dir = root_pattern(...) or util.path.dirname(...)
-      return root_dir
-    end,
-    single_file_support = false,
+  -- tsserver = {
+  --   ---@diagnostic disable-next-line: missing-fields
+  --   -- root_dir = function(...)
+  --   --   return require("lspconfig.util").root_pattern(".git")(...)
+  --   -- end,
+  --   root_dir = function(...)
+  --     local util = require("lspconfig.util")
+  --     local root_pattern = util.root_pattern(".git", "package.json", "tsconfig.json", "jsconfig.json")
+  --     local root_dir = root_pattern(...) or util.path.dirname(...)
+  --     return root_dir
+  --   end,
+  --   single_file_support = false,
+  --   settings = {
+  --     typescript = {
+  --       inlayHints = inlay_hints_settings,
+  --     },
+  --     javascript = {
+  --       inlayHints = inlay_hints_settings,
+  --     },
+  --     completions = {
+  --       completeFunctionCalls = true,
+  --     },
+  --   },
+  -- },
+  vtsls = {
     settings = {
+      complete_function_calls = true,
+      vtsls = {
+        enableMoveToFileCodeAction = true,
+      },
       typescript = {
-        inlayHints = inlay_hints_settings,
+        updateImportsOnFileMove = { enabled = "always" },
+        experimental = {
+          completion = {
+            enableServerSideFuzzyMatch = true,
+          },
+        },
+        suggest = {
+          completeFunctionCalls = true,
+        },
+        inlayHints = {
+          enumMemberValues = { enabled = true },
+          functionLikeReturnTypes = { enabled = true },
+          parameterNames = { enabled = "literals" },
+          parameterTypes = { enabled = true },
+          propertyDeclarationTypes = { enabled = true },
+          variableTypes = { enabled = false },
+        },
       },
       javascript = {
-        inlayHints = inlay_hints_settings,
-      },
-      completions = {
-        completeFunctionCalls = true,
+        updateImportsOnFileMove = { enabled = "always" },
+        experimental = {
+          completion = {
+            enableServerSideFuzzyMatch = true,
+          },
+        },
+        suggest = {
+          completeFunctionCalls = true,
+        },
+        inlayHints = {
+          enumMemberValues = { enabled = true },
+          functionLikeReturnTypes = { enabled = true },
+          parameterNames = { enabled = "literals" },
+          parameterTypes = { enabled = true },
+          propertyDeclarationTypes = { enabled = true },
+          variableTypes = { enabled = false },
+        },
       },
     },
   },
@@ -136,14 +172,10 @@ M.lsp = {
         runtime = { version = "LuaJIT" },
         workspace = {
           checkThirdParty = false,
-          -- Tells lua_ls where to find all the Lua files that you have loaded
-          -- for your neovim configuration.
           library = {
             "${3rd}/luv/library",
             unpack(vim.api.nvim_get_runtime_file("", true)),
           },
-          -- If lua_ls is really slow on your computer, you can try this instead:
-          -- library = { vim.env.VIMRUNTIME },
         },
         completion = {
           callSnippet = "Replace",
@@ -153,7 +185,80 @@ M.lsp = {
   },
 }
 
-M.setup = {}
+M.on_attach = function(client, bufnr)
+  local function map(mode, lhs, rhs, desc)
+    vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
+  end
+
+  -- Keymaps for ruff
+  if client.name == "ruff_lsp" or "ruff" then
+    client.server_capabilities.hoverProvider = false
+
+    map("n", "<leader>co", function()
+      vim.lsp.buf.code_action({
+        apply = true,
+        context = {
+          only = { "source.organizeImports" },
+          diagnostics = {},
+        },
+      })
+    end, "Organize Imports")
+  end
+
+  -- Keymaps for vtsls
+  if client.name == "vtsls" then
+    local ts_js_keys = {
+      {
+        mode = "n",
+        keys = "gD",
+        command = function()
+          require("vtsls").commands.goto_source_definition(0)
+        end,
+        desc = "Goto Source Definition",
+      },
+      {
+        mode = "n",
+        keys = "gR",
+        command = function()
+          require("vtsls").commands.file_references(0)
+        end,
+        desc = "Goto File Definition",
+      },
+      {
+        mode = "n",
+        keys = "<leader>co",
+        command = function()
+          require("vtsls").commands.organize_imports(0)
+        end,
+        desc = "Organize imports",
+      },
+      {
+        mode = "n",
+        keys = "<leader>cM",
+        command = function()
+          require("vtsls").commands.add_missing_imports(0)
+        end,
+        desc = "Add missing imports",
+      },
+      {
+        mode = "n",
+        keys = "<leader>cD",
+        command = function()
+          require("vtsls").commands.fix_all(0)
+        end,
+        desc = "Fix all diagnostics",
+      },
+    }
+
+    for _, keymap in ipairs(ts_js_keys) do
+      map(keymap.mode, keymap.keys, keymap.command, keymap.desc)
+    end
+  end
+  -- on attach for clangd
+  if client.name == "clangd" then
+    vim.keymap.set("n", "<leader>ch", "<cmd>ClangdSwitchSourceHeader<cr>", { desc = "Switch Source/Header (C/C++)" })
+  end
+end
 
 M.fts_n_linters = {
   "stylua", -- Used to format lua code
@@ -165,7 +270,7 @@ M.fts_n_linters = {
   "shellcheck",
   "shfmt",
   "jsonlint",
-  -- "eslint_d",
+  "eslint_d",
   -- "markdownlint",
 }
 
