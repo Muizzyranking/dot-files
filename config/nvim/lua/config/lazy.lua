@@ -21,6 +21,7 @@ require("lazy").setup({
     { import = "plugins.lang.python" },
     { import = "plugins.lang.json" },
     { import = "plugins.lang.markdown" },
+    { import = "plugins.lang.typescript" },
     -- { import = "plugins.lang.c" },
     -- { import = "plugins.lang.markdown" },
     -- { import = "plugins.suspended.bufferline" },

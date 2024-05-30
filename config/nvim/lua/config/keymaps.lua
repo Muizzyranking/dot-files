@@ -1,6 +1,7 @@
 local helper = require("utils.helper")
 local notify = require("utils.notify")
 local git = require("utils.git")
+local utils = require("utils")
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
@@ -8,9 +9,6 @@ vim.g.maplocalleader = " "
 
 vim.opt.showmode = false
 local set = vim.keymap.set
-
-set("n", "<leader>gb", git.blame_line, { desc = "Git Blame Line" })
-set("n", "<leader>fn", helper.new_file, { desc = "Create new file" })
 
 ------------------------
 -- Keymaps for moving chunks of text/code
@@ -45,8 +43,8 @@ set("n", "<leader>ww", "<C-W>p", { desc = "Other Window", remap = true })
 set("n", "<leader>wd", "<C-W>c", { desc = "Delete Window", remap = true })
 set("n", "<leader>w-", "<C-W>s", { desc = "Split Window Below", remap = true })
 set("n", "<leader>w|", "<C-W>v", { desc = "Split Window Right", remap = true })
-set("n", "<leader>-", "<C-W>s", { desc = "Split Window Below", remap = true })
-set("n", "<leader>|", "<C-W>v", { desc = "Split Window Right", remap = true })
+-- set("n", "<leader>-", "<C-W>s", { desc = "Split Window Below", remap = true })
+-- set("n", "<leader>|", "<C-W>v", { desc = "Split Window Right", remap = true })
 -- Resize window using <ctrl> arrow keys
 set("n", "<C-Up>", "<cmd>resize +2<cr>", { desc = "Increase Window Height" })
 set("n", "<C-Down>", "<cmd>resize -2<cr>", { desc = "Decrease Window Height" })
@@ -76,14 +74,26 @@ set("n", "<Esc>", "<cmd>nohlsearch<CR>") -- Clear search highlight on pressing <
 ------------------------
 -- Keymaps for editing
 ------------------------
-set("i", "<C-o>", "<esc>o", { desc = "Go to next line" }) -- go to next line in insert
+-- TODO: find a way to make <c-cr> work inside is_in_tmux
+if utils.is_in_tmux() then
+  set("i", "<C-o>", "<esc>o", { desc = "Go to next line" }) -- go to next line in insert
+else
+  set("i", "<C-cr>", "<esc>o", { desc = "Go to next line" }) -- go to next line in insert
+end
 set("i", "<C-b>", "<esc>I", { desc = "Go to beginning of line" }) -- Go to beginning of line in insert
 set({ "n", "v" }, "B", "^", { desc = "Go to beginning of line" }) -- go to beginning of line in normal
 set("i", "<C-e>", "<esc>A", { desc = "Go to end of line" }) -- go to end of line in insert
 set({ "n", "v" }, "E", "$", { desc = "Go to end of line" }) -- go to end of line in normal
 set("i", "jj", "<Esc>", { desc = "Go to normal mode" }) -- esc with jj
 set("n", "<BS>", '"_ciw', { desc = "Change inner word" }) -- change word
-set("i", "", "", { desc = "Delete word" }) -- delete word with <c-bs>
+
+-- NOTE: this is the way to make <c-bs> work in tmux for some reasons
+if utils.is_in_tmux() then
+  set("i", "", "", { desc = "Delete word" }) -- delete word with <c-bs>
+else
+  set("i", "<C-BS>", "", { desc = "Delete word" }) -- delete word with <c-bs>
+end
+
 set({ "n", "v", "x" }, "x", '"_x') -- delete text without yanking
 set({ "v", "x" }, "<leader>d", '"_d', { desc = "Delete without yanking" }) -- delete selected without yanking
 set({ "n" }, "<leader>d", '"_dd', { desc = "Delete without yanking" }) -- delete line without yanking
@@ -92,7 +102,7 @@ set("n", "<C-a>", "gg<S-v>G", { desc = "Select all", noremap = true, silent = tr
 set("v", "<S-Tab>", "<gv", { noremap = false, silent = true })
 set("v", "<Tab>", ">gv", { noremap = false, silent = true })
 -- paste over currently selected text without yanking it
-set({ "v", "x" }, "p", '"_dP')
+set({ "v", "x" }, "p", '"_dp')
 set({ "v", "x" }, "P", '"_dp')
 set({ "n", "v", "x" }, "c", '"_c')
 set({ "n" }, "ciw", '"_ciw')
@@ -101,6 +111,8 @@ set({ "n" }, "ciw", '"_ciw')
 -- Keymaps for miscellaneous
 ------------------------
 -- set("n", "<leader>cx", "<cmd>!chmod +x %<cr>", { desc = "Make file executable", silent = true })
+set("n", "<leader>gb", git.blame_line, { desc = "Git Blame Line" })
+set("n", "<leader>fn", helper.new_file, { desc = "Create new file" })
 set("n", "<leader>cx", helper.make_file_executable, { desc = "Make file executable", silent = true })
 set("n", "<leader>uw", helper.toggle_line_wrap, { desc = "Toggle line wrap" })
 set("n", "<leader>ud", helper.toggle_diagnostics, { desc = "Toggle Diagnostics" })
@@ -116,7 +128,7 @@ set("n", "<leader>uT", function()
     vim.treesitter.start()
   end
 end, { desc = "Toggle Treesitter Highlight" })
-set("n", "<leader>ci", function()
+set("n", "<leader>uh", function()
   ---@diagnostic disable-next-line: missing-parameter
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 end, { desc = "Toggle Inlay  hint" }) -- toggle inlay hint
@@ -128,6 +140,7 @@ set("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next buffer", silent = true })
 set("n", "<leader>bd", "<cmd>bd<cr>", { desc = "Delete buffer", silent = true })
 -- end
 
+-- disable arrow key in normal mode
 set("n", "<UP>", function()
   notify.warn("Use k", { desc = "options" })
 end)
