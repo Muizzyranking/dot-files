@@ -89,9 +89,9 @@ set("n", "<BS>", '"_ciw', { desc = "Change inner word" }) -- change word
 
 -- NOTE: this is the way to make <c-bs> work in tmux for some reasons
 if utils.is_in_tmux() then
-  set("i", "", "", { desc = "Delete word" }) -- delete word with <c-bs>
+  set({ "i", "c" }, "", "", { desc = "Delete word" }) -- delete word with <c-bs>
 else
-  set("i", "<C-BS>", "", { desc = "Delete word" }) -- delete word with <c-bs>
+  set({ "i", "c" }, "<C-BS>", "", { desc = "Delete word" }) -- delete word with <c-bs>
 end
 
 set({ "n", "v", "x" }, "x", '"_x') -- delete text without yanking
@@ -110,7 +110,6 @@ set({ "n" }, "ciw", '"_ciw')
 ------------------------
 -- Keymaps for miscellaneous
 ------------------------
--- set("n", "<leader>cx", "<cmd>!chmod +x %<cr>", { desc = "Make file executable", silent = true })
 set("n", "<leader>gb", git.blame_line, { desc = "Git Blame Line" })
 set("n", "<leader>fn", helper.new_file, { desc = "Create new file" })
 set("n", "<leader>cx", helper.make_file_executable, { desc = "Make file executable", silent = true })
@@ -118,6 +117,7 @@ set("n", "<leader>uw", helper.toggle_line_wrap, { desc = "Toggle line wrap" })
 set("n", "<leader>ud", helper.toggle_diagnostics, { desc = "Toggle Diagnostics" })
 set("n", "<leader>us", helper.toggle_spell, { desc = "Toggle Spell" })
 set("n", "<leader>uf", helper.toggle_autoformat, { desc = "Toggle Autoformat (Global)" })
+set("n", "<leader>uS", "<cmd>Telescope spell_suggest<cr>", { desc = "Spell Suggest" })
 set("n", "<leader>uF", function()
   helper.toggle_autoformat(true)
 end, { desc = "Toggle Autoformat (Buffer)" })
