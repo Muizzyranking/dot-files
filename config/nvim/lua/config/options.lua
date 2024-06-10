@@ -1,6 +1,7 @@
 local opt = vim.opt
 
 vim.o.background = "dark"
+opt.statuscolumn = [[%!v:lua.require("utils.ui").statuscolumn()]]
 
 -----------------------------------------------------------
 -- General
@@ -51,11 +52,11 @@ opt.undofile = true
 -----------------------------------------------------------
 -- Folding
 -----------------------------------------------------------
-opt.foldmethod = "indent" -- Set folding method
-opt.foldenable = true -- Disable folding by default
-opt.foldlevel = 99 -- Set maximum fold level
-vim.g.markdown_folding = 1 -- Enable markdown folding
-vim.o.foldlevelstart = 99 -- Set initial folding level
+opt.foldlevel = 99
+opt.foldmethod = "expr"
+opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+opt.foldtext = ""
+-- vim.g.markdown_folding = 1 -- Enable markdown folding
 
 -----------------------------------------------------------
 -- Search and Highlighting
