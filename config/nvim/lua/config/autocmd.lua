@@ -1,6 +1,6 @@
 -- Create an augroup with the given name and clear it
 local function augroup(name)
-  return vim.api.nvim_create_augroup("Muizzyvim_" .. name, { clear = true })
+  return vim.api.nvim_create_augroup("Neovim " .. name, { clear = true })
 end
 
 -----------------------------------------------------------
@@ -109,3 +109,13 @@ vim.api.nvim_create_autocmd("TermOpen", {
     vim.opt_local.relativenumber = false
   end,
 })
+
+-- vim.api.nvim_create_autocmd("FileType", {
+--   pattern = "trouble",
+--   group = augroup("Trouble Line Numbers"),
+--   callback = function()
+--     require("utils.notify").warn("Line numbers are enabled in Trouble")
+--     vim.opt_local.number = true
+--     vim.opt_local.relativenumber = true
+--   end,
+-- })
