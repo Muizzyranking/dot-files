@@ -23,7 +23,3 @@ gui:
 
   authorColors:
     "*": "#b4befe"
-
-commit:
-  signoff: true
-  gpgSign: true
