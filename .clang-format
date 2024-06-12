@@ -1,0 +1,7 @@
+BasedOnStyle: LLVM # Or whichever base style you prefer
+IndentWidth: 8 # Set this to the desired tab width (Commonly 8)
+UseTab: Always # For tab indentation
+ColumnLimit: 80 # If Betty has a line length limit
+
+BreakBeforeBraces: Allman # This is the key setting for Allman style
+
