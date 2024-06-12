@@ -1,9 +1,15 @@
+local utils = require("utils")
 return {
   {
     "akinsho/toggleterm.nvim",
     cmd = { "ToggleTerm", "TermExec" },
     keys = {
-      { "<C-_>", "<cmd>ToggleTerm<CR>", desc = "Terminal" },
+      {
+        -- tmux reads <c-/> as <c-_>
+        utils.is_in_tmux() and "<C-_>" or "<C-/>",
+        "<cmd>ToggleTerm<CR>",
+        desc = "Terminal",
+      },
     },
     opts = {
       highlights = {
@@ -21,7 +27,7 @@ return {
         vim.opt.foldcolumn = "0"
         vim.opt.signcolumn = "no"
       end,
-      open_mapping = [[<C-_>]],
+      open_mapping = utils.is_in_tmux() and [[<C-_>]] or [[<C-/>]],
       shading_factor = 2,
       direction = "float",
       float_opts = { border = "rounded" },

@@ -41,8 +41,9 @@ return {
     },
     formatters_by_ft = {
       -- use semi standard prettier formatter to format javascript
-      ["javascript"] = { "semi-prettier" },
+      -- ["javascript"] = { "semi-prettier" },
 
+      ["javascript"] = { { "prettierd", "prettier" } },
       ["javascriptreact"] = { { "prettierd", "prettier" } },
       ["typescript"] = { { "prettierd", "prettier" } },
       ["typescriptreact"] = { { "prettierd", "prettier" } },

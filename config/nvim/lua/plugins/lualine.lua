@@ -14,6 +14,7 @@ return {
     end
   end,
   config = function()
+    local clrs = require("catppuccin.palettes").get_palette()
     local utils = require("utils")
     local lualine_utils = require("utils.lualine")
     local file_name = lualine_utils.file
@@ -37,6 +38,7 @@ return {
         component_separators = { left = "", right = "" },
         -- section_separators = { right = "", left = "" },
         section_separators = { left = "", right = "" },
+        -- section_separators = { left = "", right = "" },
 
         disabled_filetypes = {
           statusline = { "dashboard" },
@@ -180,7 +182,10 @@ return {
       winbar = {},
       inactive_winbar = {},
       extensions = {
-        "oil",
+        -- require("utils.extend"),
+        -- "Telescope",
+        -- "telescope",
+        -- "oil",
         "neo-tree",
         "lazy",
         "overseer",

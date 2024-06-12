@@ -19,34 +19,32 @@ return { -- Fuzzy Finder (files, lsp, etc)
       end,
     },
     {
-      -- project management
-      {
-        "ahmedkhalf/project.nvim",
-        opts = {
-          manual_mode = true,
-        },
-        event = "VeryLazy",
-        config = function(_, opts)
-          require("project_nvim").setup(opts)
-          utils.on_load("telescope.nvim", function()
-            require("telescope").load_extension("projects")
-          end)
-        end,
-        keys = {
-          { "<leader>fp", "<Cmd>Telescope projects<CR>", desc = "Projects" },
-        },
+      "ahmedkhalf/project.nvim",
+      opts = {
+        manual_mode = false,
+      },
+      event = "VeryLazy",
+      config = function(_, opts)
+        require("project_nvim").setup(opts)
+        utils.on_load("telescope.nvim", function()
+          require("telescope").load_extension("projects")
+        end)
+      end,
+      keys = {
+        { "<leader>fp", "<Cmd>Telescope projects<CR>", desc = "Projects" },
+        { "<leader>fP", "<Cmd>ProjectRoot<CR>", desc = "Save Project" },
       },
     },
     { "nvim-tree/nvim-web-devicons" },
   },
   keys = {
-    -- I don't use help tags
     -- { "<leader>fh", builtin.help_tags, desc = "Find Help Tags" },
     { "<leader>fk", builtin.keymaps, desc = "Find Keymaps" },
     { "<leader>ff", builtin.find_files, desc = "Find Files" },
     { "<leader>sw", builtin.grep_string, desc = "Search word under cursor" },
     { "<leader>fg", builtin.live_grep, desc = "Find by Grep" },
-    { "<leader>fd", builtin.diagnostics, desc = "Find Diagnostics" },
+    -- i use trouble for this now
+    -- { "<leader>fd", builtin.diagnostics, desc = "Find Diagnostics" },
     { "<leader>fR", builtin.resume, desc = "Search Resume" },
     { "<leader>fr", builtin.oldfiles, desc = "Find Recent Files" },
     { "<leader>fb", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", desc = "Find Buffers" },
@@ -93,9 +91,10 @@ return { -- Fuzzy Finder (files, lsp, etc)
   },
   config = function()
     local actions = require("telescope.actions")
-    local open_with_trouble = function(...)
-      return require("trouble.providers.telescope").open_with_trouble(...)
-    end
+    -- local open_with_trouble = function(...)
+    --   return require("trouble.providers.telescope").open_with_trouble(...)
+    -- end
+    local open_with_trouble = require("trouble.sources.telescope").open
 
     require("telescope").setup({
 

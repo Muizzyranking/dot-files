@@ -51,7 +51,6 @@ return {
           local map = function(keys, func, desc)
             vim.keymap.set("n", keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
           end
-
           map("gd", require("telescope.builtin").lsp_definitions, "Goto Definition")
           -- WARN: This is not Goto Definition, this is Goto Declaration.
           map("gD", vim.lsp.buf.declaration, "Goto Declaration")
@@ -103,13 +102,14 @@ return {
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
-      local servers = require("config.servers").lsp
-      local fts_n_linters = require("config.servers").fts_n_linters
-      local on_attach = require("config.servers").on_attach
+      local servers = require("plugins.lsp.servers")
+      local lsps = servers.lsp
+      local fts_n_linters = servers.fts_n_linters
+      local on_attach = servers.on_attach
 
       require("mason").setup()
 
-      local server_bin = vim.tbl_keys(servers or {})
+      local server_bin = vim.tbl_keys(lsps or {})
 
       require("mason-tool-installer").setup({
         ensure_installed = fts_n_linters,
@@ -123,7 +123,7 @@ return {
         ensure_installed = server_bin,
         handlers = {
           function(server_name)
-            local server = servers[server_name] or {}
+            local server = lsps[server_name] or {}
             -- This handles overriding only values explicitly passed
             -- by the server configuration above. Useful when disabling
             -- certain features of an LSP (for example, turning off formatting for tsserver)
