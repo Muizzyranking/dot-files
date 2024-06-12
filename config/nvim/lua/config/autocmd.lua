@@ -104,6 +104,7 @@ vim.api.nvim_create_autocmd("FileType", {
 -- Turn off line numbering in terminal buffers
 -----------------------------------------------------------
 vim.api.nvim_create_autocmd("TermOpen", {
+  group = augroup("term_no_line_number"),
   callback = function()
     vim.opt_local.number = false
     vim.opt_local.relativenumber = false
@@ -119,3 +120,36 @@ vim.api.nvim_create_autocmd("TermOpen", {
 --     vim.opt_local.relativenumber = true
 --   end,
 -- })
+
+-----------------------------------------------------------
+----- change filetype for htmldjango to html
+-----------------------------------------------------------
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "htmldjango",
+  group = augroup("html_django"),
+  callback = function()
+    vim.bo.filetype = "html"
+  end,
+})
+
+local filetypes = {
+  "css",
+  "html",
+  "javascript",
+  "javascriptreact",
+  "json",
+  "lua",
+  "markdown",
+  "python",
+  "typescript",
+  "typescriptreact",
+  "yaml",
+}
+vim.api.nvim_create_autocmd("FileType", {
+  group = augroup("two spaces indent"),
+  pattern = filetypes,
+  callback = function()
+    vim.bo.shiftwidth = 2
+    vim.bo.tabstop = 2
+  end,
+})

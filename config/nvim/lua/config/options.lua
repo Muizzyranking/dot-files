@@ -1,6 +1,7 @@
 local opt = vim.opt
 
 vim.o.background = "dark"
+vim.highlight.priorities.semantic_tokens = 95
 opt.statuscolumn = [[%!v:lua.require("utils.ui").statuscolumn()]]
 
 -----------------------------------------------------------
