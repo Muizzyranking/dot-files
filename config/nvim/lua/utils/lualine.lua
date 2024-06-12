@@ -1,5 +1,9 @@
 local icons = require("utils.icons")
+local utils = require("utils")
+local lualine_require = require("lualine_require")
+local hl = require("utils.harpoon-lualine")
 local M = {}
+M.harpoon = lualine_require.require("lualine.component"):extend()
 
 -----------------------------------------
 -- Helper function to get the buffer number of the statusline window
@@ -91,8 +95,7 @@ M.mode = {
 M.lsp = {
   function()
     ---@diagnostic disable-next-line: deprecated
-    local buf_clients = vim.lsp.get_active_clients({ bufnr = 0 })
-
+    local buf_clients = utils.get_clients({ bufnr = 0 })
     -- local buf_ft = vim.bo.filetype
     local buf_client_names = {}
     -- add client
@@ -114,11 +117,6 @@ M.lsp = {
   color = { gui = "bold" },
   cond = conditions.hide_in_width,
 }
-
-local lualine_require = require("lualine_require")
-M.harpoon = lualine_require.require("lualine.component"):extend()
-
-local hl = require("utils.harpoon-lualine")
 
 local default_options = {
   icon = "󰀱 ",
