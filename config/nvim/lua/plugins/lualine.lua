@@ -14,9 +14,11 @@ return {
     end
   end,
   config = function()
-    local clrs = require("catppuccin.palettes").get_palette()
+    -- local clrs = require("catppuccin.palettes").get_palette()
     local utils = require("utils")
+    -- local lualine_utils = require("utils.lualine")
     local lualine_utils = require("utils.lualine")
+    local extension = require("utils.lualine.extensions")
     local file_name = lualine_utils.file
     local lualine = require("lualine")
     local icons = require("utils.icons")
@@ -182,7 +184,7 @@ return {
       winbar = {},
       inactive_winbar = {},
       extensions = {
-        -- require("utils.extend"),
+        extension.telescope(),
         -- "Telescope",
         -- "telescope",
         -- "oil",

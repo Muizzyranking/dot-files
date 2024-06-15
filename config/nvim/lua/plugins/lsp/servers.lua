@@ -52,7 +52,7 @@ M.lsp = {
         analysis = {
           -- Ignore all files for analysis to exclusively use Ruff for linting
           -- ignore = { "*" },
-          -- typeCheckingMode = "off",
+          typeCheckingMode = "off",
         },
         -- Using Ruff's import organizer
         disableOrganizeImports = true,
@@ -113,25 +113,6 @@ M.lsp = {
         enableMoveToFileCodeAction = true,
       },
       typescript = {
-        updateImportsOnFileMove = { enabled = "always" },
-        experimental = {
-          completion = {
-            enableServerSideFuzzyMatch = true,
-          },
-        },
-        suggest = {
-          completeFunctionCalls = true,
-        },
-        inlayHints = {
-          enumMemberValues = { enabled = true },
-          functionLikeReturnTypes = { enabled = true },
-          parameterNames = { enabled = "literals" },
-          parameterTypes = { enabled = true },
-          propertyDeclarationTypes = { enabled = true },
-          variableTypes = { enabled = false },
-        },
-      },
-      javascript = {
         updateImportsOnFileMove = { enabled = "always" },
         experimental = {
           completion = {
