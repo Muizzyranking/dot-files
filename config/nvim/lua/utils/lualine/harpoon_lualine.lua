@@ -44,4 +44,11 @@ M.status = function(options)
   return table.concat(status, options._separator)
 end
 
+M.default_options = {
+  icon = "󰀱 ",
+  indicators = { "1", "2", "3", "4" },
+  active_indicators = { "[1]", "[2]", "[3]", "[4]" },
+  _separator = " ",
+}
+
 return M

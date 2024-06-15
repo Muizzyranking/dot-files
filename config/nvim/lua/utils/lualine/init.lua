@@ -1,26 +1,10 @@
 local icons = require("utils.icons")
 local utils = require("utils")
+local lualine_utils = require("utils.lualine.utils")
 local lualine_require = require("lualine_require")
-local hl = require("utils.harpoon-lualine")
+local hl = require("utils.lualine.harpoon_lualine")
 local M = {}
 M.harpoon = lualine_require.require("lualine.component"):extend()
-
------------------------------------------
--- Helper function to get the buffer number of the statusline window
--------------------------------------------
-local window_width_limit = 100
-M.stbufnr = function()
-  return vim.api.nvim_win_get_buf(vim.g.statusline_winid or 0)
-end
-
-local conditions = {
-  buffer_not_empty = function()
-    return vim.fn.empty(vim.fn.expand("%:t")) ~= 1
-  end,
-  hide_in_width = function()
-    return vim.o.columns > window_width_limit
-  end,
-}
 
 --------------------------------------------------------------------------------------
 -- Generate the file information component for the statusline
@@ -28,7 +12,7 @@ local conditions = {
 --------------------------------------------------------------------------------------
 M.file = function()
   local icon = icons.ui.File
-  local path = vim.api.nvim_buf_get_name(M.stbufnr())
+  local path = vim.api.nvim_buf_get_name(lualine_utils.stbufnr())
   local name = (path == "" and "Empty ") or path:match("([^/\\]+)[/\\]*$")
 
   if name ~= "Empty " then
@@ -43,49 +27,9 @@ M.file = function()
   return icon .. " " .. name .. " " .. file_state_icon
 end
 
---------------------------------------------------------------------------------------
--- Define a mapping between vim modes and their corresponding icons
---------------------------------------------------------------------------------------
-M.mode_map = {
-  ["n"] = " ",
-  ["no"] = " ",
-  ["nov"] = " ",
-  ["noV"] = " ",
-  ["niI"] = " ",
-  ["niR"] = " ",
-  ["niV"] = " ",
-  ["nt"] = " ",
-  ["v"] = "󰈈 ",
-  ["vs"] = "󰈈 ",
-  ["V"] = "󰈈 ",
-  [""] = "󰈈 ",
-  ["Vs"] = "󰈈 ",
-  ["VB"] = "󰈈 ",
-  ["V-BLOCK"] = "󰈈 ",
-  ["s"] = " ",
-  ["S"] = " ",
-  ["i"] = " ",
-  ["ic"] = " ",
-  ["ix"] = " ",
-  ["R"] = "󰛔 ",
-  ["Rc"] = "󰛔 ",
-  ["Rx"] = "󰛔 ",
-  ["Rv"] = "󰛔 ",
-  ["Rvc"] = "󰛔 ",
-  ["Rvx"] = "󰛔 ",
-  ["r"] = "󰛔 ",
-  ["c"] = " ",
-  ["cv"] = "EX",
-  ["ce"] = "EX",
-  ["rm"] = "MORE",
-  ["r?"] = "CONFIRM",
-  ["!"] = " ",
-  ["t"] = " ",
-}
-
 M.mode = {
   function()
-    return " " .. (M.mode_map[vim.api.nvim_get_mode().mode] or "__")
+    return " " .. (lualine_utils.mode_map[vim.api.nvim_get_mode().mode] or "__")
   end,
   padding = { left = 0, right = 0 },
   color = {},
@@ -96,7 +40,6 @@ M.lsp = {
   function()
     ---@diagnostic disable-next-line: deprecated
     local buf_clients = utils.get_clients({ bufnr = 0 })
-    -- local buf_ft = vim.bo.filetype
     local buf_client_names = {}
     -- add client
     for _, client in pairs(buf_clients) do
@@ -115,20 +58,12 @@ M.lsp = {
     return language_servers
   end,
   color = { gui = "bold" },
-  cond = conditions.hide_in_width,
-}
-
-local default_options = {
-  icon = "󰀱 ",
-  indicators = { "1", "2", "3", "4" },
-  active_indicators = { "[1]", "[2]", "[3]", "[4]" },
-  _separator = " ",
-  -- no_harpoon = "Harpoon not loaded",
+  cond = lualine_utils.conditions.hide_in_width,
 }
 
 function M.harpoon:init(options)
   M.harpoon.super.init(self, options)
-  self.options = vim.tbl_deep_extend("keep", self.options or {}, default_options)
+  self.options = vim.tbl_deep_extend("keep", self.options or {}, hl.default_options)
 end
 
 function M.harpoon:update_status()
