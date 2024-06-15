@@ -5,6 +5,7 @@
         "assign-type-mismatch",
         "need-check-nil",
         "deprecated",
-        "undefined-doc-name"
+        "undefined-doc-name",
+        "missing-parameter"
     ]
 }
