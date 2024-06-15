@@ -3,10 +3,12 @@ local function augroup(name)
   return vim.api.nvim_create_augroup("Neovim " .. name, { clear = true })
 end
 
+local create_autocmd = vim.api.nvim_create_autocmd
+
 -----------------------------------------------------------
 -- Go to the last cursor position when opening a buffer
 -----------------------------------------------------------
-vim.api.nvim_create_autocmd("BufReadPost", {
+create_autocmd("BufReadPost", {
   group = augroup("last_loc"),
   callback = function()
     local mark = vim.api.nvim_buf_get_mark(0, '"')
@@ -19,11 +21,10 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 
 -----------------------------------------------------------
 -- Enable spell checking for certain file types
--- TODO: put this options in ftplugins
 -----------------------------------------------------------
-vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+create_autocmd({ "BufRead", "BufNewFile" }, {
   group = augroup("spell_check"),
-  pattern = { "*.txt", "*.md", "*.tex" },
+  pattern = { "*.txt", "*.md", "markdown", "*.tex", "*.org" },
   callback = function()
     vim.opt.spell = true
     vim.opt.spelllang = "en"
@@ -33,7 +34,7 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 -----------------------------------------------------------
 -- Highlight yanked (copied) text
 -----------------------------------------------------------
-vim.api.nvim_create_autocmd("TextYankPost", {
+create_autocmd("TextYankPost", {
   group = augroup("highlight_yank"),
   callback = function()
     vim.highlight.on_yank()
@@ -43,7 +44,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 -----------------------------------------------------------
 -- Close certain file types with q
 -----------------------------------------------------------
-vim.api.nvim_create_autocmd("FileType", {
+create_autocmd("FileType", {
   group = augroup("close_with_q"),
   pattern = {
     "PlenaryTestPopup",
@@ -73,7 +74,7 @@ vim.api.nvim_create_autocmd("FileType", {
 -----------------------------------------------------------
 -- Auto create directory when saving a file
 -----------------------------------------------------------
-vim.api.nvim_create_autocmd({ "BufWritePre" }, {
+create_autocmd({ "BufWritePre" }, {
   group = augroup("auto_create_dir"),
   callback = function(event)
     if event.match:match("^%w%w+://") then
@@ -87,12 +88,12 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
 -----------------------------------------------------------
 -- Don't auto comment new line
 -----------------------------------------------------------
-vim.api.nvim_create_autocmd("BufEnter", { command = [[set formatoptions-=cro]] })
+create_autocmd("BufEnter", { command = [[set formatoptions-=cro]] })
 
 -----------------------------------------------------------
 -- Make it easier to close man-files when opened inline
 -----------------------------------------------------------
-vim.api.nvim_create_autocmd("FileType", {
+create_autocmd("FileType", {
   group = augroup("man_unlisted"),
   pattern = { "man" },
   callback = function(event)
@@ -103,7 +104,7 @@ vim.api.nvim_create_autocmd("FileType", {
 -----------------------------------------------------------
 -- Turn off line numbering in terminal buffers
 -----------------------------------------------------------
-vim.api.nvim_create_autocmd("TermOpen", {
+create_autocmd("TermOpen", {
   group = augroup("term_no_line_number"),
   callback = function()
     vim.opt_local.number = false
@@ -111,20 +112,10 @@ vim.api.nvim_create_autocmd("TermOpen", {
   end,
 })
 
--- vim.api.nvim_create_autocmd("FileType", {
---   pattern = "trouble",
---   group = augroup("Trouble Line Numbers"),
---   callback = function()
---     require("utils.notify").warn("Line numbers are enabled in Trouble")
---     vim.opt_local.number = true
---     vim.opt_local.relativenumber = true
---   end,
--- })
-
 -----------------------------------------------------------
 ----- change filetype for htmldjango to html
 -----------------------------------------------------------
-vim.api.nvim_create_autocmd("FileType", {
+create_autocmd("FileType", {
   pattern = "htmldjango",
   group = augroup("html_django"),
   callback = function()
@@ -132,7 +123,7 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
-local filetypes = {
+local web_fts = {
   "css",
   "html",
   "javascript",
@@ -145,11 +136,38 @@ local filetypes = {
   "typescriptreact",
   "yaml",
 }
-vim.api.nvim_create_autocmd("FileType", {
-  group = augroup("two spaces indent"),
-  pattern = filetypes,
+create_autocmd("FileType", {
+  group = augroup("Web filetypes options"),
+  pattern = web_fts,
   callback = function()
     vim.bo.shiftwidth = 2
     vim.bo.tabstop = 2
+    vim.b.disable_autoformat = false
+    vim.g.disable_autoformat = false
+  end,
+})
+
+create_autocmd("Filetype", {
+  group = augroup("C options"),
+  pattern = { "c", "cpp" },
+  callback = function()
+    vim.bo.shiftwidth = 8
+    vim.bo.tabstop = 8
+    vim.bo.softtabstop = 8
+    vim.bo.expandtab = false
+    vim.b.disable_autoformat = false
+    vim.g.disable_autoformat = false
+  end,
+})
+
+create_autocmd("Filetype", {
+  group = augroup("Python options"),
+  pattern = { "python" },
+  callback = function()
+    vim.bo.shiftwidth = 4
+    vim.bo.tabstop = 4
+    vim.b.disable_autoformat = false
+    vim.g.disable_autoformat = false
+    vim.keymap.set("n", "<leader>cv", "<cmd>VenvSelect<cr>", { desc = "Select VirtualEnv" })
   end,
 })

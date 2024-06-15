@@ -57,7 +57,7 @@ set("n", "<C-Right>", "<cmd>vertical resize +2<cr>", { desc = "Increase Window W
 set({ "i", "x", "n", "s" }, "<C-s>", "<cmd>w<cr><esc>", { desc = "Save File" })
 set("n", "<C-q>", "<cmd>q<cr>", { desc = "Quit file", silent = true })
 set("n", "<C-Q>", "<cmd>q!<cr>", { desc = "Quit file", silent = true })
-set("n", "<leader>qq", "<cmd>qa<cr>", { desc = "Quit file", silent = true })
+set("n", "<leader>qq", "<cmd>wqa<cr>", { desc = "Quit file", silent = true })
 
 ------------------------
 -- Keymaps for search

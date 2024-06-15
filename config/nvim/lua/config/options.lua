@@ -7,7 +7,7 @@ opt.statuscolumn = [[%!v:lua.require("utils.ui").statuscolumn()]]
 -----------------------------------------------------------
 -- General
 -----------------------------------------------------------
-opt.clipboard = "unnamedplus" -- Use system clipboard
+-- opt.clipboard = "unnamedplus" -- Use system clipboard
 opt.updatetime = 250 -- Decrease update time
 opt.timeoutlen = 300
 opt.errorbells = false -- Disable error bells
@@ -100,6 +100,7 @@ opt.spelllang = { "en" } -- Set spell languages
 opt.spell = false -- Disable spell checking by default
 -- vim.g.autoformat = false -- Disable autoformat by default
 vim.g.disable_autoformat = true
+vim.b.disable_autoformat = true
 vim.g.loaded_ruby_provider = 0 -- Disable Ruby providers
 vim.g.loaded_perl_provider = 0 -- Disable Perl providers
 

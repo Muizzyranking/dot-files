@@ -1,3 +1,4 @@
+-- copied from https://github.com/xyven1/neovim-config/blob/master/lua/config/lazyfile.lua
 local M = {}
 function M.setup()
   -- Add support for the LazyFile event

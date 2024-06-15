@@ -22,7 +22,7 @@ require("lazy").setup({
     { import = "plugins.lang.json" },
     { import = "plugins.lang.markdown" },
     { import = "plugins.lang.typescript" },
-    -- { import = "plugins.lang.c" },
+    { import = "plugins.lang.c" },
   },
   defaults = {
     lazy = true,
