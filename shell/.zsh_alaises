@@ -7,10 +7,12 @@ alias cat='bat'
 alias ff='fd --type f --hidden --exclude .git | fzf-tmux -p --reverse'
 
 # fuzzy find files and open in nvim
-alias of='fd --type f --hidden --exclude .git | fzf-tmux -p --reverse | xargs nvim'
+# alias of='fd --type f --hidden --exclude .git | fzf-tmux -p --reverse | xargs nvim'
 
 # fuzzy find directories and cd into them
-alias fdir='cd "$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse)"'
+# alias fdir='cd "$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse)"'
+alias fdir='selected_dir=$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse); if [ -n "$selected_dir" ]; then cd "$selected_dir"; fi'
+alias of='selected_file=$(fzf --preview="bat --color=always {}"); if [ -n "$selected_file" ]; then nvim "$selected_file"; fi'
 
 alias td='tmux detach'
 alias lg='lazygit'
