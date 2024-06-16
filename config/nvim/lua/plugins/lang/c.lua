@@ -30,16 +30,27 @@ return {
     },
   },
   {
-    "bstevary/betty-in-vim",
+    "dense-analysis/ale",
     ft = { "c", "h" },
     dependencies = {
-      "nvim-lua/plenary.nvim",
-      "dense-analysis/ale",
-      "nvim-treesitter/nvim-treesitter",
+      {
+        "JuanDAC/betty-ale-vim",
+        dependencies = {
+          "dense-analysis/ale",
+        },
+      },
     },
-  },
-  {
-    "dense-analysis/ale",
-    lazy = true,
+    config = function()
+      local g = vim.g
+      g.ale_linters = {
+        c = { "betty-style", "betty-doc" },
+      }
+      g.ale_echo_msg_error_str = ""
+      g.ale_echo_msg_warning_str = ""
+      g.ale_echo_msg_format = ""
+      g.ale_sign_column_always = 0
+      g.ale_detail_to_floating_preview = 0
+      g.ale_echo_cursor = 0
+    end,
   },
 }

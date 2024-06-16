@@ -7,7 +7,7 @@ opt.statuscolumn = [[%!v:lua.require("utils.ui").statuscolumn()]]
 -----------------------------------------------------------
 -- General
 -----------------------------------------------------------
--- opt.clipboard = "unnamedplus" -- Use system clipboard
+opt.clipboard = "unnamedplus" -- Use system clipboard
 opt.updatetime = 250 -- Decrease update time
 opt.timeoutlen = 300
 opt.errorbells = false -- Disable error bells
