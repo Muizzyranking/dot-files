@@ -18,11 +18,10 @@ local logo = [[
 ┈╰━━━━━━━━━━━╯┈
 =MUIZZYRANKING=
 ]]
-return {
+return true and {} or {
   "nvimdev/dashboard-nvim",
   event = "VimEnter",
   opts = function()
-    local logo = logo
 
     logo = string.rep("\n", 8) .. logo .. "\n\n"
 

@@ -1,103 +1,113 @@
-Util = require("lazyvim.util")
 return {
-  {
-    "nvim-neo-tree/neo-tree.nvim",
-    branch = "v3.x",
-    cmd = "Neotree",
-    keys = {
-      {
-        "<leader>E",
-        function()
-          require("neo-tree.command").execute({
-            toggle = true,
-            dir = Util.root(),
-          })
-        end,
-        desc = "Explorer NeoTree (root dir)",
-      },
-      {
-        "<leader>e",
-        function()
-          require("neo-tree.command").execute({
-            toggle = true,
-            dir = vim.loop.cwd(),
-          })
-        end,
-        desc = "Explorer NeoTree (cwd)",
-      },
-      {
-        "<leader>ge",
-        function()
-          require("neo-tree.command").execute({ source = "git_status", toggle = true })
-        end,
-        desc = "Git explorer",
-      },
-      {
-        "<leader>be",
-        function()
-          require("neo-tree.command").execute({ source = "buffers", toggle = true })
-        end,
-        desc = "Buffer explorer",
-      },
+  "nvim-neo-tree/neo-tree.nvim",
+  dependencies = {
+    "nvim-lua/plenary.nvim",
+    "nvim-tree/nvim-web-devicons",
+    "MunifTanjim/nui.nvim",
+  },
+  keys = {
+    {
+      "<leader>E",
+      "<cmd>Neotree toggle float<cr>",
+      desc = "Float File Explorer",
     },
-    deactivate = function()
-      vim.cmd([[Neotree close]])
-    end,
-    init = function()
-      if vim.fn.argc(-1) == 1 then
-        local stat = vim.loop.fs_stat(vim.fn.argv(0))
-        if stat and stat.type == "directory" then
-          require("neo-tree")
-        end
-      end
-    end,
-    opts = {
-      sources = { "filesystem", "buffers", "git_status", "document_symbols" },
-      open_files_do_not_replace_types = { "terminal", "Trouble", "trouble", "qf", "Outline" },
-      filesystem = {
-        bind_to_cwd = false,
-        follow_current_file = { enabled = true },
-        use_libuv_file_watcher = true,
+    {
+      "<leader>e",
+      "<cmd>Neotree toggle left<cr>",
+      desc = "Left File Explorer",
+    },
+  },
+  config = function()
+    -- local icons = require("utils.icons").neotree
+    local git_available = vim.fn.executable("git") == 1
+    -- local sources = {
+    --   { source = "filesystem", display_name = icons.folder .. " " .. "Files" },
+    --   { source = "buffers", display_name = icons.buffer .. " " .. "Buffers" },
+    -- }
+    -- if git_available then
+    --   table.insert(sources, 3, { source = "git_status", display_name = icons.git .. " " .. "Git" })
+    -- end
+    require("neo-tree").setup({
+      close_if_last_window = true,
+      popup_border_style = "single",
+      enable_git_status = git_available,
+      -- sources = { "filesystem", "buffers", git_available and "git_status" or nil },
+      -- source_selector = {
+      --   winbar = true,
+      --   content_layout = "center",
+      --   -- tabs_layout = "equal",
+      --   sources = sources,
+      -- },
+      enable_modified_markers = true,
+      enable_diagnostics = true,
+      sort_case_insensitive = true,
+      default_component_configs = {
+        indent = {
+          with_markers = true,
+          with_expanders = true,
+        },
+        modified = {
+          symbol = " ",
+          highlight = "NeoTreeModified",
+        },
+        git_status = {
+          symbols = {
+            -- Change type
+            -- added = " ",
+            -- deleted = " ",
+            -- modified = " ",
+            -- renamed = " ",
+            -- Status type
+            -- untracked = " ",
+            -- ignored = " ",
+            -- unstaged = " ",
+            -- staged = " ",
+            -- conflict = " ",
+          },
+        },
       },
       window = {
+        position = "left",
+        width = 40,
         mappings = {
-          ["<space>"] = "none",
-          ["Y"] = function(state)
-            local node = state.tree:get_node()
-            local path = node:get_id()
-            vim.fn.setreg("+", path, "c")
+          ["h"] = "prev_source",
+          ["l"] = "next_source",
+        },
+      },
+      filesystem = {
+        use_libuv_file_watcher = true,
+        bind_to_cwd = false,
+        follow_current_file = { enabled = true },
+        filtered_items = {
+          hide_dotfiles = true,
+          hide_gitignored = true,
+          hide_by_name = {
+            "node_modules",
+          },
+          never_show = {
+            ".DS_Store",
+            "thumbs.db",
+          },
+        },
+      },
+      event_handlers = {
+        {
+          event = "neo_tree_window_after_open",
+          handler = function(args)
+            if args.position == "left" or args.position == "right" then
+              vim.cmd("wincmd =")
+            end
+          end,
+        },
+        {
+          event = "neo_tree_window_after_close",
+          handler = function(args)
+            if args.position == "left" or args.position == "right" then
+              vim.cmd("wincmd =")
+            end
           end,
         },
       },
-      default_component_configs = {
-        indent = {
-          with_expanders = true, -- if nil and file nesting is enabled, will enable expanders
-          expander_collapsed = "",
-          expander_expanded = "",
-          expander_highlight = "NeoTreeExpander",
-        },
-      },
-    },
-    config = function(_, opts)
-      local function on_move(data)
-        Util.lsp.on_rename(data.source, data.destination)
-      end
-
-      local events = require("neo-tree.events")
-      opts.event_handlers = opts.event_handlers or {}
-      vim.list_extend(opts.event_handlers, {
-        { event = events.FILE_MOVED, handler = on_move },
-        { event = events.FILE_RENAMED, handler = on_move },
-      })
-      require("neo-tree").setup(opts)
-      vim.api.nvim_create_autocmd("TermClose", {
-        pattern = "*lazygit",
-        callback = function()
-          if package.loaded["neo-tree.sources.git_status"] then
-            require("neo-tree.sources.git_status").refresh()
-          end
-        end,
-      })
-    end,
-  },
+    })
+  end,
 }
