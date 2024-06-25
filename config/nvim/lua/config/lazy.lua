@@ -26,10 +26,11 @@ require("lazy").setup({
   },
   defaults = {
     lazy = true,
-    -- version = false, -- always use the latest git commit
   },
+  custom_keys = {},
   install = { colorscheme = { "catppuccin" } },
   ui = {
+    size = { width = 0.9, height = 0.9 },
     border = "rounded",
   },
   checker = {

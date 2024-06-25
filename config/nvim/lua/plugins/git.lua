@@ -32,27 +32,4 @@ return {
       end,
     },
   },
-  {
-    "kdheepak/lazygit.nvim",
-    cmd = "LazyGit",
-    keys = {
-      {
-        "<leader>gg",
-        "<cmd>LazyGit<cr>",
-        desc = "LazyGit",
-      },
-      {
-        "<leader>gc",
-        "<cmd>LazyGitFilter<cr>",
-        desc = "Git Commits Filter",
-      },
-    },
-    dependencies = {
-      "nvim-telescope/telescope.nvim",
-      "nvim-lua/plenary.nvim",
-    },
-    config = function()
-      require("telescope").load_extension("lazygit")
-    end,
-  },
 }

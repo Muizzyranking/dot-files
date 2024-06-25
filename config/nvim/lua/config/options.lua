@@ -1,8 +1,6 @@
 local opt = vim.opt
 
-vim.o.background = "dark"
 vim.highlight.priorities.semantic_tokens = 95
-opt.statuscolumn = [[%!v:lua.require("utils.ui").statuscolumn()]]
 
 -----------------------------------------------------------
 -- General
@@ -18,11 +16,13 @@ opt.showmode = false -- Don't show the mode, since it's already in the status li
 opt.signcolumn = "yes" -- Keep signcolumn on by default
 opt.scrolloff = 4 -- Minimal number of screen lines to keep above and below the cursor
 opt.sidescrolloff = 8
-
 opt.confirm = true -- Confirm before quitting unsaved buffers
 -----------------------------------------------------------
 -- UI
 -----------------------------------------------------------
+opt.showmode = false
+opt.statuscolumn = [[%!v:lua.require("utils.ui").statuscolumn()]]
+vim.o.background = "dark"
 opt.winminwidth = 5 -- Minimum window width
 opt.signcolumn = "yes" -- Always show the signcolumn, otherwise it would shift the text each time
 -- vim.opt.numberwidth = 1
@@ -57,7 +57,7 @@ opt.foldlevel = 99
 opt.foldmethod = "expr"
 opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 opt.foldtext = ""
--- vim.g.markdown_folding = 1 -- Enable markdown folding
+vim.g.markdown_folding = 1 -- Enable markdown folding
 
 -----------------------------------------------------------
 -- Search and Highlighting

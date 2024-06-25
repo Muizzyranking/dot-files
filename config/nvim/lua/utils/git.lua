@@ -1,11 +1,18 @@
 local M = {}
 
+-------------------------------------
+-- Create a floating window with specified options.
+---@param opts table: Options for creating the floating window.
+-------------------------------------
 function M.float(opts)
   return require("lazy.view.float")(opts)
 end
 
----@param cmd string[]
----@param opts? LazyCmdOptions|{filetype?:string}
+-------------------------------------
+-- Execute a command in a floating terminal window with optional file type.
+---@param cmd string[]: The command to be executed.
+---@param opts table: Optional parameters for customizing the floating window.
+-------------------------------------
 function M.float_cmd(cmd, opts)
   opts = opts or {}
   local float = M.float(opts)
@@ -19,6 +26,10 @@ function M.float_cmd(cmd, opts)
   return float
 end
 
+-------------------------------------
+-- Display git blame information for the current line in a floating window.
+---@param opts table: Optional parameters for customizing the floating window.
+-------------------------------------
 function M.blame_line(opts)
   opts = vim.tbl_deep_extend("force", {
     count = 3,

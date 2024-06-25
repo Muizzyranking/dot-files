@@ -34,12 +34,6 @@ return {
             key = "n",
           },
           {
-            action = "Telescope projects",
-            desc = " Projects",
-            icon = " ",
-            key = "p",
-          },
-          {
             action = "Telescope oldfiles",
             desc = " Recent files",
             icon = " ",

@@ -1,8 +1,10 @@
 local M = {}
 
---------------------------
+----------------------------------------------------
 -- Display a notification message
---------------------------
+---@param msg string|table
+---@param opts table
+----------------------------------------------------
 function M.notify(msg, opts)
   if vim.in_fast_event() then
     return vim.schedule(function()

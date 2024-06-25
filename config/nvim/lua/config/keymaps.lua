@@ -2,12 +2,12 @@ local helper = require("utils.helper")
 local notify = require("utils.notify")
 local git = require("utils.git")
 local utils = require("utils")
+local lazygit = require("utils.lazygit").lazygit
+local toggleterm = require("utils.toggleterm").toggle_float_terminal
 
 vim.g.mapleader = " "
-vim.g.maplocalleader = " "
--- vim.keymap.del("n")
+vim.g.maplocalleader = "\\"
 
-vim.opt.showmode = false
 local set = vim.keymap.set
 
 ------------------------
@@ -43,6 +43,7 @@ set("n", "<leader>ww", "<C-W>p", { desc = "Other Window", remap = true })
 set("n", "<leader>wd", "<C-W>c", { desc = "Delete Window", remap = true })
 set("n", "<leader>w-", "<C-W>s", { desc = "Split Window Below", remap = true })
 set("n", "<leader>w|", "<C-W>v", { desc = "Split Window Right", remap = true })
+set("n", "<leader>wn", "<C-W>n", { desc = "Split Window Right", remap = true })
 -- set("n", "<leader>-", "<C-W>s", { desc = "Split Window Below", remap = true })
 -- set("n", "<leader>|", "<C-W>v", { desc = "Split Window Right", remap = true })
 -- Resize window using <ctrl> arrow keys
@@ -57,7 +58,7 @@ set("n", "<C-Right>", "<cmd>vertical resize +2<cr>", { desc = "Increase Window W
 set({ "i", "x", "n", "s" }, "<C-s>", "<cmd>w<cr><esc>", { desc = "Save File" })
 set("n", "<C-q>", "<cmd>q<cr>", { desc = "Quit file", silent = true })
 set("n", "<C-Q>", "<cmd>q!<cr>", { desc = "Quit file", silent = true })
-set("n", "<leader>qq", "<cmd>wqa<cr>", { desc = "Quit file", silent = true })
+set("n", "<leader>qq", "<cmd>wqa<cr>", { desc = "Save all and quit", silent = true })
 
 ------------------------
 -- Keymaps for search
@@ -110,6 +111,7 @@ set({ "n" }, "ciw", '"_ciw')
 ------------------------
 -- Keymaps for miscellaneous
 ------------------------
+-- stylua: ignore start
 set("n", "<leader>gb", git.blame_line, { desc = "Git Blame Line" })
 set("n", "<leader>fn", helper.new_file, { desc = "Create new file" })
 set("n", "<leader>cx", helper.make_file_executable, { desc = "Make file executable", silent = true })
@@ -118,9 +120,7 @@ set("n", "<leader>ud", helper.toggle_diagnostics, { desc = "Toggle Diagnostics" 
 set("n", "<leader>us", helper.toggle_spell, { desc = "Toggle Spell" })
 set("n", "<leader>uf", helper.toggle_autoformat, { desc = "Toggle Autoformat (Global)" })
 set("n", "<leader>uS", "<cmd>Telescope spell_suggest<cr>", { desc = "Spell Suggest" })
-set("n", "<leader>uF", function()
-  helper.toggle_autoformat(true)
-end, { desc = "Toggle Autoformat (Buffer)" })
+set("n", "<leader>uF", function() helper.toggle_autoformat(true) end, { desc = "Toggle Autoformat (Buffer)" })
 set("n", "<leader>uT", function()
   if vim.b.ts_highlight then
     vim.treesitter.stop()
@@ -132,13 +132,16 @@ set("n", "<leader>uh", function()
   ---@diagnostic disable-next-line: missing-parameter
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 end, { desc = "Toggle Inlay  hint" }) -- toggle inlay hint
-
--- buffers
--- if not utils.has("bufferline.nvim") then
-set("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Prev buffer", silent = true })
-set("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next buffer", silent = true })
-set("n", "<leader>bd", "<cmd>bd<cr>", { desc = "Delete buffer", silent = true })
--- end
+set("n", "<leader>j", function() utils.duplicate_line() end, { desc = "Duplicate Line" })
+set("n", "<leader><DOWN>", function() utils.duplicate_line() end, { desc = "Duplicate Line" })
+set("v", "<leader>j", function() utils.duplicate_selection() end, { desc = "Duplicate selection" })
+set({ "n", "i", "t" }, "<C-_>", toggleterm, { noremap = true, silent = true, desc = "Toggle Terminal" })
+set("n", "<leader>gC", function()
+  local git_path = vim.api.nvim_buf_get_name(0)
+  lazygit({ "-f", vim.trim(git_path) }) end, { desc = "LazyGit Log" })
+set("n", "<leader>gc", function() lazygit({ "log" }) end, { desc = "LazyGit Log (Current File)" })
+set("n", "<leader>gg", function() lazygit() end, { desc = "LazyGit" })
+set("n", "<leader>mm", function() git.lazygit() end, { desc = "LazyGit" })
 
 -- disable arrow key in normal mode
 set("n", "<UP>", function()

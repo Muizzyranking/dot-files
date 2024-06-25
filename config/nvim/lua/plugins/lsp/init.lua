@@ -83,8 +83,6 @@ return {
         capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
         local lsps = servers.lsp
-        local on_attach = servers.on_attach
-
         local lsp_servers = vim.tbl_keys(lsps or {})
 
         require("mason-lspconfig").setup({
@@ -96,17 +94,19 @@ return {
               -- by the server configuration above. Useful when disabling
               -- certain features of an LSP (for example, turning off formatting for tsserver)
               server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-              server.on_attach = on_attach
               require("lspconfig")[server_name].setup(server)
             end,
           },
           ["clangd"] = function()
             local opts = lsps["clangd"]
             opts.capabilities = vim.tbl_deep_extend("force", {}, capabilities, opts.capabilities or {})
-            opts.on_attach = on_attach
-            local clangd_ext_opts = utils.opts("clangd_extensions.nvim")
-            require("clangd_extensions").setup(vim.tbl_deep_extend("force", clangd_ext_opts or {}, { server = opts }))
-            return false
+            if utils.has("clangd_extensions.nvim") then
+              local clangd_ext_opts = utils.opts("clangd_extensions.nvim")
+              require("clangd_extensions").setup(vim.tbl_deep_extend("force", clangd_ext_opts or {}, { server = opts }))
+              return false
+            else
+              require("lspconfig")["clangd"].setup(opts)
+            end
           end,
           ["tsserver"] = function()
             return true

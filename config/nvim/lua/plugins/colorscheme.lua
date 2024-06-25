@@ -17,6 +17,7 @@ return {
       no_bold = false,
       default_integrations = true,
       integrations = {
+        dropbar = { enabled = true },
         dashboard = true,
         harpoon = true,
         -- fidget = true,

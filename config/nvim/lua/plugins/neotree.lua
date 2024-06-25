@@ -7,11 +7,6 @@ return {
   },
   keys = {
     {
-      "<leader>E",
-      "<cmd>Neotree toggle float<cr>",
-      desc = "Float File Explorer",
-    },
-    {
       "<leader>e",
       "<cmd>Neotree toggle left<cr>",
       desc = "Left File Explorer",

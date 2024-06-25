@@ -1,10 +1,7 @@
 local icons = require("utils.icons")
 local utils = require("utils")
 local lualine_utils = require("utils.lualine.utils")
-local lualine_require = require("lualine_require")
-local hl = require("utils.lualine.harpoon_lualine")
 local M = {}
-M.harpoon = lualine_require.require("lualine.component"):extend()
 
 --------------------------------------------------------------------------------------
 -- Generate the file information component for the statusline
@@ -57,22 +54,8 @@ M.lsp = {
 
     return language_servers
   end,
-  color = { gui = "bold" },
+  color = { gui = "italic,bold" },
   cond = lualine_utils.conditions.hide_in_width,
 }
-
-function M.harpoon:init(options)
-  M.harpoon.super.init(self, options)
-  self.options = vim.tbl_deep_extend("keep", self.options or {}, hl.default_options)
-end
-
-function M.harpoon:update_status()
-  local harpoon_loaded = package.loaded["harpoon"] ~= nil
-  if not harpoon_loaded then
-    return
-  end
-
-  return hl.status(self.options)
-end
 
 return M

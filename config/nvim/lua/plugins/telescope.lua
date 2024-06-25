@@ -1,12 +1,11 @@
 local utils = require("utils")
 local builtin = require("telescope.builtin")
-return { -- Fuzzy Finder (files, lsp, etc)
+return {
   "nvim-telescope/telescope.nvim",
   cmd = "Telescope",
-  branch = "0.1.x",
   dependencies = {
     "nvim-lua/plenary.nvim",
-    { -- If encountering errors, see telescope-fzf-native README for install instructions
+    {
       "nvim-telescope/telescope-fzf-native.nvim",
       build = "make",
       cond = function()
@@ -18,33 +17,13 @@ return { -- Fuzzy Finder (files, lsp, etc)
         end)
       end,
     },
-    {
-      "ahmedkhalf/project.nvim",
-      opts = {
-        manual_mode = false,
-      },
-      event = "VeryLazy",
-      config = function(_, opts)
-        require("project_nvim").setup(opts)
-        utils.on_load("telescope.nvim", function()
-          require("telescope").load_extension("projects")
-        end)
-      end,
-      keys = {
-        { "<leader>fp", "<Cmd>Telescope projects<CR>", desc = "Projects" },
-        { "<leader>fP", "<Cmd>ProjectRoot<CR>", desc = "Save Project" },
-      },
-    },
     { "nvim-tree/nvim-web-devicons" },
   },
   keys = {
-    -- { "<leader>fh", builtin.help_tags, desc = "Find Help Tags" },
     { "<leader>fk", builtin.keymaps, desc = "Find Keymaps" },
     { "<leader>ff", builtin.find_files, desc = "Find Files" },
     { "<leader>sw", builtin.grep_string, desc = "Search word under cursor" },
     { "<leader>fg", builtin.live_grep, desc = "Find by Grep" },
-    -- i use trouble for this now
-    -- { "<leader>fd", builtin.diagnostics, desc = "Find Diagnostics" },
     { "<leader>fR", builtin.resume, desc = "Search Resume" },
     { "<leader>fr", builtin.oldfiles, desc = "Find Recent Files" },
     { "<leader>fb", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", desc = "Find Buffers" },
@@ -58,8 +37,6 @@ return { -- Fuzzy Finder (files, lsp, etc)
       end,
       desc = "colorscheme",
     },
-    -- { "<leader>gs", builtin.git_status, desc = "Git Status (Telescope)" },
-    { "<leader>gC", builtin.git_commits, desc = "Git Commit (Telescope)" },
     { "<leader>gf", builtin.git_files, desc = "Git files (Telescope)" },
     {
       "<leader>fw",
@@ -121,7 +98,6 @@ return { -- Fuzzy Finder (files, lsp, etc)
           },
         },
       },
-      -- pickers = {}
       extensions = {
         ["ui-select"] = {
           require("telescope.themes").get_dropdown(),

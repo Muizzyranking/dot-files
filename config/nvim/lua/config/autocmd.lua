@@ -4,6 +4,7 @@ local function augroup(name)
 end
 
 local create_autocmd = vim.api.nvim_create_autocmd
+local helper = require("utils.helper")
 
 -----------------------------------------------------------
 -- Go to the last cursor position when opening a buffer
@@ -113,61 +114,43 @@ create_autocmd("TermOpen", {
 })
 
 -----------------------------------------------------------
------ change filetype for htmldjango to html
+----- Format htmldjango files
+----- TODO: Find a better way to format
 -----------------------------------------------------------
+vim.api.nvim_create_user_command("DjlintFormat", function()
+  helper.run_djlint()
+end, {
+  desc = "Toggle autoformat-on-save",
+  bang = true,
+})
 create_autocmd("FileType", {
   pattern = "htmldjango",
   group = augroup("html_django"),
   callback = function()
-    vim.bo.filetype = "html"
+    -- vim.bo.filetype = "html"
+    vim.api.nvim_buf_set_keymap(0, "n", "<leader>cf", "<nop>", {})
+    vim.api.nvim_buf_set_keymap(0, "n", "<leader>cf", "<cmd>DjlintFormat<cr>", { desc = "Format buffer" })
   end,
 })
 
-local web_fts = {
-  "css",
-  "html",
-  "javascript",
-  "javascriptreact",
-  "json",
-  "lua",
-  "markdown",
-  "python",
-  "typescript",
-  "typescriptreact",
-  "yaml",
-}
 create_autocmd("FileType", {
   group = augroup("Web filetypes options"),
-  pattern = web_fts,
+  pattern = {
+    "css",
+    "html",
+    "javascript",
+    "javascriptreact",
+    "json",
+    "lua",
+    "markdown",
+    "typescript",
+    "typescriptreact",
+    "yaml",
+  },
   callback = function()
     vim.bo.shiftwidth = 2
     vim.bo.tabstop = 2
     vim.b.disable_autoformat = false
     vim.g.disable_autoformat = false
-  end,
-})
-
-create_autocmd("Filetype", {
-  group = augroup("C options"),
-  pattern = { "c", "cpp" },
-  callback = function()
-    vim.bo.shiftwidth = 8
-    vim.bo.tabstop = 8
-    vim.bo.softtabstop = 8
-    vim.bo.expandtab = false
-    vim.b.disable_autoformat = false
-    vim.g.disable_autoformat = false
-  end,
-})
-
-create_autocmd("Filetype", {
-  group = augroup("Python options"),
-  pattern = { "python" },
-  callback = function()
-    vim.bo.shiftwidth = 4
-    vim.bo.tabstop = 4
-    vim.b.disable_autoformat = false
-    vim.g.disable_autoformat = false
-    vim.keymap.set("n", "<leader>cv", "<cmd>VenvSelect<cr>", { desc = "Select VirtualEnv" })
   end,
 })

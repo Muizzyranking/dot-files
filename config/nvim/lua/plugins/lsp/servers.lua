@@ -1,17 +1,7 @@
+local utils = require("utils")
 local M = {}
--- local inlay_hints_settings = {
---   includeInlayEnumMemberValueHints = true,
---   includeInlayFunctionLikeReturnTypeHints = true,
---   includeInlayFunctionParameterTypeHints = true,
---   includeInlayParameterNameHints = "literal",
---   includeInlayParameterNameHintsWhenArgumentMatchesName = false,
---   includeInlayPropertyDeclarationTypeHints = true,
---   includeInlayVariableTypeHints = false,
---   includeInlayVariableTypeHintsWhenTypeMatchesName = false,
--- }
 
 M.lsp = {
-  -- lsp config here to mak things less cluttered
   clangd = {
     root_dir = function(fname)
       return require("lspconfig.util").root_pattern(
@@ -65,12 +55,31 @@ M.lsp = {
       -- },
     },
   },
-  ruff_lsp = {},
+  ruff_lsp = {
+    on_attach = function(client, bufnr)
+      local function map(mode, lhs, rhs, desc)
+        vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
+      end
+      if client.name == "ruff_lsp" then
+        client.server_capabilities.hoverProvider = false
+
+        map("n", "<leader>co", function()
+          vim.lsp.buf.code_action({
+            apply = true,
+            context = {
+              only = { "source.organizeImports" },
+              diagnostics = {},
+            },
+          })
+        end, "Organize Imports")
+      end
+    end,
+  },
   marksman = {},
   emmet_ls = {},
   cssls = {},
   html = {
-    -- filetypes = { "html", "htmldjango" },
+    filetypes = { "html", "htmldjango" },
   },
   sqlls = {},
   bashls = {
@@ -81,31 +90,6 @@ M.lsp = {
       workingDirectories = { mode = "auto" },
     },
   },
-
-  -- tsserver = {
-  --   ---@diagnostic disable-next-line: missing-fields
-  --   -- root_dir = function(...)
-  --   --   return require("lspconfig.util").root_pattern(".git")(...)
-  --   -- end,
-  --   root_dir = function(...)
-  --     local util = require("lspconfig.util")
-  --     local root_pattern = util.root_pattern(".git", "package.json", "tsconfig.json", "jsconfig.json")
-  --     local root_dir = root_pattern(...) or util.path.dirname(...)
-  --     return root_dir
-  --   end,
-  --   single_file_support = false,
-  --   settings = {
-  --     typescript = {
-  --       inlayHints = inlay_hints_settings,
-  --     },
-  --     javascript = {
-  --       inlayHints = inlay_hints_settings,
-  --     },
-  --     completions = {
-  --       completeFunctionCalls = true,
-  --     },
-  --   },
-  -- },
   vtsls = {
     settings = {
       complete_function_calls = true,
@@ -132,6 +116,30 @@ M.lsp = {
         },
       },
     },
+    on_attach = function(client, bufnr)
+      local function map(lhs, rhs, desc)
+        vim.keymap.set("n", lhs, rhs, { buffer = bufnr, desc = desc })
+      end
+      if client.name == "vtsls" then
+        if utils.has("nvim-vtsls") then
+          map("gD", function()
+            require("vtsls").commands.goto_source_definition(0)
+          end, "Goto Source Definition")
+          map("gR", function()
+            require("vtsls").commands.file_references(0)
+          end, "Goto File Definition")
+          map("<leader>co", function()
+            require("vtsls").commands.organize_imports(0)
+          end, "Organize imports")
+          map("<leader>cM", function()
+            require("vtsls").commands.add_missing_imports(0)
+          end, "Add missing imports")
+          map("<leader>cD", function()
+            require("vtsls").commands.fix_all(0)
+          end, "Fix all diagnostics")
+        end
+      end
+    end,
   },
 
   jsonls = {
@@ -153,6 +161,7 @@ M.lsp = {
   lua_ls = {
     settings = {
       Lua = {
+        cmd = { "lua-language-server" },
         hint = {
           enable = true,
           arrayIndex = "Disable",
@@ -173,78 +182,8 @@ M.lsp = {
   },
 }
 
-M.on_attach = function(client, bufnr)
-  local function map(mode, lhs, rhs, desc)
-    vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
-  end
-
-  -- Keymaps for ruff
-  if client.name == "ruff_lsp" then
-    client.server_capabilities.hoverProvider = false
-
-    map("n", "<leader>co", function()
-      vim.lsp.buf.code_action({
-        apply = true,
-        context = {
-          only = { "source.organizeImports" },
-          diagnostics = {},
-        },
-      })
-    end, "Organize Imports")
-  end
-
-  -- Keymaps for vtsls
-  if client.name == "vtsls" then
-    local ts_js_keys = {
-      {
-        m = "n",
-        keys = "gD",
-        cmd = function()
-          require("vtsls").commands.goto_source_definition(0)
-        end,
-        desc = "Goto Source Definition",
-      },
-      {
-        m = "n",
-        keys = "gR",
-        cmd = function()
-          require("vtsls").commands.file_references(0)
-        end,
-        desc = "Goto File Definition",
-      },
-      {
-        m = "n",
-        keys = "<leader>co",
-        cmd = function()
-          require("vtsls").commands.organize_imports(0)
-        end,
-        desc = "Organize imports",
-      },
-      {
-        m = "n",
-        keys = "<leader>cM",
-        cmd = function()
-          require("vtsls").commands.add_missing_imports(0)
-        end,
-        desc = "Add missing imports",
-      },
-      {
-        m = "n",
-        keys = "<leader>cD",
-        cmd = function()
-          require("vtsls").commands.fix_all(0)
-        end,
-        desc = "Fix all diagnostics",
-      },
-    }
-    for _, keymap in ipairs(ts_js_keys) do
-      map(keymap.m, keymap.keys, keymap.cmd, keymap.desc)
-    end
-  end
-end
-
 M.fts_n_linters = {
-  "stylua", -- Used to format lua code
+  "stylua",
   "autopep8",
   "prettier",
   "prettierd",
@@ -254,6 +193,8 @@ M.fts_n_linters = {
   "shfmt",
   "jsonlint",
   "eslint_d",
+  "djlint",
+  "djlint",
   -- "markdownlint",
 }
 

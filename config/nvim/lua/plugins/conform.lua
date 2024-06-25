@@ -52,6 +52,7 @@ return {
       ["scss"] = { { "prettierd", "prettier" } },
       ["less"] = { { "prettierd", "prettier" } },
       ["html"] = { { "prettierd", "prettier" } },
+      -- ["htmldjango"] = { { "djlint" } },
       ["json"] = { { "prettierd", "prettier" } },
       ["jsonc"] = { { "prettierd", "prettier" } },
       ["yaml"] = { { "prettierd", "prettier" } },
@@ -66,6 +67,7 @@ return {
 
       ["sql"] = { "sql-formatter" },
       ["python"] = { "autopep8" },
+      -- ["python"] = { "black" },
       ["lua"] = { "stylua" },
     },
   },

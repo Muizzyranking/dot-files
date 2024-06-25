@@ -1,9 +1,15 @@
 M = {}
+
+--------------------------------------------------
+-- Get signs for a specific buffer and line number
+---@param buf number
+---@param lnum number
+---@return Sign[]
+--------------------------------------------------
 function M.get_signs(buf, lnum)
   -- Get regular signs
   ---@type Sign[]
   local signs = {}
-
   -- Get extmark signs
   local extmarks = vim.api.nvim_buf_get_extmarks(
     buf,
@@ -28,6 +34,13 @@ function M.get_signs(buf, lnum)
 
   return signs
 end
+
+--------------------------------------------------
+-- Get mark for a specific buffer and line number
+---@param buf number
+---@param lnum number
+---@return {text: string, texthl: string}|nil
+--------------------------------------------------
 function M.get_mark(buf, lnum)
   local marks = vim.fn.getmarklist(buf)
   vim.list_extend(marks, vim.fn.getmarklist())
@@ -38,6 +51,12 @@ function M.get_mark(buf, lnum)
   end
 end
 
+--------------------------------------------------
+-- Generate icon string from sign
+---@param sign table|nil
+---@param len number|nil
+---@return string
+--------------------------------------------------
 function M.icon(sign, len)
   sign = sign or {}
   len = len or 2
@@ -46,6 +65,10 @@ function M.icon(sign, len)
   return sign.texthl and ("%#" .. sign.texthl .. "#" .. text .. "%*") or text
 end
 
+--------------------------------------------------
+-- Generate statuscolumn string
+---@return string
+--------------------------------------------------
 function M.statuscolumn()
   local win = vim.g.statusline_winid
   local buf = vim.api.nvim_win_get_buf(win)

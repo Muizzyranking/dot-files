@@ -14,4 +14,30 @@ M.telescope = function()
   return ret
 end
 
+M.toggleterm = function()
+  return {
+    sections = {
+      lualine_a = {
+        function()
+          return " Terminal"
+        end,
+      },
+    },
+    filetypes = { "myterm" },
+  }
+end
+
+M.lazygit = function()
+  return {
+    sections = {
+      lualine_a = {
+        function()
+          return " Lazygit"
+        end,
+      },
+    },
+    filetypes = { "lazygit" },
+  }
+end
+
 return M

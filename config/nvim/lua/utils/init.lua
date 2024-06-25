@@ -5,8 +5,8 @@ local M = {}
 
 ---------------------------------------------------------------
 -- Check if a plugin is installed
----@param plugin string: Name of the plugin
----@return boolean: True if the plugin is enabled, false otherwise
+---@param plugin string
+---@return boolean
 ---------------------------------------------------------------
 function M.has(plugin)
   return require("lazy.core.config").spec.plugins[plugin] ~= nil
@@ -14,9 +14,8 @@ end
 
 ------------------------------------------------------------------------------
 -- Get the foreground color of a highlight group
----@param name string: Name of the highlight group
----@return table?: A table containing the foreground color value
---                  formatted as a hex string (#RRGGBB) or nil if not found.
+---@param name string
+---@return table?
 ------------------------------------------------------------------------------
 function M.fg(name)
   ---@type {foreground?:number}?
@@ -31,10 +30,7 @@ end
 
 ----------------------------------------------------
 -- Create an autocommand for LSP attach
----@param on_attach function: The function to be called on attach.
---                            This function takes two arguments:
---                            - client: The attached LSP client object.
---                            - buffer: The buffer number where the client attached.
+---@param on_attach function
 ----------------------------------------------------
 function M.on_attach(on_attach)
   vim.api.nvim_create_autocmd("LspAttach", {
@@ -48,11 +44,8 @@ end
 
 ----------------------------------------------------
 -- Get a list of active LSP clients
----@param opts table?: Optional configuration table.
---                    - method string?: (optional) Filter clients based on a supported method.
---                    - bufnr number?: (optional) Filter clients for a specific buffer.
---                    - filter function?: (optional) Additional filtering function for clients.
----@return lsp.Client[]: An array containing the active LSP client objects.
+---@param opts table?
+---@return lsp.Client[]
 ----------------------------------------------------
 function M.get_clients(opts)
   local ret = {} ---@type lsp.Client[]
@@ -76,8 +69,8 @@ end
 
 ---------------------------------------------------------------
 -- Get the options for a plugin
----@param name string: Name of the plugin
----@return table: A table containing the plugin options.
+---@param name string
+---@return table
 ---------------------------------------------------------------
 function M.opts(name)
   local plugin = require("lazy.core.config").plugins[name]
@@ -90,9 +83,9 @@ end
 
 --------------------------
 -- Get an upvalue from a function
----@param func function: The function to get the upvalue from.
----@param name string: Name of the upvalue to retrieve.
----@return any: The value of the upvalue or nil if not found
+---@param func function
+---@param name string
+---@return any
 -------------------------------
 function M.get_upvalue(func, name)
   local i = 1
@@ -108,8 +101,11 @@ function M.get_upvalue(func, name)
   end
 end
 
+--------------------------------------------------------------------------
+-- Execute a function when a plugin is loaded or schedule it for later if the plugin is not yet loaded.
 ---@param name string
----@param fn fun(name:string)
+---@param fn function
+--------------------------------------------------------------------------
 function M.on_load(name, fn)
   local Config = require("lazy.core.config")
   if Config.plugins[name] and Config.plugins[name]._.loaded then
@@ -127,6 +123,11 @@ function M.on_load(name, fn)
   end
 end
 
+-------------------------------------
+-- Lazily require a module and allow direct access to its fields.
+---@param require_path string
+---@return table
+-------------------------------------
 M.lazy_require = function(require_path)
   return setmetatable({}, {
     __index = function(_, key)
@@ -139,6 +140,12 @@ M.lazy_require = function(require_path)
   })
 end
 
+-------------------------------------
+-- Get the full path to a file or directory, adjusting for the OS.
+---@param root_dir string
+---@param value string
+---@return string
+-------------------------------------
 M.get_full_path = function(root_dir, value)
   if vim.loop.os_uname().sysname == "Windows_NT" then
     return root_dir .. "\\" .. value
@@ -147,13 +154,92 @@ M.get_full_path = function(root_dir, value)
   return root_dir .. "/" .. value
 end
 
+-------------------------------------
+-- Check if a given path is a relative path.
+---@param path string
+---@return boolean
+-------------------------------------
 M.is_relative_path = function(path)
   return string.sub(path, 1, 1) ~= "/"
 end
 
--- Function to check if running inside tmux
+-------------------------------------
+-- Check if the current Neovim instance is running inside a TMUX session.
+---@return boolean
+-------------------------------------
 M.is_in_tmux = function()
   return os.getenv("TMUX") ~= nil
+end
+
+-------------------------------------
+-- Duplicate the current line.
+-------------------------------------
+M.duplicate_line = function()
+  local current_line = vim.api.nvim_get_current_line() -- Get the current line
+  vim.api.nvim_buf_set_lines(0, vim.fn.line("."), vim.fn.line("."), false, { current_line })
+end
+
+-------------------------------------
+-- Duplicate the currently selected lines in visual mode.
+-------------------------------------
+M.duplicate_selection = function()
+  local start_line = vim.fn.line("v")
+  local end_line = vim.fn.line(".")
+
+  if start_line > end_line then
+    start_line, end_line = end_line, start_line
+  end
+  local selected_lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
+
+  vim.api.nvim_buf_set_lines(0, end_line, end_line, false, selected_lines)
+end
+
+-------------------------------------
+-- Remove a buffer, prompting to save changes if the buffer is modified.
+---@param buf number|nil
+-------------------------------------
+M.bufremove = function(buf)
+  buf = buf or 0
+  buf = buf == 0 and vim.api.nvim_get_current_buf() or buf
+
+  if vim.bo.modified then
+    local choice = vim.fn.confirm(("Save changes to %q?"):format(vim.fn.bufname()), "&Yes\n&No\n&Cancel")
+    if choice == 0 then -- Cancel
+      return
+    end
+    if choice == 1 then -- Yes
+      vim.cmd.write()
+    end
+  end
+
+  for _, win in ipairs(vim.fn.win_findbuf(buf)) do
+    vim.api.nvim_win_call(win, function()
+      if not vim.api.nvim_win_is_valid(win) or vim.api.nvim_win_get_buf(win) ~= buf then
+        return
+      end
+      -- Try using alternate buffer
+      local alt = vim.fn.bufnr("#")
+      if alt ~= buf and vim.fn.buflisted(alt) == 1 then
+        vim.api.nvim_win_set_buf(win, alt)
+        return
+      end
+
+      -- Try using previous buffer
+      ---@diagnostic disable-next-line: param-type-mismatch
+      local has_previous = pcall(vim.cmd, "bprevious")
+      if has_previous and buf ~= vim.api.nvim_win_get_buf(win) then
+        return
+      end
+
+      -- Create new listed buffer
+      local new_buf = vim.api.nvim_create_buf(true, false)
+      vim.api.nvim_win_set_buf(win, new_buf)
+    end)
+  end
+  if vim.api.nvim_buf_is_valid(buf) then
+    ---@diagnostic disable-next-line: param-type-mismatch
+    pcall(vim.cmd, "bdelete! " .. buf)
+  end
 end
 
 return M

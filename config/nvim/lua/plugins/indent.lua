@@ -1,7 +1,6 @@
 return {
   {
     "lukas-reineke/indent-blankline.nvim",
-    -- event = { "BufReadPost", "BufWritePost", "BufNewFile" },
     event = "LazyFile",
     lazy = true,
     opts = {
@@ -22,7 +21,7 @@ return {
           "mason",
           "notify",
           "toggleterm",
-          "lazyterm",
+          "lazygit",
         },
       },
     },

@@ -24,7 +24,6 @@ return {
     local icons = require("utils.icons")
     local mode = lualine_utils.mode
     local lsp = lualine_utils.lsp
-    local harpoon = lualine_utils.harpoon
     local colors = {
       [""] = utils.fg("Special"),
       ["Normal"] = utils.fg("Special"),
@@ -62,8 +61,14 @@ return {
           "mode",
         },
         lualine_b = {
-          file_name,
-          "branch",
+          {
+            file_name,
+            color = { gui = "italic" },
+          },
+          {
+            "branch",
+            color = { gui = "italic" },
+          },
           {
             "diff",
             symbols = {
@@ -94,9 +99,6 @@ return {
         },
         lualine_c = {
           "%=",
-          {
-            harpoon,
-          },
         },
         lualine_x = {
           {
@@ -185,15 +187,17 @@ return {
       inactive_winbar = {},
       extensions = {
         extension.telescope(),
+        extension.toggleterm(),
+        extension.lazygit(),
         -- "Telescope",
         -- "telescope",
-        -- "oil",
+        "oil",
         "neo-tree",
         "lazy",
         "overseer",
         "mason",
         "man",
-        "toggleterm",
+        -- "toggleterm",
         "trouble",
       },
     })
