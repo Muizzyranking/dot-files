@@ -194,7 +194,6 @@ M.fts_n_linters = {
   "jsonlint",
   "eslint_d",
   "djlint",
-  "djlint",
   -- "markdownlint",
 }
 

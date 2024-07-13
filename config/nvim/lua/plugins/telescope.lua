@@ -3,6 +3,7 @@ local builtin = require("telescope.builtin")
 return {
   "nvim-telescope/telescope.nvim",
   cmd = "Telescope",
+  tag = "0.1.8",
   dependencies = {
     "nvim-lua/plenary.nvim",
     {
@@ -68,10 +69,30 @@ return {
   },
   config = function()
     local actions = require("telescope.actions")
-    -- local open_with_trouble = function(...)
-    --   return require("trouble.providers.telescope").open_with_trouble(...)
-    -- end
     local open_with_trouble = require("trouble.sources.telescope").open
+    local action_state = require("telescope.actions.state")
+
+    actions.open_in_new_buffer = function(prompt_bufnr)
+      local picker = action_state.get_current_picker(prompt_bufnr)
+      local selections = picker:get_multi_selection()
+
+      if #selections == 0 then
+        table.insert(selections, action_state.get_selected_entry())
+      end
+
+      actions.close(prompt_bufnr)
+
+      for _, selection in ipairs(selections) do
+        if selection.filename then
+          vim.cmd("badd " .. vim.fn.fnameescape(selection.filename))
+        end
+      end
+
+      -- Switch to the last added buffer
+      if #selections > 0 and selections[#selections].filename then
+        vim.cmd("buffer " .. vim.fn.fnameescape(selections[#selections].filename))
+      end
+    end
 
     require("telescope").setup({
 
@@ -88,9 +109,11 @@ return {
             ["<C-u>"] = actions.preview_scrolling_up,
             ["<C-d>"] = actions.delete_buffer,
             ["<C-c>"] = actions.close,
+            ["<C-o>"] = actions.open_in_new_buffer,
           },
           n = {
             ["q"] = actions.close,
+            ["<C-o>"] = actions.open_in_new_buffer,
             ["<C-d>"] = actions.delete_buffer,
             ["<C-t>"] = open_with_trouble,
             ["<C-f>"] = actions.preview_scrolling_down,

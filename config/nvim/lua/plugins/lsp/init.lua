@@ -39,8 +39,8 @@ return {
             map("gI", require("telescope.builtin").lsp_implementations, "Goto Implementation")
             map("<leader>D", require("telescope.builtin").lsp_type_definitions, "Type Definition")
             map("K", vim.lsp.buf.hover, "Hover Documentation")
-            map("<leader>fs", require("telescope.builtin").lsp_document_symbols, "Document Symbols")
-            map("<leader>fS", require("telescope.builtin").lsp_dynamic_workspace_symbols, "Workspace Symbols")
+            -- map("<leader>fs", require("telescope.builtin").lsp_document_symbols, "Document Symbols")
+            -- map("<leader>fS", require("telescope.builtin").lsp_dynamic_workspace_symbols, "Workspace Symbols")
             -- map("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
             map("<leader>ca", vim.lsp.buf.code_action, "Code Action")
             map("[d", vim.diagnostic.goto_prev, "Go to previous Diagnostic message")
@@ -113,6 +113,7 @@ return {
           end,
           ["vtsls"] = function()
             local opts = lsps["vtsls"]
+            opts.capabilities = vim.tbl_deep_extend("force", {}, capabilities, opts.capabilities or {})
             -- copy typescript settings to javascript
             opts.settings.javascript =
               vim.tbl_deep_extend("force", {}, opts.settings.typescript, opts.settings.javascript or {})

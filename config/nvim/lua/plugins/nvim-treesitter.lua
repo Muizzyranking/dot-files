@@ -74,6 +74,7 @@ return {
         "ninja",
         "rst",
         "html",
+        "htmldjango",
         "css",
         "javascript",
         "sql",

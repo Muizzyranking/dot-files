@@ -11,6 +11,8 @@ return {
       python = { "flake8" },
       bash = { "shellcheck" },
       sh = { "shellcheck" },
+      htmldjango = { "djlint" },
+      -- html = { "htmlhint" },
       -- markdown = { "markdownlint" },
 
       -- Use the "*" filetype to run linters on all filetypes.

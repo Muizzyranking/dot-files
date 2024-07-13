@@ -5,7 +5,7 @@ return {
     cmd = "Oil",
     keys = {
       {
-        "-",
+        "<leader>E",
         function()
           require("oil").open()
         end,
@@ -13,7 +13,7 @@ return {
       },
 
       {
-        "<leader>E",
+        "-",
         function()
           require("oil").open_float()
         end,
@@ -54,7 +54,7 @@ return {
     end,
     opts = {
       default_file_explorer = true,
-      delete_to_trash = true,
+      delete_to_trash = false,
       skip_confirm_for_simple_edits = true,
       columns = {
         "icon",
@@ -94,11 +94,19 @@ return {
       keymaps_help = {
         border = "rounded",
       },
+      view_options = {
+        natural_order = true,
+        case_insensitive = false,
+        sort = {
+          { "type", "asc" },
+          { "name", "asc" },
+        },
+      },
       float = {
         -- Padding around the floating window
         padding = 0,
-        max_width = 40,
-        max_height = 16,
+        max_width = 120,
+        max_height = 32,
         border = "rounded",
         win_options = {
           winblend = 0,

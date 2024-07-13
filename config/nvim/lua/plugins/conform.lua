@@ -30,6 +30,9 @@ return {
       return { timeout_ms = 500, lsp_fallback = true }
     end,
     formatters = {
+      djlint = {
+        prepend_args = { "--indent", "2" },
+      },
       -- sql formatter doesnt seem to work unless i do this
       ["sql-formatter"] = {
         command = "/home/muizzyranking/.local/share/nvim/mason/bin/sql-formatter",
@@ -40,7 +43,6 @@ return {
       },
     },
     formatters_by_ft = {
-      -- use semi standard prettier formatter to format javascript
       -- ["javascript"] = { "semi-prettier" },
 
       ["javascript"] = { { "prettierd", "prettier" } },
@@ -52,7 +54,6 @@ return {
       ["scss"] = { { "prettierd", "prettier" } },
       ["less"] = { { "prettierd", "prettier" } },
       ["html"] = { { "prettierd", "prettier" } },
-      -- ["htmldjango"] = { { "djlint" } },
       ["json"] = { { "prettierd", "prettier" } },
       ["jsonc"] = { { "prettierd", "prettier" } },
       ["yaml"] = { { "prettierd", "prettier" } },
@@ -61,6 +62,7 @@ return {
       ["graphql"] = { { "prettierd", "prettier" } },
       ["handlebars"] = { { "prettierd", "prettier" } },
 
+      ["htmldjango"] = { "djlint" },
       ["bash"] = { "shfmt" },
       ["sh"] = { "shfmt" },
       -- ["zsh"] = { "beautysh" },
