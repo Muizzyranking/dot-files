@@ -176,7 +176,9 @@ end
 -------------------------------------
 M.duplicate_line = function()
   local current_line = vim.api.nvim_get_current_line() -- Get the current line
-  vim.api.nvim_buf_set_lines(0, vim.fn.line("."), vim.fn.line("."), false, { current_line })
+  local cursor = vim.api.nvim_win_get_cursor(0) -- Get current cursor position
+  vim.api.nvim_buf_set_lines(0, cursor[1], cursor[1], false, { current_line })
+  vim.api.nvim_win_set_cursor(0, { cursor[1] + 1, cursor[2] }) -- Move cursor to the duplicated line
 end
 
 -------------------------------------
@@ -185,13 +187,14 @@ end
 M.duplicate_selection = function()
   local start_line = vim.fn.line("v")
   local end_line = vim.fn.line(".")
-
   if start_line > end_line then
     start_line, end_line = end_line, start_line
   end
   local selected_lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
-
   vim.api.nvim_buf_set_lines(0, end_line, end_line, false, selected_lines)
+  local new_cursor_line = math.min(end_line + #selected_lines, vim.api.nvim_buf_line_count(0))
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
+  vim.api.nvim_win_set_cursor(0, { new_cursor_line, 0 })
 end
 
 -------------------------------------

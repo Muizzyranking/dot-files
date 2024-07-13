@@ -108,24 +108,9 @@ function M.make_file_executable()
   local output = vim.fn.system(cmd)
 
   if vim.v.shell_error == 0 then
-    notify.info(filename .. " made executable", { title = "Option" })
+    notify.info("File made executable", { title = "Option" })
   else
     notify.warn("Error making file executable: " .. output, { title = "Options" })
-  end
-end
-
------------------------------------------------------------
--- Run djlint to format file
------------------------------------------------------------
-function M.run_djlint()
-  local filename = vim.fn.expand("%")
-  local cmd = "djlint " .. filename .. " --reformat --indent=2"
-  local output = vim.fn.system(cmd)
-  if vim.v.shell_error == 0 then
-    notify.info(filename .. " formatted successfully", { title = "djlint" })
-    vim.cmd("e " .. filename)
-  else
-    notify.warn("Error running djlint: " .. output, { title = "djlint" })
   end
 end
 
