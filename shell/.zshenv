@@ -17,6 +17,7 @@ export TMUXRC=$dotfile_dir/config/tmux/tmux.conf
 
 export PATH=~/.npm-global/bin:$PATH
 export PATH=$dotfile_dir/scripts:$PATH
+export PATH=~/bin/lua_ls/bin:$PATH
 
 #ALX INFO
 export SERVER_1=35.153.192.177
@@ -25,3 +26,4 @@ export LB=34.229.55.152
 
 # source $dotfile_dir/shell/alx-info
 export PATH=~/nvim-linux64/bin:$PATH
+export PATH=$HOME/.cargo/bin:$PATH
