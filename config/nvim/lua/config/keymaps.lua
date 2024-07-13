@@ -141,7 +141,6 @@ set("n", "<leader>gC", function()
   lazygit({ "-f", vim.trim(git_path) }) end, { desc = "LazyGit Log" })
 set("n", "<leader>gc", function() lazygit({ "log" }) end, { desc = "LazyGit Log (Current File)" })
 set("n", "<leader>gg", function() lazygit() end, { desc = "LazyGit" })
-set("n", "<leader>mm", function() git.lazygit() end, { desc = "LazyGit" })
 
 -- disable arrow key in normal mode
 set("n", "<UP>", function()

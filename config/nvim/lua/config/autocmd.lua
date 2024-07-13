@@ -113,26 +113,6 @@ create_autocmd("TermOpen", {
   end,
 })
 
------------------------------------------------------------
------ Format htmldjango files
------ TODO: Find a better way to format
------------------------------------------------------------
-vim.api.nvim_create_user_command("DjlintFormat", function()
-  helper.run_djlint()
-end, {
-  desc = "Toggle autoformat-on-save",
-  bang = true,
-})
-create_autocmd("FileType", {
-  pattern = "htmldjango",
-  group = augroup("html_django"),
-  callback = function()
-    -- vim.bo.filetype = "html"
-    vim.api.nvim_buf_set_keymap(0, "n", "<leader>cf", "<nop>", {})
-    vim.api.nvim_buf_set_keymap(0, "n", "<leader>cf", "<cmd>DjlintFormat<cr>", { desc = "Format buffer" })
-  end,
-})
-
 create_autocmd("FileType", {
   group = augroup("Web filetypes options"),
   pattern = {
