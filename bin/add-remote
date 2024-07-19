@@ -1,0 +1,52 @@
+#!/bin/bash
+
+add_remote() {
+    local remote_name="origin"
+    local remote_url="$1"
+
+    if [[ $remote_url =~ ^(https://|git@github) ]]; then
+        git remote add "$remote_name" "$remote_url"
+    else
+        git remote add "$remote_name" "git@github.com:muizzyranking/$remote_url.git"
+    fi
+}
+
+print_message() {
+    case "$1" in
+        error)   echo -e "\033[0;31mError: $2\033[0m" ;;
+        success) echo -e "\033[0;32mSuccess: $2\033[0m" ;;
+        info)    echo -e "\033[0;34m$2\033[0m" ;;
+    esac
+}
+
+if [ $# -eq 0 ]; then
+    print_message error "No repository provided."
+    print_message info "Usage: $0 <repository>"
+    exit 1
+fi
+
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    print_message error "Not a git repository. Please run this script from within a git repository."
+    exit 1
+fi
+
+if git remote | grep -q "^origin$"; then
+    print_message error "Remote 'origin' already exists."
+    print_message info "Current 'origin' URL: $(git remote get-url origin)"
+    read -r -p "Do you want to update the existing 'origin' remote? (y/n): " update_choice
+    if [[ $update_choice =~ ^[Yy]$ ]]; then
+        git remote remove origin
+        add_remote "$1"
+        print_message success "Remote 'origin' updated successfully."
+    else
+        print_message info "No changes made to remote 'origin'."
+    fi
+else
+    add_remote "$1"
+    print_message success "Remote 'origin' added successfully."
+fi
+
+echo -e "\n"
+print_message info "Current remotes:"
+echo "==============================================================="
+git remote -v | awk '{print $1, $2}'

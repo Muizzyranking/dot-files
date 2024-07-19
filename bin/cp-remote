@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# copies files from local storage to a remote server
+
+if [ "$#" -lt 2 ] || [ "$#" -gt 3 ]; then
+	echo "Usage: $(basename "$0") PATH_TO_FILE IP"
+	exit 1
+fi
+
+# Check if the first argument is '-r'
+if [ "$1" == "-r" ]; then
+	RECURSIVE="-r"
+	shift # Remove the '-r' option from arguments
+else
+	RECURSIVE=""
+fi
+
+PATH_TO_FILE_OR_DIRECTORY=$1
+IP=$2
+USERNAME=ubuntu
+PATH_TO_SSH_KEY="$HOME/.ssh/id_rsa"
+
+if [ ! -e "$PATH_TO_FILE_OR_DIRECTORY" ]; then
+    echo "File or directory not found"
+    exit 1
+fi
+scp -o StrictHostKeyChecking=no -i "$PATH_TO_SSH_KEY" "$RECURSIVE" "$PATH_TO_FILE_OR_DIRECTORY" "$USERNAME@$IP":~/
