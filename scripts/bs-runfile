@@ -1,5 +1,0 @@
-#!/bin/bash
-
-# runs a specific html file in the browser
-
-browser-sync start --server --startPath "$1" , "*.css" , "./*.css"
