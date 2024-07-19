@@ -1,0 +1,135 @@
+{
+  "layer": "top",
+  "modules-center": ["hyprland/workspaces", "custom/spotify"],
+  "modules-left": ["custom/os", "clock", "custom/swaync"],
+  "modules-right": ["network",  "bluetooth", "pulseaudio", "battery", "power-profiles-daemon"],
+  "spacing": 4,
+  "margin-top": 5,
+  "margin-left": 10,
+  "margin-right": 10,
+  "custom/os": {
+    "format": "󰮤",
+    "tooltip": false,
+    "on-click": "sh $HOME/.config/hypr/scripts/wlogout.sh"
+  },
+  "power-profiles-daemon": {
+    "format": "{icon}",
+    "tooltip-format": "Power profile: {profile}\nDriver: {driver}",
+    "tooltip": true,
+    "format-icons": {
+      "default": "",
+      "performance": "<span color='#B37F34'><small></small></span>",
+      "balanced": "<span><small> </small></span>",
+      "power-saver": "<span color='#a6e3a1'><small></small></span>"
+    }
+  },
+  "hyprland/workspaces": {
+    "active-only": false,
+    "all-outputs": true,
+    "sort-by-number": true,
+    "format": "{icon} {name}",
+    "show-special": true,
+    "on-click": "activate",
+    "on-scroll-up": "hyprctl dispatch workspace e+1",
+    "on-scroll-down": "hyprctl dispatch workspace e-1",
+    "format-icons": {
+      "active": "",
+      "default": ""
+    }
+  },
+
+  "clock": {
+    "format": "<span color='#b4befe'> </span> {:%I:%M %p  %A, %b %d}",
+    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+    "format-alt": "{:%Y-%m-%d}"
+  },
+  "pulseaudio": {
+    "format": "<span color='#b4befe'>{icon} </span> {volume}%",
+    "format-muted": "󰝟 ",
+    "tooltip": false,
+    "format-icons": {
+      "headphone": "",
+      "default": ["", "", "󰕾", "󰕾", "󰕾", "", "", ""]
+    },
+    "scroll-step": 1
+  },
+  "bluetooth": {
+    "format": " ",
+    "format-disabled": "󰂳",
+    "tooltip" : false,
+    "format-connected": "<span color='#b4befe'></span> {device_alias}",
+    "on-click": "~/.config/hypr/scripts/bluetooth.sh"
+  },
+  "network": {
+    "interface": "wlo1",
+    "format": "{ifname}",
+    "format-wifi": "{icon}  {essid}",
+    "format-ethernet": " ",
+    "format-disconnected": "󰖪 ",
+    "tooltip-format": "{ipaddr}  {bandwidthUpBits}  {bandwidthDownBits}",
+    "format-linked": "󰈁 {ifname} (No IP)",
+    "tooltip-format-wifi": "{essid} {icon} {signalStrength}%",
+    "tooltip-format-ethernet": "{ifname} 󰌘",
+    "tooltip-format-disconnected": "󰌙 Disconnected",
+    "max-length": 30,
+    "format-icons": [
+      "󰤯", "󰤟", "󰤢", "󰤥", "󰤨"
+    ],
+    "on-click-right": "~/.config/hypr/scripts/network.sh",
+    "on-click": "nm-connection-editor"
+  },
+  "battery": {
+    "interval": 5,
+    "align": 0,
+    "rotate": 0,
+    "full-at": 100,
+    "design-capacity": false,
+    "states": {
+      "good": 95,
+      "warning": 30,
+      "critical": 15
+    },
+    "format": "{icon} {capacity}%",
+    "format-charging": " {capacity}%",
+    "format-plugged": "󱘖 {capacity}%",
+    "format-alt-click": "click",
+    "format-full": "{icon} Full",
+    "format-alt": "{icon} {time}",
+    "format-icons": [
+      "󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"
+    ],
+    "format-time": "{H}h {M}min",
+    "tooltip": true,
+    "tooltip-format": "{timeTo} {power}w"
+  },
+  "custom/swaync": {
+    "tooltip": true,
+    "tooltip-format": "Left Click: Launch Notification Center\nRight Click: Do not Disturb",
+    "format": "{icon} {}",
+    "format-icons": {
+      "notification": "<span foreground='red'><sup></sup></span>",
+      "none": "",
+      "dnd-notification": "<span foreground='red'><sup></sup></span>",
+      "dnd-none": "",
+      "inhibited-notification": "<span foreground='red'><sup></sup></span>",
+      "inhibited-none": "",
+      "dnd-inhibited-notification": "<span foreground='red'><sup></sup></span>",
+      "dnd-inhibited-none": ""
+    },
+    "return-type": "json",
+    "exec-if": "which swaync-client",
+    "exec": "swaync-client -swb",
+    "on-click": "sleep 0.1 && swaync-client -t -sw",
+    "on-click-right": "swaync-client -d -sw",
+    "escape": true
+  },
+  "custom/spotify": {
+    "exec": "/usr/bin/python $HOME/.config/waybar/modules/media_player.py --player spotify",
+    "format": "{} ",
+    "return-type": "json",
+    "on-click": "playerctl play-pause",
+    "on-scroll-up": "playerctl previous",
+    "on-scroll-down": "playerctl next"
+  }
+}
+
