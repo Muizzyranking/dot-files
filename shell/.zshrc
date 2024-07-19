@@ -18,10 +18,6 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Case-sensitive completion must be off. _ and - will be interchangeable.
 HYPHEN_INSENSITIVE="true"
 
-# Uncomment one of the following lines to change the auto-update behavior
-# zstyle ':omz:update' mode disabled  # disable automatic updates
-# zstyle ':omz:update' mode auto      # update automatically without asking
-# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 
 # Uncomment the following line if pasting URLs and other text is messed up.
 # DISABLE_MAGIC_FUNCTIONS="true"
@@ -32,12 +28,6 @@ HYPHEN_INSENSITIVE="true"
 # Uncomment the following line to enable command auto-correction.
 ENABLE_CORRECTION="true"
 
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
-
-# Which plugins would you like to load?
-# Standard plugins can be found in $ZSH/plugins/
-# Custom plugins may be added to $ZSH_CUSTOM/plugins/
 plugins=( git sudo fzf fzf-tab zsh-history-substring-search history copypath zsh-autosuggestions zsh-syntax-highlighting encode64)
 
 source $ZSH/oh-my-zsh.sh
@@ -76,3 +66,5 @@ fpath+=$"ZDOTDIR:-~"/.zsh_functions
 
 eval "$(thefuck --alias)"
 eval "$(zoxide init zsh)"
+
+export PATH=$PATH:/home/muizzyranking/.spicetify

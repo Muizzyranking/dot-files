@@ -1,6 +1,5 @@
 export PATH=~/.local/bin:$PATH
 export PATH=/snap/bin:$PATH
-export PATH=$dotfile_dir/neovim-nightly/bin:$PATH
 
 export EDITOR=nvim
 export BAT_THEME="Catppuccin Mocha"
@@ -16,7 +15,7 @@ export ALIASES=~$dotfile_dir/shell/.zsh_alaises
 export TMUXRC=$dotfile_dir/config/tmux/tmux.conf
 
 export PATH=~/.npm-global/bin:$PATH
-export PATH=$dotfile_dir/scripts:$PATH
+export PATH=$dotfile_dir/bin:$PATH
 export PATH=~/bin/lua_ls/bin:$PATH
 
 #ALX INFO
@@ -27,3 +26,5 @@ export LB=34.229.55.152
 # source $dotfile_dir/shell/alx-info
 export PATH=~/nvim-linux64/bin:$PATH
 export PATH=$HOME/.cargo/bin:$PATH
+export QT_QPA_PLATFORMTHEME=qt5ct
+export PATH=$PATH:/usr/local/go/bin
