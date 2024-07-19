@@ -1,23 +1,9 @@
-local M = {}
-
---------------------------------------------------
--- Open lazygit in a floating window
----@param args string[]|nil
---------------------------------------------------
-function M.lazygit(args)
-  local opts = {
-    cmd = { "lazygit", unpack(args or {}) },
-    filetype = "lazygit",
-  }
-  M.float_cmd(opts.cmd, opts)
-end
-
 --------------------------------------------------
 -- Function to create a floating window and run a command
 ---@param cmd string[]
 ---@param opts? table
 -----------------------------------------------
-function M.float_cmd(cmd, opts)
+local float_cmd = function(cmd, opts)
   opts = opts or {}
   local buf = vim.api.nvim_create_buf(false, true)
   local width = math.floor(vim.o.columns * 0.95)
@@ -56,4 +42,16 @@ function M.float_cmd(cmd, opts)
   vim.api.nvim_buf_set_keymap(buf, "n", "q", "<cmd>bd!<CR>", { noremap = true, silent = true })
 end
 
-return M
+--------------------------------------------------
+-- Open lazygit in a floating window
+---@param args string[]|nil
+--------------------------------------------------
+local function lazygit(args)
+  local opts = {
+    cmd = { "lazygit", unpack(args or {}) },
+    filetype = "lazygit",
+  }
+  float_cmd(opts.cmd, opts)
+end
+
+return lazygit

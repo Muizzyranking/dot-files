@@ -4,8 +4,6 @@ local function augroup(name)
 end
 
 local create_autocmd = vim.api.nvim_create_autocmd
-local helper = require("utils.helper")
-
 -----------------------------------------------------------
 -- Go to the last cursor position when opening a buffer
 -----------------------------------------------------------
@@ -121,6 +119,7 @@ create_autocmd("FileType", {
     "javascript",
     "javascriptreact",
     "json",
+    "jsonc",
     "lua",
     "markdown",
     "typescript",

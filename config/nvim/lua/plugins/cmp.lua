@@ -26,6 +26,7 @@ return { -- Autocompletion
     "zbirenbaum/copilot-cmp",
   },
   config = function()
+    vim.api.nvim_set_hl(0, "CmpGhostText", { link = "Comment", default = true })
     local cmp = require("cmp")
     local luasnip = require("luasnip")
     -- local defaults = require("cmp.config.default")()
@@ -42,13 +43,10 @@ return { -- Autocompletion
         completeopt = "menu,menuone,noinsert",
       },
       mapping = cmp.mapping.preset.insert({
-        -- Select the [n]ext item
         ["<C-n>"] = cmp.mapping.select_next_item(),
-        -- Select the [p]revious item
         ["<C-p>"] = cmp.mapping.select_prev_item(),
-        -- Accept ([y]es) the completion.
         ["<Cr>"] = cmp.mapping.confirm({ select = true }),
-        -- Manually trigger a completion from nvim-cmp.
+        ["C-y"] = cmp.mapping.complete(),
         ["<C-Tab>"] = cmp.mapping.complete({}),
         ["<Tab>"] = cmp.mapping(function(fallback)
           if cmp.visible() then

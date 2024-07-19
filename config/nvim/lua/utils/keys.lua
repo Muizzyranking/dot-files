@@ -114,4 +114,78 @@ function M.make_file_executable()
   end
 end
 
+-------------------------------------
+-- Duplicate the current line.
+-------------------------------------
+M.duplicate_line = function()
+  local current_line = vim.api.nvim_get_current_line() -- Get the current line
+  local cursor = vim.api.nvim_win_get_cursor(0) -- Get current cursor position
+  vim.api.nvim_buf_set_lines(0, cursor[1], cursor[1], false, { current_line })
+  vim.api.nvim_win_set_cursor(0, { cursor[1] + 1, cursor[2] }) -- Move cursor to the duplicated line
+end
+
+-------------------------------------
+-- Duplicate the currently selected lines in visual mode.
+-------------------------------------
+M.duplicate_selection = function()
+  local start_line = vim.fn.line("v")
+  local end_line = vim.fn.line(".")
+  if start_line > end_line then
+    start_line, end_line = end_line, start_line
+  end
+  local selected_lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
+  vim.api.nvim_buf_set_lines(0, end_line, end_line, false, selected_lines)
+  local new_cursor_line = math.min(end_line + #selected_lines, vim.api.nvim_buf_line_count(0))
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
+  vim.api.nvim_win_set_cursor(0, { new_cursor_line, 0 })
+end
+
+-------------------------------------
+-- Remove a buffer, prompting to save changes if the buffer is modified.
+---@param buf number|nil
+-------------------------------------
+M.bufremove = function(buf)
+  buf = buf or 0
+  buf = buf == 0 and vim.api.nvim_get_current_buf() or buf
+
+  if vim.bo.modified then
+    local choice = vim.fn.confirm(("Save changes to %q?"):format(vim.fn.bufname()), "&Yes\n&No\n&Cancel")
+    if choice == 0 then -- Cancel
+      return
+    end
+    if choice == 1 then -- Yes
+      vim.cmd.write()
+    end
+  end
+
+  for _, win in ipairs(vim.fn.win_findbuf(buf)) do
+    vim.api.nvim_win_call(win, function()
+      if not vim.api.nvim_win_is_valid(win) or vim.api.nvim_win_get_buf(win) ~= buf then
+        return
+      end
+      -- Try using alternate buffer
+      local alt = vim.fn.bufnr("#")
+      if alt ~= buf and vim.fn.buflisted(alt) == 1 then
+        vim.api.nvim_win_set_buf(win, alt)
+        return
+      end
+
+      -- Try using previous buffer
+      ---@diagnostic disable-next-line: param-type-mismatch
+      local has_previous = pcall(vim.cmd, "bprevious")
+      if has_previous and buf ~= vim.api.nvim_win_get_buf(win) then
+        return
+      end
+
+      -- Create new listed buffer
+      local new_buf = vim.api.nvim_create_buf(true, false)
+      vim.api.nvim_win_set_buf(win, new_buf)
+    end)
+  end
+  if vim.api.nvim_buf_is_valid(buf) then
+    ---@diagnostic disable-next-line: param-type-mismatch
+    pcall(vim.cmd, "bdelete! " .. buf)
+  end
+end
+
 return M

@@ -1,4 +1,4 @@
-local utils = require("utils")
+local bufremove = require("utils.keys").bufremove
 return {
   {
     "akinsho/bufferline.nvim",
@@ -18,11 +18,11 @@ return {
       options = {
         separator_style = "",
         close_command = function(n)
-          utils.bufremove(n)
+          bufremove(n)
         end,
 
         right_mouse_command = function(n)
-          utils.bufremove(n)
+          bufremove(n)
         end,
 
         diagnostics = "nvim_lsp",
@@ -44,7 +44,7 @@ return {
       },
     },
     config = function(_, opts)
-      vim.keymap.set("n", "<leader>bd", utils.bufremove, { desc = "Delete Buffer" })
+      vim.keymap.set("n", "<leader>bd", bufremove, { desc = "Delete Buffer" })
       require("bufferline").setup(opts)
       -- Fix bufferline when restoring a session
       vim.api.nvim_create_autocmd("BufAdd", {

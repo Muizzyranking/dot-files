@@ -51,15 +51,16 @@ return {
           -- for some reason sql comment doesnt work
           -- after setting custom comment for c
           if filetype == "sql" then
-            return "--%s"
+            return "-- %s"
+          end
+          if filetype == "hyprlang" then
+            return "# %s"
           end
           return require("ts_context_commentstring.internal").calculate_commentstring() or vim.bo.commentstring
         end,
       },
       mappings = {
-        -- Toggle comment on current line
         comment_line = comment,
-        -- Toggle comment on visual selection
         comment_visual = comment,
       },
     },

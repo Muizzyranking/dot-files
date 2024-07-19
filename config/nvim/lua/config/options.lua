@@ -1,6 +1,7 @@
 local opt = vim.opt
 
 vim.highlight.priorities.semantic_tokens = 95
+vim.g.netrw_browsex_viewer = "google-chrome"
 
 -----------------------------------------------------------
 -- General

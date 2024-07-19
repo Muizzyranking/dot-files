@@ -1,8 +1,8 @@
-local helper = require("utils.helper")
+local key = require("utils.keys")
 local notify = require("utils.notify")
 local git = require("utils.git")
 local utils = require("utils")
-local lazygit = require("utils.lazygit").lazygit
+local lazygit = require("utils.lazygit")
 local toggleterm = require("utils.toggleterm").toggle_float_terminal
 
 vim.g.mapleader = " "
@@ -107,20 +107,21 @@ set({ "v", "x" }, "p", '"_dp')
 set({ "v", "x" }, "P", '"_dp')
 set({ "n", "v", "x" }, "c", '"_c')
 set({ "n" }, "ciw", '"_ciw')
+set({ "n" }, "C", '"_C')
 
 ------------------------
 -- Keymaps for miscellaneous
 ------------------------
 -- stylua: ignore start
 set("n", "<leader>gb", git.blame_line, { desc = "Git Blame Line" })
-set("n", "<leader>fn", helper.new_file, { desc = "Create new file" })
-set("n", "<leader>cx", helper.make_file_executable, { desc = "Make file executable", silent = true })
-set("n", "<leader>uw", helper.toggle_line_wrap, { desc = "Toggle line wrap" })
-set("n", "<leader>ud", helper.toggle_diagnostics, { desc = "Toggle Diagnostics" })
-set("n", "<leader>us", helper.toggle_spell, { desc = "Toggle Spell" })
-set("n", "<leader>uf", helper.toggle_autoformat, { desc = "Toggle Autoformat (Global)" })
+set("n", "<leader>fn", key.new_file, { desc = "Create new file" })
+set("n", "<leader>cx", key.make_file_executable, { desc = "Make file executable", silent = true })
+set("n", "<leader>uw", key.toggle_line_wrap, { desc = "Toggle line wrap" })
+set("n", "<leader>ud", key.toggle_diagnostics, { desc = "Toggle Diagnostics" })
+set("n", "<leader>us", key.toggle_spell, { desc = "Toggle Spell" })
+set("n", "<leader>uf", key.toggle_autoformat, { desc = "Toggle Autoformat (Global)" })
 set("n", "<leader>uS", "<cmd>Telescope spell_suggest<cr>", { desc = "Spell Suggest" })
-set("n", "<leader>uF", function() helper.toggle_autoformat(true) end, { desc = "Toggle Autoformat (Buffer)" })
+set("n", "<leader>uF", function() key.toggle_autoformat(true) end, { desc = "Toggle Autoformat (Buffer)" })
 set("n", "<leader>uT", function()
   if vim.b.ts_highlight then
     vim.treesitter.stop()
@@ -132,9 +133,9 @@ set("n", "<leader>uh", function()
   ---@diagnostic disable-next-line: missing-parameter
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 end, { desc = "Toggle Inlay  hint" }) -- toggle inlay hint
-set("n", "<leader>j", function() utils.duplicate_line() end, { desc = "Duplicate Line" })
-set("n", "<leader><DOWN>", function() utils.duplicate_line() end, { desc = "Duplicate Line" })
-set("v", "<leader>j", function() utils.duplicate_selection() end, { desc = "Duplicate selection" })
+set("n", "<leader>j", function() key.duplicate_line() end, { desc = "Duplicate Line" })
+set("n", "<leader><DOWN>", function() key.duplicate_line() end, { desc = "Duplicate Line" })
+set("v", "<leader>j", function() key.duplicate_selection() end, { desc = "Duplicate selection" })
 set({ "n", "i", "t" }, "<C-_>", toggleterm, { noremap = true, silent = true, desc = "Toggle Terminal" })
 set("n", "<leader>gC", function()
   local git_path = vim.api.nvim_buf_get_name(0)
