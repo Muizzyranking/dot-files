@@ -1,0 +1,11 @@
+@import "~/.config/rofi/config.rasi" 
+entry {
+  width: 37%;
+  placeholder: "📋 Search Clipboard **note** 👀 CTRL Del - Cliphist del or Alt Del - cliphist wipe";
+}
+
+listview {
+  columns: 1;
+  lines: 8;
+}
+

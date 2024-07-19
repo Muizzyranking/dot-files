@@ -1,0 +1,24 @@
+* {
+    active-background: #fab387;    /* Peach */
+    active-foreground: #1e1e2e;    /* Base */
+    normal-background: #1e1e2e;    /* Base */
+    normal-foreground: #cdd6f4;    /* Text */
+    urgent-background: #f38ba8;    /* Red */
+    urgent-foreground: #1e1e2e;    /* Base */
+    alternate-active-background: #f9e2af;    /* Yellow */
+    alternate-active-foreground: #1e1e2e;    /* Base */
+    alternate-normal-background: #313244;    /* Surface0 */
+    alternate-normal-foreground: #cdd6f4;    /* Text */
+    alternate-urgent-background: #eba0ac;    /* Maroon */
+    alternate-urgent-foreground: #1e1e2e;    /* Base */
+    selected-active-background: #fab387;    /* Pink */
+    selected-active-foreground: #1e1e2e;    /* Base */
+    selected-normal-background: #fab387;    /* Peach */
+    selected-normal-foreground: #1e1e2e;    /* Base */
+    selected-urgent-background: #f38ba8;    /* Red */
+    selected-urgent-foreground: #1e1e2e;    /* Base */
+    background-color: #1e1e2e;    /* Base */
+    background: rgba(30, 30, 46, 0.7);    /* Base with opacity */
+    foreground: #fab387;    /* Peach */
+    border-color: #fab387;    /* Peach */
+}
