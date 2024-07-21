@@ -1,0 +1,49 @@
+@import "~/.config/rofi/config.rasi"
+
+configuration {
+    modi: "dmenu";
+    show-icons: false;
+}
+
+window {
+    width: 30%;
+    height: 40%;
+    border-radius: 30px;
+    location: center;
+    anchor: center;
+    x-offset: 0;
+    y-offset: 0;
+}
+
+prompt {
+    enabled: true;
+    padding: 10px;
+    background-color: @blue;
+    text-color: @bg-col;
+}
+
+entry {
+    placeholder: "Select an option";
+}
+
+listview {
+    lines: 5;
+    scrollbar: true;
+}
+
+element-text {
+    vertical-align: 0.5;
+}
+
+element-icon {
+    size: 0px;
+}
+
+mainbox {
+    children: [ inputbar, listview ];
+}
+
+inputbar {
+    children: [ prompt, entry ];
+}
+
