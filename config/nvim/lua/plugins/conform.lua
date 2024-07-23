@@ -31,7 +31,16 @@ return {
     end,
     formatters = {
       djlint = {
-        prepend_args = { "--indent", "2" },
+        command = "djlint",
+        args = function(ctx)
+          return {
+            "--reformat",
+            "-",
+            "--indent",
+            "2",
+          }
+        end,
+        -- prepend_args = { "--reformat", "--indent=2" },
       },
       -- sql formatter doesnt seem to work unless i do this
       ["sql-formatter"] = {

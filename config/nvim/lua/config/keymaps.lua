@@ -98,6 +98,7 @@ end
 set({ "n", "v", "x" }, "x", '"_x') -- delete text without yanking
 set({ "v", "x" }, "<leader>d", '"_d', { desc = "Delete without yanking" }) -- delete selected without yanking
 set({ "n" }, "<leader>d", '"_dd', { desc = "Delete without yanking" }) -- delete line without yanking
+set({ "n" }, "D", '"_D', { desc = "Delete without yanking" }) -- delete line without yanking
 set("n", "<C-a>", "gg<S-v>G", { desc = "Select all", noremap = true, silent = true }) -- select all
 --using <tab> and <s-tab> for indenting and dedenting
 set("v", "<S-Tab>", "<gv", { noremap = false, silent = true })

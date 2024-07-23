@@ -1,6 +1,6 @@
 local utils = require("utils")
 local builtin = require("telescope.builtin")
-return {
+local M = {
   "nvim-telescope/telescope.nvim",
   cmd = "Telescope",
   tag = "0.1.8",
@@ -129,3 +129,4 @@ return {
     })
   end,
 }
+return M
