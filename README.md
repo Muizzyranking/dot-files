@@ -1,7 +1,7 @@
 # My dotfiles
 
 > [!WARNING]
-> Please note that this configurations are tailored to my workflow. Most of the things included are meant for my own use and may now work for everybody.
+> Please note that this configurations are tailored to my workflow. Most of the things included are meant for my own use and may not work for everybody.
 > Only use this as a reference and "borrow" whatever interests you.
 
 ## Showcase
