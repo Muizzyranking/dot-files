@@ -41,7 +41,7 @@ inc_volume() {
     if [ "$(pamixer --get-mute)" == "true" ]; then
         toggle_mute
     else
-        pamixer -i 5 --allow-boost --set-limit 150 && notify_user
+        wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+ && notify_user
     fi
 }
 
@@ -50,7 +50,7 @@ dec_volume() {
     if [ "$(pamixer --get-mute)" == "true" ]; then
         toggle_mute
     else
-        pamixer -d 5 && notify_user
+        wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%- && notify_user
     fi
 }
 

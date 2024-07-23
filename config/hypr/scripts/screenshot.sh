@@ -1,129 +1,76 @@
 #!/bin/bash
+DIR="$HOME/Pictures/Screenshots"
+SCRIPTS="$HOME/.config/hypr/scripts"
+NAME="Screenshot_$(date +%d%b_%H-%M-%S)_${RANDOM}.png"
+ACTIVE_WINDOW_FILE="Screenshot_$(date +%d%b_%H-%M-%S)_$(hyprctl -j activewindow | jq -r '(.class)').png"
+notify_cmd_shot="notify-send -h string:x-canonical-private-synchronous:shot-notify -u low -i $HOME/.config/swaync/icons/picture.png"
+option1="Selected area"
+option2="Fullscreen"
+option3="Current window"
+option4="Current display"
+options="$option1\n$option2\n$option3\n$option4"
 
-iDIR="$HOME/.config/swaync/icons"
-sDIR="$HOME/.config/hypr/scripts"
-notify_cmd_shot="notify-send -h string:x-canonical-private-synchronous:shot-notify -u low -i ${iDIR}/picture.png"
-
-time=$(date "+%d-%b_%H-%M-%S")
-dir="$(xdg-user-dir)/Pictures/Screenshots"
-file="Screenshot_${time}_${RANDOM}.png"
-
-active_window_class=$(hyprctl -j activewindow | jq -r '(.class)')
-active_window_file="Screenshot_${time}_${active_window_class}.png"
-active_window_path="${dir}/${active_window_file}"
-
-# notify and view screenshot
-notify_view() {
-    if [[ "$1" == "active" ]]; then
-        if [[ -e "${active_window_path}" ]]; then
-            ${notify_cmd_shot} "Screenshot of '${active_window_class}' Saved."
-            "${sDIR}/Sounds.sh" --screenshot
-        else
-            ${notify_cmd_shot} "Screenshot of '${active_window_class}' not Saved"
-            "${sDIR}/Sounds.sh" --error
-        fi
-    elif [[ "$1" == "swappy" ]]; then
-        ${notify_cmd_shot} "Screenshot Captured."
-    else
-        local check_file="$dir/$file"
-        if [[ -e "$check_file" ]]; then
-            ${notify_cmd_shot} "Screenshot Saved."
-            "${sDIR}/Sounds.sh" --screenshot
-        else
-            ${notify_cmd_shot} "Screenshot NOT Saved."
-            "${sDIR}/Sounds.sh" --error
-        fi
-    fi
+# Function to close Rofi
+close_rofi() {
+    pkill rofi
 }
 
-
-
-# countdown
-countdown() {
-    for sec in $(seq $1 -1 1); do
-        notify-send -h string:x-canonical-private-synchronous:shot-notify -t 1000 -i "$iDIR"/timer.png "Taking shot in : $sec"
-        sleep 1
-    done
-}
-
-# take shots
-shotnow() {
-    cd ${dir} && grim - | tee "$file" | wl-copy
-    sleep 2
-    notify_view
-}
-
-shot5() {
-    countdown '5'
-    sleep 1 && cd ${dir} && grim - | tee "$file" | wl-copy
-    sleep 1
-    notify_view
-    
-}
-
-shot10() {
-    countdown '10'
-    sleep 1 && cd ${dir} && grim - | tee "$file" | wl-copy
-    notify_view
-}
-
-shotwin() {
-    w_pos=$(hyprctl activewindow | grep 'at:' | cut -d':' -f2 | tr -d ' ' | tail -n1)
-    w_size=$(hyprctl activewindow | grep 'size:' | cut -d':' -f2 | tr -d ' ' | tail -n1 | sed s/,/x/g)
-    cd ${dir} && grim -g "$w_pos $w_size" - | tee "$file" | wl-copy
-    notify_view
-}
-
-shotarea() {
-    tmpfile=$(mktemp)
-    grim -g "$(slurp)" - >"$tmpfile"
-    if [[ -s "$tmpfile" ]]; then
-        wl-copy <"$tmpfile"
-        mv "$tmpfile" "$dir/$file"
-    fi
-    rm "$tmpfile"
-    notify_view
-}
-
-shotactive() {
-    active_window_class=$(hyprctl -j activewindow | jq -r '(.class)')
-    active_window_file="Screenshot_${time}_${active_window_class}.png"
-    active_window_path="${dir}/${active_window_file}"
-
-    hyprctl -j activewindow | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"' | grim -g - "${active_window_path}"
-    sleep 1
-    notify_view "active"  
-}
-
-shotswappy() {
-    tmpfile=$(mktemp)
-    grim -g "$(slurp)" - >"$tmpfile" && "${sDIR}/Sounds.sh" --screenshot && notify_view "swappy"
-    swappy -f - <"$tmpfile"
-    rm "$tmpfile"
-}
-
-
-if [[ ! -d "$dir" ]]; then
-    mkdir -p "$dir"
+# Check if hyprshade is active
+current_hyprshade=""
+if [ ! -z $(hyprshade current) ]; then
+    current_hyprshade=$(hyprshade current)
+    hyprshade off
 fi
 
-if [[ "$1" == "--now" ]]; then
-    shotnow
-elif [[ "$1" == "--in5" ]]; then
-    shot5
-elif [[ "$1" == "--in10" ]]; then
-    shot10
-elif [[ "$1" == "--win" ]]; then
-    shotwin
-elif [[ "$1" == "--area" ]]; then
-    shotarea
-elif [[ "$1" == "--active" ]]; then
-    shotactive
-elif [[ "$1" == "--swappy" ]]; then
-    shotswappy
-else
-    echo -e "Available Options : --now --in5 --in10 --win --area --active --swappy"
+choice=$(echo -e "$options" | rofi -dmenu -config ~/.config/rofi/screenshot.rasi -p "Take Screenshot" -l 4)
+close_rofi
+
+case $choice in
+    $option1)
+        sleep 0.5
+        temp_file=$(mktemp)
+        grim -g "$(slurp)" "$temp_file"
+        if [ -s "$temp_file" ]; then
+            mv "$temp_file" "$DIR/$NAME"
+            wl-copy < "$DIR/$NAME"
+            "${SCRIPTS}/sounds.sh" --screenshot
+            ${notify_cmd_shot} "Screenshot Saved" "Mode: Selected area"
+            swappy -f "$DIR/$NAME"
+        else
+            rm "$temp_file"
+        fi
+    ;;
+    $option2)
+        sleep 0.5
+        grim "$DIR/$NAME"
+        wl-copy < "$DIR/$NAME"
+        "${SCRIPTS}/sounds.sh" --screenshot
+        ${notify_cmd_shot} "Screenshot Saved" "Mode: Fullscreen"
+        swappy -f "$DIR/$NAME"
+    ;;
+    $option3)
+        sleep 0.5
+        active_window_geometry=$(hyprctl -j activewindow | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')
+        grim -g "$active_window_geometry" "$DIR/$ACTIVE_WINDOW_FILE"
+        wl-copy < "$DIR/$ACTIVE_WINDOW_FILE"
+        "${SCRIPTS}/sounds.sh" --screenshot
+        ${notify_cmd_shot} "Screenshot Saved" "Mode: Current window"
+        swappy -f "$DIR/$ACTIVE_WINDOW_FILE"
+    ;;
+    $option4)
+        sleep 0.5
+        monitor=$(hyprctl monitors | grep -B 4 "focused: yes" | awk '/^Monitor/{print $2}')
+        grim -o "$monitor" "$DIR/$NAME"
+        wl-copy < "$DIR/$NAME"
+        "${SCRIPTS}/sounds.sh" --screenshot
+        ${notify_cmd_shot} "Screenshot Saved" "Mode: Current display"
+        swappy -f "$DIR/$NAME"
+    ;;
+esac
+
+# Restore hyprshade if it was active
+if [ ! -z $current_hyprshade ]; then
+    hyprshade on $current_hyprshade
 fi
 
 exit 0
-
