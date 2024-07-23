@@ -29,6 +29,9 @@ tooltip label {
   border-radius: 8px;
 }
 
+#memory,
+#bluetooth,
+#pulseaudio,
 #window,
 #workspaces,
 #tray,
@@ -43,6 +46,7 @@ tooltip label {
   margin: 3px 5px;
   border: none;
   border-radius: 8px;
+  color: #89b4fa;
 }
 
 #workspaces button {
@@ -65,17 +69,11 @@ tooltip label {
   color: #f9e2af;
 }
 
-#custom-swaync,
-#network,
-#bluetooth,
-#pulseaudio,
 #power-profiles-daemon,
 #battery {
   color: #89b4fa;
 }
 
-#pulseaudio,
-#bluetooth,
 #battery,
 #power-profiles-daemon {
   background: #1e1e2e;
@@ -83,14 +81,12 @@ tooltip label {
   border: none;
 }
 
-#bluetooth,
 #battery {
   border-top-left-radius: 8px;
   border-bottom-left-radius: 8px;
   margin-right: -5;
 }
 
-#pulseaudio,
 #power-profiles-daemon {
   border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;
