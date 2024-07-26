@@ -2,7 +2,6 @@ local key = require("utils.keys")
 local notify = require("utils.notify")
 local git = require("utils.git")
 local utils = require("utils")
-local lazygit = require("utils.lazygit")
 local toggleterm = require("utils.toggleterm").toggle_float_terminal
 
 vim.g.mapleader = " "
@@ -140,9 +139,9 @@ set("v", "<leader>j", function() key.duplicate_selection() end, { desc = "Duplic
 set({ "n", "i", "t" }, "<C-_>", toggleterm, { noremap = true, silent = true, desc = "Toggle Terminal" })
 set("n", "<leader>gC", function()
   local git_path = vim.api.nvim_buf_get_name(0)
-  lazygit({ "-f", vim.trim(git_path) }) end, { desc = "LazyGit Log" })
-set("n", "<leader>gc", function() lazygit({ "log" }) end, { desc = "LazyGit Log (Current File)" })
-set("n", "<leader>gg", function() lazygit() end, { desc = "LazyGit" })
+  git.lazygit({ "-f", vim.trim(git_path) }) end, { desc = "LazyGit Log" })
+set("n", "<leader>gc", function() git.lazygit({ "log" }) end, { desc = "LazyGit Log (Current File)" })
+set("n", "<leader>gg", function() git.lazygit() end, { desc = "LazyGit" })
 
 -- disable arrow key in normal mode
 set("n", "<UP>", function()
