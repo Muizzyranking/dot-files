@@ -8,6 +8,7 @@
 
 ![image](https://muizzyranking.github.io/images/Assets/nvim.png)
 ![image](https://muizzyranking.github.io/images/Assets/home.png)
+![image](https://muizzyranking.github.io/images/Assets/spotify.png)
 ![image](https://muizzyranking.github.io/images/Assets/rofi.png)
 
 ## Used software
