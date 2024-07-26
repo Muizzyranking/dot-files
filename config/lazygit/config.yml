@@ -23,3 +23,8 @@ gui:
 
 os:
   editPreset: "nvim"
+
+git:
+  commit:
+    signOff: false
+  overrideGpg: false
