@@ -61,8 +61,8 @@ Check out my wallpapers [repository](https://github.com/muizzyranking/images)
 ## TODO
 
 - [ ] Improve installation script
-- [ ] Custom SDDM theme
+- [x] SDDM theme
 - [ ] Switch from oh my zsh to zinit
 - [ ] Write simple oh my posh theme
-- [ ] Change gtk theme
+- [x] Change gtk theme
 - [ ] Install Arch (btw)
