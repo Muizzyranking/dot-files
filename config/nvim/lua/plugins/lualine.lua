@@ -16,6 +16,7 @@ return {
   config = function()
     -- local clrs = require("catppuccin.palettes").get_palette()
     local utils = require("utils")
+    local lsp_utils = require("utils.lsp")
     -- local lualine_utils = require("utils.lualine")
     local lualine_utils = require("utils.lualine")
     local extension = require("utils.lualine.extensions")
@@ -152,7 +153,7 @@ return {
               if not package.loaded["copilot"] then
                 return
               end
-              local ok, clients = pcall(utils.get_clients, { name = "copilot", bufnr = 0 })
+              local ok, clients = pcall(lsp_utils.get_clients, { name = "copilot", bufnr = 0 })
               if not ok then
                 return false
               end

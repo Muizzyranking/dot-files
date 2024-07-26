@@ -52,9 +52,9 @@ return {
       },
     },
     formatters_by_ft = {
-      -- ["javascript"] = { "semi-prettier" },
+      ["javascript"] = { "semi-prettier" },
 
-      ["javascript"] = { { "prettierd", "prettier" } },
+      -- ["javascript"] = { { "prettierd", "prettier" } },
       ["javascriptreact"] = { { "prettierd", "prettier" } },
       ["typescript"] = { { "prettierd", "prettier" } },
       ["typescriptreact"] = { { "prettierd", "prettier" } },

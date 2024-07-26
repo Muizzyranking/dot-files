@@ -1,10 +1,10 @@
 local servers = require("plugins.lsp.servers")
 local utils = require("utils")
+local lsp_utils = require("utils.lsp")
 return {
   {
     {
       "neovim/nvim-lspconfig",
-      -- event = { "BufReadPost", "BufWritePost", "BufNewFile" },
       event = "LazyFile",
       dependencies = {
         "mason.nvim",
@@ -121,6 +121,37 @@ return {
             if plugins then
               opts.settings.vtsls.tsserver.globalPlugins = vim.tbl_values(plugins)
             end
+          end,
+          ["eslint"] = function()
+            local function get_client(buf)
+              return lsp_utils.get_clients({ name = "eslint", bufnr = buf })[1]
+            end
+
+            local formatter = lsp_utils.formatter({
+              name = "eslint: lsp",
+              primary = false,
+              priority = 200,
+              filter = "eslint",
+            })
+
+            -- Use EslintFixAll on Neovim < 0.10.0
+            if not pcall(require, "vim.lsp._dynamic") then
+              formatter.name = "eslint: EslintFixAll"
+              formatter.sources = function(buf)
+                local client = get_client(buf)
+                return client and { "eslint" } or {}
+              end
+              formatter.format = function(buf)
+                local client = get_client(buf)
+                if client then
+                  local diag = vim.diagnostic.get(buf, { namespace = vim.lsp.diagnostic.get_namespace(client.id) })
+                  if #diag > 0 then
+                    vim.cmd("EslintFixAll")
+                  end
+                end
+              end
+            end
+            lsp_utils.register(formatter)
           end,
         })
       end,

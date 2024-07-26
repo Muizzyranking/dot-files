@@ -12,6 +12,8 @@ return {
       bash = { "shellcheck" },
       sh = { "shellcheck" },
       htmldjango = { "djlint" },
+      js = { "eslint_d" },
+      ts = { "eslint_d" },
       -- html = { "htmlhint" },
       -- markdown = { "markdownlint" },
 
