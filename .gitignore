@@ -1,4 +1,7 @@
 config/tmux/plugins
-neovim-nightly
 config/lazygit/state.yml
-scripts/vin
+config/gtk-3.0/assets
+config/gtk-3.0/colors.css
+config/gtk-3.0/gtk.css
+config/gtk-4.0/colors.css
+config/gtk-4.0/gtk.css
