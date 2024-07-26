@@ -1,5 +1,5 @@
 local icons = require("utils.icons")
-local utils = require("utils")
+local lsp_utils = require("utils.lsp")
 local lualine_utils = require("utils.lualine.utils")
 local M = {}
 
@@ -36,7 +36,7 @@ M.mode = {
 M.lsp = {
   function()
     ---@diagnostic disable-next-line: deprecated
-    local buf_clients = utils.get_clients({ bufnr = 0 })
+    local buf_clients = lsp_utils.get_clients({ bufnr = 0 })
     local buf_client_names = {}
     -- add client
     for _, client in pairs(buf_clients) do
