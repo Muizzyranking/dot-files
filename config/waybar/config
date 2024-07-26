@@ -1,8 +1,8 @@
 {
   "layer": "top",
-  "modules-center": ["hyprland/workspaces", "custom/spotify", "cava"],
+  "modules-center": ["hyprland/workspaces"],
   "modules-left": ["custom/os", "clock", "custom/swaync", "memory"],
-  "modules-right": ["network",  "bluetooth", "pulseaudio", "battery", "power-profiles-daemon"],
+  "modules-right": ["custom/spotify", "network",  "bluetooth", "pulseaudio", "battery", "power-profiles-daemon"],
   "spacing": 4,
   "margin-top": 5,
   "margin-left": 10,
@@ -166,7 +166,7 @@
     "format": "{} ",
     "return-type": "json",
     "on-click": "playerctl -p spotify play-pause",
-    "on-scroll-up": "layerctl -p spotify previous",
-    "on-scroll-down": "layerctl -p spotify next"
+    "on-scroll-up": "playerctl -p spotify previous",
+    "on-scroll-down": "playerctl -p spotify next"
   }
 }
