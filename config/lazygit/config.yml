@@ -26,5 +26,5 @@ os:
 
 git:
   commit:
-    signOff: false
-  overrideGpg: false
+    signOff: true
+    command: "git commit -S -m"
