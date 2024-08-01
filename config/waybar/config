@@ -12,6 +12,17 @@
     "tooltip": false,
     "on-click": "sh $HOME/.config/hypr/scripts/wlogout.sh"
   },
+  "tray": {
+    "icon-size": 20,
+    "spacing": 4,
+    "icon-padding": 4,
+    "icon-margin": 4,
+    "scroll-step": 4,
+    "tooltip": true,
+    "format": "{icon}",
+    "tooltip-format": "{icon} {status}",
+    "tooltip-size": 20
+  },
   "power-profiles-daemon": {
     "format": "{icon}",
     "tooltip-format": "Power profile: {profile}\nDriver: {driver}",

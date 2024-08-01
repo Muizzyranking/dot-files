@@ -29,6 +29,7 @@ tooltip label {
   border-radius: 8px;
 }
 
+#tray,
 #memory,
 #bluetooth,
 #pulseaudio,
