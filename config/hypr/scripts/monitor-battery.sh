@@ -19,10 +19,10 @@ do
             systemctl suspend
         elif [ $battery_level -le $BATTERY_VERY_CRITICAL ]; then
             notify-send -u critical "Battery Very Critical" "Battery level is ${battery_level}%!"
-            sleep_time=1
+            sleep_time=10
         elif [ $battery_level -le $BATTERY_CRITICAL ]; then
             notify-send -u critical "Battery Critical" "Battery level is ${battery_level}%!"
-            sleep_time=5
+            sleep_time=20
         elif [ $battery_level -le $BATTERY_LOW ]; then
             notify-send -u normal "Battery Low" "Battery level is ${battery_level}%"
             sleep_time=10
