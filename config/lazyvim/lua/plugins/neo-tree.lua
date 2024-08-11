@@ -69,10 +69,6 @@ return {
       window = {
         position = "left",
         width = 40,
-        mappings = {
-          ["h"] = "prev_source",
-          ["l"] = "next_source",
-        },
       },
       filesystem = {
         use_libuv_file_watcher = true,

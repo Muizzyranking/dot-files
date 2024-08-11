@@ -7,6 +7,7 @@ if not vim.loop.fs_stat(lazypath) then
         lazypath })
 end
 vim.opt.rtp:prepend(vim.env.LAZY or lazypath)
+vim.g.lazyvim_picker = "fzf"
 
 require("lazy").setup({
   spec = {
@@ -30,7 +31,7 @@ require("lazy").setup({
     { import = "lazyvim.plugins.extras.editor.refactoring" },
 
     --markdown
-    -- { import = "lazyvim.plugins.extras.lang.markdown" },
+    { import = "lazyvim.plugins.extras.lang.markdown" },
 
     --python
     { import = "lazyvim.plugins.extras.lang.python" },
@@ -38,8 +39,6 @@ require("lazy").setup({
 
     { import = "lazyvim.plugins.extras.lang.clangd" },
     { import = "lazyvim.plugins.extras.lang.tailwind" },
-
-    -- { import = "lazyvim.plugins.extras.editor.navic" },
 
     -- { import = "lazyvim.plugins.extras.dap.core" },
     -- { import = "lazyvim.plugins.extras.dap.nlua" },

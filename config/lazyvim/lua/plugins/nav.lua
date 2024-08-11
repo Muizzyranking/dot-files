@@ -15,7 +15,7 @@ return {
       function()
         require("barbecue.ui").toggle()
       end,
-      desc = "Dap UI",
+      desc = "Toggle barbecue",
     },
   },
   config = function()

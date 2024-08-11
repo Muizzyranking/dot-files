@@ -18,30 +18,131 @@ return {
     end,
   },
   {
-    "lukas-reineke/headlines.nvim",
-    opts = function()
-      local opts = {}
-      for _, ft in ipairs({ "markdown", "norg", "rmd", "org" }) do
-        opts[ft] = {
-          headline_highlights = {},
-          -- disable bullets for now. See https://github.com/lukas-reineke/headlines.nvim/issues/66
-          bullets = {},
-        }
-        for i = 1, 6 do
-          local hl = "Headline" .. i
-          vim.api.nvim_set_hl(0, hl, { link = "Headline", default = true })
-          table.insert(opts[ft].headline_highlights, hl)
-        end
-      end
-      return opts
-    end,
+    "OXY2DEV/markview.nvim",
     ft = { "markdown", "norg", "rmd", "org" },
-    config = function(_, opts)
-      -- PERF: schedule to prevent headlines slowing down opening a file
-      vim.schedule(function()
-        require("headlines").setup(opts)
-        require("headlines").refresh()
-      end)
-    end,
+    opts = {
+      checkboxes = { enable = false },
+      links = {
+        inline_links = {
+          hl = "@markup.link.label.markown_inline",
+          icon = " ",
+          icon_hl = "@markup.link",
+        },
+        images = {
+          hl = "@markup.link.label.markown_inline",
+          icon = " ",
+          icon_hl = "@markup.link",
+        },
+      },
+      code_blocks = {
+        style = "minimal",
+        pad_amount = 0,
+      },
+      list_items = {
+        shift_width = 2,
+        marker_minus = { text = "●", hl = "@markup.list.markdown" },
+        marker_plus = { text = "●", hl = "@markup.list.markdown" },
+        marker_star = { text = "●", hl = "@markup.list.markdown" },
+        marker_dot = {},
+      },
+      inline_codes = { enable = false },
+      headings = {
+        heading_1 = {
+          style = "label",
+          shift_char = "",
+          shift_hl = nil,
+          sign = nil,
+          sign_hl = nil,
+          corner_left = nil,
+          corner_left_hl = nil,
+          padding_left = " ",
+          padding_left_hl = nil,
+          padding_right = " ",
+          padding_right_hl = nil,
+          corner_right = nil,
+          corner_right_hl = nil,
+        },
+        heading_2 = {
+          style = "label",
+          shift_char = "",
+          shift_hl = nil,
+
+          sign = nil,
+          sign_hl = nil,
+
+          corner_left_hl = nil,
+          corner_left = nil,
+
+          padding_left = " ",
+          padding_left_hl = nil,
+
+          padding_right = " ",
+          padding_right_hl = nil,
+
+          corner_right = nil,
+          corner_right_hl = nil,
+        },
+        heading_3 = {
+          style = "label",
+          shift_char = "",
+          shift_hl = nil,
+          sign = nil,
+          sign_hl = nil,
+          corner_left = nil,
+          corner_left_hl = nil,
+          padding_left = " ",
+          padding_left_hl = nil,
+          padding_right = " ",
+          padding_right_hl = nil,
+          corner_right = nil,
+          corner_right_hl = nil,
+        },
+        heading_4 = {
+          style = "label",
+          shift_char = "",
+          shift_hl = nil,
+          sign = nil,
+          sign_hl = nil,
+          corner_left = nil,
+          corner_left_hl = nil,
+          padding_left = " ",
+          padding_left_hl = nil,
+          padding_right = " ",
+          padding_right_hl = nil,
+          corner_right = nil,
+          corner_right_hl = nil,
+        },
+        heading_5 = {
+          style = "label",
+          shift_char = "",
+          shift_hl = nil,
+          sign = nil,
+          sign_hl = nil,
+          corner_left = nil,
+          corner_left_hl = nil,
+          padding_left = " ",
+          padding_left_hl = nil,
+          padding_right = " ",
+          padding_right_hl = nil,
+          corner_right = nil,
+          corner_right_hl = nil,
+        },
+        heading_6 = {
+          style = "label",
+          shift_char = "",
+          shift_hl = nil,
+          sign = nil,
+          sign_hl = nil,
+          corner_left = nil,
+          corner_left_hl = nil,
+          padding_left = " ",
+          padding_left_hl = nil,
+          padding_right = " ",
+          padding_right_hl = nil,
+          corner_right = nil,
+          corner_right_hl = nil,
+        },
+      },
+    },
   },
 }

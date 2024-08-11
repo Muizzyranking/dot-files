@@ -49,6 +49,7 @@ return {
           },
         },
         navic = { enabled = true, custom_bg = "lualine" },
+        grug_far = false,
         neotest = true,
         noice = true,
         notify = true,
