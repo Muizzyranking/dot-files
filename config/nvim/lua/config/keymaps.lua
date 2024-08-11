@@ -43,8 +43,7 @@ set("n", "<leader>wd", "<C-W>c", { desc = "Delete Window", remap = true })
 set("n", "<leader>w-", "<C-W>s", { desc = "Split Window Below", remap = true })
 set("n", "<leader>w|", "<C-W>v", { desc = "Split Window Right", remap = true })
 set("n", "<leader>wn", "<C-W>n", { desc = "Split Window Right", remap = true })
--- set("n", "<leader>-", "<C-W>s", { desc = "Split Window Below", remap = true })
--- set("n", "<leader>|", "<C-W>v", { desc = "Split Window Right", remap = true })
+set("n", "<leader>wo", "<C-W>o", { desc = "Close other windows", remap = true })
 -- Resize window using <ctrl> arrow keys
 set("n", "<C-Up>", "<cmd>resize +2<cr>", { desc = "Increase Window Height" })
 set("n", "<C-Down>", "<cmd>resize -2<cr>", { desc = "Decrease Window Height" })
@@ -55,9 +54,8 @@ set("n", "<C-Right>", "<cmd>vertical resize +2<cr>", { desc = "Increase Window W
 -- Keymaps for saving and quitting
 ------------------------
 set({ "i", "x", "n", "s" }, "<C-s>", "<cmd>w<cr><esc>", { desc = "Save File" })
-set("n", "<C-q>", "<cmd>q<cr>", { desc = "Quit file", silent = true })
-set("n", "<C-Q>", "<cmd>q!<cr>", { desc = "Quit file", silent = true })
-set("n", "<leader>qq", "<cmd>wqa<cr>", { desc = "Save all and quit", silent = true })
+set("n", "<C-q>", "<cmd>q<cr>", { desc = "Quit file" })
+set("n", "<leader>qq", "<cmd>qa<cr>", { desc = "Save all and quit", silent = true })
 
 ------------------------
 -- Keymaps for search
@@ -74,7 +72,6 @@ set("n", "<Esc>", "<cmd>nohlsearch<CR>") -- Clear search highlight on pressing <
 ------------------------
 -- Keymaps for editing
 ------------------------
--- TODO: find a way to make <c-cr> work inside is_in_tmux
 if utils.is_in_tmux() then
   set("i", "<C-o>", "<esc>o", { desc = "Go to next line" }) -- go to next line in insert
 else
@@ -84,7 +81,7 @@ set("i", "<C-b>", "<esc>I", { desc = "Go to beginning of line" }) -- Go to begin
 set({ "n", "v" }, "B", "^", { desc = "Go to beginning of line" }) -- go to beginning of line in normal
 set("i", "<C-e>", "<esc>A", { desc = "Go to end of line" }) -- go to end of line in insert
 set({ "n", "v" }, "E", "$", { desc = "Go to end of line" }) -- go to end of line in normal
-set("i", "jj", "<Esc>", { desc = "Go to normal mode" }) -- esc with jj
+-- set("i", "jj", "<Esc>", { desc = "Go to normal mode" }) -- esc with jj
 set("n", "<BS>", '"_ciw', { desc = "Change inner word" }) -- change word
 
 -- NOTE: this is the way to make <c-bs> work in tmux for some reasons
@@ -116,11 +113,11 @@ set({ "n" }, "C", '"_C')
 set("n", "<leader>gb", git.blame_line, { desc = "Git Blame Line" })
 set("n", "<leader>fn", key.new_file, { desc = "Create new file" })
 set("n", "<leader>cx", key.make_file_executable, { desc = "Make file executable", silent = true })
+set("n", "<leader>cX", key.make_file_unexecutable, { desc = "Make file unexecutable", silent = true })
 set("n", "<leader>uw", key.toggle_line_wrap, { desc = "Toggle line wrap" })
 set("n", "<leader>ud", key.toggle_diagnostics, { desc = "Toggle Diagnostics" })
 set("n", "<leader>us", key.toggle_spell, { desc = "Toggle Spell" })
 set("n", "<leader>uf", key.toggle_autoformat, { desc = "Toggle Autoformat (Global)" })
-set("n", "<leader>uS", "<cmd>Telescope spell_suggest<cr>", { desc = "Spell Suggest" })
 set("n", "<leader>uF", function() key.toggle_autoformat(true) end, { desc = "Toggle Autoformat (Buffer)" })
 set("n", "<leader>uT", function()
   if vim.b.ts_highlight then
@@ -129,18 +126,14 @@ set("n", "<leader>uT", function()
     vim.treesitter.start()
   end
 end, { desc = "Toggle Treesitter Highlight" })
-set("n", "<leader>uh", function()
-  ---@diagnostic disable-next-line: missing-parameter
-  vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
-end, { desc = "Toggle Inlay  hint" }) -- toggle inlay hint
 set("n", "<leader>j", function() key.duplicate_line() end, { desc = "Duplicate Line" })
 set("n", "<leader><DOWN>", function() key.duplicate_line() end, { desc = "Duplicate Line" })
 set("v", "<leader>j", function() key.duplicate_selection() end, { desc = "Duplicate selection" })
 set({ "n", "i", "t" }, "<C-_>", toggleterm, { noremap = true, silent = true, desc = "Toggle Terminal" })
 set("n", "<leader>gC", function()
   local git_path = vim.api.nvim_buf_get_name(0)
-  git.lazygit({ "-f", vim.trim(git_path) }) end, { desc = "LazyGit Log" })
-set("n", "<leader>gc", function() git.lazygit({ "log" }) end, { desc = "LazyGit Log (Current File)" })
+  git.lazygit({ "-f", vim.trim(git_path) }) end, { desc = "LazyGit Log (current file)" })
+set("n", "<leader>gc", function() git.lazygit({ "log" }) end, { desc = "LazyGit Log" })
 set("n", "<leader>gg", function() git.lazygit() end, { desc = "LazyGit" })
 
 -- disable arrow key in normal mode

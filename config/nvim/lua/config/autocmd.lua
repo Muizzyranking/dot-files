@@ -7,15 +7,11 @@ local create_autocmd = vim.api.nvim_create_autocmd
 -----------------------------------------------------------
 -- Go to the last cursor position when opening a buffer
 -----------------------------------------------------------
-create_autocmd("BufReadPost", {
-  group = augroup("last_loc"),
-  callback = function()
-    local mark = vim.api.nvim_buf_get_mark(0, '"')
-    local lcount = vim.api.nvim_buf_line_count(0)
-    if mark[1] > 0 and mark[1] <= lcount then
-      pcall(vim.api.nvim_win_set_cursor, 0, mark)
-    end
-  end,
+create_autocmd("BufWinEnter", {
+  group = augroup("last_cursor"),
+  desc = "jump to the last position when reopening a file",
+  pattern = "*",
+  command = [[ if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal! g`\"" | endif ]],
 })
 
 -----------------------------------------------------------
@@ -111,6 +107,9 @@ create_autocmd("TermOpen", {
   end,
 })
 
+-----------------------------------------------------------
+-- web languages options
+-----------------------------------------------------------
 create_autocmd("FileType", {
   group = augroup("Web filetypes options"),
   pattern = {
@@ -131,5 +130,25 @@ create_autocmd("FileType", {
     vim.bo.tabstop = 2
     vim.b.disable_autoformat = false
     vim.g.disable_autoformat = false
+  end,
+})
+
+-----------------------------------------------------------
+-- show cursor line only in active window
+-----------------------------------------------------------
+vim.api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, {
+  callback = function()
+    if vim.w.auto_cursorline then
+      vim.wo.cursorline = true
+      vim.w.auto_cursorline = nil
+    end
+  end,
+})
+vim.api.nvim_create_autocmd({ "InsertEnter", "WinLeave" }, {
+  callback = function()
+    if vim.wo.cursorline then
+      vim.w.auto_cursorline = true
+      vim.wo.cursorline = false
+    end
   end,
 })

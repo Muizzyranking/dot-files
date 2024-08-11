@@ -6,7 +6,10 @@ vim.g.netrw_browsex_viewer = "google-chrome"
 -----------------------------------------------------------
 -- General
 -----------------------------------------------------------
-opt.clipboard = "unnamedplus" -- Use system clipboard
+vim.schedule(function()
+  opt.clipboard = "unnamedplus"
+end)
+-- opt.clipboard = "unnamedplus" -- Use system clipboard
 opt.updatetime = 250 -- Decrease update time
 opt.timeoutlen = 300
 opt.errorbells = false -- Disable error bells
