@@ -27,4 +27,4 @@ os:
 git:
   commit:
     signOff: true
-    command: "git commit -S -m"
+    command: "git cmt -m"
