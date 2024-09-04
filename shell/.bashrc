@@ -14,7 +14,5 @@ tns() {
 	tmux new -s $1
 }
 
-export PATH=~/.config/scripts:$PATH
-
 eval "$(starship init bash)"
 export STARSHIP_CONFIG=~/.config/bash/starship.toml
