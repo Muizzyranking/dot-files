@@ -2,38 +2,31 @@ alias v='nvim'
 alias cl='clear'
 alias lv='NVIM_APPNAME=lazyvim nvim'
 alias cat='bat'
+alias tree='eza --tree'
+alias ls='eza --color=always --icons=always'
+alias cd='z'
 
- # fuzzy find files
-alias ff='fd --type f --hidden --exclude .git | fzf-tmux -p --reverse'
-
-# fuzzy find files and open in nvim
-# alias of='fd --type f --hidden --exclude .git | fzf-tmux -p --reverse | xargs nvim'
-
-# fuzzy find directories and cd into them
-# alias fdir='cd "$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse)"'
+# find directory and cd into it
 alias fdir='selected_dir=$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse); if [ -n "$selected_dir" ]; then cd "$selected_dir"; fi'
+
+# find file and open it in nvim
 alias of='selected_file=$(fzf --preview="bat --color=always {}"); if [ -n "$selected_file" ]; then nvim "$selected_file"; fi'
 
-alias td='tmux detach'
+# find file and echo the path
+# alias ff='selected_file=$(fzf --preview="bat --color=always {}"); if [ -n "$selected_file" ]; then echo "$selected_file"; fi'
+alias ff='select_file=$(fd --type f --hidden --exclude .git | fzf-tmux -p --reverse); if [ -n "$select_file" ]; then echo "$select_file"; fi'
+
 alias lg='lazygit'
 
 alias install='sudo dnf install -y'
 alias update='sudo dnf update -y'
+alias search='dnf search'
 
 alias nvimrc='$EDITOR $NVIMRC'
 alias tmuxrc='$EDITOR $TMUXRC'
 alias zshrc='$EDITOR $ZSHRC'
 alias aliases='$EDITOR $ALIASES'
-
-alias ls='eza --color=always --icons=always'
-alias cd='z'
-# alias la=''"
-
-tns() {
-    tmux new -s $1
-}
+alias tm='tmux.sh'
 
 # creates a python virtual environment with the given name and activates it
-pyenv(){
-    python3 -m venv venv --prompt="$1" && source venv/bin/activate
-}
+alias pyenv='pyenv.sh'

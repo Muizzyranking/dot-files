@@ -14,38 +14,19 @@ export ZSH="$HOME/.oh-my-zsh"
 #Theme
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
-# Uncomment the following line to use hyphen-insensitive completion.
-# Case-sensitive completion must be off. _ and - will be interchangeable.
+# Case-sensitive completion
 HYPHEN_INSENSITIVE="true"
 
-
-# Uncomment the following line if pasting URLs and other text is messed up.
-# DISABLE_MAGIC_FUNCTIONS="true"
-
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
-# Uncomment the following line to enable command auto-correction.
+# auto correction
 ENABLE_CORRECTION="true"
 
 plugins=( git sudo fzf fzf-tab zsh-history-substring-search history copypath zsh-autosuggestions zsh-syntax-highlighting encode64)
 
 source $ZSH/oh-my-zsh.sh
 
-# User configuration
-
-# export MANPATH="/usr/local/man:$MANPATH"
 
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
 dotfiles_dir="$HOME/dot-files"
 # ZSH ALIASES
 # Stored in $ALIASES 
@@ -68,3 +49,12 @@ eval "$(thefuck --alias)"
 eval "$(zoxide init zsh)"
 
 export PATH=$PATH:/home/muizzyranking/.spicetify
+
+
+# pnpm
+export PNPM_HOME="/home/muizzyranking/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
