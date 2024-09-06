@@ -1,4 +1,4 @@
-# My dotfiles
+# My dot files
 
 > [!WARNING]
 > Please note that this configurations are tailored to my workflow. Most of the things included are meant for my own use and may not work for everybody.
@@ -65,4 +65,3 @@ Check out my wallpapers [repository](https://github.com/muizzyranking/images)
 - [ ] Switch from oh my zsh to zinit
 - [ ] Write simple oh my posh theme
 - [x] Change gtk theme
-- [ ] Install Arch (btw)
