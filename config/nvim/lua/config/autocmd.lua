@@ -1,9 +1,51 @@
--- Create an augroup with the given name and clear it
 local function augroup(name)
   return vim.api.nvim_create_augroup("Neovim " .. name, { clear = true })
 end
 
 local create_autocmd = vim.api.nvim_create_autocmd
+local notify = require("utils.notify")
+local utils = require("utils")
+
+-----------------------------------------------------------
+-- Reload config files on save
+-----------------------------------------------------------
+create_autocmd("BufWritePost", {
+  group = augroup("reload configs"),
+  pattern = {
+    "*/kitty/kitty.conf",
+    "*/tmux/tmux.conf",
+    "*/waybar/config",
+    "*/waybar/style.css",
+  },
+  callback = function()
+    local file = vim.fn.expand("<afile>")
+    local cmd = ""
+
+    if file:match("kitty.conf$") then
+      cmd = "kill -SIGUSR1 $(pgrep kitty)"
+    elseif file:match("tmux.conf$") then
+      cmd = "tmux source-file ~/.config/tmux/tmux.conf"
+    elseif file:match("config$") or file:match("style.css$") then
+      cmd = "if pgrep -x waybar > /dev/null; then killall waybar; fi; waybar &"
+    end
+
+    if cmd ~= "" then
+      local output = vim.fn.system(cmd)
+      local opts = { title = "Config Reload" }
+      if vim.v.shell_error ~= 0 then
+        notify.error("Error reloading config" .. output, opts)
+      else
+        notify.info("Config reloaded successfully", opts)
+      end
+    end
+
+    if file:match("nvim/lua/*") and not file:match("nvim/lua/plugins/*") then
+      vim.cmd("source " .. file)
+      vim.notify("Sourced file: " .. file, vim.log.levels.INFO)
+    end
+  end,
+})
+
 -----------------------------------------------------------
 -- Go to the last cursor position when opening a buffer
 -----------------------------------------------------------
@@ -59,6 +101,7 @@ create_autocmd("FileType", {
     "neotest-output-panel",
     "Telescope",
     "telescope",
+    "grug-far",
   },
   callback = function(event)
     vim.bo[event.buf].buflisted = false
@@ -134,21 +177,59 @@ create_autocmd("FileType", {
 })
 
 -----------------------------------------------------------
--- show cursor line only in active window
+-- show cursor line and relativenumber only in active window
+-- modified - https://github.com/jdhao/nvim-config/blob/main/lua/custom-autocmd.lua
 -----------------------------------------------------------
-vim.api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, {
+local toggle_relnu = augroup("Relative line number toggle")
+create_autocmd({ "BufEnter", "FocusGained", "InsertLeave", "WinEnter" }, {
+  pattern = "*",
+  group = toggle_relnu,
+  desc = "togger line number",
   callback = function()
     if vim.w.auto_cursorline then
       vim.wo.cursorline = true
       vim.w.auto_cursorline = nil
     end
+    if vim.wo.number then
+      vim.wo.relativenumber = true
+    end
   end,
 })
-vim.api.nvim_create_autocmd({ "InsertEnter", "WinLeave" }, {
+
+create_autocmd({ "BufLeave", "FocusLost", "InsertEnter", "WinLeave" }, {
+  pattern = "*",
+  group = toggle_relnu,
+  desc = "togger line number",
   callback = function()
+    if vim.wo.number then
+      vim.wo.relativenumber = false
+    end
     if vim.wo.cursorline then
       vim.w.auto_cursorline = true
       vim.wo.cursorline = false
+    end
+  end,
+})
+
+-----------------------------------------------------------
+-- auto update buffer when idle without formatting
+-----------------------------------------------------------
+vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost", "InsertEnter", "WinLeave" }, {
+  group = augroup("auto save"),
+  callback = function()
+    -- Check if the buffer is modifiable and not readonly
+    if vim.bo.modifiable and not vim.bo.readonly then
+      -- Save the current formatting options
+      local formatoptions = vim.bo.formatoptions
+
+      -- Temporarily disable auto-formatting
+      vim.bo.formatoptions = formatoptions:gsub("a", "")
+
+      -- Update the buffer
+      vim.cmd("silent! update")
+
+      -- Restore the original formatting options
+      vim.bo.formatoptions = formatoptions
     end
   end,
 })
