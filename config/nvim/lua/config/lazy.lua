@@ -13,20 +13,22 @@ vim.opt.rtp:prepend(vim.env.LAZY or lazypath)
 
 vim.keymap.set("n", "<leader>l", ":Lazy<cr>", { desc = "Lazy", silent = true })
 
-require("config.lazyfile").setup()
+require("config.events").setup_lazyfile()
+require("config.events").setup_ingitrepo()
 require("lazy").setup({
   spec = {
     { import = "plugins" },
     { import = "plugins.lang.python" },
     { import = "plugins.lang.json" },
     { import = "plugins.lang.markdown" },
-    { import = "plugins.lang.c" },
+    -- { import = "plugins.lang.c" },
+    -- { import = "plugins.extras.refactoring" },
   },
   defaults = {
     lazy = true,
   },
   custom_keys = {},
-  install = { colorscheme = { "catppuccin" } },
+  install = { colorscheme = { "rose-pine" } },
   ui = {
     size = { width = 0.9, height = 0.9 },
     border = "rounded",
