@@ -1,11 +1,14 @@
 {
-    "diagnostics.disable": [
-        "undefined-field",
-        "missing-fields",
-        "assign-type-mismatch",
-        "need-check-nil",
-        "deprecated",
-        "undefined-doc-name",
-        "missing-parameter"
-    ]
+  "diagnostics.disable": [
+    "undefined-field",
+    "missing-fields",
+    "assign-type-mismatch",
+    "need-check-nil",
+    "deprecated",
+    "undefined-doc-name",
+    "missing-parameter",
+        "cast-local-type"
+  ],
+  "diagnostics.globals": ["MiniHipatterns"]
 }
+
