@@ -25,7 +25,6 @@ button {
 }
 
 button:focus {
-  background-size: 25%;
   border-radius: 10%;
   box-shadow: 0 0 50px #fab387;
 }
