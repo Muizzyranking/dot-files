@@ -48,6 +48,9 @@ return {
       inline_codes = { enable = false },
       headings = {
         heading_1 = {
+          hl = "@markup.heading.1.markdown",
+          -- corner_right = "",
+          corner_right = nil,
           style = "label",
           shift_char = "",
           shift_hl = nil,
@@ -59,31 +62,27 @@ return {
           padding_left_hl = nil,
           padding_right = " ",
           padding_right_hl = nil,
-          corner_right = nil,
           corner_right_hl = nil,
         },
         heading_2 = {
           style = "label",
+          hl = "@markup.heading.2.markdown",
           shift_char = "",
           shift_hl = nil,
-
           sign = nil,
           sign_hl = nil,
-
           corner_left_hl = nil,
           corner_left = nil,
-
           padding_left = " ",
           padding_left_hl = nil,
-
           padding_right = " ",
           padding_right_hl = nil,
-
           corner_right = nil,
           corner_right_hl = nil,
         },
         heading_3 = {
           style = "label",
+          hl = "@markup.heading.3.markdown",
           shift_char = "",
           shift_hl = nil,
           sign = nil,
@@ -99,6 +98,7 @@ return {
         },
         heading_4 = {
           style = "label",
+          hl = "@markup.heading.4.markdown",
           shift_char = "",
           shift_hl = nil,
           sign = nil,
@@ -114,6 +114,7 @@ return {
         },
         heading_5 = {
           style = "label",
+          hl = "@markup.heading.5.markdown",
           shift_char = "",
           shift_hl = nil,
           sign = nil,
@@ -129,6 +130,7 @@ return {
         },
         heading_6 = {
           style = "label",
+          hl = "@markup.heading.6.markdown",
           shift_char = "",
           shift_hl = nil,
           sign = nil,

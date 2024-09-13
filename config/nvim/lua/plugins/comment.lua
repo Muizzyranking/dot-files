@@ -3,7 +3,6 @@ return {
   {
     "folke/todo-comments.nvim",
     cmd = { "TodoTrouble", "TodoTelescope" },
-    -- event = { "BufReadPost", "BufWritePost", "BufNewFile" },
     event = "LazyFile",
     config = true,
     keys = {
@@ -29,10 +28,20 @@ return {
   },
   -- mini comment (toggle comments)
   -- NOTE: Neovim >= 0.10.0 has comment built in
-  -- TODO: remove when nvim add supports for customisation
   {
     "echasnovski/mini.comment",
-    event = "VeryLazy",
+    keys = {
+      {
+        comment,
+        desc = "Comment line",
+        mode = { "n", "v" },
+      },
+      {
+        "gc",
+        desc = "Comment line",
+        mode = { "n", "v" },
+      },
+    },
     dependencies = {
       "JoosepAlviste/nvim-ts-context-commentstring",
       lazy = true,
@@ -44,12 +53,9 @@ return {
       options = {
         custom_commentstring = function()
           local filetype = vim.bo.filetype -- Get the current filetype
-          --use custom comment for c files
           if filetype == "c" then
             return "/*%s*/"
           end
-          -- for some reason sql comment doesnt work
-          -- after setting custom comment for c
           if filetype == "sql" then
             return "-- %s"
           end

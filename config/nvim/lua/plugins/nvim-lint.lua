@@ -1,6 +1,5 @@
 return {
   "mfussenegger/nvim-lint",
-  -- event = { "BufReadPost", "BufNewFile", "BufWritePre" },
   event = { "LazyFile" },
   opts = {
     -- Event to trigger linters
@@ -12,9 +11,6 @@ return {
       bash = { "shellcheck" },
       sh = { "shellcheck" },
       htmldjango = { "djlint" },
-      js = { "eslint_d" },
-      ts = { "eslint_d" },
-      -- html = { "htmlhint" },
       -- markdown = { "markdownlint" },
 
       -- Use the "*" filetype to run linters on all filetypes.

@@ -2,29 +2,29 @@ return {
   "nvim-lualine/lualine.nvim",
   event = "VeryLazy",
   lazy = true,
-  dependencies = { "nvim-tree/nvim-web-devicons" },
   init = function()
     vim.g.lualine_laststatus = vim.o.laststatus
     if vim.fn.argc(-1) > 0 then
-      -- set an empty statusline till lualine loads
       vim.o.statusline = " "
     else
-      -- hide the statusline on the starter page
       vim.o.laststatus = 0
     end
   end,
   config = function()
-    -- local clrs = require("catppuccin.palettes").get_palette()
-    local utils = require("utils")
+    local utils = require("utils.lualine.utils")
     local lsp_utils = require("utils.lsp")
-    -- local lualine_utils = require("utils.lualine")
-    local lualine_utils = require("utils.lualine")
+    local custom_lualine = require("utils.lualine")
     local extension = require("utils.lualine.extensions")
-    local file_name = lualine_utils.file
+    local file_name = custom_lualine.file
     local lualine = require("lualine")
     local icons = require("utils.icons")
-    local mode = lualine_utils.mode
-    local lsp = lualine_utils.lsp
+    local mode = custom_lualine.mode
+    local lsp = custom_lualine.lsp
+    local formatters = custom_lualine.formatters
+    local root = custom_lualine.root_dir
+    local runner = require("utils.runner")
+    local terminal = require("utils.terminal")
+    local git = require("utils.git")
     local colors = {
       [""] = utils.fg("Special"),
       ["Normal"] = utils.fg("Special"),
@@ -37,17 +37,15 @@ return {
         icons_enabled = true,
         theme = "auto",
         globalstatus = true,
-        component_separators = { left = "", right = "" },
+        component_separators = { left = "", right = "" },
         -- section_separators = { right = "", left = "" },
-        section_separators = { left = "", right = "" },
-        -- section_separators = { left = "", right = "" },
+        -- section_separators = { left = "", right = "" },
+        section_separators = { left = "", right = "" },
 
         disabled_filetypes = {
           statusline = { "dashboard" },
         },
-        -- statusline = { "neo-tree" },
         winbar = { "" },
-        --},
         ignore_focus = { "" },
         always_divide_middle = false,
         refresh = {
@@ -63,13 +61,10 @@ return {
         },
         lualine_b = {
           {
-            file_name,
-            color = { gui = "italic" },
-          },
-          {
             "branch",
             color = { gui = "italic" },
           },
+          root,
           {
             "diff",
             symbols = {
@@ -88,6 +83,7 @@ return {
               end
             end,
           },
+          file_name,
           {
             "diagnostics",
             symbols = {
@@ -102,17 +98,6 @@ return {
           "%=",
         },
         lualine_x = {
-          {
-
-            "overseer",
-            label = "", -- Prefix for task counts
-            colored = true, -- Color the task icons and counts
-            unique = false, -- Unique-ify non-running task count by name
-            name = nil, -- List of task names to search for
-            name_not = false, -- When true, invert the name search
-            status = nil, -- List of task statuses to display
-            status_not = false, -- When true, invert the status search
-          },
           {
             function()
               return require("noice").api.status.command.get()
@@ -131,16 +116,6 @@ return {
             end,
             color = utils.fg("Constant"),
           },
-          -- NOTE: for dap, not setting up dap for now
-          -- {
-          -- 	function()
-          -- 		return "  " .. require("dap").status()
-          -- 	end,
-          -- 	cond = function()
-          -- 		return package.loaded["dap"] and require("dap").status() ~= ""
-          -- 	end,
-          -- 	-- color = utils.fg("Debug"),
-          -- },
         },
         lualine_y = {
           {
@@ -167,12 +142,22 @@ return {
               return colors[status.status] or colors[""]
             end,
           },
-          -- utils.cmp_source("codieum", icons.Codieum),
+
+          formatters,
           lsp,
         },
         lualine_z = {
-          "progress",
-          "location",
+          {
+            function()
+              local current_line = vim.fn.line(".")
+              local total_lines = vim.fn.line("$")
+              local chars = { "▁▁", "▂▂", "▃▃", "▄▄", "▅▅", "▆▆", "▇▇", "██" }
+              local line_ratio = current_line / total_lines
+              local index = math.ceil(line_ratio * #chars)
+              return chars[index]
+            end,
+            padding = { left = 2, right = 2 },
+          },
         },
       },
       inactive_sections = {
@@ -188,17 +173,15 @@ return {
       inactive_winbar = {},
       extensions = {
         extension.telescope(),
-        extension.toggleterm(),
-        extension.lazygit(),
-        -- "Telescope",
-        -- "telescope",
+        git.lualine,
+        terminal.lualine,
+        runner.lualine,
         "oil",
         "neo-tree",
         "lazy",
         "overseer",
         "mason",
         "man",
-        -- "toggleterm",
         "trouble",
       },
     })

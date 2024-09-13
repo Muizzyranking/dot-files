@@ -1,6 +1,11 @@
 return {
   "Bekaboo/dropbar.nvim",
-  event = "UIEnter",
+  event = "LazyFile",
+  opts = {
+    bar = {
+      hover = true,
+    },
+  },
   config = function(_, opts)
     local utils = require("dropbar.utils")
     opts.bar = opts.bar or {}
@@ -25,9 +30,4 @@ return {
     end
     require("dropbar").setup(opts)
   end,
-  opts = {
-    bar = {
-      hover = true,
-    },
-  },
 }

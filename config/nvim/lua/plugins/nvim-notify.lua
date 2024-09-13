@@ -21,5 +21,10 @@ return {
     on_open = function(win)
       vim.api.nvim_win_set_config(win, { zindex = 100 })
     end,
+    top_down = false,
   },
+  config = function(_, opts)
+    vim.notify = require("notify")
+    require("notify").setup(opts)
+  end,
 }

@@ -1,9 +1,9 @@
 local utils = require("utils")
-local builtin = require("telescope.builtin")
-local M = {
+return {
   "nvim-telescope/telescope.nvim",
   cmd = "Telescope",
-  tag = "0.1.8",
+  lazy = true,
+  version = false,
   dependencies = {
     "nvim-lua/plenary.nvim",
     {
@@ -21,38 +21,84 @@ local M = {
     { "nvim-tree/nvim-web-devicons" },
   },
   keys = {
-    { "<leader>fk", builtin.keymaps, desc = "Find Keymaps" },
-    { "<leader>ff", builtin.find_files, desc = "Find Files" },
-    { "<leader>sw", builtin.grep_string, desc = "Search word under cursor" },
-    { "<leader>fg", builtin.live_grep, desc = "Find by Grep" },
-    { "<leader>fR", builtin.resume, desc = "Search Resume" },
-    { "<leader>fr", builtin.oldfiles, desc = "Find Recent Files" },
+    {
+      "<leader>fk",
+      function()
+        require("telescope.builtin").keymaps()
+      end,
+      desc = "Find Keymaps",
+    },
+    {
+      "<leader>ff",
+      function()
+        require("telescope.builtin").find_files()
+      end,
+      desc = "Find Files",
+    },
+    {
+      "<leader>sw",
+      function()
+        require("telescope.builtin").grep_string()
+      end,
+      desc = "Search word under cursor",
+    },
+    {
+      "<leader>fg",
+      function()
+        require("telescope.builtin").live_grep()
+      end,
+      desc = "Find by Grep",
+    },
+    {
+      "<leader>fR",
+      function()
+        require("telescope.builtin").resume()
+      end,
+      desc = "Search Resume",
+    },
+    {
+      "<leader>fr",
+      function()
+        require("telescope.builtin").oldfiles()
+      end,
+      desc = "Find Recent Files",
+    },
     { "<leader>fb", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", desc = "Find Buffers" },
     { "<leader>,", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", desc = "Find Buffers" },
-    { "<leader>fm", builtin.man_pages, desc = "Find Man Pages" },
-    { "<leader>:", builtin.command_history, desc = "Command History" },
+    {
+      "<leader>fm",
+      function()
+        require("telescope.builtin").man_pages()
+      end,
+      desc = "Find Man Pages",
+    },
+    {
+      "<leader>:",
+      function()
+        require("telescope.builtin").command_history()
+      end,
+      desc = "Command History",
+    },
     {
       "<leader>uc",
       function()
-        builtin.colorscheme({ enable_preview = true })
+        require("telescope.builtin").colorscheme({ enable_preview = true })
       end,
       desc = "colorscheme",
     },
-    { "<leader>gf", builtin.git_files, desc = "Git files (Telescope)" },
     {
       "<leader>fw",
       function()
-        builtin.current_buffer_fuzzy_find(require("telescope.themes").get_dropdown({
-          winblend = 0,
-          previewer = false,
-        }))
+        require("telescope.builtin").current_buffer_fuzzy_find(
+          require("telescope.themes").get_dropdown({ winblend = 0, previewer = false })
+        )
       end,
       desc = "Find in Current Buffer",
     },
     {
       "<leader>fW",
       function()
-        builtin.live_grep({
+        require("telescope.builtin").live_grep({
           grep_open_files = true,
           prompt_title = "Live Grep in Open Files",
         })
@@ -62,7 +108,7 @@ local M = {
     {
       "<leader>fc",
       function()
-        builtin.find_files({ cwd = vim.fn.stdpath("config") })
+        require("telescope.builtin").find_files({ cwd = vim.fn.stdpath("config") })
       end,
       desc = "Find Config Files",
     },
@@ -88,7 +134,6 @@ local M = {
         end
       end
 
-      -- Switch to the last added buffer
       if #selections > 0 and selections[#selections].filename then
         vim.cmd("buffer " .. vim.fn.fnameescape(selections[#selections].filename))
       end
@@ -96,7 +141,6 @@ local M = {
 
     require("telescope").setup({
 
-      -- You can put your default mappings / updates / etc. in here
       defaults = {
         -- layout_strategy = "horizontal",
         layout_config = { prompt_position = "top" },
@@ -129,4 +173,3 @@ local M = {
     })
   end,
 }
-return M

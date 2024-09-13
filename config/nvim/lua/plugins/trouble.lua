@@ -1,7 +1,18 @@
+local notify = require("utils.notify")
 return {
   "folke/trouble.nvim",
   cmd = { "TroubleToggle", "Trouble" },
-  opts = { use_diagnostic_signs = true },
+  opts = {
+    use_diagnostic_signs = true,
+    modes = {
+      symbols = {
+        desc = "document symbols",
+        mode = "lsp_document_symbols",
+        focus = false,
+        win = { position = "left" },
+      },
+    },
+  },
   keys = {
     { "<leader>xX", "<cmd>Trouble diagnostics toggle<cr>", desc = "Diagnostics (Trouble)" },
     { "<leader>xx", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", desc = "Buffer Diagnostics (Trouble)" },
@@ -22,7 +33,7 @@ return {
         else
           local ok, err = pcall(vim.cmd.cprev)
           if not ok then
-            vim.notify(err, vim.log.levels.ERROR)
+            notify.error(err, { title = "Trouble" })
           end
         end
       end,
@@ -36,7 +47,7 @@ return {
         else
           local ok, err = pcall(vim.cmd.cnext)
           if not ok then
-            vim.notify(err, vim.log.levels.ERROR)
+            notify.error(err, { title = "Trouble" })
           end
         end
       end,

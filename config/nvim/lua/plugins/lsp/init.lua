@@ -1,6 +1,8 @@
 local servers = require("plugins.lsp.servers")
 local utils = require("utils")
 local lsp_utils = require("utils.lsp")
+local set_keys = lsp_utils.set_keys
+
 return {
   {
     {
@@ -8,14 +10,7 @@ return {
       event = "LazyFile",
       dependencies = {
         "mason.nvim",
-        { "folke/neodev.nvim", opts = {} },
         "williamboman/mason-lspconfig.nvim",
-        {
-          "folke/neoconf.nvim",
-          cmd = "Neoconf",
-          config = false,
-          dependencies = { "nvim-lspconfig" },
-        },
       },
       config = function()
         vim.diagnostic.config({
@@ -29,11 +24,11 @@ return {
         vim.api.nvim_create_autocmd("LspAttach", {
           group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
           callback = function(event)
+            local client = vim.lsp.get_client_by_id(event.data.client_id)
             local map = function(keys, func, desc)
               vim.keymap.set("n", keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
             end
             map("gd", require("telescope.builtin").lsp_definitions, "Goto Definition")
-            -- WARN: This is not Goto Definition, this is Goto Declaration.
             map("gD", vim.lsp.buf.declaration, "Goto Declaration")
             map("gr", require("telescope.builtin").lsp_references, "Goto References")
             map("gI", require("telescope.builtin").lsp_implementations, "Goto Implementation")
@@ -42,7 +37,14 @@ return {
             -- map("<leader>fs", require("telescope.builtin").lsp_document_symbols, "Document Symbols")
             -- map("<leader>fS", require("telescope.builtin").lsp_dynamic_workspace_symbols, "Workspace Symbols")
             -- map("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
-            map("<leader>ca", vim.lsp.buf.code_action, "Code Action")
+            if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_codeAction) then
+              map("<leader>ca", vim.lsp.buf.code_action, "Code Action")
+            end
+            if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
+              map("<leader>uh", function()
+                vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
+              end, "Toggle Inlay Hints")
+            end
             map("[d", vim.diagnostic.goto_prev, "Go to previous Diagnostic message")
             map("]d", vim.diagnostic.goto_next, "Go to next Diagnostic message")
 
@@ -59,12 +61,6 @@ return {
             map("]w", diagnostic_goto(true, "WARN"), "Next Warning")
             map("[w", diagnostic_goto(false, "WARN"), "Prev Warning")
 
-            -- The following two autocommands are used to highlight references of the
-            -- word under your cursor when your cursor rests there for a little while.
-            --    See `:help CursorHold` for information about when this is executed
-            --
-            -- When you move your cursor, the highlights will be cleared (the second autocommand).
-            local client = vim.lsp.get_client_by_id(event.data.client_id)
             if client and client.server_capabilities.documentHighlightProvider then
               vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
                 buffer = event.buf,
@@ -94,9 +90,20 @@ return {
               -- by the server configuration above. Useful when disabling
               -- certain features of an LSP (for example, turning off formatting for tsserver)
               server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
+              if server.keys then
+                set_keys(server)
+              end
+
               require("lspconfig")[server_name].setup(server)
             end,
           },
+          ["ruff"] = function()
+            lsp_utils.on_attach(function(client, _)
+              -- Disable hover in favor of Pyright
+              client.server_capabilities.hoverProvider = false
+            end, "ruff")
+          end,
+
           ["clangd"] = function()
             local opts = lsps["clangd"]
             opts.capabilities = vim.tbl_deep_extend("force", {}, capabilities, opts.capabilities or {})
@@ -104,24 +111,72 @@ return {
               local clangd_ext_opts = utils.opts("clangd_extensions.nvim")
               require("clangd_extensions").setup(vim.tbl_deep_extend("force", clangd_ext_opts or {}, { server = opts }))
               return false
-            else
-              require("lspconfig")["clangd"].setup(opts)
             end
           end,
+
           ["tsserver"] = function()
+            -- disable tsserver if available
             return true
           end,
+
           ["vtsls"] = function()
             local opts = lsps["vtsls"]
             opts.capabilities = vim.tbl_deep_extend("force", {}, capabilities, opts.capabilities or {})
+            lsp_utils.on_attach(function(client, buffer)
+              client.commands["_typescript.moveToFileRefactoring"] = function(command, ctx)
+                ---@type string, string, lsp.Range
+                local action, uri, range = unpack(command.arguments)
+
+                local function move(newf)
+                  client.request("workspace/executeCommand", {
+                    command = command.command,
+                    arguments = { action, uri, range, newf },
+                  })
+                end
+
+                local fname = vim.uri_to_fname(uri)
+                client.request("workspace/executeCommand", {
+                  command = "typescript.tsserverRequest",
+                  arguments = {
+                    "getMoveToRefactoringFileSuggestions",
+                    {
+                      file = fname,
+                      startLine = range.start.line + 1,
+                      startOffset = range.start.character + 1,
+                      endLine = range["end"].line + 1,
+                      endOffset = range["end"].character + 1,
+                    },
+                  },
+                }, function(_, result)
+                  ---@type string[]
+                  local files = result.body.files
+                  table.insert(files, 1, "Enter new path...")
+                  vim.ui.select(files, {
+                    prompt = "Select move destination:",
+                    format_item = function(f)
+                      return vim.fn.fnamemodify(f, ":~:.")
+                    end,
+                  }, function(f)
+                    if f and f:find("^Enter new path") then
+                      vim.ui.input({
+                        prompt = "Enter move destination:",
+                        default = vim.fn.fnamemodify(fname, ":h") .. "/",
+                        completion = "file",
+                      }, function(newf)
+                        return newf and move(newf)
+                      end)
+                    elseif f then
+                      move(f)
+                    end
+                  end)
+                end)
+              end
+            end, "vtsls")
             -- copy typescript settings to javascript
             opts.settings.javascript =
               vim.tbl_deep_extend("force", {}, opts.settings.typescript, opts.settings.javascript or {})
-            local plugins = vim.tbl_get(opts.settings, "vtsls", "tsserver")
-            if plugins then
-              opts.settings.vtsls.tsserver.globalPlugins = vim.tbl_values(plugins)
-            end
           end,
+
           ["eslint"] = function()
             local function get_client(buf)
               return lsp_utils.get_clients({ name = "eslint", bufnr = buf })[1]
@@ -134,7 +189,6 @@ return {
               filter = "eslint",
             })
 
-            -- Use EslintFixAll on Neovim < 0.10.0
             if not pcall(require, "vim.lsp._dynamic") then
               formatter.name = "eslint: EslintFixAll"
               formatter.sources = function(buf)

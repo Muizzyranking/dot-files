@@ -1,30 +1,45 @@
 return {
   {
-    "nvim-pack/nvim-spectre",
-    build = false,
-    cmd = "Spectre",
-    opts = { open_cmd = "noswapfile vnew" },
+    "MagicDuck/grug-far.nvim",
+    opts = { headerMaxWidth = 80 },
+    cmd = "GrugFar",
     keys = {
-      {
-        "<leader>sf",
-        function()
-          require("spectre").open_file_search()
-        end,
-        desc = "Search and replace in current file",
-      },
       {
         "<leader>sr",
         function()
-          require("spectre").open()
+          local grug = require("grug-far")
+          local ext = vim.bo.buftype == "" and vim.fn.expand("%:e")
+          grug.grug_far({
+            transient = true,
+            prefills = {
+              filesFilter = ext and ext ~= "" and "*." .. ext or nil,
+            },
+          })
         end,
-        desc = "Search and replace (in files)",
+        mode = { "n", "v" },
+        desc = "Search and Replace",
       },
       {
         "<leader>sW",
         function()
-          require("spectre").open_visual({ select_word = true })
+          local grug = require("grug-far")
+          grug.grug_far({
+            transient = true,
+            prefills = { search = vim.fn.expand("<cword>") },
+          })
         end,
-        desc = "Search current word (Spectre)",
+        desc = "Search and Replace",
+      },
+      {
+        "<leader>sf",
+        function()
+          local grug = require("grug-far")
+          grug.grug_far({
+            transient = true,
+            prefills = { paths = vim.fn.expand("%") },
+          })
+        end,
+        desc = "Search and Replace",
       },
     },
   },
@@ -43,6 +58,20 @@ return {
         desc = "Rename",
       },
       config = true,
+    },
+  },
+  {
+    "chrisgrieser/nvim-rip-substitute",
+    config = function() end,
+    keys = {
+      {
+        "<leader>fs",
+        function()
+          require("rip-substitute").sub()
+        end,
+        mode = { "n", "x" },
+        desc = "Rip substitute",
+      },
     },
   },
 }

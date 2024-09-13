@@ -1,4 +1,4 @@
-local utils = require("utils")
+local utils = require("utils.lsp")
 local M = {}
 
 M.lsp = {
@@ -42,38 +42,21 @@ M.lsp = {
         analysis = {
           -- Ignore all files for analysis to exclusively use Ruff for linting
           -- ignore = { "*" },
-          typeCheckingMode = "off",
+          typeCheckingMode = "standard",
         },
         -- Using Ruff's import organizer
         disableOrganizeImports = true,
       },
-      -- python = {
-      --   analysis = {
-      --     -- Ignore all files for analysis to exclusively use Ruff for linting
-      --     ignore = { "*" },
-      --   },
-      -- },
     },
   },
-  ruff_lsp = {
-    on_attach = function(client, bufnr)
-      local function map(mode, lhs, rhs, desc)
-        vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
-      end
-      if client.name == "ruff_lsp" then
-        client.server_capabilities.hoverProvider = false
-
-        map("n", "<leader>co", function()
-          vim.lsp.buf.code_action({
-            apply = true,
-            context = {
-              only = { "source.organizeImports" },
-              diagnostics = {},
-            },
-          })
-        end, "Organize Imports")
-      end
-    end,
+  ruff = {
+    keys = {
+      {
+        "<leader>co",
+        utils.action["source.organizeImports"],
+        { desc = "Organize Imports" },
+      },
+    },
   },
   marksman = {},
   emmet_ls = {},
@@ -116,34 +99,61 @@ M.lsp = {
         },
       },
     },
-    on_attach = function(client, bufnr)
-      local function map(lhs, rhs, desc)
-        vim.keymap.set("n", lhs, rhs, { buffer = bufnr, desc = desc })
-      end
-      if client.name == "vtsls" then
-        if utils.has("nvim-vtsls") then
-          map("gD", function()
-            require("vtsls").commands.goto_source_definition(0)
-          end, "Goto Source Definition")
-          map("gR", function()
-            require("vtsls").commands.file_references(0)
-          end, "Goto File Definition")
-          map("<leader>co", function()
-            require("vtsls").commands.organize_imports(0)
-          end, "Organize imports")
-          map("<leader>cM", function()
-            require("vtsls").commands.add_missing_imports(0)
-          end, "Add missing imports")
-          map("<leader>cD", function()
-            require("vtsls").commands.fix_all(0)
-          end, "Fix all diagnostics")
-        end
-      end
-    end,
+    keys = {
+      {
+        "gD",
+        function()
+          local params = vim.lsp.util.make_position_params()
+          utils.execute({
+            command = "typescript.goToSourceDefinition",
+            arguments = { params.textDocument.uri, params.position },
+            open = true,
+          })
+        end,
+        { desc = "Goto Source Definition" },
+      },
+      {
+        "gR",
+        function()
+          utils.execute({
+            command = "typescript.findAllFileReferences",
+            arguments = { vim.uri_from_bufnr(0) },
+            open = true,
+          })
+        end,
+        { desc = "File References" },
+      },
+      {
+        "<leader>co",
+        utils.action["source.organizeImports"],
+        { desc = "Organize Imports" },
+      },
+      {
+        "<leader>cM",
+        utils.action["source.addMissingImports.ts"],
+        { desc = "Add missing imports" },
+      },
+      {
+        "<leader>cu",
+        utils.action["source.removeUnused.ts"],
+        { desc = "Remove unused imports" },
+      },
+      {
+        "<leader>cD",
+        utils.action["source.fixAll.ts"],
+        { desc = "Fix all diagnostics" },
+      },
+      {
+        "<leader>cV",
+        function()
+          utils.execute({ command = "typescript.selectTypeScriptVersion" })
+        end,
+        { desc = "Select TS workspace version" },
+      },
+    },
   },
 
   jsonls = {
-    -- lazy-load schemastore when needed
     on_new_config = function(new_config)
       new_config.settings.json.schemas = new_config.settings.json.schemas or {}
       vim.list_extend(new_config.settings.json.schemas, require("schemastore").json.schemas())
@@ -164,7 +174,14 @@ M.lsp = {
         cmd = { "lua-language-server" },
         hint = {
           enable = true,
+          setType = false,
+          paramType = true,
+          paramName = "Disable",
+          semicolon = "Disable",
           arrayIndex = "Disable",
+        },
+        codeLens = {
+          enable = true,
         },
         runtime = { version = "LuaJIT" },
         workspace = {

@@ -5,14 +5,6 @@ return {
     cmd = "Oil",
     keys = {
       {
-        "<leader>E",
-        function()
-          require("oil").open()
-        end,
-        desc = "Open Parent Directory (Oil)",
-      },
-
-      {
         "-",
         function()
           require("oil").open_float()
@@ -20,7 +12,7 @@ return {
         desc = "File Browser (Oil)",
       },
       {
-        "<leader>fe",
+        "<leader>E",
         function()
           require("oil").toggle_float(vim.fn.getcwd())
         end,
@@ -79,7 +71,7 @@ return {
         ["<C-p>"] = "actions.preview",
         ["q"] = "actions.close",
         ["<ESC><ESC>"] = "actions.close",
-        ["<C-l>"] = "actions.refresh",
+        -- ["<C-l>"] = "actions.refresh",
         ["gr"] = "actions.refresh",
         ["-"] = "actions.parent",
         ["_"] = "actions.open_cwd",
@@ -120,7 +112,5 @@ return {
         },
       },
     },
-    -- Optional dependencies
-    dependencies = { "nvim-tree/nvim-web-devicons" },
   },
 }

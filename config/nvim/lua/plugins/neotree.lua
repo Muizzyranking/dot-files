@@ -51,8 +51,6 @@ return {
         position = "right",
         width = 40,
         mappings = {
-          ["h"] = "close_all_subnodes",
-          ["l"] = "expand_all_nodes",
           ["P"] = { "toggle_preview", config = { use_float = true, use_image_nvim = false } },
           ["<C-b>"] = { "scroll_preview", config = { direction = 10 } },
           ["<C-f>"] = { "scroll_preview", config = { direction = -10 } },
