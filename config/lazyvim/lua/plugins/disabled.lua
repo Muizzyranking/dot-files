@@ -6,10 +6,10 @@ return {
       { "<leader>/", false },
     },
   },
-  {
-    "folke/tokyonight.nvim",
-    enabled = false,
-  },
+  -- {
+  --   "folke/tokyonight.nvim",
+  --   enabled = false,
+  -- },
   -- {
   --   "echasnovski/mini.indentscope",
   --   enabled = false,
