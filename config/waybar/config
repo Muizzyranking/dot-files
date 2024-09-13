@@ -1,23 +1,59 @@
 {
   "layer": "top",
-  "modules-center": ["hyprland/workspaces"],
-  "modules-left": ["custom/os", "clock", "custom/swaync", "memory"],
-  "modules-right": ["custom/spotify", "network",  "bluetooth", "pulseaudio", "battery", "power-profiles-daemon"],
-  "spacing": 4,
-  "margin-top": 5,
-  "margin-left": 10,
-  "margin-right": 10,
+  "modules-center": [
+    "hyprland/workspaces"
+  ],
+  "modules-left": [
+    "custom/os",
+    "clock",
+    "custom/swaync",
+    "memory",
+    "cpu",
+    "disk",
+    "privacy"
+  ],
+  "modules-right": [
+    "custom/spotify",
+    "tray",
+    "network",
+    "bluetooth",
+    "pulseaudio",
+    "battery",
+    "power-profiles-daemon"
+  ],
+  "privacy": {
+    "icon-size": 12,
+    "icon-spacing": 5,
+    "transition-duration": 250,
+    "modules": [
+      {
+        "type": "screenshare",
+        "tooltip": true,
+        "tooltip-icon-size": 12
+      },
+      {
+        "type": "audio-in",
+        "tooltip": true,
+        "tooltip-icon-size": 12
+      }
+    ]
+  },
+  "wlr/taskbar": {
+    "format": "{icon}",
+    "icon-size": 12,
+    "height": 10,
+    "on-click": "activate",
+    "on-click-middle": "close"
+  },
   "custom/os": {
     "format": "󰮤",
     "tooltip": false,
     "on-click": "sh $HOME/.config/hypr/scripts/wlogout.sh"
   },
   "tray": {
-    "icon-size": 20,
-    "spacing": 4,
-    "icon-padding": 4,
-    "icon-margin": 4,
-    "scroll-step": 4,
+    "icon-size": 18,
+    "margin": 4,
+    "spacing": 10,
     "tooltip": true,
     "format": "{icon}",
     "tooltip-format": "{icon} {status}",
@@ -43,35 +79,46 @@
     "tooltip-format": "{used:0.1f}GB/{total:0.1f}G",
     "on-click-right": "kitty --title btop sh -c 'btop'"
   },
+  "cpu": {
+    "interval": 10,
+    "format": "󰘚 {usage}󱉸"
+  },
+  "disk": {
+    "interval": 60,
+    "format": "󰆼 {percentage_used}󱉸",
+    "path": "/"
+  },
   "mpris": {
-	"interval": 10,
-	"format": "{player_icon} ",
-	"format-paused": "{status_icon} <i>{dynamic}</i>",
-	"on-click-middle": "playerctl play-pause",
-	"on-click": "playerctl previous",
-	"on-click-right": "playerctl next",
-	"scroll-step": 5.0,
-	"on-scroll-up": "~/.config/hypr/scripts/Volume.sh --inc",
-	"on-scroll-down": "~/.config/hypr/scripts/Volume.sh --dec",
-	"smooth-scrolling-threshold": 1,
-	"player-icons": {
-		"chromium": "",
-		"default": "",
-		"firefox": "",
-		"kdeconnect": "",
-		"mopidy": "",
-		"mpv": "󰐹",
-		"spotify": "",
-		"vlc": "󰕼"
-	},
-	"status-icons": {
-		"paused": "󰐎",
-		"playing": "",
-		"stopped": ""
-	},
-	// "ignored-players": ["firefox"]
-	"max-length": 30
-},
+    "interval": 10,
+    "format": "{player_icon} ",
+    "format-paused": "{status_icon} <i>{dynamic}</i>",
+    "on-click-middle": "playerctl play-pause",
+    "on-click": "playerctl previous",
+    "on-click-right": "playerctl next",
+    "scroll-step": 5.0,
+    "on-scroll-up": "~/.config/hypr/scripts/Volume.sh --inc",
+    "on-scroll-down": "~/.config/hypr/scripts/Volume.sh --dec",
+    "smooth-scrolling-threshold": 1,
+    "player-icons": {
+      "chromium": "",
+      "default": "",
+      "firefox": "",
+      "kdeconnect": "",
+      "mopidy": "",
+      "mpv": "󰐹",
+      "spotify": "",
+      "vlc": "󰕼"
+    },
+    "status-icons": {
+      "paused": "󰐎",
+      "playing": "",
+      "stopped": ""
+    },
+    "ignored-players": [
+      "firefox"
+    ],
+    "max-length": 30
+  },
   "hyprland/workspaces": {
     "active-only": false,
     "all-outputs": true,
@@ -86,7 +133,6 @@
       "default": ""
     }
   },
-
   "clock": {
     "format": "<span color='#b4befe'> </span> {:%I:%M %p  %A, %b %d}",
     "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
@@ -98,14 +144,23 @@
     "tooltip": false,
     "format-icons": {
       "headphone": "",
-      "default": ["", "", "󰕾", "󰕾", "󰕾", "", "", ""]
+      "default": [
+        "",
+        "",
+        "󰕾",
+        "󰕾",
+        "󰕾",
+        "",
+        "",
+        ""
+      ]
     },
     "scroll-step": 1
   },
   "bluetooth": {
     "format": " ",
     "format-disabled": "󰂳",
-    "tooltip" : false,
+    "tooltip": false,
     "format-connected": "<span color='#b4befe'></span> {device_alias}",
     "on-click": "~/.config/hypr/scripts/bluetooth.sh"
   },
@@ -122,10 +177,27 @@
     "tooltip-format-disconnected": "󰌙 Disconnected",
     "max-length": 30,
     "format-icons": [
-      "󰤯", "󰤟", "󰤢", "󰤥", "󰤨"
+      "󰤯",
+      "󰤟",
+      "󰤢",
+      "󰤥",
+      "󰤨"
     ],
     "on-click-right": "~/.config/hypr/scripts/network.sh",
     "on-click": "nm-connection-editor"
+  },
+  "network#speed": {
+    "interval": 1,
+    "format": "{ifname}",
+    "format-wifi": " {bandwidthDownBytes}  {bandwidthUpBytes} ",
+    "format-ethernet": "{icon} {bandwidthDownBytes}  {bandwidthUpBytes} ",
+    "format-disconnected": "󰌙",
+    "tooltip-format": "{ipaddr}",
+    "format-linked": "󰈁 {ifname} (No IP)",
+    "tooltip-format-wifi": "{essid} {icon} {signalStrength}%",
+    "tooltip-format-ethernet": "{ifname} 󰌘",
+    "tooltip-format-disconnected": "󰌙 Disconnected",
+    "max-length": 30
   },
   "battery": {
     "interval": 5,
@@ -145,7 +217,17 @@
     "format-full": "{icon} Full",
     "format-alt": "{icon} {time}",
     "format-icons": [
-      "󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"
+      "󰂎",
+      "󰁺",
+      "󰁻",
+      "󰁼",
+      "󰁽",
+      "󰁾",
+      "󰁿",
+      "󰂀",
+      "󰂁",
+      "󰂂",
+      "󰁹"
     ],
     "format-time": "{H}h {M}min",
     "tooltip": true,

@@ -1,7 +1,7 @@
 * {
   font-family: "JetBrainsMono Nerd Font", sans-serif;
-  font-size: 14px;
-  min-height: 30px;
+  font-size: 12px;
+  min-height: 24px;
   font-weight: bold;
 }
 
@@ -13,7 +13,7 @@ window#waybar {
 tooltip {
   background: transparent;
   border: 2px solid #1e1e2e;
-  border-radius: 10px;
+  border-radius: 8px;
 }
 
 tooltip label {
@@ -23,12 +23,16 @@ tooltip label {
 #custom-spotify {
   background: #1db954;
   color: #1e1e2e;
-  padding: 0 10px;
-  margin: 3px 5px;
-  border: none;
-  border-radius: 8px;
+  padding: 0 8px;
+  margin: 2px 4px;
+  border-radius: 6px;
 }
 
+#wlr-taskbar,
+#privacy,
+#disk,
+#taskbar,
+#tray,
 #window,
 #workspaces,
 #tray,
@@ -39,16 +43,50 @@ tooltip label {
 #custom-power,
 #custom-lock {
   background: #1e1e2e;
-  padding: 0 10px;
-  margin: 3px 5px;
-  border: none;
-  border-radius: 8px;
+  padding: 0 8px;
+  margin: 2px 4px;
+  border-radius: 6px;
+  color: #89b4fa;
+}
+
+#tray {
+  padding: 0 14px;
+}
+
+#memory,
+#cpu,
+#battery,
+#power-profiles-daemon,
+#bluetooth,
+#pulseaudio {
+  background: #1e1e2e;
+  padding: 0 8px;
+  color: #89b4fa;
+}
+
+#memory,
+#battery,
+#bluetooth {
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+  border-right: 0.25px solid #89b4fa;
+  margin: 2px 0 2px 4px;
+}
+
+#cpu,
+#power-profiles-daemon,
+#pulseaudio {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+  border-left: 0.25px solid #89b4fa;
+  margin: 2px 4px 2px 0;
 }
 
 #workspaces button {
-  padding: 0 5px;
+  padding: 0 4px;
   color: #6c7086;
   transition: all 0.3s ease;
+  background: transparent;
 }
 
 #workspaces button.active {
@@ -57,44 +95,12 @@ tooltip label {
 
 #workspaces,
 #custom-os {
-  padding: 0 20px;
+  padding: 0 16px;
   color: #89b4fa;
 }
 
 #clock {
   color: #f9e2af;
-}
-
-#custom-swaync,
-#network,
-#bluetooth,
-#pulseaudio,
-#power-profiles-daemon,
-#battery {
-  color: #89b4fa;
-}
-
-#pulseaudio,
-#bluetooth,
-#battery,
-#power-profiles-daemon {
-  background: #1e1e2e;
-  padding: 0 10px;
-  border: none;
-}
-
-#bluetooth,
-#battery {
-  border-top-left-radius: 8px;
-  border-bottom-left-radius: 8px;
-  margin-right: -5;
-}
-
-#pulseaudio,
-#power-profiles-daemon {
-  border-top-right-radius: 8px;
-  border-bottom-right-radius: 8px;
-  margin-left: -5;
 }
 
 #battery.warning {
@@ -105,19 +111,7 @@ tooltip label {
   color: #f38ba8;
 }
 
-#workspaces button {
-  padding: 0 5px;
-  background: transparent;
-}
-
 #workspaces button:hover {
   background: rgba(30, 30, 46, 0.8);
-  border-radius: 8px;
-}
-
-#custom-power,
-#custom-lock,
-#pulseaudio,
-#bluetooth {
-  background: #1e1e2e;
+  border-radius: 6px;
 }
