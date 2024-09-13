@@ -1,4 +1,7 @@
+local icons = require("utils.icons").diagnostics
 local opt = vim.opt
+local utils = require("utils")
+local notify = require("utils.notify")
 
 vim.highlight.priorities.semantic_tokens = 95
 vim.g.netrw_browsex_viewer = "google-chrome"
@@ -6,10 +9,9 @@ vim.g.netrw_browsex_viewer = "google-chrome"
 -----------------------------------------------------------
 -- General
 -----------------------------------------------------------
-vim.schedule(function()
-  opt.clipboard = "unnamedplus"
+vim.schedule(function() -- Schedule to decease startup time
+  opt.clipboard = "unnamedplus" -- use system clipboard
 end)
--- opt.clipboard = "unnamedplus" -- Use system clipboard
 opt.updatetime = 250 -- Decrease update time
 opt.timeoutlen = 300
 opt.errorbells = false -- Disable error bells
@@ -29,7 +31,6 @@ opt.statuscolumn = [[%!v:lua.require("utils.ui").statuscolumn()]]
 vim.o.background = "dark"
 opt.winminwidth = 5 -- Minimum window width
 opt.signcolumn = "yes" -- Always show the signcolumn, otherwise it would shift the text each time
--- vim.opt.numberwidth = 1
 opt.termguicolors = true -- Enable true color support
 opt.inccommand = "nosplit" -- Don't Preview substitutions live, as you type!
 -- Customize fold characters
@@ -60,7 +61,7 @@ opt.undofile = true
 opt.foldlevel = 99
 opt.foldmethod = "expr"
 opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-opt.foldtext = ""
+opt.foldtext = "v:lua.require('utils.ui').get_foldtext()"
 vim.g.markdown_folding = 1 -- Enable markdown folding
 
 -----------------------------------------------------------
@@ -105,16 +106,27 @@ opt.spell = false -- Disable spell checking by default
 -- vim.g.autoformat = false -- Disable autoformat by default
 vim.g.disable_autoformat = true
 vim.b.disable_autoformat = true
-vim.g.loaded_ruby_provider = 0 -- Disable Ruby providers
-vim.g.loaded_perl_provider = 0 -- Disable Perl providers
 
 opt.pumblend = 10 -- Popup blend
 opt.pumheight = 10 -- Maximum number of entries in a popup
 -- opt.conceallevel = 2 -- Hide * markup for bold and italic, but not markers with substitutions
 
 -- Diagnostic signs
-local icons = require("utils.icons").diagnostics
 vim.fn.sign_define("DiagnosticSignError", { text = icons.Error, texthl = "DiagnosticSignError" })
 vim.fn.sign_define("DiagnosticSignWarn", { text = icons.Warn, texthl = "DiagnosticSignWarn" })
 vim.fn.sign_define("DiagnosticSignInfo", { text = icons.Info, texthl = "DiagnosticSignInfo" })
 vim.fn.sign_define("DiagnosticSignHint", { text = icons.Hint, texthl = "DiagnosticSignHint" })
+
+local providers = { "ruby", "node", "perl" }
+for _, provider in ipairs(providers) do
+  vim.g["loaded_" .. provider .. "_provider"] = 0
+end
+
+if utils.is_executable("python3") then
+  vim.g.python3_host_prog = vim.fn.exepath("python3")
+else
+  notify.error(
+    "Python3 executable not found! You must install Python3 and set its PATH correctly!",
+    { title = "Python" }
+  )
+end

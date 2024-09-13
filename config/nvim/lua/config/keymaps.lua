@@ -2,15 +2,14 @@ local key = require("utils.keys")
 local notify = require("utils.notify")
 local git = require("utils.git")
 local utils = require("utils")
-local toggleterm = require("utils.toggleterm").toggle_float_terminal
+local terminal = require("utils.terminal").float_term
+local set = vim.keymap.set
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
-local set = vim.keymap.set
-
 ------------------------
--- Keymaps for moving chunks of text/code
+-- moving chunks of text/code
 ------------------------
 set("n", "<A-j>", "<cmd>m .+1<cr>==", { desc = "Move Down" })
 set("n", "<A-k>", "<cmd>m .-2<cr>==", { desc = "Move Up" })
@@ -20,7 +19,7 @@ set("v", "<A-j>", ":m '>+1<cr>gv=gv", { desc = "Move Down" })
 set("v", "<A-k>", ":m '<-2<cr>gv=gv", { desc = "Move Up" })
 
 ------------------------
--- Keymaps for navigation
+-- navigation
 ------------------------
 set({ "n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 set({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
@@ -36,7 +35,7 @@ set("t", "<C-k>", "<cmd>wincmd k<cr>", { desc = "Go to Upper Window" })
 set("t", "<C-l>", "<cmd>wincmd l<cr>", { desc = "Go to Right Window" })
 
 ------------------------
--- Keymaps for window management
+-- window management
 ------------------------
 set("n", "<leader>ww", "<C-W>p", { desc = "Other Window", remap = true })
 set("n", "<leader>wd", "<C-W>c", { desc = "Delete Window", remap = true })
@@ -51,14 +50,14 @@ set("n", "<C-Left>", "<cmd>vertical resize -2<cr>", { desc = "Decrease Window Wi
 set("n", "<C-Right>", "<cmd>vertical resize +2<cr>", { desc = "Increase Window Width" })
 
 ------------------------
--- Keymaps for saving and quitting
+-- saving and quitting
 ------------------------
-set({ "i", "x", "n", "s" }, "<C-s>", "<cmd>w<cr><esc>", { desc = "Save File" })
+set({ "i", "x", "n", "s" }, "<C-s>", "<cmd>update<cr><esc>", { desc = "Save File" })
 set("n", "<C-q>", "<cmd>q<cr>", { desc = "Quit file" })
 set("n", "<leader>qq", "<cmd>qa<cr>", { desc = "Save all and quit", silent = true })
 
 ------------------------
--- Keymaps for search
+-- search
 ------------------------
 -- https://github.com/mhinz/vim-galore#saner-behavior-of-n-and-n
 set("n", "N", "'Nn'[v:searchforward].'zv'", { expr = true, desc = "Next Search Result" })
@@ -70,7 +69,7 @@ set("o", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result
 set("n", "<Esc>", "<cmd>nohlsearch<CR>") -- Clear search highlight on pressing <Esc> in normal mode
 
 ------------------------
--- Keymaps for editing
+-- editing
 ------------------------
 if utils.is_in_tmux() then
   set("i", "<C-o>", "<esc>o", { desc = "Go to next line" }) -- go to next line in insert
@@ -107,10 +106,8 @@ set({ "n" }, "ciw", '"_ciw')
 set({ "n" }, "C", '"_C')
 
 ------------------------
--- Keymaps for miscellaneous
+-- miscellaneous
 ------------------------
--- stylua: ignore start
-set("n", "<leader>gb", git.blame_line, { desc = "Git Blame Line" })
 set("n", "<leader>fn", key.new_file, { desc = "Create new file" })
 set("n", "<leader>cx", key.make_file_executable, { desc = "Make file executable", silent = true })
 set("n", "<leader>cX", key.make_file_unexecutable, { desc = "Make file unexecutable", silent = true })
@@ -118,7 +115,9 @@ set("n", "<leader>uw", key.toggle_line_wrap, { desc = "Toggle line wrap" })
 set("n", "<leader>ud", key.toggle_diagnostics, { desc = "Toggle Diagnostics" })
 set("n", "<leader>us", key.toggle_spell, { desc = "Toggle Spell" })
 set("n", "<leader>uf", key.toggle_autoformat, { desc = "Toggle Autoformat (Global)" })
-set("n", "<leader>uF", function() key.toggle_autoformat(true) end, { desc = "Toggle Autoformat (Buffer)" })
+set("n", "<leader>uF", function()
+  key.toggle_autoformat(true)
+end, { desc = "Toggle Autoformat (Buffer)" })
 set("n", "<leader>uT", function()
   if vim.b.ts_highlight then
     vim.treesitter.stop()
@@ -126,26 +125,44 @@ set("n", "<leader>uT", function()
     vim.treesitter.start()
   end
 end, { desc = "Toggle Treesitter Highlight" })
-set("n", "<leader>j", function() key.duplicate_line() end, { desc = "Duplicate Line" })
-set("n", "<leader><DOWN>", function() key.duplicate_line() end, { desc = "Duplicate Line" })
-set("v", "<leader>j", function() key.duplicate_selection() end, { desc = "Duplicate selection" })
-set({ "n", "i", "t" }, "<C-_>", toggleterm, { noremap = true, silent = true, desc = "Toggle Terminal" })
-set("n", "<leader>gC", function()
-  local git_path = vim.api.nvim_buf_get_name(0)
-  git.lazygit({ "-f", vim.trim(git_path) }) end, { desc = "LazyGit Log (current file)" })
-set("n", "<leader>gc", function() git.lazygit({ "log" }) end, { desc = "LazyGit Log" })
-set("n", "<leader>gg", function() git.lazygit() end, { desc = "LazyGit" })
+set("n", "<leader>j", function()
+  key.duplicate_line()
+end, { desc = "Duplicate Line" })
+set("v", "<leader>j", function()
+  key.duplicate_selection()
+end, { desc = "Duplicate selection" })
+set({ "n", "i", "t" }, "<C-_>", terminal, { noremap = true, silent = true, desc = "Toggle Terminal" })
+set({ "n", "i", "t" }, "<F7>", terminal, { noremap = true, silent = true, desc = "Toggle Terminal" })
+
+------------------------
+-- git stuffs
+------------------------
+if utils.is_in_git_repo() then
+  set("n", "<leader>gb", function()
+    git.blame_line()
+  end, { desc = "Git Blame" })
+  set("n", "<leader>gg", function()
+    git.lazygit()
+  end, { desc = "Open LazyGit" })
+  set("n", "<leader>gc", function()
+    git.lazygit({ "log" })
+  end, { desc = "LazyGit log" })
+  set("n", "<leader>gC", function()
+    local git_path = vim.api.nvim_buf_get_name(0)
+    git.lazygit({ "-f", vim.trim(git_path) })
+  end, { desc = "LazyGit log (current file)" })
+end
 
 -- disable arrow key in normal mode
 set("n", "<UP>", function()
-  notify.warn("Use k", { desc = "options" })
+  notify.warn("Use k", { title = "options" })
 end)
 set("n", "<DOWN>", function()
-  notify.warn("Use j", { desc = "options" })
+  notify.warn("Use j", { title = "options" })
 end)
 set("n", "<LEFT>", function()
-  notify.warn("Use h", { desc = "options" })
+  notify.warn("Use h", { title = "options" })
 end)
 set("n", "<RIGHT>", function()
-  notify.warn("Use l", { desc = "options" })
+  notify.warn("Use l", { title = "options" })
 end)
