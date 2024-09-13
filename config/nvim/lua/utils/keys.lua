@@ -26,9 +26,7 @@ end
 -----------------------------------------------------------
 local enabled = true
 function M.toggle_diagnostics()
-  ---@diagnostic disable-next-line: deprecated
   if vim.diagnostic.is_disabled then
-    ---@diagnostic disable-next-line: deprecated
     enabled = not vim.diagnostic.is_disabled()
   end
   enabled = not enabled
@@ -37,7 +35,6 @@ function M.toggle_diagnostics()
     vim.diagnostic.enable()
     notify.info("Enabled diagnostics", { title = "Diagnostics" })
   else
-    ---@diagnostic disable-next-line: deprecated
     vim.diagnostic.disable()
     notify.warn("Disabled diagnostics", { title = "Diagnostics" })
   end
@@ -104,6 +101,10 @@ end
 -----------------------------------------------------------
 function M.make_file_executable()
   local filename = vim.fn.expand("%")
+  if vim.fn.executable(filename) == 1 then
+    notify.info("File is already executable", { title = "Option" })
+    return
+  end
   local cmd = "chmod +x " .. filename
   local output = vim.fn.system(cmd)
 
@@ -111,6 +112,26 @@ function M.make_file_executable()
     notify.info("File made executable", { title = "Option" })
   else
     notify.warn("Error making file executable: " .. output, { title = "Options" })
+  end
+end
+
+-----------------------------------------------------------
+-- Make the current file unexecutable
+-----------------------------------------------------------
+function M.make_file_unexecutable()
+  local filename = vim.fn.expand("%")
+
+  if vim.fn.executable(filename) ~= 1 then
+    notify.info("File is not executable", { title = "Option" })
+    return
+  end
+  local cmd = "chmod -x " .. filename
+  local output = vim.fn.system(cmd)
+
+  if vim.v.shell_error == 0 then
+    notify.info("File made unexecutable", { title = "Option" })
+  else
+    notify.warn("Error making file unexecutable: " .. output, { title = "Options" })
   end
 end
 

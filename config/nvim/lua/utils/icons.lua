@@ -7,6 +7,16 @@ return {
     ActiveLSP = " ",
     File = "󰈚 ",
   },
+  formatters = {
+    prettierd = "",
+    prettier = "",
+    autopep8 = "",
+    djlint = "",
+    shfmt = "",
+    ["sql-formatter"] = "󰆼",
+    stylua = "",
+    fallback = "󰉼",
+  },
   neotree = {
     git = "󰊢 ",
     buffer = "󰏚 ",

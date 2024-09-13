@@ -1,6 +1,25 @@
 local M = {}
 
+local utils = require("utils")
+
 M.formatters = {}
+
+----------------------------------------------------
+-- Create auto command for LSP attach
+---@param on_attach fun(client:vim.lsp.Client, buffer)
+---@param name? string
+----------------------------------------------------
+function M.on_attach(on_attach, name)
+  return vim.api.nvim_create_autocmd("LspAttach", {
+    callback = function(args)
+      local buffer = args.buf ---@type number
+      local client = vim.lsp.get_client_by_id(args.data.client_id)
+      if client and (not name or client.name == name) then
+        return on_attach(client, buffer)
+      end
+    end,
+  })
+end
 
 ----------------------------------------------------
 -- Get a list of active LSP clients
@@ -13,12 +32,10 @@ function M.get_clients(opts)
   if vim.lsp.get_clients then
     ret = vim.lsp.get_clients(opts)
   else
-    ---@diagnostic disable-next-line: deprecated
     ret = vim.lsp.get_active_clients(opts)
     if opts and opts.method then
       ---@param client lsp.Client
       ret = vim.tbl_filter(function(client)
-        ---@diagnostic disable-next-line: redundant-parameter
         return client.supports_method(opts.method, { bufnr = opts.bufnr })
       end, ret)
     end
@@ -62,40 +79,6 @@ function M.format(opts)
 end
 
 ----------------------------------------------------
--- Check if a value can be merged
----@param v any The value to check
----@return boolean Whether the value can be merged
-----------------------------------------------------
-local function can_merge(v)
-  return type(v) == "table" and (vim.tbl_isempty(v) or not M.is_list(v))
-end
-
-----------------------------------------------------
--- Merge multiple tables
----@param ... any Tables to merge
----@return table Merged table
-----------------------------------------------------
-function M.merge(...)
-  local ret = select(1, ...)
-  if ret == vim.NIL then
-    ret = nil
-  end
-  for i = 2, select("#", ...) do
-    local value = select(i, ...)
-    if can_merge(ret) and can_merge(value) then
-      for k, v in pairs(value) do
-        ret[k] = M.merge(ret[k], v)
-      end
-    elseif value == vim.NIL then
-      ret = nil
-    elseif value ~= nil then
-      ret = value
-    end
-  end
-  return ret
-end
-
-----------------------------------------------------
 -- Create a formatter object
 ---@param opts table? Optional formatter options
 ---@return table Formatter object
@@ -109,10 +92,10 @@ function M.formatter(opts)
     primary = true,
     priority = 1,
     format = function(buf)
-      M.format(M.merge({}, filter, { bufnr = buf }))
+      M.format(utils.merge({}, filter, { bufnr = buf }))
     end,
     sources = function(buf)
-      local clients = M.get_clients(M.merge({}, filter, { bufnr = buf }))
+      local clients = M.get_clients(utils.merge({}, filter, { bufnr = buf }))
       ---@param client vim.lsp.Client
       local ret = vim.tbl_filter(function(client)
         return client.supports_method("textDocument/formatting")
@@ -124,7 +107,75 @@ function M.formatter(opts)
       end, ret)
     end,
   }
-  return M.merge(ret, opts)
+  return utils.merge(ret, opts)
 end
+
+----------------------------------------------------
+-- Set LSP server keys
+---@param server table LSP server configuration
+----------------------------------------------------
+function M.set_keys(server)
+  -- check if server has on_attach
+  local original_attach = server.on_attach
+  local new_attach = function(client, bufnr)
+    if original_attach then
+      -- call on acttach if exists
+      original_attach(client, bufnr)
+    end
+
+    -- set keymaps
+    if server.keys then
+      local map = function(lhs, rhs, desc)
+        vim.keymap.set("n", lhs, rhs, { buffer = bufnr, desc = desc })
+      end
+      local keys = server.keys or {}
+      for _, mapping in ipairs(keys) do
+        local lhs, rhs, opts = mapping[1], mapping[2], mapping[3] or {}
+        opts.desc = opts.desc or (server .. " " .. lhs)
+        map(lhs, rhs, opts.desc)
+      end
+    end
+  end
+
+  -- replace the on_attach function
+  server.on_attach = new_attach
+end
+
+----------------------------------------------------
+-- Execute LSP command
+---@param opts LspCommand Options for the LSP command
+----------------------------------------------------
+function M.execute(opts)
+  local params = {
+    command = opts.command,
+    arguments = opts.arguments,
+  }
+  if opts.open then
+    require("trouble").open({
+      mode = "lsp_command",
+      params = params,
+    })
+  else
+    return vim.lsp.buf_request(0, "workspace/executeCommand", params, opts.handler)
+  end
+end
+
+----------------------------------------------------
+-- Action metatable for LSP code actions
+---@return table Metatable for LSP code actions
+----------------------------------------------------
+M.action = setmetatable({}, {
+  __index = function(_, action)
+    return function()
+      vim.lsp.buf.code_action({
+        apply = true,
+        context = {
+          only = { action },
+          diagnostics = {},
+        },
+      })
+    end
+  end,
+})
 
 return M
