@@ -1,7 +1,13 @@
+@import "colors.css";
+
+* {
+  font-family: "JetBrainsMono Nerd Font";
+  box-shadow: none;
+}
+
 window {
-  font-family: JetBrainsMono Nerd Font;
-  font-size: 16pt;
-  color: #cdd6f4; /* text */
+  /*opacity: 0.7;*/
+  color: #cdd6f4;
   background-color: #1e1e2e;
 }
 
@@ -10,49 +16,61 @@ button {
   background-position: center;
   background-size: 20%;
   background-color: rgba(200, 220, 255, 0);
-  animation: gradient_f 20s ease-in infinite;
-  border-radius: 80px;
+  font-size: 23px;
+  margin: 120px 0px;
+  opacity: 0.8;
+  border: none;
+  border-radius: 0px;
+  transition: 0.15s ease-in-out all;
 }
 
 button:focus {
   background-size: 25%;
-  border: 0px;
-}
-
-button:hover {
-  border-radius: 80px;
-  background-size: 25%;
-  transition:
-    all 0.3s cubic-bezier(0.55, 0, 0.28, 1.682),
-    box-shadow 0.2s ease-in-out,
-    background-color 0.2s ease-in-out;
+  border-radius: 10%;
   box-shadow: 0 0 50px #fab387;
 }
 
-/* Adjust the size of the icon or content inside the button */
-button span {
-  font-size: 1.2em; /* Increase the font size */
+button:hover {
+  background-size: 25%;
+  border-radius: 10%;
+  box-shadow: 0 0 50px #fab387;
 }
+
+/* 
+----------------------------------------------------- 
+Buttons
+----------------------------------------------------- 
+*/
 
 #lock {
-  background-image: image(url("./icons/lock.png"));
+  border-radius: 50px 0px 0px 50px;
+  background-image: image(url("icons/lock.png"));
 }
-
-#logout {
-  background-image: image(url("./icons/logout.png"));
-}
-
-#suspend {
-  background-image: image(url("./icons/suspend.png"));
+#lock:hover {
+  border-radius: 50px;
 }
 
 #shutdown {
-  background-image: image(url("./icons/shutdown.png"));
+  background-image: image(url("icons/shutdown.png"));
 }
 
 #reboot {
-  background-image: image(url("./icons/reboot.png"));
+  background-image: image(url("icons/reboot.png"));
 }
+
+#suspend {
+  background-image: image(url("icons/suspend.png"));
+}
+
+#logout {
+  background-image: image(url("icons/logout.png"));
+}
+
 #hibernate {
-  background-image: image(url("./icons/hibernate.png"));
+  border-radius: 0px 50px 50px 0px;
+  background-image: image(url("icons/hibernate.png"));
+}
+#hibernate:hover {
+  border-radius: 50px;
+  background-image: image(url("icons/hibernate.png"));
 }

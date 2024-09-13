@@ -16,3 +16,16 @@ if utils.has("clangd_extensions.nvim") then
     { desc = "Switch Source/Header" }
   )
 end
+
+require("which-key").add({
+  {
+    "<F5>",
+    function()
+      require("utils.runner").setup("c")
+    end,
+    icon = { icon = " ", color = "red" },
+    desc = "Code runner",
+    mode = "n",
+    buffer = 0,
+  },
+})
