@@ -1,8 +1,24 @@
+local utils = require("utils")
 return {
   {
     "echasnovski/mini.icons",
     lazy = true,
-    opts = {},
+    opts = {
+      file = {
+        [".eslintrc.js"] = { glyph = "󰱺", hl = "MiniIconsYellow" },
+        [".node-version"] = { glyph = "", hl = "MiniIconsGreen" },
+        [".prettierrc"] = { glyph = "", hl = "MiniIconsPurple" },
+        [".yarnrc.yml"] = { glyph = "", hl = "MiniIconsBlue" },
+        ["eslint.config.js"] = { glyph = "󰱺", hl = "MiniIconsYellow" },
+        ["package.json"] = { glyph = "", hl = "MiniIconsGreen" },
+        ["tsconfig.json"] = { glyph = "", hl = "MiniIconsAzure" },
+        ["tsconfig.build.json"] = { glyph = "", hl = "MiniIconsAzure" },
+        ["yarn.lock"] = { glyph = "", hl = "MiniIconsBlue" },
+      },
+      filetype = {
+        htmldjango = { glyph = "", hl = "MiniIconsBlue" },
+      },
+    },
     init = function()
       package.preload["nvim-web-devicons"] = function()
         require("mini.icons").mock_nvim_web_devicons()
@@ -57,66 +73,87 @@ return {
             },
             "^().*()$",
           },
-          g = function() -- Whole buffer, similar to `gg` and 'G' motion
-            local from = { line = 1, col = 1 }
-            local to = {
-              line = vim.fn.line("$"),
-              col = math.max(vim.fn.getline("$"):len(), 1),
-            }
-            return { from = from, to = to }
+          g = function(ai_type) -- Whole buffer, similar to `gg` and 'G' motion
+            local start_line, end_line = 1, vim.fn.line("$")
+            if ai_type == "i" then
+              -- Skip first and last blank lines for `i` textobject
+              local first_nonblank, last_nonblank = vim.fn.nextnonblank(start_line), vim.fn.prevnonblank(end_line)
+              -- Do nothing for buffer with all blanks
+              if first_nonblank == 0 or last_nonblank == 0 then
+                return { from = { line = start_line, col = 1 } }
+              end
+              start_line, end_line = first_nonblank, last_nonblank
+            end
+
+            local to_col = math.max(vim.fn.getline(end_line):len(), 1)
+            return { from = { line = start_line, col = 1 }, to = { line = end_line, col = to_col } }
           end,
           u = ai.gen_spec.function_call(), -- u for "Usage"
           U = ai.gen_spec.function_call({ name_pattern = "[%w_]" }), -- without dot in function name
         },
       }
     end,
-
     config = function(_, opts)
       require("mini.ai").setup(opts)
-      local i = {
-        [" "] = "Whitespace",
-        ['"'] = 'Balanced "',
-        ["'"] = "Balanced '",
-        ["`"] = "Balanced `",
-        ["("] = "Balanced (",
-        [")"] = "Balanced ) including white-space",
-        [">"] = "Balanced > including white-space",
-        ["<lt>"] = "Balanced <",
-        ["]"] = "Balanced ] including white-space",
-        ["["] = "Balanced [",
-        ["}"] = "Balanced } including white-space",
-        ["{"] = "Balanced {",
-        ["?"] = "User Prompt",
-        ["_"] = "Underscore",
-        a = "Argument",
-        b = "Balanced ), ], }",
-        c = "Class",
-        d = "Digit(s)",
-        e = "Word in CamelCase & snakecase",
-        f = "Function",
-        g = "Entire file",
-        o = "Block, conditional, loop",
-        q = "Quote` , \", '",
-        t = "Tag",
-        u = "Use/call function & method",
-        U = "Use/call without dot in name",
-      }
-      local a = vim.deepcopy(i)
-      for k, v in pairs(a) do
-        a[k] = v:gsub(" including.*", "")
-      end
-      local ic = vim.deepcopy(i)
-      local ac = vim.deepcopy(a)
-      for key, name in pairs({ n = "Next", l = "Last" }) do
-        i[key] = vim.tbl_extend("force", { name = "Inside " .. name .. " textobject" }, ic)
-        a[key] = vim.tbl_extend("force", { name = "Around " .. name .. " textobject" }, ac)
-      end
+      utils.on_load("which-key.nvim", function()
+        vim.schedule(function()
+          local objects = {
+            { " ", desc = "whitespace" },
+            { '"', desc = '" string' },
+            { "'", desc = "' string" },
+            { "(", desc = "() block" },
+            { ")", desc = "() block with ws" },
+            { "<", desc = "<> block" },
+            { ">", desc = "<> block with ws" },
+            { "?", desc = "user prompt" },
+            { "U", desc = "use/call without dot" },
+            { "[", desc = "[] block" },
+            { "]", desc = "[] block with ws" },
+            { "_", desc = "underscore" },
+            { "`", desc = "` string" },
+            { "a", desc = "argument" },
+            { "b", desc = ")]} block" },
+            { "c", desc = "class" },
+            { "d", desc = "digit(s)" },
+            { "e", desc = "CamelCase / snake_case" },
+            { "f", desc = "function" },
+            { "g", desc = "entire file" },
+            { "i", desc = "indent" },
+            { "o", desc = "block, conditional, loop" },
+            { "q", desc = "quote `\"'" },
+            { "t", desc = "tag" },
+            { "u", desc = "use/call" },
+            { "{", desc = "{} block" },
+            { "}", desc = "{} with ws" },
+          }
 
-      require("which-key").register({
-        mode = { "o", "x" },
-        i = i,
-        a = a,
-      })
+          local ret = { mode = { "o", "x" } }
+          ---@type table<string, string>
+          local mappings = vim.tbl_extend("force", {}, {
+            around = "a",
+            inside = "i",
+            around_next = "an",
+            inside_next = "in",
+            around_last = "al",
+            inside_last = "il",
+          }, opts.mappings or {})
+          mappings.goto_left = nil
+          mappings.goto_right = nil
+
+          for name, prefix in pairs(mappings) do
+            name = name:gsub("^around_", ""):gsub("^inside_", "")
+            ret[#ret + 1] = { prefix, group = name }
+            for _, obj in ipairs(objects) do
+              local desc = obj.desc
+              if prefix:sub(1, 1) == "i" then
+                desc = desc:gsub(" with ws", "")
+              end
+              ret[#ret + 1] = { prefix .. obj[1], desc = obj.desc }
+            end
+          end
+          require("which-key").add(ret, { notify = false })
+        end)
+      end)
     end,
   },
 
@@ -139,8 +176,7 @@ return {
   -- mini indentscope (indent guides)
   {
     "echasnovski/mini.indentscope",
-    version = false, -- wait till new 0.7.0 release to put it back on semver
-    -- event = { "BufReadPost", "BufWritePost", "BufNewFile" },
+    version = false,
     event = "LazyFile",
     opts = {
       -- symbol = "▏",
@@ -165,7 +201,6 @@ return {
           "lazygit",
         },
         callback = function()
-          ---@diagnostic disable-next-line: inject-field
           vim.b.miniindentscope_disable = true
         end,
       })

@@ -8,31 +8,17 @@ return {
   keys = {
     {
       "<leader>e",
-      "<cmd>Neotree toggle left<cr>",
-      desc = "Left File Explorer",
+      "<cmd>Neotree toggle<cr>",
+      desc = "File Explorer",
     },
   },
   config = function()
-    -- local icons = require("utils.icons").neotree
+    local utils = require("utils")
     local git_available = vim.fn.executable("git") == 1
-    -- local sources = {
-    --   { source = "filesystem", display_name = icons.folder .. " " .. "Files" },
-    --   { source = "buffers", display_name = icons.buffer .. " " .. "Buffers" },
-    -- }
-    -- if git_available then
-    --   table.insert(sources, 3, { source = "git_status", display_name = icons.git .. " " .. "Git" })
-    -- end
     require("neo-tree").setup({
       close_if_last_window = true,
       popup_border_style = "single",
       enable_git_status = git_available,
-      -- sources = { "filesystem", "buffers", git_available and "git_status" or nil },
-      -- source_selector = {
-      --   winbar = true,
-      --   content_layout = "center",
-      --   -- tabs_layout = "equal",
-      --   sources = sources,
-      -- },
       enable_modified_markers = true,
       enable_diagnostics = true,
       sort_case_insensitive = true,
@@ -57,16 +43,19 @@ return {
             -- ignored = " ",
             -- unstaged = " ",
             -- staged = " ",
-            -- conflict = " ",
+            conflict = " ",
           },
         },
       },
       window = {
-        position = "left",
+        position = "right",
         width = 40,
         mappings = {
-          ["h"] = "prev_source",
-          ["l"] = "next_source",
+          ["h"] = "close_all_subnodes",
+          ["l"] = "expand_all_nodes",
+          ["P"] = { "toggle_preview", config = { use_float = true, use_image_nvim = false } },
+          ["<C-b>"] = { "scroll_preview", config = { direction = 10 } },
+          ["<C-f>"] = { "scroll_preview", config = { direction = -10 } },
         },
       },
       filesystem = {
@@ -87,6 +76,15 @@ return {
       },
       event_handlers = {
         {
+          event = "neo_tree_buffer_enter",
+          handler = function()
+            vim.cmd("setlocal signcolumn=no")
+            if utils.has("nvim-notify") then
+              require("notify").dismiss({ silent = true, pending = true })
+            end
+          end,
+        },
+        {
           event = "neo_tree_window_after_open",
           handler = function(args)
             if args.position == "left" or args.position == "right" then
@@ -103,6 +101,14 @@ return {
           end,
         },
       },
+    })
+    vim.api.nvim_create_autocmd("TermClose", {
+      pattern = "*lazygit",
+      callback = function()
+        if package.loaded["neo-tree.sources.git_status"] then
+          require("neo-tree.sources.git_status").refresh()
+        end
+      end,
     })
   end,
 }

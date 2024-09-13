@@ -6,10 +6,7 @@ return {
     opts = {
       adapters = {
         ["neotest-python"] = {
-          -- Here you can specify the settings for the adapter, i.e.
-          -- runner = {  "pytest",  "unittest" },
           runner = "unittest",
-          -- python = ".venv/bin/python",
         },
       },
       status = { virtual_text = true },
@@ -104,12 +101,4 @@ return {
       { "<leader>tS", function() require("neotest").run.stop() end, desc = "Stop" },
     },
   },
-  -- {
-  --   "mfussenegger/nvim-dap",
-  --   optional = true,
-  --   -- stylua: ignore
-  --   keys = {
-  --     { "<leader>td", function() require("neotest").run.run({strategy = "dap"}) end, desc = "Debug Nearest" },
-  --   },
-  -- },
 }
