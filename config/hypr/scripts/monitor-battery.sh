@@ -9,8 +9,9 @@ BATTERY_SUSPEND=2
 while true
 do
     # Get battery percentage and status using cat
-    battery_level=$(cat /sys/class/power_supply/BAT*/capacity)
-    battery_status=$(cat /sys/class/power_supply/BAT*/status)
+    battery_info=$(acpi -b)
+    battery_level=$(echo "$battery_info" | grep -P -o '[0-9]+(?=%)')
+    battery_status=$(echo "$battery_info" | grep -P -o '(Charging|Discharging)')
     
     if [ "$battery_status" = "Discharging" ]; then
         if [ $battery_level -le $BATTERY_SUSPEND ]; then
