@@ -35,6 +35,11 @@
         "type": "audio-in",
         "tooltip": true,
         "tooltip-icon-size": 12
+      },
+      {
+        "type": "audio-out",
+        "tooltip": true,
+        "tooltip-icon-size": 12
       }
     ]
   },
