@@ -1,14 +1,22 @@
 return {
   "nvim-neo-tree/neo-tree.nvim",
   dependencies = {
-    "nvim-lua/plenary.nvim",
-    "nvim-tree/nvim-web-devicons",
     "MunifTanjim/nui.nvim",
   },
   keys = {
     {
-      "<leader>e",
+      "<leader>E",
       "<cmd>Neotree toggle<cr>",
+      desc = "File Explorer",
+    },
+    {
+      "<leader>e",
+      function()
+        require("neo-tree.command").execute({
+          toggle = true,
+          reveal_force_cwd = true, -- change cwd without asking if needed
+        })
+      end,
       desc = "File Explorer",
     },
   },
@@ -16,6 +24,8 @@ return {
     local utils = require("utils")
     local git_available = vim.fn.executable("git") == 1
     require("neo-tree").setup({
+      open_files_do_not_replace_types = { "terminal", "Trouble", "trouble", "qf", "Outline" },
+      sources = { "filesystem", "buffers", "git_status" },
       close_if_last_window = true,
       popup_border_style = "single",
       enable_git_status = git_available,
@@ -51,6 +61,23 @@ return {
         position = "right",
         width = 40,
         mappings = {
+          ["l"] = "open",
+          ["h"] = "close_node",
+          ["<space>"] = "none",
+          ["Y"] = {
+            function(state)
+              local node = state.tree:get_node()
+              local path = node:get_id()
+              vim.fn.setreg("+", path, "c")
+            end,
+            desc = "Copy Path to Clipboard",
+          },
+          ["O"] = {
+            function(state)
+              require("lazy.util").open(state.tree:get_node().path, { system = true })
+            end,
+            desc = "Open with System Application",
+          },
           ["P"] = { "toggle_preview", config = { use_float = true, use_image_nvim = false } },
           ["<C-b>"] = { "scroll_preview", config = { direction = 10 } },
           ["<C-f>"] = { "scroll_preview", config = { direction = -10 } },
@@ -69,6 +96,9 @@ return {
           never_show = {
             ".DS_Store",
             "thumbs.db",
+          },
+          always_show_by_pattern = {
+            ".zsh*",
           },
         },
       },

@@ -21,7 +21,7 @@ return {
   },
   {
     "akinsho/bufferline.nvim",
-    event = "VeryLazy",
+    event = { "VeryLazy" },
     keys = {
       { "<leader>bp", "<Cmd>BufferLineTogglePin<CR>", desc = "Toggle pin" },
       { "<leader>bP", "<Cmd>BufferLineGroupClose ungrouped<CR>", desc = "Delete non-pinned buffers" },
@@ -63,15 +63,18 @@ return {
       },
     },
     config = function(_, opts)
-      require("which-key").add({
-        { "<leader>bd", icon = { icon = "󰛌 ", color = "red" } },
-        { "<leader>bl", icon = { icon = "󰛌 ", color = "red" } },
-        { "<leader>br", icon = { icon = "󰛌 ", color = "red" } },
-        { "<leader>bo", icon = { icon = "󰛌 ", color = "red" } },
-        { "<leader>bP", icon = { icon = "󰛌 ", color = "red" } },
-        { "<leader>bp", icon = { icon = " ", color = "red" } },
-        { "<leader>bc", icon = { icon = " ", color = "red" } },
-      })
+      local utils = require("utils")
+      utils.on_load("which-key.nvim", function()
+        require("which-key").add({
+          { "<leader>bd", icon = { icon = "󰛌 ", color = "red" } },
+          { "<leader>bl", icon = { icon = "󰛌 ", color = "red" } },
+          { "<leader>br", icon = { icon = "󰛌 ", color = "red" } },
+          { "<leader>bo", icon = { icon = "󰛌 ", color = "red" } },
+          { "<leader>bP", icon = { icon = "󰛌 ", color = "red" } },
+          { "<leader>bp", icon = { icon = " ", color = "red" } },
+          { "<leader>bc", icon = { icon = " ", color = "red" } },
+        })
+      end)
       require("bufferline").setup(opts)
       -- Fix bufferline when restoring a session
       vim.api.nvim_create_autocmd("BufAdd", {

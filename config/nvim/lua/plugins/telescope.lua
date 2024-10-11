@@ -1,11 +1,12 @@
 local utils = require("utils")
+local function get_root()
+  return utils.find_root_directory(0, { ".git", "lua" })
+end
 return {
   "nvim-telescope/telescope.nvim",
   cmd = "Telescope",
-  lazy = true,
   version = false,
   dependencies = {
-    "nvim-lua/plenary.nvim",
     {
       "nvim-telescope/telescope-fzf-native.nvim",
       build = "make",
@@ -18,7 +19,6 @@ return {
         end)
       end,
     },
-    { "nvim-tree/nvim-web-devicons" },
   },
   keys = {
     {
@@ -31,9 +31,20 @@ return {
     {
       "<leader>ff",
       function()
-        require("telescope.builtin").find_files()
+        require("telescope.builtin").find_files({ cwd = get_root() })
       end,
-      desc = "Find Files",
+      desc = "Find Files (root)",
+    },
+    {
+      "<leader>fh",
+      function()
+        require("telescope.builtin").find_files({
+          find_command = { "rg", "--files", "--hidden", "--no-ignore", "-g", "!.git" },
+          cwd = get_root(),
+          prompt_title = "Show all files",
+        })
+      end,
+      desc = "Find Files(hidden)",
     },
     {
       "<leader>sw",
@@ -45,23 +56,41 @@ return {
     {
       "<leader>fg",
       function()
+        require("telescope.builtin").live_grep({ cwd = get_root() })
+      end,
+      desc = "Find by Grep (root)",
+    },
+    {
+      "<leader>fG",
+      function()
         require("telescope.builtin").live_grep()
       end,
       desc = "Find by Grep",
     },
     {
-      "<leader>fR",
+      "<leader>fC",
       function()
         require("telescope.builtin").resume()
       end,
-      desc = "Search Resume",
+      desc = "Search Continue",
+    },
+    {
+      "<leader>fR",
+      function()
+        require("telescope.builtin").oldfiles({ prompt_title = "Recent Files" })
+      end,
+      desc = "Find Recent Files",
     },
     {
       "<leader>fr",
       function()
-        require("telescope.builtin").oldfiles()
+        require("telescope.builtin").oldfiles({
+          only_cwd = true,
+          cwd_only = true,
+          prompt_title = "Recent Files in cwd",
+        })
       end,
-      desc = "Find Recent Files",
+      desc = "Find Recent Files (cwd)",
     },
     { "<leader>fb", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", desc = "Find Buffers" },
     { "<leader>,", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", desc = "Find Buffers" },
@@ -82,7 +111,7 @@ return {
     {
       "<leader>uc",
       function()
-        require("telescope.builtin").colorscheme({ enable_preview = true })
+        require("telescope.builtin").colorscheme({ enable_preview = true, ignore_builtins = true })
       end,
       desc = "colorscheme",
     },
@@ -115,7 +144,6 @@ return {
   },
   config = function()
     local actions = require("telescope.actions")
-    local open_with_trouble = require("trouble.sources.telescope").open
     local action_state = require("telescope.actions.state")
 
     actions.open_in_new_buffer = function(prompt_bufnr)
@@ -148,7 +176,7 @@ return {
         winblend = 0,
         mappings = {
           i = {
-            ["<c-t>"] = open_with_trouble,
+            ["<c-t>"] = require("trouble.sources.telescope").open,
             -- ["<C-f>"] = actions.preview_scrolling_down,
             ["<C-u>"] = actions.preview_scrolling_up,
             ["<C-d>"] = actions.delete_buffer,
@@ -159,7 +187,7 @@ return {
             ["q"] = actions.close,
             ["<C-o>"] = actions.open_in_new_buffer,
             ["<C-d>"] = actions.delete_buffer,
-            ["<C-t>"] = open_with_trouble,
+            ["<C-t>"] = require("trouble.sources.telescope").open,
             ["<C-f>"] = actions.preview_scrolling_down,
             ["<C-b>"] = actions.preview_scrolling_up,
           },

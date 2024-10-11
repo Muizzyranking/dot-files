@@ -5,7 +5,8 @@ return {
   opts = {
     lsp = {
       progress = {
-        enabled = false,
+        enabled = true,
+        view = "mini",
       },
       override = {
         ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
@@ -23,22 +24,35 @@ return {
             { find = "; before #%d+" },
           },
         },
-        views = {
-          cmdline_popup = {
-            border = {
-              style = "none",
-              padding = { 2, 3 },
-            },
-            filter_options = {},
-            win_options = {
-              winhighlight = "NormalFloat:NormalFloat,FloatBorder:FloatBorder",
-            },
-          },
-          mini = {
-            win_options = {
-              winblend = 0,
-            },
-          },
+      },
+      {
+        filter = {
+          event = "notify",
+          find = "No information available",
+        },
+        opts = { skip = true },
+      },
+      {
+        filter = {
+          event = "notify",
+          find = "[Neo-tree INFO] No items, skipping git ignored/status lookups",
+        },
+        opts = { skip = true },
+      },
+    },
+    views = {
+      cmdline_popup = {
+        border = {
+          style = "rounded",
+        },
+        filter_options = {},
+        win_options = {
+          winhighlight = "NormalFloat:NormalFloat,FloatBorder:FloatBorder",
+        },
+      },
+      mini = {
+        win_options = {
+          winblend = 0,
         },
       },
     },

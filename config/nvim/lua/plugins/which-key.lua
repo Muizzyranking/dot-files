@@ -10,10 +10,10 @@ return {
         mode = { "n", "v" },
         { "<leader><tab>", group = "tabs", icon = { icon = "󰭋 ", color = "orange" } },
         { "<leader>/", icon = { icon = "󱆿 " } },
-        { "<leader>ca", icon = { icon = " ", color = "orange" } },
-        { "<leader>cx", icon = { icon = "󱐌 ", color = "red" } },
-        { "<leader>cX", icon = { icon = "󰜺 ", color = "yellow" } },
-        { "<leader>cf", icon = { icon = " ", color = "green" } },
+        { "<leader>a", group = "avante", icon = { icon = "  ", color = "orange", cat = "avante" } },
+        { "<leader>cx", mode = "n", icon = { icon = "󱐌 ", color = "red" } },
+        { "<leader>cX", mode = "n", icon = { icon = "󰜺 ", color = "yellow" } },
+        { "<leader>cf", mode = "n", icon = { icon = " ", color = "green" } },
         { "<leader>j", icon = { icon = "󰆑 " } },
         { "<leader>d", icon = { icon = "󰛌 " } },
         { "<leader>c", group = "code" },
@@ -43,6 +43,51 @@ return {
         },
         -- better descriptions
         { "gx", desc = "Open with system app" },
+        {
+          "<leader>ud",
+          icon = function()
+            return vim.diagnostic.is_disabled() and { icon = " ", color = "yellow" }
+              or { icon = " ", color = "green" }
+          end,
+        },
+        {
+          "<leader>us",
+          icon = function()
+            return vim.wo.spell and { icon = " ", color = "green" } or { icon = " ", color = "yellow" }
+          end,
+        },
+        {
+          "<leader>uf",
+          icon = function()
+            return vim.g.disable_autoformat and { icon = " ", color = "yellow" }
+              or { icon = " ", color = "green" }
+          end,
+        },
+        {
+          "<leader>uF",
+          icon = function()
+            return vim.b.disable_autoformat and { icon = " ", color = "yellow" }
+              or { icon = " ", color = "green" }
+          end,
+        },
+        {
+          "<leader>uT",
+          icon = function()
+            return vim.b.ts_highlight and { icon = " ", color = "green" } or { icon = " ", color = "yellow" }
+          end,
+        },
+        {
+          "<leader>uw",
+          icon = function()
+            return vim.opt.wrap:get() and { icon = " ", color = "green" } or { icon = " ", color = "yellow" }
+          end,
+        },
+        {
+          "<leader>up",
+          icon = function()
+            return vim.g.minipairs_disable and { icon = " ", color = "yellow" } or { icon = " ", color = "green" }
+          end,
+        },
       },
     },
   },
@@ -52,6 +97,7 @@ return {
       function()
         require("which-key").show({ global = false })
       end,
+      -- icon = { icon = " ", color = "orange" },
       desc = "Buffer Keymaps (which-key)",
     },
   },
@@ -66,5 +112,6 @@ return {
         { "<leader>gb", icon = { icon = " " } },
       })
     end
+    wk.add({})
   end,
 }
