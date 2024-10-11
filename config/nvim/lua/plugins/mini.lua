@@ -58,7 +58,7 @@ return {
         else
           notify.info("Mini Pairs enabled", { title = "Mini Pairs" })
         end
-      end, {})
+      end, { desc = "Toggle Mini Pairs" })
 
       -- Load the mini.pairs plugin with the given options
       local pairs = require("mini.pairs")
@@ -130,7 +130,6 @@ return {
     "echasnovski/mini.ai",
     event = "VeryLazy",
     dependencies = {
-      "nvim-treesitter/nvim-treesitter",
       "nvim-treesitter/nvim-treesitter-textobjects",
     },
     opts = function()
@@ -300,7 +299,7 @@ return {
   {
     "echasnovski/mini.animate",
     event = "VeryLazy",
-    -- enabled = false,
+    enabled = not vim.g.neovide,
     opts = function()
       -- don't use animate when scrolling with the mouse
       local mouse_scrolled = false
@@ -311,6 +310,13 @@ return {
           return key
         end, { expr = true })
       end
+
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "grug-far",
+        callback = function()
+          vim.b.minianimate_disable = true
+        end,
+      })
 
       local animate = require("mini.animate")
       return {

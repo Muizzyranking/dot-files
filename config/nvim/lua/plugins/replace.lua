@@ -28,7 +28,7 @@ return {
             prefills = { search = vim.fn.expand("<cword>") },
           })
         end,
-        desc = "Search and Replace",
+        desc = "Search and Replace word under cursor",
       },
       {
         "<leader>sf",
@@ -39,7 +39,7 @@ return {
             prefills = { paths = vim.fn.expand("%") },
           })
         end,
-        desc = "Search and Replace",
+        desc = "Search and Replace (in current file)",
       },
     },
   },

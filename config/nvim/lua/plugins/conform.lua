@@ -1,3 +1,13 @@
+local lsp_utils = require("utils.lsp")
+
+local function js_fmt(bufnr)
+  local ok, clients = pcall(lsp_utils.get_clients, { name = "eslint", bufnr = bufnr })
+  if ok and #clients > 0 then
+    return {} -- ESLint is attached, so return nil (no additional formatter)
+  end
+  return { "prettierd", "prettier" } -- ESLint not found, use Prettier
+end
+
 return {
   "stevearc/conform.nvim",
   event = "BufWritePre",
@@ -6,7 +16,7 @@ return {
     {
       "<leader>cf",
       function()
-            require("conform").format({ async = true, lsp_fallback = true })
+        require("conform").format({ async = true, lsp_fallback = true })
       end,
       mode = "n",
       desc = "Format buffer",
@@ -19,12 +29,12 @@ return {
       if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
         return
       end
-      return { timeout_ms = 500, lsp_fallback = true }
+      return { timeout_ms = 2500, lsp_fallback = true }
     end,
     formatters = {
       djlint = {
         command = "djlint",
-        args = function(ctx)
+        args = function()
           return {
             "--reformat",
             "-",
@@ -33,15 +43,15 @@ return {
           }
         end,
       },
-      ["sql-formatter"] = {
-        command = "/home/muizzyranking/.local/share/nvim/mason/bin/sql-formatter",
+      sqlfluff = {
+        args = { "format", "--dialect=ansi", "-" },
       },
     },
     formatters_by_ft = {
-      ["javascript"] = { "prettierd", "prettier" },
-      ["javascriptreact"] = { "prettierd", "prettier" },
-      ["typescript"] = { "prettierd", "prettier" },
-      ["typescriptreact"] = { "prettierd", "prettier" },
+      ["javascript"] = js_fmt,
+      ["javascriptreact"] = js_fmt,
+      ["typescript"] = js_fmt,
+      ["typescriptreact"] = js_fmt,
       ["vue"] = { "prettierd", "prettier" },
       ["css"] = { "prettierd", "prettier" },
       ["scss"] = { "prettierd", "prettier" },
@@ -50,19 +60,15 @@ return {
       ["json"] = { "jq" },
       ["jsonc"] = { "jq" },
       ["yaml"] = { "prettierd", "prettier" },
-      ["markdown"] = { "prettierd", "prettier" },
-      ["markdown.mdx"] = { "prettierd", "prettier" },
-      ["graphql"] = { "prettierd", "prettier" },
-      ["handlebars"] = { "prettierd", "prettier" },
-
       ["htmldjango"] = { "djlint" },
       ["bash"] = { "shfmt" },
       ["sh"] = { "shfmt" },
-
-      ["sql"] = { "sql-formatter" },
       ["python"] = { "autopep8" },
       -- ["python"] = { "black" },
       ["lua"] = { "stylua" },
+      ["sql"] = { "sqlfluff" },
+      ["mysql"] = { "sqlfluff" },
+      ["plsql"] = { "sqlfluff" },
     },
   },
 }

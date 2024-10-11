@@ -1,6 +1,8 @@
 local notify = require("utils.notify")
 return { -- Autocompletion
-  "hrsh7th/nvim-cmp",
+  -- "hrsh7th/nvim-cmp",
+  "iguanacucumber/magazine.nvim",
+  name = "nvim-cmp",
   event = "InsertEnter",
   dependencies = {
     {
@@ -13,7 +15,6 @@ return { -- Autocompletion
     "hrsh7th/cmp-nvim-lsp",
     "hrsh7th/cmp-path",
     "hrsh7th/cmp-buffer",
-    "zbirenbaum/copilot-cmp",
   },
   keys = {
     {
@@ -35,11 +36,10 @@ return { -- Autocompletion
       mode = { "i", "s" },
     },
   },
-  config = function()
+  opts = function()
     vim.api.nvim_set_hl(0, "CmpGhostText", { link = "Comment", default = true })
     local cmp = require("cmp")
-    -- local defaults = require("cmp.config.default")()
-    cmp.setup({
+    return {
       snippet = {
         expand = function(args)
           local snippet = args.body
@@ -83,9 +83,9 @@ return { -- Autocompletion
             -- Notify the user
             notify[ok and "warn" or "error"](
               ([[%s
-                ```%s
-                %s
-                ```]]):format(msg, vim.bo.filetype, snippet),
+                  ```%s
+                  %s
+                  ```]]):format(msg, vim.bo.filetype, snippet),
               { title = "vim.snippet" }
             )
           end
@@ -99,19 +99,18 @@ return { -- Autocompletion
       completion = {
         completeopt = "menu,menuone,noinsert",
       },
+      auto_bracket = {
+        "python",
+      },
       mapping = cmp.mapping.preset.insert({
         ["<C-n>"] = cmp.mapping.select_next_item(),
         ["<C-p>"] = cmp.mapping.select_prev_item(),
+        ["<C-a>"] = cmp.mapping.abort(),
         ["<Cr>"] = cmp.mapping.confirm({ select = true }),
         ["<C-y>"] = cmp.mapping.complete(),
         ["<C-Tab>"] = cmp.mapping.complete({}),
       }),
       sources = {
-        {
-          name = "copilot",
-          group_index = 1,
-          priority = 100,
-        },
         { name = "nvim_lsp" },
         { name = "path" },
         { name = "buffer" },
@@ -130,7 +129,6 @@ return { -- Autocompletion
           max_height = 12,
         },
       },
-      auto_bracket = {},
       experimental = {
         ghost_text = {
           hl_group = "CmpGhostText",
@@ -173,6 +171,6 @@ return { -- Autocompletion
         end,
         fields = { "kind", "abbr", "menu" },
       },
-    })
+    }
   end,
 }
