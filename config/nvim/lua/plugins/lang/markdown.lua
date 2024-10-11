@@ -21,7 +21,7 @@ return {
     "OXY2DEV/markview.nvim",
     ft = { "markdown", "norg", "rmd", "org" },
     opts = {
-      checkboxes = { enable = false },
+      -- checkboxes = { enable = true },
       links = {
         inline_links = {
           hl = "@markup.link.label.markown_inline",
@@ -37,15 +37,16 @@ return {
       code_blocks = {
         style = "minimal",
         pad_amount = 0,
+        hl = "CursorLine",
       },
-      list_items = {
-        shift_width = 2,
-        marker_minus = { text = "●", hl = "@markup.list.markdown" },
-        marker_plus = { text = "●", hl = "@markup.list.markdown" },
-        marker_star = { text = "●", hl = "@markup.list.markdown" },
-        marker_dot = {},
-      },
-      inline_codes = { enable = false },
+      -- list_items = {
+      --   shift_width = 2,
+      --   marker_minus = { text = "●", hl = "@markup.list.markdown" },
+      --   marker_plus = { text = "●", hl = "@markup.list.markdown" },
+      --   marker_star = { text = "●", hl = "@markup.list.markdown" },
+      --   marker_dot = {},
+      -- },
+      -- inline_codes = { enable = false },
       headings = {
         heading_1 = {
           hl = "@markup.heading.1.markdown",
