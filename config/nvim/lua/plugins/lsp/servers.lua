@@ -98,6 +98,25 @@ M.lsp = {
           variableTypes = { enabled = false },
         },
       },
+      javascript = {
+        updateImportsOnFileMove = { enabled = "always" },
+        experimental = {
+          completion = {
+            enableServerSideFuzzyMatch = true,
+          },
+        },
+        suggest = {
+          completeFunctionCalls = true,
+        },
+        inlayHints = {
+          enumMemberValues = { enabled = true },
+          functionLikeReturnTypes = { enabled = true },
+          parameterNames = { enabled = "literals" },
+          parameterTypes = { enabled = true },
+          propertyDeclarationTypes = { enabled = true },
+          variableTypes = { enabled = false },
+        },
+      },
     },
     keys = {
       {
@@ -204,13 +223,13 @@ M.fts_n_linters = {
   "autopep8",
   "prettier",
   "prettierd",
-  "sql-formatter",
   "flake8",
   "shellcheck",
   "shfmt",
   "jsonlint",
   "eslint_d",
   "djlint",
+  "sqlfluff",
   -- "markdownlint",
 }
 
