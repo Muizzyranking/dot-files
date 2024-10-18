@@ -28,14 +28,31 @@ return {
         header = vim.split(logo, "\n"),
         center = {
           {
-            action = require("utils.keys").new_file,
+            action = function()
+              require("utils.keys").new_file()
+            end,
             desc = " New file",
             icon = " ",
             key = "n",
           },
           {
-            action = "Telescope oldfiles",
+            -- action = "Telescope oldfiles",
+            action = function()
+              require("telescope.builtin").oldfiles({ prompt_title = "Recent Files" })
+            end,
             desc = " Recent files",
+            icon = " ",
+            key = "R",
+          },
+          {
+            -- action = "Telescope oldfiles",
+            action = function()
+              require("telescope.builtin").oldfiles({
+                prompt_title = "Recent Files in current working directory",
+                cwd_only = true,
+              })
+            end,
+            desc = " Recent files (cwd)",
             icon = " ",
             key = "r",
           },
@@ -53,7 +70,10 @@ return {
           },
           {
             action = function()
-              require("telescope.builtin").find_files({ cwd = vim.fn.stdpath("config") })
+              require("telescope.builtin").find_files({
+                cwd = vim.fn.stdpath("config"),
+                prompt_title = "Config Files",
+              })
             end,
             desc = " Config",
             icon = " ",
