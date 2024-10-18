@@ -11,20 +11,18 @@ return {
     end
   end,
   config = function()
-    local utils = require("utils.lualine.utils")
     local lsp_utils = require("utils.lsp")
-    local custom_lualine = require("utils.lualine")
-    local extension = require("utils.lualine.extensions")
-    local file_name = custom_lualine.file
     local lualine = require("lualine")
     local icons = require("utils.icons")
+    local custom_lualine = require("utils.lualine")
+    local utils = require("utils.lualine.utils")
+    local get_telescope_prompt = utils.get_telescope_prompt
+    local get_telescope_num = utils.get_telescope_num
+    local file_name = custom_lualine.file
     local mode = custom_lualine.mode
     local lsp = custom_lualine.lsp
     local formatters = custom_lualine.formatters
     local root = custom_lualine.root_dir
-    local runner = require("utils.runner")
-    local terminal = require("utils.terminal")
-    local git = require("utils.git")
     local colors = {
       [""] = utils.fg("Special"),
       ["Normal"] = utils.fg("Special"),
@@ -172,10 +170,16 @@ return {
       winbar = {},
       inactive_winbar = {},
       extensions = {
-        extension.telescope(),
-        git.lualine,
-        terminal.lualine,
-        runner.lualine,
+        {
+          sections = {
+            lualine_a = { get_telescope_prompt },
+            lualine_b = { get_telescope_num },
+          },
+          filetypes = { "TelescopePrompt" },
+        },
+        require("utils.git").lualine,
+        require("utils.terminal").lualine,
+        require("utils.runner").lualine,
         "oil",
         "neo-tree",
         "lazy",

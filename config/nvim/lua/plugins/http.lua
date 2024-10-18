@@ -8,22 +8,23 @@ return {
     "mistweaverco/kulala.nvim",
     ft = "http",
     keys = {
-      { "<leader>Rs", "<cmd>lua require('kulala').run()<cr>", desc = "Send the request" },
-      { "<leader>Rt", "<cmd>lua require('kulala').toggle_view()<cr>", desc = "Toggle headers/body" },
-      { "<leader>Rp", "<cmd>lua require('kulala').jump_prev()<cr>", desc = "Jump to previous request" },
-      { "<leader>Rn", "<cmd>lua require('kulala').jump_next()<cr>", desc = "Jump to next request" },
+      { "]r", "<cmd>lua require('kulala').run()<cr>", desc = "Send the request", ft = "http" },
+      { "[r", "<cmd>lua require('kulala').run()<cr>", desc = "Send the request", ft = "http" },
+      { "<leader>Rs", "<cmd>lua require('kulala').run()<cr>", desc = "Send the request", ft = "http" },
+      { "<leader>Rt", "<cmd>lua require('kulala').toggle_view()<cr>", desc = "Toggle headers/body", ft = "http" },
+      { "<leader>Rp", "<cmd>lua require('kulala').jump_prev()<cr>", desc = "Jump to previous request", ft = "http" },
+      { "<leader>Rn", "<cmd>lua require('kulala').jump_next()<cr>", desc = "Jump to next request", ft = "http" },
     },
-    opts = {},
-    config = function()
-      require("kulala").setup({
-        icons = {
-          inlay = {
-            loading = " ",
-            done = " ",
-            error = " ",
-          },
+    opts = {
+      default_view = "headers_body",
+      winbar = true,
+      icons = {
+        inlay = {
+          loading = " ",
+          done = " ",
+          error = " ",
         },
-      })
-    end,
+      },
+    },
   },
 }
