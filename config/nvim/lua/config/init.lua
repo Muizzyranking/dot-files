@@ -4,8 +4,8 @@
 local modules = {
   "options",
   "keymaps",
-  "autocmd",
   "lazy",
+  "autocmd",
   "abbrevations",
 }
 
@@ -63,4 +63,5 @@ end
 ------------------------------
 -- Set the colorscheme
 ------------------------------
-vim.cmd("colorscheme rose-pine")
+local colorscheme = vim.g.colorscheme
+vim.cmd("colorscheme " .. colorscheme)

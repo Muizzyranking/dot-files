@@ -4,7 +4,8 @@ local utils = require("utils")
 local notify = require("utils.notify")
 
 vim.highlight.priorities.semantic_tokens = 95
-vim.g.netrw_browsex_viewer = "google-chrome"
+vim.g.netrw_browsex_viewer = os.getenv("BROWSER")
+-- vim.g.colorscheme = "rose-pine"
 
 -----------------------------------------------------------
 -- General
@@ -23,6 +24,7 @@ opt.signcolumn = "yes" -- Keep signcolumn on by default
 opt.scrolloff = 4 -- Minimal number of screen lines to keep above and below the cursor
 opt.sidescrolloff = 8
 opt.confirm = true -- Confirm before quitting unsaved buffers
+
 -----------------------------------------------------------
 -- UI
 -----------------------------------------------------------
@@ -43,11 +45,13 @@ opt.fillchars = {
   eob = " ",
 }
 opt.wrap = false -- Disable line wrapping
--- smooth scrolling available in neovim >= 0.10.0
-if vim.fn.has("nvim-0.10") == 1 then
-  opt.smoothscroll = true -- Smooth scrolling
-end
+opt.smoothscroll = true -- Smooth scrolling
 
+if vim.g.neovide then
+  vim.g.neovide_transparency = 1
+  vim.g.transparency = 0.8
+  vim.g.neovide_window_blurred = true
+end
 -----------------------------------------------------------
 -- Undo and Backup
 -----------------------------------------------------------
@@ -61,7 +65,7 @@ opt.undofile = true
 opt.foldlevel = 99
 opt.foldmethod = "expr"
 opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-opt.foldtext = "v:lua.require('utils.ui').get_foldtext()"
+opt.foldtext = ""
 vim.g.markdown_folding = 1 -- Enable markdown folding
 
 -----------------------------------------------------------

@@ -4,7 +4,13 @@ end
 
 local create_autocmd = vim.api.nvim_create_autocmd
 local notify = require("utils.notify")
-local utils = require("utils")
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "oil",
+  callback = function()
+    require("cmp").setup.buffer({ enabled = false })
+  end,
+})
 
 -----------------------------------------------------------
 -- Reload config files on save
@@ -102,6 +108,7 @@ create_autocmd("FileType", {
     "Telescope",
     "telescope",
     "grug-far",
+    "AvanteInput",
   },
   callback = function(event)
     vim.bo[event.buf].buflisted = false
@@ -212,24 +219,13 @@ create_autocmd({ "BufLeave", "FocusLost", "InsertEnter", "WinLeave" }, {
 })
 
 -----------------------------------------------------------
--- auto update buffer when idle without formatting
+-- Check if we need to reload the file when it changed
 -----------------------------------------------------------
-vim.api.nvim_create_autocmd({ "BufLeave", "FocusLost", "InsertEnter", "WinLeave" }, {
-  group = augroup("auto save"),
+create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
+  group = augroup("checktime"),
   callback = function()
-    -- Check if the buffer is modifiable and not readonly
-    if vim.bo.modifiable and not vim.bo.readonly then
-      -- Save the current formatting options
-      local formatoptions = vim.bo.formatoptions
-
-      -- Temporarily disable auto-formatting
-      vim.bo.formatoptions = formatoptions:gsub("a", "")
-
-      -- Update the buffer
-      vim.cmd("silent! update")
-
-      -- Restore the original formatting options
-      vim.bo.formatoptions = formatoptions
+    if vim.o.buftype ~= "nofile" then
+      vim.cmd("checktime")
     end
   end,
 })

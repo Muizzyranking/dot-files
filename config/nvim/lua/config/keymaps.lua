@@ -8,6 +8,18 @@ local set = vim.keymap.set
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
+-- vim.keymap.set("n", "z=", function()
+--   local word = vim.fn.expand("<cword>")
+--   local suggestions = vim.fn.spellsuggest(word)
+--
+--   local choice = require("lacasitos").choose_option(suggestions)
+--
+--   -- Replace the word with the selected suggestion if there is a choice
+--   if choice then
+--     vim.cmd.normal({ args = { "ciw" .. choice }, bang = true })
+--   end
+-- end)
+
 ------------------------
 -- moving chunks of text/code
 ------------------------
@@ -21,9 +33,8 @@ set("v", "<A-k>", ":m '<-2<cr>gv=gv", { desc = "Move Up" })
 ------------------------
 -- navigation
 ------------------------
-set({ "n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+set({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 set({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
-set({ "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 set({ "n" }, "<C-h>", "<C-w>h", { desc = "Go to left window", remap = true })
 set({ "n" }, "<C-j>", "<C-w>j", { desc = "Go to lower window", remap = true })
 set({ "n" }, "<C-k>", "<C-w>k", { desc = "Go to upper window", remap = true })
@@ -87,7 +98,8 @@ set("n", "<BS>", '"_ciw', { desc = "Change inner word" }) -- change word
 if utils.is_in_tmux() then
   set({ "i", "c" }, "", "", { desc = "Delete word" }) -- delete word with <c-bs>
 else
-  set({ "i", "c" }, "<C-BS>", "", { desc = "Delete word" }) -- delete word with <c-bs>
+  -- set({ "i", "c" }, "<C-BS>", "", { desc = "Delete word" }) -- delete word with <c-bs>
+  set({ "i", "c" }, "<C-BS>", "<c-w>", { desc = "Delete word" }) -- delete word with <c-bs>
 end
 
 set({ "n", "v", "x" }, "x", '"_x') -- delete text without yanking
@@ -104,6 +116,8 @@ set({ "v", "x" }, "P", '"_dp')
 set({ "n", "v", "x" }, "c", '"_c')
 set({ "n" }, "ciw", '"_ciw')
 set({ "n" }, "C", '"_C')
+set("n", "<leader>/", "gcc", { remap = true, desc = "Comment line" })
+set({ "v", "x" }, "<leader>/", "gc", { remap = true, desc = "Comment line" })
 
 ------------------------
 -- miscellaneous
@@ -121,8 +135,10 @@ end, { desc = "Toggle Autoformat (Buffer)" })
 set("n", "<leader>uT", function()
   if vim.b.ts_highlight then
     vim.treesitter.stop()
+    notify.warn("Treesitter Highlight disabled", { title = "Options" })
   else
     vim.treesitter.start()
+    notify.info("Treesitter Highlight enabled", { title = "Options" })
   end
 end, { desc = "Toggle Treesitter Highlight" })
 set("n", "<leader>j", function()
@@ -131,7 +147,7 @@ end, { desc = "Duplicate Line" })
 set("v", "<leader>j", function()
   key.duplicate_selection()
 end, { desc = "Duplicate selection" })
-set({ "n", "i", "t" }, "<C-_>", terminal, { noremap = true, silent = true, desc = "Toggle Terminal" })
+-- set({ "n", "i", "t" }, "<C-_>", terminal, { noremap = true, silent = true, desc = "Toggle Terminal" })
 set({ "n", "i", "t" }, "<F7>", terminal, { noremap = true, silent = true, desc = "Toggle Terminal" })
 
 ------------------------
