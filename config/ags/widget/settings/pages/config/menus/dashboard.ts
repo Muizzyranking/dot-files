@@ -16,7 +16,12 @@ export const DashboardMenuSettings = (): Scrollable<Child, Attribute> => {
             vertical: true,
             children: [
                 Header('Power Menu'),
-                Option({ opt: options.menus.dashboard.powermenu.avatar.image, title: 'Profile Image', type: 'img' }),
+                Option({
+                    opt: options.menus.dashboard.powermenu.avatar.image,
+                    title: 'Profile Image',
+                    type: 'img',
+                    subtitle: "By default, uses '~/.face.icon'",
+                }),
                 Option({
                     opt: options.menus.dashboard.powermenu.avatar.name,
                     title: 'Profile Name',
@@ -44,15 +49,28 @@ export const DashboardMenuSettings = (): Scrollable<Child, Attribute> => {
                 Option({ opt: options.menus.dashboard.powermenu.logout, title: 'Logout Command', type: 'string' }),
                 Option({ opt: options.menus.dashboard.powermenu.sleep, title: 'Sleep Command', type: 'string' }),
 
+                Header('Controls'),
+                Option({ opt: options.menus.dashboard.controls.enabled, title: 'Enabled', type: 'boolean' }),
+
                 Header('Resource Usage Metrics'),
+                Option({ opt: options.menus.dashboard.stats.enabled, title: 'Enabled', type: 'boolean' }),
                 Option({
                     opt: options.menus.dashboard.stats.enable_gpu,
                     title: 'Track GPU',
                     subtitle: "NOTE: This is currently only available for NVidia GPUs and requires 'python-gpustat'.",
                     type: 'boolean',
                 }),
+                Option({
+                    opt: options.menus.dashboard.stats.interval,
+                    title: 'Update Interval',
+                    subtitle: 'The frequency at which to poll system metrics.',
+                    type: 'number',
+                    min: 100,
+                    increment: 500,
+                }),
 
                 Header('Shortcuts'),
+                Option({ opt: options.menus.dashboard.shortcuts.enabled, title: 'Enabled', type: 'boolean' }),
                 Option({
                     opt: options.menus.dashboard.shortcuts.left.shortcut1.icon,
                     title: 'Left - Shortcut 1 (Icon)',
@@ -145,6 +163,7 @@ export const DashboardMenuSettings = (): Scrollable<Child, Attribute> => {
                 }),
 
                 Header('Directories'),
+                Option({ opt: options.menus.dashboard.directories.enabled, title: 'Enabled', type: 'boolean' }),
                 Option({
                     opt: options.menus.dashboard.directories.left.directory1.label,
                     title: 'Left - Directory 1 (Label)',
