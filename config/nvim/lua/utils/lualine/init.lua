@@ -15,13 +15,14 @@ M.file = {
     local name = (path == "" and "Empty ") or path:match("([^/\\]+)[/\\]*$")
 
     if name ~= "Empty " then
-      local devicons_present, devicons = pcall(require, "nvim-web-devicons")
+      local mini_icon_ok, MiniIcons = pcall(require, "mini.icons")
 
-      if devicons_present then
-        local ft_icon = devicons.get_icon(name)
-        icon = (ft_icon ~= nil and ft_icon) or icon
+      if mini_icon_ok then
+        local icon_name = MiniIcons.get("file", name)
+        icon = (icon_name ~= nil and icon_name) or icon
       end
     end
+
     local file_state_icon = vim.bo.modified and "●" or "◯"
     return icon .. " " .. name .. " " .. file_state_icon
   end,
@@ -87,7 +88,6 @@ M.lsp = {
 ------------------------------------------------------------------------------
 M.formatters = {
   function()
-    local fallback_icon = icons.formatters.fallback
     if not package.loaded["conform"] then
       return ""
     else
