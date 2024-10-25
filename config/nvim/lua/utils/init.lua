@@ -150,13 +150,16 @@ function M.find_root_directory(buf, patterns)
     path = vim.uv.fs_realpath(path) or path
 
     -- Normalize the path (expand ~, replace backslashes, and remove trailing slash)
+    ---@diagnostic disable-next-line: param-type-mismatch
     if path:sub(1, 1) == "~" then
       local home = vim.uv.os_homedir()
       if home:sub(-1) == "\\" or home:sub(-1) == "/" then
         home = home:sub(1, -2)
       end
+      ---@diagnostic disable-next-line: param-type-mismatch
       path = home .. path:sub(2)
     end
+    ---@diagnostic disable-next-line: param-type-mismatch
     path = path:gsub("\\", "/"):gsub("/+", "/")
     if path:sub(-1) == "/" then
       path = path:sub(1, -2)

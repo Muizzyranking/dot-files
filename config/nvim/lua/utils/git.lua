@@ -12,6 +12,10 @@ function M.lazygit(args)
     notify.warn("Not in a git repository, must be in a git repo", { title = "LazyGit" })
     return
   end
+  if not utils.is_executable("lazygit") then
+    notify.error("LazyGit is not installed", { title = "LazyGit" })
+    return
+  end
   local cmd = { "lazygit", unpack(args or {}) }
   local opts = {
     width = 0.95,
