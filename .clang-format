@@ -4,4 +4,3 @@ UseTab: Always # For tab indentation
 ColumnLimit: 80
 
 BreakBeforeBraces: Allman # This is the key setting for Allman style
-
