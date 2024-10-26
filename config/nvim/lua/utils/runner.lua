@@ -45,12 +45,8 @@ end
 ---------------------------------------------------------------
 local function create_hidden_output_dir(dir)
   local output_dir = dir .. "/.coderunner"
-  local success, error_msg = pcall(function()
+  if vim.fn.isdirectory(output_dir) == 0 then
     vim.fn.mkdir(output_dir, "p")
-  end)
-  if not success then
-    notify.error("Failed to create output directory: " .. error_msg, { title = "CodeRunner" })
-    return nil
   end
   return output_dir
 end
@@ -242,13 +238,20 @@ function M.show_last_output()
     local buf = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, M.last_output)
 
-    utils.create_float_window(buf, opts)
+    local win = utils.create_float_window(buf, opts)
     vim.bo[buf].filetype = opts.filetype
+
+    vim.schedule(function()
+      if vim.api.nvim_buf_is_valid(buf) then
+        local line_count = vim.api.nvim_buf_line_count(buf)
+        vim.api.nvim_win_set_cursor(win, { line_count, 0 })
+      end
+    end)
 
     vim.api.nvim_buf_set_option(buf, "modifiable", false)
     vim.api.nvim_buf_set_keymap(buf, "n", "q", ":close<CR>", { noremap = true, silent = true })
   else
-    print("No previous output to show")
+    notify.info("No previous output to show", { title = "CodeRunner" })
   end
 end
 
@@ -270,22 +273,24 @@ function M.setup(lang)
     notify.error(lang .. " is not installed", { title = "CodeRunner" })
     return
   end
+  local lacasitos = require("lacasitos")
+  local choice = lacasitos.choose_option(options)
 
-  vim.ui.select(options, { prompt = "Select command:" }, function(choice)
-    if choice == "Run file" then
-      M.run_file(lang)
-    elseif choice == "Run file(with args)" then
-      M.run_file(lang, true)
-    elseif choice == "Run program" then
-      M.run_program(lang)
-    elseif choice == "Run program (with args)" then
-      M.run_program(lang)
-    elseif choice == "Redo last command" then
-      M.redo_last_command()
-    elseif choice == "Show last output" then
-      M.show_last_output()
-    end
-  end)
+  -- vim.ui.select(options, { prompt = "Select command:" }, function(choice)
+  if choice == "Run file" then
+    M.run_file(lang)
+  elseif choice == "Run file(with args)" then
+    M.run_file(lang, true)
+  elseif choice == "Run program" then
+    M.run_program(lang)
+  elseif choice == "Run program (with args)" then
+    M.run_program(lang)
+  elseif choice == "Redo last command" then
+    M.redo_last_command()
+  elseif choice == "Show last output" then
+    M.show_last_output()
+  end
+  -- end)
 end
 
 ---------------------------------------------------------------

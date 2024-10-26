@@ -1,6 +1,5 @@
 local M = {}
 local utils = require("utils")
-local bufremove = require("utils.keys").bufremove
 
 ---------------------------------------------------------------
 --- Creates a floating terminal window
@@ -41,6 +40,7 @@ function M.create_float_term(cmd, opts)
           vim.api.nvim_buf_delete(buf, { force = true })
         end
       end
+      vim.api.nvim_input("<C-\\><C-n>")
     end,
   })
 
@@ -60,19 +60,14 @@ function M.create_float_term(cmd, opts)
   map({ "n", "t" }, "<c-k>", "<c-k>")
   map({ "n", "t" }, "<c-l>", "<c-l>")
 
-  if opts.close_cmd then
-    if type(opts.close_cmd) == "function" then
-      map({ "n" }, "q", function()
-        opts.close_cmd()
-      end)
-    else
-      map({ "n" }, "q", opts.close_cmd)
+  map("n", "q", function()
+    if vim.api.nvim_win_is_valid(win) then
+      vim.api.nvim_win_close(win, true)
     end
-  else
-    vim.keymap.set("n", "q", function()
-      bufremove(buf)
-    end)
-  end
+    if vim.api.nvim_buf_is_valid(buf) then
+      vim.api.nvim_buf_delete(buf, { force = true })
+    end
+  end)
   vim.cmd("startinsert")
   return buf, win
 end
@@ -105,7 +100,7 @@ function M.float_term(cmd)
       vim.cmd("startinsert")
       if cmd then
         vim.schedule(function()
-          vim.api.nvim_chan_send(vim.bo[utils.term_buf].channel, cmd .. "\n")
+          vim.api.nvim_chan_send(vim.bo[M.term_buf].channel, cmd .. "\n")
         end)
       end
     else
@@ -113,7 +108,7 @@ function M.float_term(cmd)
       M.term_buf, M.term_win = M.create_float_term(vim.o.shell, opts)
       if cmd then
         vim.defer_fn(function()
-          vim.api.nvim_chan_send(vim.bo[utils.term_buf].channel, cmd .. "\n")
+          vim.api.nvim_chan_send(vim.bo[M.term_buf].channel, cmd .. "\n")
         end, 100)
       end
     end
