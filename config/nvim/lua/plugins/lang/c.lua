@@ -30,6 +30,61 @@ return {
     },
   },
   {
+    "neovim/nvim-lspconfig",
+    opts = {
+      servers = {
+        clangd = {
+          root_dir = function(fname)
+            return require("lspconfig.util").root_pattern(
+              "Makefile",
+              "configure.ac",
+              "configure.in",
+              "config.h.in",
+              "meson.build",
+              "meson_options.txt",
+              "build.ninja"
+            )(fname) or require("lspconfig.util").root_pattern("compile_commands.json", "compile_flags.txt")(
+              fname
+            ) or require("lspconfig.util").find_git_ancestor(fname)
+          end,
+          capabilities = {
+            offsetEncoding = { "utf-16" },
+          },
+          cmd = {
+            "clangd",
+            "--background-index",
+            "--clang-tidy",
+            "--header-insertion=iwyu",
+            "--completion-style=detailed",
+            "--function-arg-placeholders",
+            "--fallback-style=llvm",
+            "--offset-encoding=utf-16",
+          },
+          init_options = {
+            usePlaceholders = true,
+            completeUnimported = true,
+            clangdFileStatus = true,
+          },
+        },
+      },
+      setup = {
+        clangd = function(_, opts)
+          if Utils.has("clangd_extensions.nvim") then
+            local clangd_ext_opts = Utils.opts("clangd_extensions.nvim")
+            require("clangd_extensions").setup(vim.tbl_deep_extend("force", clangd_ext_opts or {}, { server = opts }))
+            return false
+          end
+        end,
+      },
+    },
+  },
+  {
+    "nvim-cmp",
+    opts = function(_, opts)
+      table.insert(opts.sorting.comparators, 1, require("clangd_extensions.cmp_scores"))
+    end,
+  },
+  {
     "dense-analysis/ale",
     ft = { "c", "h" },
     dependencies = {

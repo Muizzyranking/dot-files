@@ -3,28 +3,32 @@ return {
     "neovim/nvim-lspconfig",
     opts = {
       servers = {
-        sqlls = {},
+        bashls = {
+          filetypes = { "sh", "bash" },
+        },
       },
     },
   },
   {
     "williamboman/mason.nvim",
     opts = {
-      ensure_installed = { "sqlfluff" },
+      ensure_installed = { "shfmt" },
     },
   },
   {
     "stevearc/conform.nvim",
     opts = {
-      formatters = {
-        sqlfluff = {
-          args = { "format", "--dialect=ansi", "-" },
-        },
-      },
       formatters_by_ft = {
-        ["sql"] = { "sqlfluff" },
-        ["mysql"] = { "sqlfluff" },
-        ["plsql"] = { "sqlfluff" },
+        ["bash"] = { "shfmt" },
+        ["sh"] = { "shfmt" },
+      },
+    },
+  },
+  {
+    "mfussenegger/nvim-lint",
+    opts = {
+      linters_by_ft = {
+        sh = { "shellcheck" },
       },
     },
   },
@@ -32,7 +36,9 @@ return {
     "nvim-treesitter/nvim-treesitter",
     opts = {
       ensure_installed = {
-        "sql",
+        "bash",
+        "hyprlang",
+        "rasi",
       },
     },
   },
