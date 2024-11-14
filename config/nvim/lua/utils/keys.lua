@@ -1,4 +1,4 @@
-local notify = require("utils.notify")
+---@class utils.keys
 local M = {}
 
 -----------------------------------------------------------
@@ -14,29 +14,29 @@ M.new_file = function()
   local full_path = path .. "/" .. filename
   local success, error_msg = pcall(vim.fn.writefile, { "" }, full_path)
   if not success then
-    notify.warn("Error creating file: " .. error_msg, { title = "File" })
+    Utils.notify.warn("Error creating file: " .. error_msg, { title = "File" })
     return
   end
   vim.cmd("e " .. full_path)
-  notify.info(path_and_filename .. " created", { title = "File" })
+  Utils.notify.info(path_and_filename .. " created", { title = "File" })
 end
 
 -----------------------------------------------------------
 -- Toggle diagnostics
 -----------------------------------------------------------
-local enabled = true
+local spell_enabled = true
 function M.toggle_diagnostics()
   if vim.diagnostic.is_disabled then
-    enabled = not vim.diagnostic.is_disabled()
+    spell_enabled = not vim.diagnostic.is_disabled()
   end
-  enabled = not enabled
+  spell_enabled = not spell_enabled
 
-  if enabled then
+  if spell_enabled then
     vim.diagnostic.enable()
-    notify.info("Enabled diagnostics", { title = "Diagnostics" })
+    Utils.notify.info("Enabled diagnostics", { title = "Diagnostics" })
   else
     vim.diagnostic.disable()
-    notify.warn("Disabled diagnostics", { title = "Diagnostics" })
+    Utils.Utils.notify.warn("Disabled diagnostics", { title = "Diagnostics" })
   end
 end
 
@@ -47,10 +47,10 @@ function M.toggle_line_wrap()
   local wrapped = vim.opt.wrap:get()
   vim.opt.wrap = not wrapped -- Toggle wrap based on current state
   if wrapped then
-    notify.warn("Line wrap disabled.", { title = "Option" })
+    Utils.notify.warn("Line wrap disabled.", { title = "Option" })
   else
     vim.opt.wrap = true -- Toggle wrap based on current state
-    notify.info("Line wrap enabled.", { title = "Option" })
+    Utils.notify.info("Line wrap enabled.", { title = "Option" })
   end
 end
 
@@ -61,77 +61,34 @@ function M.toggle_spell()
   local spell = vim.opt.spell:get()
   vim.opt.spell = not spell -- Toggle wrap based on current state
   if spell then
-    notify.warn("Spell disabled.", { title = "Option" })
+    Utils.notify.warn("Spell disabled.", { title = "Option" })
   else
     vim.opt.spell = true -- Toggle wrap based on current state
-    notify.info("Spell enabled.", { title = "Option" })
-  end
-end
-
-function M.toggle_autoformat(buffer)
-  local disable_autoformat_global = vim.g.disable_autoformat
-  local disable_autoformat_buffer = vim.b.disable_autoformat or false
-
-  if buffer then
-    -- Toggle autoformat for the current buffer only
-    vim.b.disable_autoformat = not disable_autoformat_buffer
-    if vim.b.disable_autoformat then
-      notify.warn("Buffer autoformatting disabled", { title = "Auto Format" })
-    else
-      if disable_autoformat_global then
-        notify.warn("Buffer autoformatting enabled (Global autoformatting is disabled)", { title = "Auto Format" })
-      else
-        notify.info("Buffer autoformatting enabled", { title = "Auto Format" })
-      end
-    end
-  else
-    -- Toggle autoformat globally
-    vim.g.disable_autoformat = not disable_autoformat_global
-    vim.b.disable_autoformat = vim.g.disable_autoformat
-    if vim.g.disable_autoformat then
-      notify.warn("Global autoformatting disabled", { title = "Auto Format" })
-    else
-      notify.info("Global autoformatting enabled", { title = "Auto Format" })
-    end
+    Utils.notify.info("Spell enabled.", { title = "Option" })
   end
 end
 
 -----------------------------------------------------------
 -- Make the current file executable
 -----------------------------------------------------------
-function M.make_file_executable()
+function M.toggle_file_executable()
   local filename = vim.fn.expand("%")
-  if vim.fn.executable(filename) == 1 then
-    notify.info("File is already executable", { title = "Option" })
-    return
+  local cmd, success_message, error_message
+  if Utils.is_executable(filename) then
+    cmd = "chmod -x " .. filename
+    success_message = "File made unexecutable"
+    error_message = "Error making file unexecutable"
+  else
+    cmd = "chmod +x " .. filename
+    success_message = "File made executable"
+    error_message = "Error making file executable"
   end
-  local cmd = "chmod +x " .. filename
   local output = vim.fn.system(cmd)
 
   if vim.v.shell_error == 0 then
-    notify.info("File made executable", { title = "Option" })
+    Utils.notify.info(success_message, { title = "Option" })
   else
-    notify.warn("Error making file executable: " .. output, { title = "Options" })
-  end
-end
-
------------------------------------------------------------
--- Make the current file unexecutable
------------------------------------------------------------
-function M.make_file_unexecutable()
-  local filename = vim.fn.expand("%")
-
-  if vim.fn.executable(filename) ~= 1 then
-    notify.info("File is not executable", { title = "Option" })
-    return
-  end
-  local cmd = "chmod -x " .. filename
-  local output = vim.fn.system(cmd)
-
-  if vim.v.shell_error == 0 then
-    notify.info("File made unexecutable", { title = "Option" })
-  else
-    notify.warn("Error making file unexecutable: " .. output, { title = "Options" })
+    Utils.notify.warn(error_message .. ": " .. output, { title = "Option" })
   end
 end
 

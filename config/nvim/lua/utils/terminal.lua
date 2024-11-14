@@ -1,6 +1,59 @@
+---@class utils.terminal
 local M = {}
-local utils = require("utils")
 
+---------------------------------------------------------------
+--- Calculate dimensions for a floating window
+---@param opts table Options for window dimensions
+---@return number, number, number, number - Width, height, row, and column of the window
+---------------------------------------------------------------
+function M.get_dimensions(opts)
+  local width = math.floor(vim.o.columns * (opts.width or 0.9))
+  local height = math.floor(vim.o.lines * (opts.height or 0.8))
+  local row = math.floor((vim.o.lines - height) / 2) - (opts.row_offset or 1)
+  local col = math.floor((vim.o.columns - width) / 2)
+  return width, height, row, col
+end
+
+---------------------------------------------------------------
+--- Create a floating window
+---@param buf number Buffer to display in the floating window
+---@param opts table Options for the floating window
+---@return number Window handle
+---------------------------------------------------------------
+function M.create_float_window(buf, opts)
+  local width, height, row, col = M.get_dimensions(opts)
+  local float_opts = {
+    relative = "editor",
+    row = row,
+    col = col,
+    width = width,
+    height = height,
+    style = "minimal",
+    border = opts.border or "rounded",
+    focusable = true,
+  }
+  local win = vim.api.nvim_open_win(buf, true, float_opts)
+  vim.api.nvim_win_set_option(win, "winblend", opts.winblend or 0)
+  return win
+end
+
+---------------------------------------------------------------
+--- Update the size of an existing window
+---@param win number Window handle
+---@param opts table Options for window dimensions
+---------------------------------------------------------------
+function M.update_window_size(win, opts)
+  if vim.api.nvim_win_is_valid(win) then
+    local width, height, row, col = M.get_dimensions(opts)
+    vim.api.nvim_win_set_config(win, {
+      relative = "editor",
+      row = row,
+      col = col,
+      width = width,
+      height = height,
+    })
+  end
+end
 ---------------------------------------------------------------
 --- Creates a floating terminal window
 ---@param cmd string|table The command to execute in the terminal
@@ -16,15 +69,14 @@ function M.create_float_term(cmd, opts)
   local buf = vim.api.nvim_create_buf(false, true)
 
   -- Create a floating window for the buffer
-  local win = utils.create_float_window(buf, opts)
+  local win = M.create_float_window(buf, opts)
 
   -- Set up autocommands to update window size when Vim is resized
-  local group = vim.api.nvim_create_augroup("float-win-resize" .. buf, { clear = true })
   vim.api.nvim_create_autocmd({ "VimResized" }, {
     pattern = { opts.filetype },
-    group = group,
+    group = vim.api.nvim_create_augroup("float-win-resize" .. buf, { clear = true }),
     callback = function()
-      utils.update_window_size(win, opts)
+      M.update_window_size(win, opts)
     end,
   })
 
@@ -96,7 +148,7 @@ function M.float_term(cmd)
   else
     if M.term_buf and vim.api.nvim_buf_is_valid(M.term_buf) then
       -- Reuse existing buffer if valid
-      M.term_win = utils.create_float_window(M.term_buf, opts)
+      M.term_win = M.create_float_window(M.term_buf, opts)
       vim.cmd("startinsert")
       if cmd then
         vim.schedule(function()

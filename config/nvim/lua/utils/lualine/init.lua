@@ -1,8 +1,6 @@
-local icons = require("utils.icons")
-local lsp_utils = require("utils.lsp")
-local lualine_utils = require("utils.lualine.utils")
-local utils = require("utils")
+---@class utils.lualine
 local M = {}
+local l_utils = require("utils.lualine.utils")
 
 --------------------------------------------------------------------------------------
 -- Generate the file information component for the statusline
@@ -10,8 +8,8 @@ local M = {}
 --------------------------------------------------------------------------------------
 M.file = {
   function()
-    local icon = icons.ui.File
-    local path = vim.api.nvim_buf_get_name(lualine_utils.stbufnr())
+    local icon = Utils.icons.ui.File
+    local path = vim.api.nvim_buf_get_name(l_utils.stbufnr())
     local name = (path == "" and "Empty ") or path:match("([^/\\]+)[/\\]*$")
 
     if name ~= "Empty " then
@@ -28,16 +26,16 @@ M.file = {
   end,
 
   color = function()
-    local file_path = vim.api.nvim_buf_get_name(lualine_utils.stbufnr())
+    local file_path = vim.api.nvim_buf_get_name(l_utils.stbufnr())
 
-    local is_exec = file_path ~= "" and utils.is_executable(file_path)
+    local is_exec = file_path ~= "" and Utils.is_executable(file_path)
     local hl_group = "Constant"
 
     if is_exec then
       hl_group = "DiagnosticOk"
     end
 
-    return vim.tbl_extend("force", lualine_utils.fg(hl_group), { gui = "italic,bold" })
+    return vim.tbl_extend("force", l_utils.fg(hl_group), { gui = "italic,bold" })
   end,
 }
 
@@ -46,7 +44,7 @@ M.file = {
 ------------------------------------------------------------------------------
 M.mode = {
   function()
-    return " " .. (lualine_utils.mode_map[vim.api.nvim_get_mode().mode] or "__")
+    return " " .. (l_utils.mode_map[vim.api.nvim_get_mode().mode] or "__")
   end,
 
   padding = { left = 0, right = 0 },
@@ -59,7 +57,7 @@ M.mode = {
 ------------------------------------------------------------------------------
 M.lsp = {
   function()
-    local buf_clients = lsp_utils.get_clients({ bufnr = 0 })
+    local buf_clients = Utils.lsp.get_clients({ bufnr = 0 })
     local buf_client_names = {}
     -- add client
     for _, client in pairs(buf_clients) do
@@ -72,14 +70,14 @@ M.lsp = {
     end
 
     local unique_client_names = table.concat(buf_client_names, ", ")
-    local lsp_icon = icons.ui.ActiveLSP
+    local lsp_icon = Utils.icons.ui.ActiveLSP
     local language_servers = string.format("%s %s", lsp_icon, unique_client_names)
 
     return language_servers
   end,
-  cond = lualine_utils.conditions.hide_in_width,
+  cond = l_utils.conditions.hide_in_width,
   color = function()
-    return vim.tbl_extend("force", lualine_utils.fg("DiagnosticOk"), { gui = "italic,bold" })
+    return vim.tbl_extend("force", l_utils.fg("DiagnosticOk"), { gui = "italic,bold" })
   end,
 }
 
@@ -99,7 +97,7 @@ M.formatters = {
         local ready_formatters = {}
         for _, formatter in ipairs(formatters) do
           if formatter.available then
-            local icon = lualine_utils.get_formatter_icon(formatter.name)
+            local icon = l_utils.get_formatter_icon(formatter.name)
             table.insert(ready_formatters, icon .. " " .. formatter.name)
           end
         end
@@ -112,9 +110,9 @@ M.formatters = {
     end
   end,
   color = function()
-    return vim.tbl_extend("force", lualine_utils.fg("Constant"), { gui = "italic,bold" })
+    return vim.tbl_extend("force", l_utils.fg("Constant"), { gui = "italic,bold" })
   end,
-  cond = lualine_utils.conditions.hide_in_width,
+  cond = l_utils.conditions.hide_in_width,
 }
 
 ------------------------------------------------------------------------------
@@ -123,7 +121,7 @@ M.formatters = {
 M.root_dir = {
   function()
     local icon = "󱉭 "
-    local root_dir = utils.find_root_directory(0, { ".git" })
+    local root_dir = Utils.find_root_directory(0, { ".git" })
     local result = root_dir:gsub("%s+$", "")
 
     if not root_dir or root_dir == nil or root_dir == "." then
@@ -132,7 +130,7 @@ M.root_dir = {
 
     return icon .. result:match("([^/]+)$")
   end,
-  color = lualine_utils.fg("Special"),
+  color = l_utils.fg("Special"),
 }
 
 return M

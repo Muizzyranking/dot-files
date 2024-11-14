@@ -1,7 +1,26 @@
+---@class utils
+---@field git utils.git
+---@field icons utils.icons
+---@field keys utils.keys
+---@field lsp utils.lsp
+---@field format utils.format
+---@field notify utils.notify
+---@field runner utils.runner
+---@field terminal utils.terminal
+---@field ui utils.ui
+---@field lualine utils.lualine
+
 --------------------------
 -- Module definition
 --------------------------
 local M = {}
+
+setmetatable(M, {
+  __index = function(t, k)
+    t[k] = require("utils." .. k)
+    return t[k]
+  end,
+})
 
 ---------------------------------------------------------------
 -- Check if a plugin is installed
@@ -46,6 +65,15 @@ function M.on_load(name, fn)
       end,
     })
   end
+end
+
+function M.on_very_lazy(fn)
+  vim.api.nvim_create_autocmd("User", {
+    pattern = "VeryLazy",
+    callback = function()
+      fn()
+    end,
+  })
 end
 
 ---------------------------------------------------------------
@@ -181,66 +209,44 @@ function M.find_root_directory(buf, patterns)
 end
 
 ---------------------------------------------------------------
---- Calculate dimensions for a floating window
----@param opts table Options for window dimensions
----@return number, number, number, number - Width, height, row, and column of the window
+--- Set keymap using which key
+---@param mappings MapTable
 ---------------------------------------------------------------
-function M.get_dimensions(opts)
-  local width = math.floor(vim.o.columns * (opts.width or 0.9))
-  local height = math.floor(vim.o.lines * (opts.height or 0.8))
-  local row = math.floor((vim.o.lines - height) / 2) - (opts.row_offset or 1)
-  local col = math.floor((vim.o.columns - width) / 2)
-  return width, height, row, col
-end
-
----------------------------------------------------------------
---- Create a floating window
----@param buf number Buffer to display in the floating window
----@param opts table Options for the floating window
----@return number Window handle
----------------------------------------------------------------
-function M.create_float_window(buf, opts)
-  local width, height, row, col = M.get_dimensions(opts)
-  local float_opts = {
-    relative = "editor",
-    row = row,
-    col = col,
-    width = width,
-    height = height,
-    style = "minimal",
-    border = opts.border or "rounded",
-    focusable = true,
-  }
-  local win = vim.api.nvim_open_win(buf, true, float_opts)
-  vim.api.nvim_win_set_option(win, "winblend", opts.winblend or 0)
-  return win
-end
-
----------------------------------------------------------------
---- Update the size of an existing window
----@param win number Window handle
----@param opts table Options for window dimensions
----------------------------------------------------------------
-function M.update_window_size(win, opts)
-  if vim.api.nvim_win_is_valid(win) then
-    local width, height, row, col = M.get_dimensions(opts)
-    vim.api.nvim_win_set_config(win, {
-      relative = "editor",
-      row = row,
-      col = col,
-      width = width,
-      height = height,
-    })
+function M.map(mappings)
+  local keys = {}
+  if type(mappings[1]) ~= "table" then
+    mappings = { mappings }
   end
-end
-
-function M.get_highlight_group()
-  local hl = vim.fn.synIDattr(vim.fn.synIDtrans(vim.fn.synID(vim.fn.line("."), vim.fn.col("."), 1)), "name")
-  print(hl)
-  if hl == "" then
-    hl = vim.treesitter.get_captures_at_cursor()[1] or "No highlight group found"
+  for _, mapping in ipairs(mappings) do
+    local lhs, rhs = mapping[1], mapping[2]
+    local map = {
+      lhs,
+      rhs,
+      desc = mapping.desc or "",
+      mode = mapping.mode or "n",
+    }
+    if mapping.buffer then
+      map.buffer = mapping.buffer
+    end
+    if mapping.icon then
+      map.icon = mapping.icon
+    end
+    if mapping.silent ~= nil then
+      map.silent = mapping.silent
+    end
+    if mapping.remap ~= nil then
+      map.remap = mapping.remap
+    end
+    table.insert(keys, map)
+    if not M.has("which-key.nvim") then
+      local opts = {}
+      opts.desc = map.desc
+      vim.keymap.set(map.mode, lhs, rhs, opts)
+    end
   end
-  print(hl)
+  M.on_load("which-key.nvim", function()
+    require("which-key").add(keys)
+  end)
 end
 
 return M

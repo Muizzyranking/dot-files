@@ -1,6 +1,6 @@
+---@class utils.lualine.utils
 local M = {}
 local window_width_limit = 100
-local icons = require("utils.icons")
 
 --------------------------------------------------------------------------------------
 -- Define a mapping between vim modes and their corresponding icons
@@ -108,7 +108,7 @@ M.conditions = {
 ---@return string
 ------------------------------------------------------------------------------
 M.get_formatter_icon = function(formatter_name)
-  return icons.formatters[formatter_name] or icons.formatters.fallback
+  return Utils.icons.formatters[formatter_name] or Utils.icons.formatters.fallback
 end
 
 return M

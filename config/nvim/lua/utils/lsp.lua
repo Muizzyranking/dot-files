@@ -1,8 +1,5 @@
+---@class utils.lsp
 local M = {}
-
-local utils = require("utils")
-
-M.formatters = {}
 
 ----------------------------------------------------
 -- Create auto command for LSP attach
@@ -45,17 +42,6 @@ function M.get_clients(opts)
 end
 
 ----------------------------------------------------
--- Register a formatter
----@param formatter table The formatter to register
-----------------------------------------------------
-function M.register(formatter)
-  M.formatters[#M.formatters + 1] = formatter
-  table.sort(M.formatters, function(a, b)
-    return a.priority > b.priority
-  end)
-end
-
-----------------------------------------------------
 -- Format buffer using registered formatters
 ---@param opts? lsp.Client.format Optional formatting options
 ----------------------------------------------------
@@ -64,8 +50,8 @@ function M.format(opts)
     "force",
     {},
     opts or {},
-    M.opts("nvim-lspconfig").format or {},
-    M.opts("conform.nvim").format or {}
+    Utils.opts("nvim-lspconfig").format or {},
+    Utils.opts("conform.nvim").format or {}
   )
   local ok, conform = pcall(require, "conform")
   -- use conform for formatting with LSP when available,
@@ -92,10 +78,10 @@ function M.formatter(opts)
     primary = true,
     priority = 1,
     format = function(buf)
-      M.format(utils.merge({}, filter, { bufnr = buf }))
+      M.format(Utils.merge({}, filter, { bufnr = buf }))
     end,
     sources = function(buf)
-      local clients = M.get_clients(utils.merge({}, filter, { bufnr = buf }))
+      local clients = M.get_clients(Utils.merge({}, filter, { bufnr = buf }))
       ---@param client vim.lsp.Client
       local ret = vim.tbl_filter(function(client)
         return client.supports_method("textDocument/formatting")
@@ -107,38 +93,26 @@ function M.formatter(opts)
       end, ret)
     end,
   }
-  return utils.merge(ret, opts)
+  return Utils.merge(ret, opts)
 end
 
 ----------------------------------------------------
 -- Set LSP server keys
----@param server table LSP server configuration
+---@param server string LSP server configuration
+---@param server_opts table LSP server configuration
 ----------------------------------------------------
-function M.set_keys(server)
-  -- check if server has on_attach
-  local original_attach = server.on_attach
-  local new_attach = function(client, bufnr)
-    if original_attach then
-      -- call on acttach if exists
-      original_attach(client, bufnr)
-    end
-
-    -- set keymaps
-    if server.keys then
-      local map = function(lhs, rhs, desc)
-        vim.keymap.set("n", lhs, rhs, { buffer = bufnr, desc = desc })
+function M.set_keys(server, server_opts)
+  if server_opts.keys then
+    M.on_attach(function(_, buffer)
+      local function map(lhs, rhs, desc)
+        vim.keymap.set("n", lhs, rhs, { desc = desc, buffer = buffer })
       end
-      local keys = server.keys or {}
-      for _, mapping in ipairs(keys) do
-        local lhs, rhs, opts = mapping[1], mapping[2], mapping[3] or {}
-        opts.desc = opts.desc or (server .. " " .. lhs)
-        map(lhs, rhs, opts.desc)
+      for _, key in ipairs(server_opts.keys) do
+        local lhs, rhs = key[1], key[2]
+        map(lhs, rhs, key.desc)
       end
-    end
+    end, server)
   end
-
-  -- replace the on_attach function
-  server.on_attach = new_attach
 end
 
 ----------------------------------------------------
@@ -177,5 +151,61 @@ M.action = setmetatable({}, {
     end
   end,
 })
+
+M.cmp = {}
+
+local function snippet_preview(snippet)
+  local ok, parsed = pcall(vim.lsp._snippet_grammar.parse, snippet)
+  if ok then
+    return tostring(parsed)
+  else
+    return snippet:gsub("%${%d+:(.-)}", "%1"):gsub("%$%d+", ""):gsub("%$0", "")
+  end
+end
+
+local function snippet_fix(snippet)
+  local texts = {}
+  return snippet:gsub("%$%b{}", function(m)
+    local n, name = m:match("^%${(%d+):(.+)}$")
+    if n then
+      texts[n] = texts[n] or snippet_preview(name)
+      return "${" .. n .. ":" .. texts[n] .. "}"
+    end
+    return m
+  end)
+end
+
+local function notify_user(success, msg, snippet)
+  local status = success and "warn" or "error"
+  Utils.notify[status](
+    ([[%s
+      ```%s
+      %s
+      ```]]):format(msg, vim.bo.filetype, snippet),
+    { title = "vim.snippet" }
+  )
+end
+
+function M.cmp.expand_snippet(args)
+  local snippet = args.body
+  local session = vim.snippet.active() and vim.snippet._session or nil
+
+  -- Attempt to expand the snippet
+  local ok, err = pcall(vim.snippet.expand, snippet)
+
+  if not ok then
+    -- Try to fix the snippet and expand again if it fails
+    local fixed = snippet_fix(snippet)
+    ok = pcall(vim.snippet.expand, fixed)
+    local msg = ok and "Failed to parse snippet, but was able to fix it automatically."
+      or ("Failed to parse snippet.\n" .. err)
+    notify_user(ok, msg, snippet)
+  end
+
+  -- Restore the original snippet session if necessary
+  if session then
+    vim.snippet._session = session
+  end
+end
 
 return M

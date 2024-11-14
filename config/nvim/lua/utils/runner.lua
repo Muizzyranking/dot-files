@@ -1,8 +1,5 @@
+---@class utils.runner
 local M = {}
-
-local create_float_term = require("utils.terminal").create_float_term
-local utils = require("utils")
-local notify = require("utils.notify")
 
 ---@type table
 local opts = {
@@ -120,7 +117,7 @@ end
 ---------------------------------------------------------------
 local function run_in_float_term(cmd)
   M.last_command = cmd
-  local buf, _ = create_float_term(cmd, opts)
+  local buf, _ = Utils.terminal.create_float_term(cmd, opts)
 
   -- Capture the output
   vim.api.nvim_buf_attach(buf, false, {
@@ -163,7 +160,7 @@ function M.run_file(lang, with_args)
     local compile_output = vim.fn.system(compile_cmd)
 
     if vim.v.shell_error ~= 0 then
-      notify.error("Compilation failed:\n" .. compile_output, { title = "CodeRunner" })
+      Utils.notify.error("Compilation failed:\n" .. compile_output, { title = "CodeRunner" })
       return
     end
 
@@ -187,7 +184,7 @@ function M.run_program(lang, with_args)
   local args = ""
 
   if not config then
-    notify.error("Unsupported language: " .. lang, { title = "CodeRunner" })
+    Utils.notify.error("Unsupported language: " .. lang, { title = "CodeRunner" })
     return
   end
 
@@ -207,7 +204,7 @@ function M.run_program(lang, with_args)
     local compile_output = vim.fn.system(compile_cmd)
 
     if vim.v.shell_error ~= 0 then
-      notify.error("Compilation failed:\n" .. compile_output, { title = "CodeRunner" })
+      Utils.notify.error("Compilation failed:\n" .. compile_output, { title = "CodeRunner" })
       return
     end
 
@@ -238,7 +235,7 @@ function M.show_last_output()
     local buf = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, M.last_output)
 
-    local win = utils.create_float_window(buf, opts)
+    local win = Utils.terminal.create_float_window(buf, opts)
     vim.bo[buf].filetype = opts.filetype
 
     vim.schedule(function()
@@ -251,7 +248,7 @@ function M.show_last_output()
     vim.api.nvim_buf_set_option(buf, "modifiable", false)
     vim.api.nvim_buf_set_keymap(buf, "n", "q", ":close<CR>", { noremap = true, silent = true })
   else
-    notify.info("No previous output to show", { title = "CodeRunner" })
+    Utils.notify.info("No previous output to show", { title = "CodeRunner" })
   end
 end
 
@@ -269,28 +266,26 @@ function M.setup(lang)
     "Show last output",
   }
 
-  if not utils.is_executable(lang) then
-    notify.error(lang .. " is not installed", { title = "CodeRunner" })
+  if not Utils.is_executable(lang) then
+    Utils.notify.error(lang .. " is not installed", { title = "CodeRunner" })
     return
   end
-  local lacasitos = require("lacasitos")
-  local choice = lacasitos.choose_option(options)
 
-  -- vim.ui.select(options, { prompt = "Select command:" }, function(choice)
-  if choice == "Run file" then
-    M.run_file(lang)
-  elseif choice == "Run file(with args)" then
-    M.run_file(lang, true)
-  elseif choice == "Run program" then
-    M.run_program(lang)
-  elseif choice == "Run program (with args)" then
-    M.run_program(lang)
-  elseif choice == "Redo last command" then
-    M.redo_last_command()
-  elseif choice == "Show last output" then
-    M.show_last_output()
-  end
-  -- end)
+  vim.ui.select(options, { prompt = "Select command:" }, function(choice)
+    if choice == "Run file" then
+      M.run_file(lang)
+    elseif choice == "Run file(with args)" then
+      M.run_file(lang, true)
+    elseif choice == "Run program" then
+      M.run_program(lang)
+    elseif choice == "Run program (with args)" then
+      M.run_program(lang)
+    elseif choice == "Redo last command" then
+      M.redo_last_command()
+    elseif choice == "Show last output" then
+      M.show_last_output()
+    end
+  end)
 end
 
 ---------------------------------------------------------------

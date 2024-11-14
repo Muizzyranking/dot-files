@@ -1,19 +1,20 @@
+---@class utils.git
 local M = {}
-local utils = require("utils")
-local notify = require("utils.notify")
-local terminal = require("utils.terminal")
+
+---@type string
+local title
 
 ---------------------------------------------------------------
 --- Open lazygit in a floating terminal
 ---@param args string[]|nil Additional arguments for lazygit
 ---------------------------------------------------------------
 function M.lazygit(args)
-  if not utils.is_in_git_repo then
-    notify.warn("Not in a git repository, must be in a git repo", { title = "LazyGit" })
+  if not Utils.is_in_git_repo then
+    Utils.notify.warn("Not in a git repository, must be in a git repo", { title = "LazyGit" })
     return
   end
-  if not utils.is_executable("lazygit") then
-    notify.error("LazyGit is not installed", { title = "LazyGit" })
+  if not Utils.is_executable("lazygit") then
+    Utils.notify.error("LazyGit is not installed", { title = "LazyGit" })
     return
   end
   local cmd = { "lazygit", unpack(args or {}) }
@@ -24,29 +25,9 @@ function M.lazygit(args)
     auto_close = true,
     no_esc = true,
   }
-  terminal.create_float_term(cmd, opts)
+  title = "Lazygit"
+  Utils.terminal.create_float_term(cmd, opts)
 end
-
----------------------------------------------------------------
---- Lualine configuration for lazygit
----@type table
----------------------------------------------------------------
-M.lualine = {
-  sections = {
-    lualine_a = {
-      function()
-        return " Lazygit"
-      end,
-    },
-    lualine_b = {
-      {
-        "branch",
-        color = { gui = "italic" },
-      },
-    },
-  },
-  filetypes = { "lazygit" },
-}
 
 ---------------------------------------------------------------
 -- Display git blame information for the current line in a floating window.
@@ -64,10 +45,11 @@ function M.blame_line(opts)
     },
     border = "rounded",
   }, opts or {})
+  title = "Git blame"
   local cursor = vim.api.nvim_win_get_cursor(0)
   local line = cursor[1] - 1
   local file = vim.api.nvim_buf_get_name(0)
-  local root = utils.find_root_directory(0, { ".git" })[1] or "."
+  local root = Utils.find_root_directory(0, { ".git" })[1] or "."
 
   -- Construct git command
   local cmd = { "git", "-C", root, "log", "-n", opts.count, "-u", "-L", line .. ",+1:" .. file }
@@ -75,5 +57,26 @@ function M.blame_line(opts)
   -- Execute command in a floating window
   return require("lazy.util").float_cmd(cmd, opts)
 end
+
+---------------------------------------------------------------
+--- Lualine configuration for lazygit
+---@type table
+---------------------------------------------------------------
+M.lualine = {
+  sections = {
+    lualine_a = {
+      function()
+        return " " .. title
+      end,
+    },
+    lualine_b = {
+      {
+        "branch",
+        color = { gui = "italic" },
+      },
+    },
+  },
+  filetypes = { "lazygit", "git" },
+}
 
 return M
