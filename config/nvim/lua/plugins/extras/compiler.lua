@@ -1,4 +1,3 @@
-local utils = require("utils")
 return {
   "Zeioth/compiler.nvim",
   dependencies = {
@@ -41,12 +40,12 @@ return {
       desc = "Open compiler window",
     },
     {
-      utils.is_in_tmux() and "<F17>" or "<S-F5>",
+      Utils.is_in_tmux() and "<F17>" or "<S-F5>",
       "<cmd>CompilerToggleResults<CR>",
       desc = "Toggle compiler results",
     },
     {
-      utils.is_in_tmux() and "<F18>" or "<S-F6>",
+      Utils.is_in_tmux() and "<F18>" or "<S-F6>",
       "<cmd>CompilerStop<CR>",
       desc = "Stop all tasks",
     },

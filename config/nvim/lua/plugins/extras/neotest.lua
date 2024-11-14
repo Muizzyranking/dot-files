@@ -1,4 +1,3 @@
-local utils = require("utils")
 return {
   {
     "nvim-neotest/neotest",
@@ -13,7 +12,7 @@ return {
       output = { open_on_run = true },
       quickfix = {
         open = function()
-          if utils.has("trouble.nvim") then
+          if Utils.has("trouble.nvim") then
             require("trouble").open({ mode = "quickfix", focus = false })
           else
             vim.cmd("copen")
@@ -33,7 +32,7 @@ return {
         },
       }, neotest_ns)
 
-      if utils.has("trouble.nvim") then
+      if Utils.has("trouble.nvim") then
         opts.consumers = opts.consumers or {}
         opts.consumers.trouble = function(client)
           client.listeners.results = function(adapter_id, results, partial)

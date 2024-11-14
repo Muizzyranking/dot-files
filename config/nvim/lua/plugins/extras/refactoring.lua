@@ -1,4 +1,3 @@
-local utils = require("utils")
 return {
   {
     "ThePrimeagen/refactoring.nvim",
@@ -117,8 +116,8 @@ return {
     },
     config = function(_, opts)
       require("refactoring").setup(opts)
-      if utils.has("telescope.nvim") then
-        utils.on_load("telescope.nvim", function()
+      if Utils.has("telescope.nvim") then
+        Utils.on_load("telescope.nvim", function()
           require("telescope").load_extension("refactoring")
         end)
       end
