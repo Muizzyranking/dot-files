@@ -1,4 +1,5 @@
 #!/bin/bash
+# adds or updates the 'origin' remote of a git repository
 
 add_remote() {
     local remote_name="origin"
