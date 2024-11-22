@@ -1,5 +1,6 @@
 #!/bin/bash
 DIR="$HOME/Pictures/Screenshots"
+# if [ -d "" ] fi
 SCRIPTS="$HOME/.config/hypr/scripts"
 NAME="Screenshot_$(date +%d%b_%H-%M-%S)_${RANDOM}.png"
 ACTIVE_WINDOW_FILE="Screenshot_$(date +%d%b_%H-%M-%S)_$(hyprctl -j activewindow | jq -r '(.class)').png"
