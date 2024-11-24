@@ -263,6 +263,7 @@
     "exec": "/usr/bin/python $HOME/.config/waybar/modules/media_player.py --player spotify",
     "format": "{} ",
     "return-type": "json",
+    "max-length": 30,
     "on-click": "playerctl -p spotify play-pause",
     "on-scroll-up": "playerctl -p spotify previous",
     "on-scroll-down": "playerctl -p spotify next"
