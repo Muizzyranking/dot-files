@@ -12,12 +12,12 @@ opt.swapfile = false
 opt.backup = false
 
 opt.fillchars = {
-    foldopen = "",
-    foldclose = "",
-    fold = " ",
-    foldsep = " ",
-    diff = "╱",
-    eob = " ",
+  foldopen = "",
+  foldclose = "",
+  fold = " ",
+  foldsep = " ",
+  diff = "╱",
+  eob = " ",
 }
 
 -- disable auto format
@@ -25,3 +25,4 @@ vim.g.autoformat = false
 
 -- disable providers
 vim.g.loaded_ruby_provider = 0
+vim.g.lazyvim_picker = "fzf"

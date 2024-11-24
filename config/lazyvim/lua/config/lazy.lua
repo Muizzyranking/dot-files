@@ -7,7 +7,6 @@ if not vim.loop.fs_stat(lazypath) then
         lazypath })
 end
 vim.opt.rtp:prepend(vim.env.LAZY or lazypath)
-vim.g.lazyvim_picker = "fzf"
 
 require("lazy").setup({
   spec = {
@@ -18,18 +17,20 @@ require("lazy").setup({
       -- opts = { colorscheme = "catppuccin" },
       opts = { colorscheme = "tokyonight" },
     },
-    -- { import = "lazyvim.plugins.extras.formatting.prettier" },
+    { import = "lazyvim.plugins.extras.formatting.prettier" },
     { import = "lazyvim.plugins.extras.util.dot" },
     { import = "lazyvim.plugins.extras.lang.typescript" },
     { import = "lazyvim.plugins.extras.linting.eslint" },
 
     { import = "lazyvim.plugins.extras.coding.yanky" },
+    -- { import = "lazyvim.plugins.extras.coding.blink" },
 
     { import = "lazyvim.plugins.extras.ai.copilot" },
     { import = "lazyvim.plugins.extras.ai.copilot-chat" },
 
     { import = "lazyvim.plugins.extras.test.core" },
     { import = "lazyvim.plugins.extras.editor.refactoring" },
+    -- { import = "lazyvim.plugins.extras.editor.fzf" },
 
     --markdown
     { import = "lazyvim.plugins.extras.lang.markdown" },
