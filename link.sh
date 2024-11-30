@@ -1,9 +1,13 @@
 #!/bin/bash
 
+set -euo pipefail
+
 dotfiles_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 config_dir="$HOME/.config"
+backup_dir="$HOME/config_backup"
+backup_timestamp=$(date +"%Y%m%d_%H%M%S")
 
-source "$dotfiles_dir/install/utils.sh"
+source "$dotfiles_dir/scripts/utils.sh"
 
 if [[ ! -d "$config_dir" ]]; then
     if mkdir -p "$config_dir"; then
@@ -14,19 +18,37 @@ if [[ ! -d "$config_dir" ]]; then
     fi
 fi
 
+if [[ ! -d "$backup_dir" ]]; then
+    if mkdir -p "$backup_dir"; then
+        print_message success "Created backup directory at $backup_dir"
+    else
+        print_message error "Failed to create backup directory"
+        exit 1
+    fi
+fi
+
 # Create symbolic link
 create_symlink() {
     local source_dir="$1"
     local target_dir="$2"
     local target_name="$3"
 
-    if [[ -d "$target_dir/$target_name" ]]; then
-        print_message warning "$target_name directory already exists. Removing"
-        rm -r "${target_dir:?}/${target_name:?}" || {
-            print_message error "Failed to remove $target_name directory"
+    if [[ -L "$target_dir/$target_name" ]]; then
+        print_message warning "Removing existing symlink: $target_name"
+        unlink "$target_dir/$target_name" || {
+            print_message error "Failed to remove existing symlink: $target_name"
             return 1
         }
-        print_message success "Successfully removed $target_name directory"
+    fi
+
+    if [[ -d "$target_dir/$target_name" ]]; then
+        local backup_name="${target_name}.bk-${backup_timestamp}"
+        print_message warning "$target_name directory already exists. Removing"
+        mv "${target_dir:?}/$target_name" "$backup_dir/$backup_name" || {
+            print_message error "Failed to move $target_name to backup"
+            return 1
+        }
+        print_message success "Moved $target_name to $backup_dir"
     fi
 
     print_message info "Creating symbolic link for $target_name"
@@ -45,25 +67,47 @@ link_config() {
 }
 
 # Function to link shell files
-link_shell_file() {
+link_home_file() {
     local file="$1"
-    if [ -f "$HOME/$file" ]; then
-        print_message warning "File $HOME/$file exists. Removing"
-        rm "$HOME/$file" || {
-            print_message error "Failed to remove $HOME/$file"
-            exit 1
-        }
-        print_message success "Successfully removed $HOME/$file"
+    local source_file="$dotfiles_dir/home/$file"
+    local target_file="$HOME/$file"
+
+    # Validate source file exists
+    if [[ ! -f "$source_file" ]]; then
+        print_message error "Source file not found: $source_file"
+        return 1
     fi
-    ln -s "$dotfiles_dir/shell/$file" "$HOME/$file" || {
+
+    if [[ -L "$target_file" ]]; then
+        print_message warning "Existing symlink found for $file. Unlinking."
+        unlink "$target_file"
+    fi
+
+    if [[ -e "$target_file" ]]; then
+        local backup_name="${file}.bk-${backup_timestamp}"
+        print_message warning "File $target_file exists. Backing up."
+
+        # Move existing file to backup with timestamped name
+        if mv "$target_file" "$backup_dir/$backup_name"; then
+            print_message success "Moved $file to $backup_dir/$backup_name"
+        else
+            print_message error "Failed to move $file to backup"
+            return 1
+        fi
+    fi
+
+    if ln -s "$source_file" "$target_file"; then
+        print_message success "Created symbolic link for $file"
+    else
         print_message error "Failed to create symbolic link for $file"
-        exit 1
-    }
+        return 1
+    fi
+
     print_message success "Successfully created symbolic link for $file"
 }
 
 # Available config files
-configs=("bat" "ags" "cava" "hypr" "kitty" "Kvantum" "lazygit" "lazyvim" "neofetch" "nvim" "rofi" "swaync" "tmux" "waybar" "wlogout" "zsh")
+configs=("bat" "cava" "git" "hypr" "kitty" "Kvantum" "lazygit" "lazyvim" "fastfetch" "nvim" "rofi" "swaync" "tmux" "waybar" "wlogout" "zsh")
 
 # If no arguments provided, show usage
 if [ $# -eq 0 ]; then
@@ -77,8 +121,10 @@ for arg in "$@"; do
     if [ "$arg" = "all" ]; then
         for config in "${configs[@]}"; do
             if [ "$config" = "zsh" ]; then
-                link_shell_file ".zshrc"
-                link_shell_file ".p10k.zsh"
+                link_home_file ".zshrc"
+                link_home_file ".p10k.zsh"
+            elif [ "$config" = "git" ]; then
+                link_home_file ".gitconfig"
             else
                 link_config "$config"
             fi
@@ -86,8 +132,10 @@ for arg in "$@"; do
         break
     elif [[ " ${configs[*]} " == *" $arg "* ]]; then
         if [ "$arg" = "zsh" ]; then
-            link_shell_file ".zshrc"
-            link_shell_file ".p10k.zsh"
+            link_home_file ".zshrc"
+            link_home_file ".p10k.zsh"
+        elif [ "$arg" = "git" ]; then
+            link_home_file ".gitconfig"
         else
             link_config "$arg"
         fi

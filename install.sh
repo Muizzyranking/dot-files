@@ -1,26 +1,37 @@
 #!/bin/bash
 
-source ./utils.sh
+# Ensure the script is run with sudo
+if [ "$EUID" -ne 0 ]; then
+    echo "This script requires sudo privileges. Re-running with sudo..."
+    sudo "$0" "$@"
+    exit $?
+fi
+
+# Get the directory where install.sh is located
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source utils.sh using the resolved path
+source "$script_dir/scripts/utils.sh"
 
 if [ $# -eq 0 ]; then
-    print_message error "No arguments provided. Usage: ./install.sh [argument] ..."
+    print_message error "No arguments provided. Usage: ./install.sh [\"all\", \"dev\", \"hypr\"] ..."
     exit 1
 fi
 
 for group in "$@"; do
     case $group in
         all)
-            bash ./install/dev.sh
-            bash ./install/hypr.sh
-            bash ./link.sh all
+            bash "$script_dir/scripts/dev.sh"
+            bash "$script_dir/scripts/hypr.sh"
+            bash "$script_dir/link.sh" all
             ;;
         hypr)
-            bash ./install/hypr.sh
-            bash ./link.sh gtk-3.0 gtk-4.0 hypr Kvantum neofetch qt5ct rofi swaync waybar wlogout zsh
+            bash "$script_dir/scripts/hypr.sh"
+            bash "$script_dir/link.sh" hypr Kvantum fastfetch rofi swaync waybar wlogout zsh
             ;;
         dev)
-            bash ./install/dev.sh
-            bash ./link.sh kitty nvim bat lazyvim lazygit zsh tmux
+            bash "$script_dir/scripts/dev.sh"
+            bash "$script_dir/link.sh" kitty nvim bat lazyvim lazygit zsh tmux
             ;;
         *)
             print_message error "Unknown group: $group"
