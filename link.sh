@@ -123,6 +123,7 @@ for arg in "$@"; do
             if [ "$config" = "zsh" ]; then
                 link_home_file ".zshrc"
                 link_home_file ".p10k.zsh"
+                link_config "zsh"
             elif [ "$config" = "git" ]; then
                 link_home_file ".gitconfig"
             else
@@ -134,6 +135,7 @@ for arg in "$@"; do
         if [ "$arg" = "zsh" ]; then
             link_home_file ".zshrc"
             link_home_file ".p10k.zsh"
+            link_config "zsh"
         elif [ "$arg" = "git" ]; then
             link_home_file ".gitconfig"
         else

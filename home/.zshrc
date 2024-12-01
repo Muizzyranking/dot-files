@@ -22,26 +22,26 @@ plugins=( git sudo fzf fzf-tab zsh-history-substring-search history copypath zsh
 source $ZSH/oh-my-zsh.sh
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
-dotfiles_dir="$HOME/dot-files"
+config_dir="$HOME/.config/zsh"
 # ZSH ALIASES
 # Stored in $ALIASES 
-if [ -f "$dotfiles_dir/shell/.zsh_alaises" ]; then
-   source "$dotfiles_dir/shell/.zsh_alaises"
+if [ -f "$config_dir/.zsh_alaises" ]; then
+   source "$config_dir/.zsh_alaises"
 fi
 
 #ZSH ENV for easy navigation
-if [ -f "$dotfiles_dir/shell/.zshenv" ]; then
-   source "$dotfiles_dir/shell/.zshenv"
+if [ -f "$config_dir/.zshenv" ]; then
+   source "$config_dir/.zshenv"
 
 fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+[[ ! -f ~/.p10k.zsh ]] || source "$HOME/.p10k.zsh"
 
-fpath+=$"ZDOTDIR:-~"/.zsh_functions
-fpath=(~/.zsh/completions $fpath)
-autoload -U compinit
-compinit
+fpath+=${ZDOTDIR:-~}/.zsh_functions
+# fpath=(~/.zsh/completions "$fpath")
+# autoload -U compinit
+# compinit
 
 eval "$(thefuck --alias)"
 eval "$(zoxide init zsh)"
