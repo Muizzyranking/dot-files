@@ -1,33 +1,46 @@
 return {
-  "stevearc/conform.nvim",
-  event = "BufWritePre",
-  cmd = { "ConformInfo" },
-  keys = {},
-  init = function()
-    Utils.on_very_lazy(function()
-      Utils.format.register({
-        name = "conform.nvim",
-        priority = 100,
-        primary = true,
-        format = function(buf)
-          require("conform").format({ bufnr = buf })
+  {
+    "stevearc/conform.nvim",
+    event = "BufWritePre",
+    cmd = { "ConformInfo" },
+    keys = {
+      {
+        "<leader>cF",
+        function()
+          require("conform").format({ formatters = { "injected" }, timeout_ms = 3000 })
         end,
-        sources = function(buf)
-          local ret = require("conform").list_formatters(buf)
-          ---@param v conform.FormatterInfo
-          return vim.tbl_map(function(v)
-            return v.name
-          end, ret)
-        end,
-      })
-    end)
-  end,
-  opts = {
-    notify_on_error = true,
-    formatters = {},
-    formatters_by_ft = {
-      ["yaml"] = { "prettierd", "prettier" },
-      ["lua"] = { "stylua" },
+        mode = { "n", "v" },
+        desc = "Format Injected Langs",
+      },
     },
+    opts_extend = { "use_prettier" },
+    opts = {
+      -- since prettier is used for multiple filetypes
+      -- this options allows to specify which filetypes to use with prettier
+      use_prettier = {},
+      notify_on_error = true,
+      default_format_opts = {
+        timeout_ms = 2500,
+        async = false,
+        quiet = false,
+        lsp_format = "fallback",
+      },
+      formatters = {},
+      formatters_by_ft = {},
+    },
+  },
+  {
+    "stevearc/conform.nvim",
+    config = function(_, opts)
+      opts.use_prettier = opts.use_prettier or {}
+      opts.formatters_by_ft = opts.formatters_by_ft or {}
+
+      for _, ft in ipairs(opts.use_prettier) do
+        opts.formatters_by_ft[ft] = opts.formatters_by_ft[ft] or {}
+        table.insert(opts.formatters_by_ft[ft], "prettierd")
+        table.insert(opts.formatters_by_ft[ft], "prettier")
+      end
+      require("conform").setup(opts)
+    end,
   },
 }

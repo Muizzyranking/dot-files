@@ -1,104 +1,115 @@
-return {
-  {
-    "linux-cultist/venv-selector.nvim",
-    cmd = "VenvSelect",
-    keys = { { "<leader>cv", "<cmd>:VenvSelect<cr>", desc = "Select VirtualEnv", ft = "python" } },
-    opts = {
-      dap_enabled = false,
-      name = {
-        "venv",
-        ".venv",
-        "env",
-        ".env",
-      },
-    },
-  },
-  {
-    "neovim/nvim-lspconfig",
-    opts = {
-      servers = {
-        basedpyright = {
-          settings = {
-            basedpyright = {
-              analysis = {
-                -- Ignore all files for analysis to exclusively use Ruff for linting
-                -- ignore = { "*" },
-                typeCheckingMode = "standard",
-              },
-              -- Using Ruff's import organizer
-              disableOrganizeImports = true,
+return Utils.setup_lang({
+  name = "python",
+  lsp = {
+    servers = {
+      basedpyright = {
+        settings = {
+          basedpyright = {
+            analysis = {
+              -- Ignore all files for analysis to exclusively use Ruff for linting
+              -- ignore = { "*" },
+              typeCheckingMode = "standard",
             },
-          },
-        },
-        ruff = {
-          keys = {
-            {
-              "<leader>co",
-              Utils.lsp.action["source.organizeImports"],
-              desc = "Organize Imports",
-            },
+            -- Using Ruff's import organizer
+            disableOrganizeImports = true,
           },
         },
       },
-      setup = {
-        ruff = function()
-          Utils.lsp.on_attach(function(client, _)
-            -- Disable hover in favor of Pyright
-            client.server_capabilities.hoverProvider = false
-          end, "ruff")
-        end,
-        ruff_lsp = function()
-          return true
-        end,
-      },
-    },
-  },
-  {
-    "williamboman/mason.nvim",
-    opts = {
-      ensure_installed = { "flake8", "djlint", "black", "djlint" },
-    },
-  },
-  {
-    "stevearc/conform.nvim",
-    opts = {
-      formatters = {
-        djlint = {
-          command = "djlint",
-          args = function()
-            return {
-              "--reformat",
-              "-",
-              "--indent",
-              "2",
-            }
-          end,
+      ruff = {
+        keys = {
+          {
+            "<leader>co",
+            Utils.lsp.action["source.organizeImports"],
+            desc = "Organize Imports",
+          },
         },
       },
-      formatters_by_ft = {
-        -- ["python"] = { "autopep8" },
-        ["python"] = { "black" },
-        ["htmldjango"] = { "djlint" },
+    },
+    setup = {
+      ruff = function()
+        Utils.lsp.on_attach(function(client, _)
+          client.server_capabilities.hoverProvider = false
+        end, "ruff")
+      end,
+      ruff_lsp = function()
+        return true
+      end,
+    },
+  },
+  formatting = {
+    formatters = {
+      djlint = {
+        command = "djlint",
+        args = function()
+          return {
+            "--reformat",
+            "-",
+            "--indent",
+            "2",
+          }
+        end,
+      },
+    },
+    formatters_by_ft = {
+      python = { "black" },
+      ["htmldjango"] = { "djlint" },
+    },
+    format_on_save = true,
+  },
+  linting = {
+    linters_by_ft = {
+      python = { "flake8" },
+      htmldjango = { "djlint" },
+    },
+  },
+  highlighting = {
+    parsers = {
+      "python",
+      "ninja",
+      "rst",
+      "htmldjango",
+    },
+  },
+  keys = {
+    {
+      "<F5>",
+      function()
+        Utils.runner.setup("python")
+      end,
+      icon = { icon = " ", color = "red" },
+      desc = "Code runner",
+      mode = "n",
+    },
+    {
+      "<leader>cb",
+      [[<Cmd>normal! ggO#!/usr/bin/env python3<CR><Esc>]],
+      icon = { icon = " ", color = "red" },
+      desc = "Add shebang (env)",
+      silent = true,
+    },
+    {
+      "<leader>cB",
+      [[<Cmd>normal! ggO#!/usr/bin/python3<CR><Esc>]],
+      icon = { icon = " ", color = "red" },
+      desc = "Add shebang",
+      silent = true,
+    },
+  },
+
+  plugins = {
+    {
+      "linux-cultist/venv-selector.nvim",
+      cmd = "VenvSelect",
+      keys = { { "<leader>cv", "<cmd>:VenvSelect<cr>", desc = "Select VirtualEnv", ft = "python" } },
+      opts = {
+        dap_enabled = false,
+        name = {
+          "venv",
+          ".venv",
+          "env",
+          ".env",
+        },
       },
     },
   },
-  {
-    "mfussenegger/nvim-lint",
-    opts = {
-      linters_by_ft = {
-        python = { "flake8" },
-        htmldjango = { "djlint" },
-      },
-    },
-  },
-  {
-    "nvim-treesitter/nvim-treesitter",
-    opts = {
-      ensure_installed = {
-        "ninja",
-        "rst",
-        "htmldjango",
-      },
-    },
-  },
-}
+})

@@ -1,62 +1,72 @@
-return {
-  {
-    "neovim/nvim-lspconfig",
-    opts = {
-      servers = {
-        emmet_ls = {},
-        cssls = {},
-        html = {
-          filetypes = { "html", "htmldjango" },
-        },
-        tailwindcss = {
-          settings = {
-            tailwindCSS = {
-              includeLanguages = {
-                elixir = "html-eex",
-                eelixir = "html-eex",
-                heex = "html-eex",
-              },
+return Utils.setup_lang({
+  name = "html-css",
+  ft = {
+    "html",
+    "css",
+    "scss",
+    "sass",
+    "less",
+    "htmldjango",
+  },
+  lsp = {
+    servers = {
+      emmet_ls = {},
+      cssls = {},
+      html = {
+        filetypes = { "html", "htmldjango" },
+      },
+      tailwindcss = {
+        filetypes_exclude = { "markdown" },
+        filetypes_include = {},
+        settings = {
+          tailwindCSS = {
+            includeLanguages = {
+              elixir = "html-eex",
+              eelixir = "html-eex",
+              heex = "html-eex",
             },
           },
         },
       },
     },
-  },
-  {
-    "williamboman/mason.nvim",
-    opts = {
-      ensure_installed = { "prettier", "prettierd" },
+    setup = {
+      tailwindcss = function(_, opts)
+        local tw = Utils.lsp.get_config("tailwindcss")
+        opts.filetypes = opts.filetypes or {}
+        vim.list_extend(opts.filetypes, tw.default_config.filetypes)
+
+        -- Remove excluded filetypes
+        --- @param ft string
+        opts.filetypes = vim.tbl_filter(function(ft)
+          return not vim.tbl_contains(opts.filetypes_exclude or {}, ft)
+        end, opts.filetypes)
+
+        -- Add additional filetypes
+        vim.list_extend(opts.filetypes, opts.filetypes_include or {})
+      end,
     },
   },
-  {
-    "stevearc/conform.nvim",
-    opts = {
-      formatters_by_ft = {
-        ["html"] = { "prettierd", "prettier" },
-        ["css"] = { "prettierd", "prettier" },
-        ["scss"] = { "prettierd", "prettier" },
-        ["less"] = { "prettierd", "prettier" },
-      },
-    },
+  formatting = {
+    use_prettier = true,
+    format_on_save = false,
   },
-  {
-    "nvim-treesitter/nvim-treesitter",
-    opts = { ensure_installed = {
+  highlighting = {
+    parsers = {
       "html",
       "css",
-    } },
-  },
-  {
-    "nvim-cmp",
-    dependencies = {
-      { "roobert/tailwindcss-colorizer-cmp.nvim", opts = {} },
+      "htmldjango",
     },
-    opts = function(_, opts)
-      local format_kinds = opts.formatting.format
-      opts.formatting.format = function(entry, item)
-        format_kinds(entry, item)
-        return require("tailwindcss-colorizer-cmp").formatter(entry, item)
-      end
-    end,
   },
-}
+  options = {
+    shiftwidth = 2,
+    tabstop = 2,
+  },
+  plugins = {
+    {
+      "brianhuster/live-preview.nvim",
+      cmd = { "LivePreview" },
+      dependencies = {},
+      opts = {},
+    },
+  },
+})

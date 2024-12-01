@@ -30,7 +30,12 @@ return {
     {
       "<leader>ff",
       function()
-        require("telescope.builtin").find_files({ cwd = get_root() })
+        require("telescope.builtin").find_files({
+          cwd = get_root(),
+          layout_config = {
+            preview_width = 0.6,
+          },
+        })
       end,
       desc = "Find Files (root)",
     },
@@ -41,6 +46,9 @@ return {
           find_command = { "rg", "--files", "--hidden", "--no-ignore", "-g", "!.git" },
           cwd = get_root(),
           prompt_title = "Show all files",
+          layout_config = {
+            preview_width = 0.6,
+          },
         })
       end,
       desc = "Find Files(hidden)",
@@ -48,35 +56,57 @@ return {
     {
       "<leader>sw",
       function()
-        require("telescope.builtin").grep_string()
+        require("telescope.builtin").grep_string({
+          layout_config = {
+            preview_width = 0.6,
+          },
+        })
       end,
       desc = "Search word under cursor",
     },
     {
       "<leader>fg",
       function()
-        require("telescope.builtin").live_grep({ cwd = get_root() })
+        require("telescope.builtin").live_grep({
+          cwd = get_root(),
+          layout_config = {
+            preview_width = 0.6,
+          },
+        })
       end,
       desc = "Find by Grep (root)",
     },
     {
       "<leader>fG",
       function()
-        require("telescope.builtin").live_grep()
+        require("telescope.builtin").live_grep({
+          layout_config = {
+            preview_width = 0.6,
+          },
+        })
       end,
       desc = "Find by Grep",
     },
     {
       "<leader>fC",
       function()
-        require("telescope.builtin").resume()
+        require("telescope.builtin").resume({
+          layout_config = {
+            preview_width = 0.6,
+          },
+        })
       end,
       desc = "Search Continue",
     },
     {
       "<leader>fR",
       function()
-        require("telescope.builtin").oldfiles({ prompt_title = "Recent Files" })
+        require("telescope.builtin").oldfiles({
+          prompt_title = "Recent Files",
+          layout_config = {
+            preview_width = 0.6,
+          },
+        })
       end,
       desc = "Find Recent Files",
     },
@@ -87,11 +117,24 @@ return {
           only_cwd = true,
           cwd_only = true,
           prompt_title = "Recent Files in cwd",
+          layout_config = {
+            preview_width = 0.6,
+          },
         })
       end,
       desc = "Find Recent Files (cwd)",
     },
-    { "<leader>fb", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", desc = "Find Buffers" },
+    {
+      "<leader>fb",
+      function()
+        require("telescope.builtin").buffers(require("telescope.themes").get_dropdown({
+          winblend = 0,
+          previewer = false,
+        }))
+      end,
+      desc = "Find buffers",
+    },
+
     { "<leader>,", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", desc = "Find Buffers" },
     {
       "<leader>fm",
@@ -103,7 +146,10 @@ return {
     {
       "<leader>:",
       function()
-        require("telescope.builtin").command_history()
+        require("telescope.builtin").command_history(require("telescope.themes").get_dropdown({
+          winblend = 0,
+          previewer = false,
+        }))
       end,
       desc = "Command History",
     },
@@ -117,9 +163,10 @@ return {
     {
       "<leader>fw",
       function()
-        require("telescope.builtin").current_buffer_fuzzy_find(
-          require("telescope.themes").get_dropdown({ winblend = 0, previewer = false })
-        )
+        require("telescope.builtin").current_buffer_fuzzy_find(require("telescope.themes").get_dropdown({
+          winblend = 0,
+          previewer = false,
+        }))
       end,
       desc = "Find in Current Buffer",
     },
@@ -129,6 +176,9 @@ return {
         require("telescope.builtin").live_grep({
           grep_open_files = true,
           prompt_title = "Live Grep in Open Files",
+          layout_config = {
+            preview_width = 0.6,
+          },
         })
       end,
       desc = "Find in Open Files",
@@ -136,41 +186,24 @@ return {
     {
       "<leader>fc",
       function()
-        require("telescope.builtin").find_files({ cwd = vim.fn.stdpath("config") })
+        require("telescope.builtin").find_files({
+          cwd = vim.fn.stdpath("config"),
+          layout_config = {
+            preview_width = 0.6,
+          },
+        })
       end,
       desc = "Find Config Files",
     },
   },
-  config = function()
+  opts = function()
     local actions = require("telescope.actions")
-    local action_state = require("telescope.actions.state")
-
-    actions.open_in_new_buffer = function(prompt_bufnr)
-      local picker = action_state.get_current_picker(prompt_bufnr)
-      local selections = picker:get_multi_selection()
-
-      if #selections == 0 then
-        table.insert(selections, action_state.get_selected_entry())
-      end
-
-      actions.close(prompt_bufnr)
-
-      for _, selection in ipairs(selections) do
-        if selection.filename then
-          vim.cmd("badd " .. vim.fn.fnameescape(selection.filename))
-        end
-      end
-
-      if #selections > 0 and selections[#selections].filename then
-        vim.cmd("buffer " .. vim.fn.fnameescape(selections[#selections].filename))
-      end
-    end
-
-    require("telescope").setup({
-
+    return {
       defaults = {
-        -- layout_strategy = "horizontal",
-        layout_config = { prompt_position = "top" },
+        layout_strategy = "horizontal",
+        layout_config = {
+          prompt_position = "top",
+        },
         sorting_strategy = "ascending",
         winblend = 0,
         mappings = {
@@ -180,11 +213,12 @@ return {
             ["<C-u>"] = actions.preview_scrolling_up,
             ["<C-d>"] = actions.delete_buffer,
             ["<C-c>"] = actions.close,
-            ["<C-o>"] = actions.open_in_new_buffer,
+            -- ["<C-o>"] = actions.open_in_new_buffer,
+            ["<C-o>"] = Utils.telescope.open_in_new_buffer,
           },
           n = {
             ["q"] = actions.close,
-            ["<C-o>"] = actions.open_in_new_buffer,
+            ["<C-o>"] = Utils.telescope.open_in_new_buffer,
             ["<C-d>"] = actions.delete_buffer,
             ["<C-t>"] = require("trouble.sources.telescope").open,
             ["<C-f>"] = actions.preview_scrolling_down,
@@ -197,6 +231,6 @@ return {
           require("telescope.themes").get_dropdown(),
         },
       },
-    })
+    }
   end,
 }

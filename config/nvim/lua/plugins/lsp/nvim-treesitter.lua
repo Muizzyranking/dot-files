@@ -52,18 +52,12 @@ return {
       ensure_installed = {
         "c",
         "cpp",
-        "lua",
         "vim",
         "vimdoc",
         "query",
-        "luadoc",
         "python",
         "toml",
-        "javascript",
-        "sql",
         "rst",
-        "typescript",
-        "tsx",
         "regex",
         "yaml",
         "diff",
@@ -73,8 +67,6 @@ return {
         "vim",
         "xml",
         "puppet",
-        "http",
-        "graphql",
       },
 
       -- Install parsers synchronously (only applied to `ensure_installed`)
@@ -102,19 +94,6 @@ return {
       },
     },
     config = function(_, opts)
-      vim.filetype.add({
-        extension = { rasi = "rasi", rofi = "rasi", wofi = "rasi" },
-        filename = {
-          ["vifmrc"] = "vim",
-        },
-        pattern = {
-          [".*/waybar/config"] = "jsonc",
-          [".*/mako/config"] = "dosini",
-          [".*/kitty/.+%.conf"] = "bash",
-          [".*/hypr/.+%.conf"] = "hyprlang",
-          ["%.env%.[%w_.-]+"] = "sh",
-        },
-      })
       require("nvim-treesitter.configs").setup(opts)
     end,
   },

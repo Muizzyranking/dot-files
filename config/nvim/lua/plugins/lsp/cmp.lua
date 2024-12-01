@@ -40,7 +40,7 @@ return { -- Autocompletion
     local cmp = require("cmp")
     return {
       snippet = {
-        expand = Utils.lsp.cmp.expand_snippet,
+        expand = Utils.cmp.expand_snippet,
       },
       completion = {
         completeopt = "menu,menuone,noinsert",
@@ -58,9 +58,9 @@ return { -- Autocompletion
       }),
       sources = {
         { name = "nvim_lsp" },
+        { name = "snippets" },
         { name = "path" },
         { name = "buffer" },
-        { name = "snippets" },
       },
       window = {
         completion = {

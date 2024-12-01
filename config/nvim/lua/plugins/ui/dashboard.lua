@@ -38,18 +38,25 @@ return {
           {
             -- action = "Telescope oldfiles",
             action = function()
-              require("telescope.builtin").oldfiles({ prompt_title = "Recent Files" })
+              require("telescope.builtin").oldfiles({
+                prompt_title = "Recent Files",
+                layout_config = {
+                  preview_width = 0.6,
+                },
+              })
             end,
             desc = " Recent files",
             icon = " ",
             key = "R",
           },
           {
-            -- action = "Telescope oldfiles",
             action = function()
               require("telescope.builtin").oldfiles({
                 prompt_title = "Recent Files in current working directory",
                 cwd_only = true,
+                layout_config = {
+                  preview_width = 0.6,
+                },
               })
             end,
             desc = " Recent files (cwd)",
@@ -57,7 +64,14 @@ return {
             key = "r",
           },
           {
-            action = "Telescope find_files",
+            action = function()
+              require("telescope.builtin").find_files({
+                cwd = Utils.find_root_directory(0, { ".git", "lua" }),
+                layout_config = {
+                  preview_width = 0.6,
+                },
+              })
+            end,
             desc = " Find files",
             icon = " ",
             key = "f",
@@ -73,6 +87,9 @@ return {
               require("telescope.builtin").find_files({
                 cwd = vim.fn.stdpath("config"),
                 prompt_title = "Config Files",
+                layout_config = {
+                  preview_width = 0.6,
+                },
               })
             end,
             desc = " Config",

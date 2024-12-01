@@ -32,11 +32,64 @@ return {
         },
         opts = { skip = true },
       },
+      -- disable neotree notification for empty directory
       {
         filter = {
           event = "notify",
-          find = "[Neo-tree INFO] No items, skipping git ignored/status lookups",
+          find = "No items, skipping git ignored/status lookups",
         },
+        opts = { skip = true },
+      },
+      -- disable neotree notification for toggle hidden files
+      {
+        filter = {
+          event = "notify",
+          find = "Toggling hidden files",
+        },
+        opts = { skip = true },
+      },
+      {
+        filter = {
+          event = "notify",
+          find = "Rename",
+        },
+        opts = { skip = true },
+      },
+      {
+        filter = {
+          event = "notify",
+          find = "fewer lines;",
+        },
+        opts = { skip = true },
+      },
+      {
+        filter = {
+          event = "notify",
+          find = "more line;",
+        },
+        opts = { skip = true },
+      },
+      { filter = { find = "fewer line;" }, opts = { skip = true } },
+      { filter = { find = "more lines;" }, opts = { skip = true } },
+      { filter = { find = "less;" }, opts = { skip = true } },
+      { filter = { find = "Already at newest" }, view = "mini" },
+      { filter = { find = "Already at oldest" }, view = "mini" },
+      { filter = { find = "change;" }, opts = { skip = true } },
+      { filter = { find = "changes;" }, opts = { skip = true } },
+      { filter = { find = "indent" }, opts = { skip = true } },
+      { filter = { find = "move" }, opts = { skip = true } },
+
+      -- Disable "search messages"
+      {
+        filter = { event = "msg_show", kind = "wmsg", find = "search hit BOTTOM, continuing at TOP" },
+        opts = { skip = true },
+      },
+      {
+        filter = { event = "msg_show", kind = "wmsg", find = "search hit TOP, continuing at BOTTOM" },
+        opts = { skip = true },
+      },
+      {
+        filter = { event = "msg_show", find = "written" },
         opts = { skip = true },
       },
     },

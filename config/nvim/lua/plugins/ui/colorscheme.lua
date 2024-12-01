@@ -28,6 +28,9 @@ M.rose_pine = {
       ["@type.builtin"] = { fg = "#db4b4b" },
       ["@type"] = { fg = "#db4b4b" },
       Type = { fg = "#db4b4b" },
+      TelescopeTitle = { fg = "base", bg = "love" },
+      TelescopePromptTitle = { fg = "base", bg = "pine" },
+      TelescopePreviewTitle = { fg = "base", bg = "iris" },
     },
   },
   config = function(_, opts)

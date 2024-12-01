@@ -403,4 +403,6 @@ M.colors = {
   },
 }
 
-return M.plugin
+-- disabling for now
+-- TODO: define other highligh patterns
+return {}

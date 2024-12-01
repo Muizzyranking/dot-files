@@ -1,4 +1,3 @@
-local detail = false
 return {
   {
     "stevearc/oil.nvim",
@@ -21,6 +20,7 @@ return {
     },
     opts = function()
       -- disable cmp in oil buffer
+      local detail = false
       vim.api.nvim_create_autocmd("FileType", {
         pattern = "oil",
         callback = function()
@@ -29,7 +29,7 @@ return {
       })
       return {
         default_file_explorer = true,
-        delete_to_trash = false,
+        delete_to_trash = true,
         skip_confirm_for_simple_edits = true,
         columns = {
           "icon",

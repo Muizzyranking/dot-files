@@ -43,23 +43,25 @@ return {
       },
     },
   },
-  {
-    "smjonas/inc-rename.nvim",
-    opts = {},
-    cmd = "IncRename",
-    keys = {
-      {
-        "<leader>cr",
-        function()
-          local inc_rename = require("inc_rename")
-          return ":" .. inc_rename.config.cmd_name .. " " .. vim.fn.expand("<cword>")
-        end,
-        expr = true,
-        desc = "Rename",
-      },
-      config = true,
-    },
-  },
+  -- some errors, will check later
+  -- I now use in built rename API
+  -- {
+  --   "smjonas/inc-rename.nvim",
+  --   opts = {},
+  --   cmd = "IncRename",
+  --   keys = {
+  --     {
+  --       "<leader>cr",
+  --       function()
+  --         local inc_rename = require("inc_rename")
+  --         return ":" .. inc_rename.config.cmd_name .. " " .. vim.fn.expand("<cword>")
+  --       end,
+  --       expr = true,
+  --       desc = "Rename",
+  --     },
+  --     config = true,
+  --   },
+  -- },
   {
     "chrisgrieser/nvim-rip-substitute",
     config = function() end,

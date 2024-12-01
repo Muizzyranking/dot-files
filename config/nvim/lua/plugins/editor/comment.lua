@@ -28,12 +28,7 @@ return {
   {
     "folke/ts-comments.nvim",
     event = "LazyFile",
-    opts = {
-      lang = {
-        c = "/*%s*/",
-        hyprlang = "# %s",
-      },
-      enabled = vim.fn.has("nvim-0.10.0") == 1,
-    },
+    enabled = vim.fn.has("nvim-0.10.0") == 1,
+    opts = {},
   },
 }

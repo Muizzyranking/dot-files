@@ -1,7 +1,6 @@
 return {
   "nvim-lualine/lualine.nvim",
   event = "VeryLazy",
-  lazy = true,
   init = function()
     vim.g.lualine_laststatus = vim.o.laststatus
     if vim.fn.argc(-1) > 0 then
@@ -10,19 +9,11 @@ return {
       vim.o.laststatus = 0
     end
   end,
-  config = function()
-    local lualine = require("lualine")
-    local utils = require("utils.lualine.utils")
-    local get_telescope_prompt = utils.get_telescope_prompt
-    local get_telescope_num = utils.get_telescope_num
-    local colors = {
-      [""] = utils.fg("Special"),
-      ["Normal"] = utils.fg("Special"),
-      ["Warning"] = utils.fg("DiagnosticError"),
-      ["InProgress"] = utils.fg("DiagnosticWarn"),
-    }
+  opts = function()
+    local lualine_require = require("lualine_require")
+    lualine_require.require = require
 
-    lualine.setup({
+    return {
       options = {
         icons_enabled = true,
         theme = "auto",
@@ -38,22 +29,11 @@ return {
         winbar = { "" },
         ignore_focus = { "" },
         always_divide_middle = false,
-        refresh = {
-          statusline = 1000,
-          tabline = 1000,
-          winbar = 1000,
-        },
       },
       sections = {
-        lualine_a = {
-          Utils.lualine.mode,
-          "mode",
-        },
+        lualine_a = { Utils.lualine.mode },
         lualine_b = {
-          {
-            "branch",
-            color = { gui = "italic" },
-          },
+          { "branch", color = { gui = "italic" } },
           Utils.lualine.root_dir,
           {
             "diff",
@@ -95,7 +75,7 @@ return {
             cond = function()
               return package.loaded["noice"] and require("noice").api.status.command.has()
             end,
-            color = utils.fg("Statement"),
+            color = Utils.lualine.fg("Statement"),
           },
           {
             function()
@@ -104,35 +84,10 @@ return {
             cond = function()
               return package.loaded["noice"] and require("noice").api.status.mode.has()
             end,
-            color = utils.fg("Constant"),
+            color = Utils.lualine.fg("Constant"),
           },
         },
         lualine_y = {
-          {
-            function()
-              local icon = require("utils.icons").kinds.Copilot
-              local status = require("copilot.api").status.data
-              return icon .. (status.message or "")
-            end,
-            cond = function()
-              if not package.loaded["copilot"] then
-                return
-              end
-              local ok, clients = pcall(Utils.lsp.get_clients, { name = "copilot", bufnr = 0 })
-              if not ok then
-                return false
-              end
-              return ok and #clients > 0
-            end,
-            color = function()
-              if not package.loaded["copilot"] then
-                return
-              end
-              local status = require("copilot.api").status.data
-              return colors[status.status] or colors[""]
-            end,
-          },
-
           Utils.lualine.formatters,
           Utils.lualine.lsp,
         },
@@ -162,13 +117,7 @@ return {
       winbar = {},
       inactive_winbar = {},
       extensions = {
-        {
-          sections = {
-            lualine_a = { get_telescope_prompt },
-            lualine_b = { get_telescope_num },
-          },
-          filetypes = { "TelescopePrompt" },
-        },
+        Utils.telescope.lualine,
         Utils.git.lualine,
         Utils.terminal.lualine,
         Utils.runner.lualine,
@@ -180,6 +129,6 @@ return {
         "man",
         "trouble",
       },
-    })
+    }
   end,
 }
