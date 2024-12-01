@@ -6,7 +6,7 @@ local title
 
 ---------------------------------------------------------------
 --- Open lazygit in a floating terminal
----@param args string[]|nil Additional arguments for lazygit
+---@param args? string[] Additional arguments for lazygit
 ---------------------------------------------------------------
 function M.lazygit(args)
   if not Utils.is_in_git_repo then

@@ -1,6 +1,105 @@
 ---@class utils.lsp
 local M = {}
 
+--- Table to track supported methods for LSP clients
+M._supports_method = {}
+
+----------------------------------------------------
+--- Set up custom LSP handler for dynamic capability registration
+--- Overrides the default client/registerCapability handler to trigger a User event
+--- when new capabilities are registered for a client
+----------------------------------------------------
+function M.setup()
+  local register_capability = vim.lsp.handlers["client/registerCapability"]
+  vim.lsp.handlers["client/registerCapability"] = function(err, res, ctx)
+    ---@diagnostic disable-next-line: no-unknown
+    local ret = register_capability(err, res, ctx)
+    local client = vim.lsp.get_client_by_id(ctx.client_id)
+    if client then
+      for buffer in pairs(client.attached_buffers) do
+        vim.api.nvim_exec_autocmds("User", {
+          pattern = "LspDynamicCapability",
+          data = { client_id = client.id, buffer = buffer },
+        })
+      end
+    end
+    return ret
+  end
+  M.on_attach(M._check_methods)
+  M.on_dynamic_capability(M._check_methods)
+end
+
+----------------------------------------------------
+--- Register a callback for a specific LSP method support
+--- @param method string The LSP method to check support for
+--- @param fn function Callback function to execute when method is supported
+--- @return number Autocmd ID
+----------------------------------------------------
+function M.on_support_methods(method, fn)
+  M._supports_method[method] = M._supports_method[method] or setmetatable({}, { __mode = "k" })
+  return vim.api.nvim_create_autocmd("User", {
+    pattern = "LspSupportsMethod",
+    callback = function(args)
+      local client = vim.lsp.get_client_by_id(args.data.client_id)
+      local buffer = args.data.buffer ---@type number
+      if client and method == args.data.method then
+        return fn(client, buffer)
+      end
+    end,
+  })
+end
+
+----------------------------------------------------
+--- Create an autocmd for handling dynamic LSP capabilities
+--- @param fn function Callback function to execute when a dynamic capability is detected
+--- @param opts? table Optional configuration for the autocmd
+--- @return number Autocmd ID
+----------------------------------------------------
+function M.on_dynamic_capability(fn, opts)
+  return vim.api.nvim_create_autocmd("User", {
+    pattern = "LspDynamicCapability",
+    group = opts and opts.group or nil,
+    callback = function(args)
+      local client = vim.lsp.get_client_by_id(args.data.client_id)
+      local buffer = args.data.buffer ---@type number
+      if client then
+        return fn(client, buffer)
+      end
+    end,
+  })
+end
+
+----------------------------------------------------
+--- Internal method to check and track supported LSP methods for clients
+--- @param client vim.lsp.Client The LSP client
+--- @param buffer number The buffer number
+----------------------------------------------------
+function M._check_methods(client, buffer)
+  -- don't trigger on invalid buffers
+  if not vim.api.nvim_buf_is_valid(buffer) then
+    return
+  end
+  -- don't trigger on non-listed buffers
+  if not vim.bo[buffer].buflisted then
+    return
+  end
+  -- don't trigger on nofile buffers
+  if vim.bo[buffer].buftype == "nofile" then
+    return
+  end
+  for method, clients in pairs(M._supports_method) do
+    clients[client] = clients[client] or {}
+    if not clients[client][buffer] then
+      if client.supports_method and client.supports_method(method, { bufnr = buffer }) then
+        clients[client][buffer] = true
+        vim.api.nvim_exec_autocmds("User", {
+          pattern = "LspSupportsMethod",
+          data = { client_id = client.id, buffer = buffer, method = method },
+        })
+      end
+    end
+  end
+end
 ----------------------------------------------------
 -- Create auto command for LSP attach
 ---@param on_attach fun(client:vim.lsp.Client, buffer)
@@ -42,80 +141,6 @@ function M.get_clients(opts)
 end
 
 ----------------------------------------------------
--- Format buffer using registered formatters
----@param opts? lsp.Client.format Optional formatting options
-----------------------------------------------------
-function M.format(opts)
-  opts = vim.tbl_deep_extend(
-    "force",
-    {},
-    opts or {},
-    Utils.opts("nvim-lspconfig").format or {},
-    Utils.opts("conform.nvim").format or {}
-  )
-  local ok, conform = pcall(require, "conform")
-  -- use conform for formatting with LSP when available,
-  -- since it has better format diffing
-  if ok then
-    opts.formatters = {}
-    conform.format(opts)
-  else
-    vim.lsp.buf.format(opts)
-  end
-end
-
-----------------------------------------------------
--- Create a formatter object
----@param opts table? Optional formatter options
----@return table Formatter object
-----------------------------------------------------
-function M.formatter(opts)
-  opts = opts or {}
-  local filter = opts.filter or {}
-  filter = type(filter) == "string" and { name = filter } or filter
-  local ret = {
-    name = "LSP",
-    primary = true,
-    priority = 1,
-    format = function(buf)
-      M.format(Utils.merge({}, filter, { bufnr = buf }))
-    end,
-    sources = function(buf)
-      local clients = M.get_clients(Utils.merge({}, filter, { bufnr = buf }))
-      ---@param client vim.lsp.Client
-      local ret = vim.tbl_filter(function(client)
-        return client.supports_method("textDocument/formatting")
-          or client.supports_method("textDocument/rangeFormatting")
-      end, clients)
-      ---@param client vim.lsp.Client
-      return vim.tbl_map(function(client)
-        return client.name
-      end, ret)
-    end,
-  }
-  return Utils.merge(ret, opts)
-end
-
-----------------------------------------------------
--- Set LSP server keys
----@param server string LSP server configuration
----@param server_opts table LSP server configuration
-----------------------------------------------------
-function M.set_keys(server, server_opts)
-  if server_opts.keys then
-    M.on_attach(function(_, buffer)
-      local function map(lhs, rhs, desc)
-        vim.keymap.set("n", lhs, rhs, { desc = desc, buffer = buffer })
-      end
-      for _, key in ipairs(server_opts.keys) do
-        local lhs, rhs = key[1], key[2]
-        map(lhs, rhs, key.desc)
-      end
-    end, server)
-  end
-end
-
-----------------------------------------------------
 -- Execute LSP command
 ---@param opts LspCommand Options for the LSP command
 ----------------------------------------------------
@@ -152,60 +177,102 @@ M.action = setmetatable({}, {
   end,
 })
 
-M.cmp = {}
+----------------------------------------------------
+--- Lets LSP clients know that a file has been renamed
+---@param from string
+---@param to string
+---@param rename? fun()
+----------------------------------------------------
+function M.on_rename_file(from, to, rename)
+  local changes = { files = { {
+    oldUri = vim.uri_from_fname(from),
+    newUri = vim.uri_from_fname(to),
+  } } }
 
-local function snippet_preview(snippet)
-  local ok, parsed = pcall(vim.lsp._snippet_grammar.parse, snippet)
-  if ok then
-    return tostring(parsed)
-  else
-    return snippet:gsub("%${%d+:(.-)}", "%1"):gsub("%$%d+", ""):gsub("%$0", "")
-  end
-end
-
-local function snippet_fix(snippet)
-  local texts = {}
-  return snippet:gsub("%$%b{}", function(m)
-    local n, name = m:match("^%${(%d+):(.+)}$")
-    if n then
-      texts[n] = texts[n] or snippet_preview(name)
-      return "${" .. n .. ":" .. texts[n] .. "}"
+  local clients = (vim.lsp.get_clients or vim.lsp.get_active_clients)()
+  for _, client in ipairs(clients) do
+    if client.supports_method("workspace/willRenameFiles") then
+      local resp = client.request_sync("workspace/willRenameFiles", changes, 1000, 0)
+      if resp and resp.result ~= nil then
+        vim.lsp.util.apply_workspace_edit(resp.result, client.offset_encoding)
+      end
     end
-    return m
-  end)
+  end
+
+  if rename then
+    rename()
+  end
+
+  for _, client in ipairs(clients) do
+    if client.supports_method("workspace/didRenameFiles") then
+      client.notify("workspace/didRenameFiles", changes)
+    end
+  end
 end
 
-local function notify_user(success, msg, snippet)
-  local status = success and "warn" or "error"
-  Utils.notify[status](
-    ([[%s
-      ```%s
-      %s
-      ```]]):format(msg, vim.bo.filetype, snippet),
-    { title = "vim.snippet" }
+----------------------------------------------------
+--- Get the configuration for a specific LSP server
+--- @param server string Name of the LSP server
+--- @return table LSP server configuration
+----------------------------------------------------
+function M.get_config(server)
+  local ok, ret = pcall(require, "lspconfig.configs." .. server)
+  if ok then
+    return ret
+  end
+  return require("lspconfig.server_configurations." .. server)
+end
+
+----------------------------------------------------
+--- Check if a specific LSP method is supported
+--- @param buffer number Buffer number
+--- @param method string|string[] LSP method or array of methods to check
+--- @return boolean Whether the method(s) is supported
+----------------------------------------------------
+function M.has(buffer, method)
+  if type(method) == "table" then
+    for _, m in ipairs(method) do
+      if M.has(buffer, m) then
+        return true
+      end
+    end
+    return false
+  end
+  method = method:find("/") and method or "textDocument/" .. method
+  local clients = M.get_clients({ bufnr = buffer })
+  for _, client in ipairs(clients) do
+    if client.supports_method(method) then
+      return true
+    end
+  end
+  return false
+end
+
+----------------------------------------------------
+--- Navigate to next or previous diagnostic
+--- @param next boolean Whether to go to next (true) or previous (false) diagnostic
+--- @param severity? string Diagnostic severity level
+--- @return function Diagnostic navigation function
+----------------------------------------------------
+function M.diagnostic_goto(next, severity)
+  local go = next and vim.diagnostic.goto_next or vim.diagnostic.goto_prev
+  severity = severity and vim.diagnostic.severity[severity] or nil
+  return function()
+    go({ severity = severity })
+  end
+end
+
+----------------------------------------------------
+--- Toggle inlay hints for a buffer
+--- @param buffer number Buffer number
+----------------------------------------------------
+function M.toggle_inlay_hints(buffer)
+  local disabled = vim.lsp.inlay_hint.is_enabled({ bufnr = buffer })
+  vim.lsp.inlay_hint.enable(not disabled)
+  Utils.notify[disabled and "warn" or "info"](
+    string.format("Inlay Hints %s", disabled and "disabled" or "enabled"),
+    { timeout = 2000, title = "LSP" }
   )
-end
-
-function M.cmp.expand_snippet(args)
-  local snippet = args.body
-  local session = vim.snippet.active() and vim.snippet._session or nil
-
-  -- Attempt to expand the snippet
-  local ok, err = pcall(vim.snippet.expand, snippet)
-
-  if not ok then
-    -- Try to fix the snippet and expand again if it fails
-    local fixed = snippet_fix(snippet)
-    ok = pcall(vim.snippet.expand, fixed)
-    local msg = ok and "Failed to parse snippet, but was able to fix it automatically."
-      or ("Failed to parse snippet.\n" .. err)
-    notify_user(ok, msg, snippet)
-  end
-
-  -- Restore the original snippet session if necessary
-  if session then
-    vim.snippet._session = session
-  end
 end
 
 return M

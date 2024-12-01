@@ -3,16 +3,15 @@
 ---@field icons utils.icons
 ---@field keys utils.keys
 ---@field lsp utils.lsp
+---@field cmp utils.cmp
 ---@field format utils.format
 ---@field notify utils.notify
 ---@field runner utils.runner
 ---@field terminal utils.terminal
 ---@field ui utils.ui
 ---@field lualine utils.lualine
-
---------------------------
--- Module definition
---------------------------
+---@field telescope utils.telescope
+---@field setup_lang utils.setup_lang
 local M = {}
 
 setmetatable(M, {
@@ -67,6 +66,10 @@ function M.on_load(name, fn)
   end
 end
 
+--------------------------------------------------------------------------
+-- lazily execute a function
+---@param fn function
+--------------------------------------------------------------------------
 function M.on_very_lazy(fn)
   vim.api.nvim_create_autocmd("User", {
     pattern = "VeryLazy",
@@ -138,9 +141,20 @@ end
 ---@return boolean
 ---------------------------------------------------------------
 function M.is_in_git_repo()
-  local handle = io.popen("git rev-parse --is-inside-work-tree 2>/dev/null")
+  local handle, err = io.popen("git rev-parse --is-inside-work-tree 2>/dev/null")
+  if not handle then
+    Utils.notify.error("Failed to check git repository: " .. (err or "unknown error"))
+    return false
+  end
+
   local result = handle:read("*a")
   handle:close()
+
+  if not result then
+    Utils.notify.error("Failed to read git command output.")
+    return false
+  end
+
   return result:match("true") ~= nil
 end
 
@@ -170,9 +184,9 @@ function M.find_root_directory(buf, patterns)
   end
 
   -- Retrieve the buffer path or current working directory if buffer path is unavailable
-  local path = vim.api.nvim_buf_get_name(buf)
+  local path = vim.api.nvim_buf_get_name(buf) or ""
   if path == "" then
-    path = vim.uv.cwd()
+    path = vim.uv.cwd() or ""
   else
     -- Resolve the real path and normalize it
     path = vim.uv.fs_realpath(path) or path
@@ -181,11 +195,13 @@ function M.find_root_directory(buf, patterns)
     ---@diagnostic disable-next-line: param-type-mismatch
     if path:sub(1, 1) == "~" then
       local home = vim.uv.os_homedir()
-      if home:sub(-1) == "\\" or home:sub(-1) == "/" then
-        home = home:sub(1, -2)
+      if home then
+        if home:sub(-1) == "\\" or home:sub(-1) == "/" then
+          home = home:sub(1, -2)
+        end
+        ---@diagnostic disable-next-line: param-type-mismatch
+        path = home .. path:sub(2)
       end
-      ---@diagnostic disable-next-line: param-type-mismatch
-      path = home .. path:sub(2)
     end
     ---@diagnostic disable-next-line: param-type-mismatch
     path = path:gsub("\\", "/"):gsub("/+", "/")
@@ -210,6 +226,7 @@ end
 
 ---------------------------------------------------------------
 --- Set keymap using which key
+---@alias MapTable { [1]: string, [2]: string|function, desc?: string|function, mode?: string|string[], buffer?: number|boolean, icon?: string|function, silent?: boolean, remap?: boolean }
 ---@param mappings MapTable
 ---------------------------------------------------------------
 function M.map(mappings)
@@ -219,34 +236,38 @@ function M.map(mappings)
   end
   for _, mapping in ipairs(mappings) do
     local lhs, rhs = mapping[1], mapping[2]
-    local map = {
-      lhs,
-      rhs,
-      desc = mapping.desc or "",
-      mode = mapping.mode or "n",
+    local opts = {
+      desc = type(mapping.desc) == "function" and mapping.desc() or (mapping.desc or ""),
     }
     if mapping.buffer then
-      map.buffer = mapping.buffer
-    end
-    if mapping.icon then
-      map.icon = mapping.icon
+      opts.buffer = mapping.buffer
     end
     if mapping.silent ~= nil then
-      map.silent = mapping.silent
+      opts.silent = mapping.silent
     end
     if mapping.remap ~= nil then
-      map.remap = mapping.remap
+      opts.remap = mapping.remap
     end
-    table.insert(keys, map)
-    if not M.has("which-key.nvim") then
-      local opts = {}
-      opts.desc = map.desc
-      vim.keymap.set(map.mode, lhs, rhs, opts)
+    if mapping.expr ~= nil then
+      opts.expr = mapping.expr
+    end
+    vim.keymap.set(mapping.mode or "n", lhs, rhs, opts)
+    if mapping.icon ~= nil then
+      local key_entry = { lhs, icon = mapping.icon }
+      if mapping.buffer then
+        key_entry.buffer = mapping.buffer
+      end
+      table.insert(keys, key_entry)
     end
   end
-  M.on_load("which-key.nvim", function()
-    require("which-key").add(keys)
-  end)
+
+  if #keys > 0 then
+    if M.has("which-key.nvim") then
+      M.on_load("which-key.nvim", function()
+        require("which-key").add(keys)
+      end)
+    end
+  end
 end
 
 return M

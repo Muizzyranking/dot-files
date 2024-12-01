@@ -3,7 +3,7 @@ local M = {}
 
 ----------------------------------------------------------
 --- Wrapper function for Neovim's notification system
----@param msg string The message to be displayed in the notification
+---@param msg string|table The message to be displayed in the notification
 ---@param opts? table Additional options for the notification
 ----------------------------------------------------------
 function M.notify(msg, opts)
@@ -49,7 +49,7 @@ end
 
 -------------------------------
 -- Display an informational message
----@param msg string
+---@param msg string|table
 ---@param opts? table
 -------------------------------
 function M.info(msg, opts)
@@ -60,7 +60,7 @@ end
 
 -----------------------------
 -- Display a warning message
----@param msg string
+---@param msg string|table
 ---@param opts? table
 -----------------------------
 function M.warn(msg, opts)
@@ -71,7 +71,7 @@ end
 
 -----------------------------
 -- Display a warning message
----@param msg string
+---@param msg string|table
 ---@param opts? table
 -----------------------------
 function M.error(msg, opts)

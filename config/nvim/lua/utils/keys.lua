@@ -4,7 +4,7 @@ local M = {}
 -----------------------------------------------------------
 -- Create a new file
 -----------------------------------------------------------
-M.new_file = function()
+function M.new_file()
   local path_and_filename = vim.fn.input("Enter file name: ")
   if path_and_filename == "" then
     return
@@ -33,11 +33,13 @@ function M.toggle_diagnostics()
 
   if spell_enabled then
     vim.diagnostic.enable()
-    Utils.notify.info("Enabled diagnostics", { title = "Diagnostics" })
   else
     vim.diagnostic.disable()
-    Utils.Utils.notify.warn("Disabled diagnostics", { title = "Diagnostics" })
   end
+  Utils.notify[spell_enabled and "info" or "warn"](
+    spell_enabled and "Enabled diagnostics" or "Disabled diagnostics",
+    { title = "Diagnostics" }
+  )
 end
 
 -----------------------------------------------------------
@@ -45,13 +47,11 @@ end
 -----------------------------------------------------------
 function M.toggle_line_wrap()
   local wrapped = vim.opt.wrap:get()
-  vim.opt.wrap = not wrapped -- Toggle wrap based on current state
-  if wrapped then
-    Utils.notify.warn("Line wrap disabled.", { title = "Option" })
-  else
-    vim.opt.wrap = true -- Toggle wrap based on current state
-    Utils.notify.info("Line wrap enabled.", { title = "Option" })
-  end
+  vim.opt.wrap = not wrapped
+  Utils.notify[wrapped and "warn" or "info"](
+    wrapped and "Line wrap disabled." or "Line wrap enabled.",
+    { title = "Option" }
+  )
 end
 
 -----------------------------------------------------------
@@ -60,19 +60,14 @@ end
 function M.toggle_spell()
   local spell = vim.opt.spell:get()
   vim.opt.spell = not spell -- Toggle wrap based on current state
-  if spell then
-    Utils.notify.warn("Spell disabled.", { title = "Option" })
-  else
-    vim.opt.spell = true -- Toggle wrap based on current state
-    Utils.notify.info("Spell enabled.", { title = "Option" })
-  end
+  Utils.notify[spell and "warn" or "info"](spell and "Spell disabled." or "Spell enabled.", { title = "Option" })
 end
 
 -----------------------------------------------------------
 -- Make the current file executable
 -----------------------------------------------------------
 function M.toggle_file_executable()
-  local filename = vim.fn.expand("%")
+  local filename = vim.fn.expand("%:p")
   local cmd, success_message, error_message
   if Utils.is_executable(filename) then
     cmd = "chmod -x " .. filename
@@ -95,7 +90,7 @@ end
 -------------------------------------
 -- Duplicate the current line.
 -------------------------------------
-M.duplicate_line = function()
+function M.duplicate_line()
   local current_line = vim.api.nvim_get_current_line() -- Get the current line
   local cursor = vim.api.nvim_win_get_cursor(0) -- Get current cursor position
   vim.api.nvim_buf_set_lines(0, cursor[1], cursor[1], false, { current_line })
@@ -105,7 +100,7 @@ end
 -------------------------------------
 -- Duplicate the currently selected lines in visual mode.
 -------------------------------------
-M.duplicate_selection = function()
+function M.duplicate_selection()
   local start_line = vim.fn.line("v")
   local end_line = vim.fn.line(".")
   if start_line > end_line then
@@ -122,7 +117,7 @@ end
 -- Remove a buffer, prompting to save changes if the buffer is modified.
 ---@param buf number|nil
 -------------------------------------
-M.bufremove = function(buf)
+function M.bufremove(buf)
   buf = buf or 0
   buf = buf == 0 and vim.api.nvim_get_current_buf() or buf
 

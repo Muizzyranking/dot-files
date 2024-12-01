@@ -1,12 +1,17 @@
 ---@class utils.icons
---------------------------
--- Icons
---------------------------
 return {
   ui = {
     Target = "󰀘 ",
     ActiveLSP = " ",
     File = "󰈚 ",
+  },
+  neotree = {
+    git = "󰊢 ",
+    buffer = "󰏚 ",
+    folder = " ",
+  },
+  misc = {
+    dots = "󰇘",
   },
   formatters = {
     prettierd = "",
@@ -17,14 +22,6 @@ return {
     ["sql-formatter"] = "󰆼",
     stylua = "",
     fallback = "󰉼",
-  },
-  neotree = {
-    git = "󰊢 ",
-    buffer = "󰏚 ",
-    folder = " ",
-  },
-  misc = {
-    dots = "󰇘",
   },
   dap = {
     Stopped = { "󰁕 ", "DiagnosticWarn", "DapStoppedLine" },

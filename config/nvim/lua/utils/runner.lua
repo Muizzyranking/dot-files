@@ -84,6 +84,7 @@ local lang_configs = {
         return string.format("python -m %s", vim.fn.fnamemodify(dir, ":t"))
       end
     end,
+    runner = "python",
   },
   c = {
     compiled = true,
@@ -100,6 +101,7 @@ local lang_configs = {
       local cmd = string.format("gcc %s/*.c -o %s/bin", dir, output_dir)
       return cmd
     end,
+    runner = "gcc",
   },
 }
 
@@ -254,7 +256,7 @@ end
 
 ---------------------------------------------------------------
 -- Set up the CodeRunner for a specific language
----@param lang string
+---@param lang? string
 ---------------------------------------------------------------
 function M.setup(lang)
   local options = {
@@ -266,8 +268,15 @@ function M.setup(lang)
     "Show last output",
   }
 
-  if not Utils.is_executable(lang) then
-    Utils.notify.error(lang .. " is not installed", { title = "CodeRunner" })
+  lang = lang or vim.bo.filetype
+  if not lang_configs[lang] then
+    Utils.notify.error("Unsupported language: " .. lang, { title = "CodeRunner" })
+    return
+  end
+  local runner = lang_configs[lang].runner
+
+  if not Utils.is_executable(runner) then
+    Utils.notify.error(runner .. " is not installed", { title = "CodeRunner" })
     return
   end
 
