@@ -1,13 +1,14 @@
+_G.Utils = require("utils")
+
 ------------------------------
--- List of modules to load
+-- Load modules
 ------------------------------
-local modules = {
-  "options",
-  "keymaps",
-  "lazy",
-  "autocmd",
-  "abbrevations",
-}
+-- stylua: ignore start
+local loaded        = 0
+local failed        = {}
+local total_modules = 0
+
+local lazy_load = vim.fn.argc(-1) == 0
 
 ------------------------------
 -- Function to load a module
@@ -15,46 +16,46 @@ local modules = {
 ---@return boolean
 ------------------------------
 local function load_module(module)
+  total_modules = total_modules + 1
   local ok, err = pcall(require, "config." .. module)
-  if not ok then
-    vim.notify(
-      string.format("Error loading module '%s': %s", module, err),
-      vim.log.levels.ERROR,
-      { title = "Module Loading Error" }
-    )
-    return false
-  end
-  return true
-end
-
-------------------------------
--- Counters for loaded and failed modules
-------------------------------
-local loaded_modules = 0
-local failed_modules = {}
-
-------------------------------
--- safely load modules and track their status.
-------------------------------
-for _, module in ipairs(modules) do
-  if load_module(module) then
-    loaded_modules = loaded_modules + 1
+  if ok then
+    loaded = loaded + 1
   else
-    table.insert(failed_modules, module)
+    table.insert(failed, module)
+    vim.api.nvim_err_writeln(string.format("Error loading module '%s': %s", module, err))
   end
+  return ok
 end
 
 ------------------------------
--- Notify about the overall loading status
+-- Load Immediate Modules
 ------------------------------
-if #failed_modules > 0 then
+load_module("globals")
+load_module("options")
+load_module("lazy")
+if not lazy_load then
+  load_module("autocmd") -- Load autocmd immediately if a file is opened
+end
+
+local group = vim.api.nvim_create_augroup("LazyModules", { clear = true })
+vim.api.nvim_create_autocmd("User", {
+  group = group,
+  pattern = "VeryLazy",
+  callback = function()
+    if lazy_load then
+      load_module("autocmd")
+    end
+    load_module("keymaps")
+    load_module("abbrevations")
+  end,
+})
+
+------------------------------
+-- Report any loading errors
+------------------------------
+if #failed > 0 then
   vim.notify(
-    string.format(
-      "Loaded %d/%d modules. Failed modules: %s",
-      loaded_modules,
-      #modules,
-      table.concat(failed_modules, ", ")
-    ),
+    string.format("Loaded %d/%d modules. Failed: %s", loaded, total_modules, table.concat(failed, ", ")),
     vim.log.levels.WARN,
     { title = "Module Loading Summary" }
   )
@@ -63,5 +64,4 @@ end
 ------------------------------
 -- Set the colorscheme
 ------------------------------
-local colorscheme = vim.g.colorscheme
-vim.cmd("colorscheme " .. colorscheme)
+Utils.ui.set_colorscheme("rose-pine")

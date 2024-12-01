@@ -1,8 +1,6 @@
 --- @class LazyEventModule
 local M = {}
 
-local utils = require("utils")
-
 ---------------------------------------------------------------
 --- Setup a custom event for lazy loading
 ---@param event_name string Name of the custom event
@@ -85,7 +83,7 @@ end
 --- Setup the custom InGitRepo event
 ---------------------------------------------------------------
 function M.setup_ingitrepo()
-  setup_event("InGitRepo", utils.is_in_git_repo)
+  setup_event("InGitRepo", Utils.is_in_git_repo)
 end
 
 return M

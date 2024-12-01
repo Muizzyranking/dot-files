@@ -1,3 +1,4 @@
+_G.Utils = require("utils")
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
@@ -16,23 +17,34 @@ vim.keymap.set("n", "<leader>l", ":Lazy<cr>", { desc = "Lazy", silent = true })
 require("config.events").setup_lazyfile()
 require("config.events").setup_ingitrepo()
 
-local colorscheme = vim.g.colorscheme
 require("lazy").setup({
   spec = {
-    { import = "plugins" },
+    { import = "plugins.lsp" },
+    { import = "plugins.editor" },
+    { import = "plugins.ui" },
+    { import = "plugins.ai" },
+    { import = "plugins.lang.lua" },
     { import = "plugins.lang.python" },
+    { import = "plugins.lang.typescript" },
     { import = "plugins.lang.json" },
     { import = "plugins.lang.markdown" },
+    { import = "plugins.lang.bash" },
+    { import = "plugins.lang.html-css" },
+    { import = "plugins.lang.clarity" },
+    { import = "plugins.lang.solidity" },
     -- { import = "plugins.lang.sql" },
     -- { import = "plugins.lang.c" },
     -- { import = "plugins.extras.refactoring" },
     { import = "plugins.extras.codesnap" },
+    { import = "plugins" },
   },
   defaults = {
     lazy = true,
   },
   custom_keys = {},
-  install = { colorscheme = { colorscheme } },
+  install = {
+    colorscheme = { "rose-pine" },
+  },
   ui = {
     size = { width = 0.9, height = 0.9 },
     border = "rounded",
