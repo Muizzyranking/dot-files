@@ -307,7 +307,7 @@ table.insert(maps, {
     })
   end,
   desc = function()
-    return has_active_lsp_client() and "Restart LSP" or "Start LSP"
+    return has_active_lsp_client and "Restart LSP" or "Start LSP"
   end,
   icon = function()
     return has_active_lsp_client() and { icon = "󰜉 ", color = "orange" } or { icon = " ", color = "green" }

@@ -21,9 +21,6 @@ function M.notify(msg, opts)
       "\n"
     )
   end
-  if opts.stacktrace then
-    msg = msg .. M.pretty_trace({ level = opts.stacklevel or 2 })
-  end
   local lang = opts.lang or "markdown"
   local n = opts.once and vim.notify_once or vim.notify
   n(msg, opts.level or vim.log.levels.INFO, {

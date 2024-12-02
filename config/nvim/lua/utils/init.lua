@@ -79,54 +79,12 @@ function M.on_very_lazy(fn)
   })
 end
 
----------------------------------------------------------------
--- Fast implementation to check if a table is a list
----@param t table
----------------------------------------------------------------
-function M.is_list(t)
-  local i = 0
-  for _ in pairs(t) do
-    i = i + 1
-    if t[i] == nil then
-      return false
-    end
-  end
-  return true
-end
-
-----------------------------------------------------
--- Check if a value can be merged
----@param v any The value to check
----@return boolean Whether the value can be merged
-----------------------------------------------------
-local function can_merge(v)
-  return type(v) == "table" and (vim.tbl_isempty(v) or not M.is_list(v))
-end
-
 ----------------------------------------------------
 -- Merge multiple tables
 ---@param ... any Tables to merge
 ---@return table Merged table
 ----------------------------------------------------
-function M.merge(...)
-  local ret = select(1, ...)
-  if ret == vim.NIL then
-    ret = nil
-  end
-  for i = 2, select("#", ...) do
-    local value = select(i, ...)
-    if can_merge(ret) and can_merge(value) then
-      for k, v in pairs(value) do
-        ret[k] = M.merge(ret[k], v)
-      end
-    elseif value == vim.NIL then
-      ret = nil
-    elseif value ~= nil then
-      ret = value
-    end
-  end
-  return ret
-end
+-- M.merge = "require('lazy.core.util').merge"
 
 ---------------------------------------------------------------
 -- Check if the Neovim is running inside a TMUX session.
@@ -226,7 +184,6 @@ end
 
 ---------------------------------------------------------------
 --- Set keymap using which key
----@alias MapTable { [1]: string, [2]: string|function, desc?: string|function, mode?: string|string[], buffer?: number|boolean, icon?: string|function, silent?: boolean, remap?: boolean }
 ---@param mappings MapTable
 ---------------------------------------------------------------
 function M.map(mappings)
@@ -261,12 +218,10 @@ function M.map(mappings)
     end
   end
 
-  if #keys > 0 then
-    if M.has("which-key.nvim") then
-      M.on_load("which-key.nvim", function()
-        require("which-key").add(keys)
-      end)
-    end
+  if #keys > 0 and M.has("which-key.nvim") then
+    M.on_load("which-key.nvim", function()
+      require("which-key").add(keys)
+    end)
   end
 end
 

@@ -218,10 +218,7 @@ local function setup_language(config)
   if config.keys then
     create_autocmd("Filetype", config.ft, function(event)
       for _, mapping in ipairs(config.keys) do
-        mapping.buffer = mapping.ft or event.ft
-        if mapping.ft then
-          mapping.ft = nil
-        end
+        mapping.buffer = event.buf
       end
       Utils.map(config.keys)
     end)

@@ -43,3 +43,14 @@
 ---@field options? table<string, any> # Buffer options
 ---@field icons? table<string, table> # File icons configuration
 ---@field commentstring? string|table<string, any> # Comment string configuration
+
+---@class MapTable
+---@field [1] string
+---@field [2] string|function
+---@field desc? string|function
+---@field mode? string|string[]
+---@field buffer? number|boolean
+---@field icon? string|function
+---@field silent? boolean
+---@field remap? boolean
+---@field expr? boolean

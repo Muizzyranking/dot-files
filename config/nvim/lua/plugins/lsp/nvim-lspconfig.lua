@@ -187,29 +187,31 @@ return {
 
     Utils.lsp.on_attach(function(client, buffer)
       key_on_attach(client, buffer)
-      if client.server_capabilities.documentHighlightProvider then
-        local highlight_augroup = vim.api.nvim_create_augroup("lsp-highlight", { clear = true })
-        vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-          buffer = buffer,
-          group = highlight_augroup,
-          callback = vim.lsp.buf.document_highlight,
-        })
-        vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
-          buffer = buffer,
-          group = highlight_augroup,
-          callback = vim.lsp.buf.clear_references,
-        })
-      end
+      Utils.lsp.on_support_methods("textDocument/documentHighlight", function()
+        if client.server_capabilities.documentHighlightProvider then
+          local highlight_augroup = vim.api.nvim_create_augroup("lsp-highlight", { clear = true })
+          vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+            buffer = buffer,
+            group = highlight_augroup,
+            callback = vim.lsp.buf.document_highlight,
+          })
+          vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+            buffer = buffer,
+            group = highlight_augroup,
+            callback = vim.lsp.buf.clear_references,
+          })
+          vim.api.nvim_create_autocmd("LspDetach", {
+            group = vim.api.nvim_create_augroup("lsp-detach", { clear = true }),
+            callback = function()
+              vim.lsp.buf.clear_references()
+              vim.api.nvim_clear_autocmds({ group = highlight_augroup })
+            end,
+          })
+        end
+      end)
     end)
     Utils.lsp.setup()
     Utils.lsp.on_dynamic_capability(key_on_attach)
-
-    vim.api.nvim_create_autocmd("LspDetach", {
-      group = vim.api.nvim_create_augroup("lsp-detach", { clear = true }),
-      callback = function()
-        vim.lsp.buf.clear_references()
-      end,
-    })
 
     local has_cmp, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
     local capabilities = vim.tbl_deep_extend(
