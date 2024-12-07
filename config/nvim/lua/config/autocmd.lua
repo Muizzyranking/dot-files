@@ -209,44 +209,6 @@ create_autocmd("BufWritePost", {
   end,
 })
 
------------------------------------------------------------
--- Set the filetype for big files
------------------------------------------------------------
-vim.filetype.add({
-  pattern = {
-    [".*"] = {
-      function(path, buf)
-        return vim.bo[buf]
-            and vim.bo[buf].filetype ~= "bigfile"
-            and path
-            and vim.fn.getfsize(path) > vim.g.big_file
-            and "bigfile"
-          or nil
-      end,
-    },
-  },
-})
-
-create_autocmd({ "FileType" }, {
-  group = augroup("bifile"),
-  pattern = "bigfile",
-  callback = function(ev)
-    local path = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(ev.buf), ":p:~:.")
-    Utils.notify.warn({
-      ("Big file detected `%s`."):format(path),
-      "Some Neovim features have been **disabled**.",
-    }, { title = "Big File" })
-
-    -- Directly set up big file handling
-    vim.api.nvim_buf_call(ev.buf, function()
-      vim.b.minianimate_disable = true
-      vim.schedule(function()
-        vim.bo[ev.buf].syntax = vim.filetype.match({ buf = ev.buf }) or ""
-      end)
-    end)
-  end,
-})
-
 -- Remove from menu
 vim.api.nvim_command([[aunmenu PopUp.How-to\ disable\ mouse]])
 -- -- Add to menu
