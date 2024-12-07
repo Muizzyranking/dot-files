@@ -23,7 +23,7 @@ o.confirm                      = true -- Confirm before quitting unsaved buffers
 -- UI
 -----------------------------------------------------------
 o.showmode                     = false
-o.statuscolumn                 = [[%!v:lua.require("utils.ui").statuscolumn()]]
+o.statuscolumn                 = [[%!v:lua.require'snacks.statuscolumn'.get()]]
 vim.o.background               = "dark"
 o.winminwidth                  = 5 -- Minimum window width
 o.signcolumn                   = "yes" -- Always show the signcolumn, otherwise it would shift the text each time
