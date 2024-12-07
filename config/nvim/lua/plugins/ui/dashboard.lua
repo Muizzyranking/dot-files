@@ -1,22 +1,7 @@
-local logo = [[
-┈╭━━━━━━━━━━━╮┈
-┈┃╭━━━╮┊╭━━━╮┃┈
-╭┫┃┈▇┈┃┊┃┈▇┈┃┣╮
-┃┃╰━━━╯┊╰━━━╯┃┃
-╰┫╭━╮╰━━━╯╭━╮┣╯
-┈┃┃┣┳┳┳┳┳┳┳┫┃┃┈
-┈┃┃╰┻┻┻┻┻┻┻╯┃┃┈
-┈╰━━━━━━━━━━━╯┈
-=MUIZZYRANKING=
-
-]]
-
-return {
+local dashboard = {
   "nvimdev/dashboard-nvim",
   event = "VimEnter",
   opts = function()
-    logo = string.rep("\n", 8) .. logo .. "\n\n"
-
     local opts = {
       theme = "doom",
       hide = {
@@ -25,7 +10,7 @@ return {
         statusline = false,
       },
       config = {
-        header = vim.split(logo, "\n"),
+        -- header = vim.split(logo, "\n"),
         center = {
           {
             action = function()
@@ -136,3 +121,4 @@ return {
     return opts
   end,
 }
+return {}
