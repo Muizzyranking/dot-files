@@ -4,21 +4,13 @@ return {
   priority = 1000,
   opts = function()
     return {
-      bigfile = { enabled = true },
+      bigfile = {
+        enabled = true,
+        size = vim.g.big_file,
+      },
       notifier = { enabled = true },
       quickfile = { enabled = true },
       statuscolumn = { enabled = false },
-      terminal = {
-        win = {
-          keys = {
-            -- nav_h = { "<C-h>", term_nav("h"), desc = "Go to Left Window", expr = true, mode = "t" },
-            -- nav_j = { "<C-j>", term_nav("j"), desc = "Go to Lower Window", expr = true, mode = "t" },
-            -- nav_k = { "<C-k>", term_nav("k"), desc = "Go to Upper Window", expr = true, mode = "t" },
-            -- nav_l = { "<C-l>", term_nav("l"), desc = "Go to Right Window", expr = true, mode = "t" },
-          },
-        },
-      },
-      -- toggle = { map = LazyVim.safe_keymap_set },
       words = { enabled = true },
     }
   end,
