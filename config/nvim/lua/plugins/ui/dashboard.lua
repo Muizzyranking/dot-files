@@ -3,7 +3,7 @@ return {
   opts = {
     dashboard = {
       preset = {
-        header = Utils.ui.logo.my,
+        header = Utils.ui.logo.muizzy,
         keys = {
           {
             icon = " ",
