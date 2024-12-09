@@ -39,9 +39,9 @@ fi
 [[ ! -f ~/.p10k.zsh ]] || source "$HOME/.p10k.zsh"
 
 fpath+=${ZDOTDIR:-~}/.zsh_functions
-# fpath=(~/.zsh/completions "$fpath")
-# autoload -U compinit
-# compinit
+fpath+=("$HOME/.zsh/completions/" "$fpath")
+autoload -U compinit
+compinit
 
 eval "$(thefuck --alias)"
 eval "$(zoxide init zsh)"
@@ -61,3 +61,7 @@ f() {
         --bind 'enter:become:echo {2..}'
   ) && cd "$dir"
 }
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
