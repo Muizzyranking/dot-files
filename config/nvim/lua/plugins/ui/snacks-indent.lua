@@ -1,30 +1,9 @@
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = {
-    "help",
-    "alpha",
-    "dashboard",
-    "neo-tree",
-    "Trouble",
-    "trouble",
-    "lazy",
-    "mason",
-    "notify",
-    "toggleterm",
-    "lazyterm",
-    "toggleterm",
-    "lazygit",
-    "snacks_dashboard",
-  },
-  callback = function()
-    Snacks.indent.disable()
-  end,
-})
 return {
   "folke/snacks.nvim",
   opts = {
     indent = {
       indent = {
-        enabled = true, -- enable indent guides
+        enabled = true,
         char = "│",
         blank = " ",
         only_scope = false,
@@ -48,7 +27,7 @@ return {
         hl = "SnacksIndentScope",
       },
       chunk = {
-        enabled = true,
+        enabled = false,
         only_current = true,
         hl = "SnacksIndentChunk",
         char = {
