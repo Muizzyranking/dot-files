@@ -96,6 +96,7 @@ set({ "n", "v", "x" }, "x", '"_x') -- delete text without yanking
 
 -- set({ "n", "i", "t" }, "<C-_>", terminal, { noremap = true, silent = true, desc = "Toggle Terminal" })
 set({ "n", "i", "t" }, "<F7>", Utils.terminal.float_term, { noremap = true, silent = true, desc = "Toggle Terminal" })
+-- stylua: ignore end
 
 -- disable arrow key in normal mode
 set("n", "<UP>", function()
@@ -116,69 +117,89 @@ end)
 ------------------------------------
 local maps = {
   {
+    "<leader>bd",
+    Snacks.bufdelete.delete,
+    desc = "Delete buffer",
+    icon = { icon = "󰛌 ", color = "red" },
+  },
+  {
+    "<leader>bo",
+    Snacks.bufdelete.other,
+    desc = "Delete other buffers",
+    icon = { icon = "󰛌 ", color = "red" },
+  },
+  {
     "<leader>cx",
     function()
       Utils.keys.toggle_file_executable()
     end,
     desc = function()
-      local file = vim.fn.expand("%")
+      local file = vim.fn.expand("%:p")
       return "Make file " .. (Utils.is_executable(file) and "unexecutable" or "executable")
     end,
     icon = function()
-      local file = vim.fn.expand("%")
+      local file = vim.fn.expand("%:p")
       return Utils.is_executable(file) and { icon = "󰜺 ", color = "yellow" } or { icon = "󱐌 ", color = "red" }
     end,
   },
-  {
-    "<leader>uw",
-    function()
-      Utils.keys.toggle_line_wrap()
+  Utils.toggle_map({
+    key = "<leader>uw",
+    get_state = function()
+      return vim.opt.wrap:get()
     end,
-    desc = "Toggle line wrap",
-    icon = function()
-      return vim.opt.wrap:get() and { icon = " ", color = "green" } or { icon = " ", color = "yellow" }
+    toggle_fn = Utils.keys.toggle_line_wrap,
+    desc = "line wrap",
+  }),
+  Utils.toggle_map({
+    key = "<leader>ud",
+    get_state = function()
+      return not vim.diagnostic.is_disabled()
     end,
-  },
-  {
-    "<leader>ud",
-    function()
-      Utils.keys.toggle_diagnostics()
+    toggle_fn = Utils.keys.toggle_diagnostics,
+    desc = "diagnostic",
+  }),
+  Utils.toggle_map({
+    key = "<leader>us",
+    get_state = function()
+      return vim.wo.spell
     end,
-    desc = "Toggle diagnostic",
-    icon = function()
-      return vim.diagnostic.is_disabled() and { icon = " ", color = "yellow" } or { icon = " ", color = "green" }
+    toggle_fn = Utils.keys.toggle_spell,
+    desc = "spell",
+  }),
+  Utils.toggle_map({
+    key = "<leader>uf",
+    get_state = function()
+      return vim.g.autoformat
     end,
-  },
-  {
-    "<leader>us",
-    function()
-      Utils.keys.toggle_spell()
+    toggle_fn = Utils.format.toggle,
+    desc = "Autoformat (Global)",
+  }),
+  Utils.toggle_map({
+    key = "<leader>uF",
+    get_state = function()
+      return Utils.format.enabled(vim.api.nvim_get_current_buf())
     end,
-    desc = "Toggle spell",
-    icon = function()
-      return vim.wo.spell and { icon = " ", color = "green" } or { icon = " ", color = "yellow" }
+    toggle_fn = function()
+      Utils.format.toggle(vim.api.nvim_get_current_buf())
     end,
-  },
-  {
-    "<leader>uf",
-    function()
-      Utils.format.toggle()
+    desc = "Autoformat (Buffer)",
+  }),
+  Utils.toggle_map({
+    key = "<leader>uT",
+    get_state = function()
+      return vim.b.ts_highlight
     end,
-    desc = "Toggle Autoformat (Global)",
-    icon = function()
-      return vim.g.autoformat and { icon = " ", color = "green" } or { icon = " ", color = "yellow" }
+    toggle_fn = function()
+      if vim.b.ts_highlight then
+        vim.treesitter.stop()
+        Utils.notify.warn("Treesitter Highlight disabled", { title = "Options" })
+      else
+        vim.treesitter.start()
+        Utils.notify.info("Treesitter Highlight enabled", { title = "Options" })
+      end
     end,
-  },
-  {
-    "<leader>uF",
-    function()
-      Utils.format.toggle(0)
-    end,
-    desc = "Toggle Autoformat (Buffer)",
-    icon = function()
-      return Utils.format.enabled() and { icon = " ", color = "green" } or { icon = " ", color = "yellow" }
-    end,
-  },
+    desc = "treesitter Highlight",
+  }),
   {
     "<leader>j",
     function()
@@ -233,93 +254,20 @@ local maps = {
     icon = { icon = "󰛌 ", color = "red" },
   },
   {
-    "<leader>uT",
-    function()
-      if vim.b.ts_highlight then
-        vim.treesitter.stop()
-        Utils.notify.warn("Treesitter Highlight disabled", { title = "Options" })
-      else
-        vim.treesitter.start()
-        Utils.notify.info("Treesitter Highlight enabled", { title = "Options" })
-      end
-    end,
-    desc = "Toggle treesitter Highlight",
-    icon = function()
-      return vim.b.ts_highlight and { icon = " ", color = "green" } or { icon = " ", color = "yellow" }
-    end,
+    "<leader>ut",
+    Utils.keys.toggle_case,
+    desc = "Change variable case",
+    icon = { icon = "󰯍 ", color = "red" },
   },
 }
-local function has_active_lsp_client()
-  local active_clients = Utils.lsp.get_clients({ bufnr = 0 })
-  for _, cl in ipairs(active_clients) do
-    if cl.name ~= "conform" and cl.name ~= "copilot" then
-      if cl.supports_method("textDocument/hover") or cl.supports_method("textDocument/definition") then
-        return true
-      end
-    end
-  end
-  return false
-end
-
-table.insert(maps, {
-  "<leader>cc",
-  -- function()
-  --   local is_active = has_active_lsp_client()
-  --   local command = is_active and "LspRestart" or "LspStart"
-  --   local message = is_active and "LSP restarting" or "LSP starting"
-  --
-  --   vim.cmd(command)
-  --   Utils.notify.info(message, { timeout = 2000, title = "LSP" })
-  -- end,
-  function()
-    local is_active = has_active_lsp_client()
-    local command = is_active and "LspRestart" or "LspStart"
-
-    -- Initial notification
-    vim.notify("Initializing LSP...", vim.log.levels.INFO, {
-      title = "LSP",
-      timeout = 2000,
-      on_open = function()
-        -- Show preparing message
-        Utils.notify.warn("Preparing language servers...", {
-          title = "LSP",
-          timeout = 1500,
-        })
-
-        -- Execute the LSP command
-        vim.cmd(command)
-
-        -- Use vim.defer_fn to wait a bit before checking status
-        vim.defer_fn(function()
-          if has_active_lsp_client() then
-            Utils.notify.info("LSP servers ready!", {
-              title = "LSP",
-              timeout = 2000,
-            })
-          else
-            Utils.notify.error("Failed to start some language servers", {
-              title = "LSP",
-              timeout = 3000,
-            })
-          end
-        end, 2000)
-      end,
-    })
-  end,
-  desc = function()
-    return has_active_lsp_client and "Restart LSP" or "Start LSP"
-  end,
-  icon = function()
-    return has_active_lsp_client() and { icon = "󰜉 ", color = "orange" } or { icon = " ", color = "green" }
-  end,
-})
 
 if Utils.is_in_git_repo() then
   local git_maps = {
     {
       "<leader>gb",
       function()
-        Utils.git.blame_line()
+        -- Utils.git.blame_line()
+        Snacks.git.blame_line()
       end,
       desc = "Git blame",
       icon = { icon = " " },
@@ -327,7 +275,7 @@ if Utils.is_in_git_repo() then
     {
       "<leader>gg",
       function()
-        Utils.git.lazygit()
+        Snacks.lazygit()
       end,
       desc = "Lazygit",
       icon = { icon = " ", color = "orange" },
@@ -335,7 +283,7 @@ if Utils.is_in_git_repo() then
     {
       "<leader>gc",
       function()
-        Utils.git.lazygit({ "log" })
+        Snacks.lazygit.log()
       end,
       desc = "Lazygit log",
       icon = { icon = " ", color = "orange" },
@@ -343,8 +291,7 @@ if Utils.is_in_git_repo() then
     {
       "<leader>gC",
       function()
-        local git_path = vim.api.nvim_buf_get_name(0)
-        Utils.git.lazygit({ "-f", vim.trim(git_path) })
+        Snacks.lazygit.log_file()
       end,
       desc = "Lazygit log (current file)",
       icon = { icon = " ", color = "orange" },

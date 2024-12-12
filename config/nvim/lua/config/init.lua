@@ -9,6 +9,7 @@ local failed        = {}
 local total_modules = 0
 
 local lazy_load = vim.fn.argc(-1) == 0
+-- stylua: ignore end
 
 ------------------------------
 -- Function to load a module
@@ -47,6 +48,13 @@ vim.api.nvim_create_autocmd("User", {
     end
     load_module("keymaps")
     load_module("abbrevations")
+  end,
+})
+
+vim.api.nvim_create_autocmd("User", {
+  pattern = "LazyFile",
+  callback = function()
+    require("utils.colorify").setup()
   end,
 })
 
