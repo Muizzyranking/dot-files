@@ -2,18 +2,16 @@ return {
   "folke/snacks.nvim",
   lazy = false,
   priority = 1000,
-  opts = function()
-    return {
-      bigfile = {
-        enabled = true,
-        size = vim.g.big_file,
-      },
-      notifier = { enabled = true },
-      quickfile = { enabled = true },
-      statuscolumn = { enabled = false },
-      words = { enabled = true },
-    }
-  end,
+  opts = {
+    bigfile = {
+      enabled = true,
+      size = vim.g.big_file,
+    },
+    notifier = { enabled = true },
+    quickfile = { enabled = true },
+    statuscolumn = { enabled = false },
+    words = { enabled = true },
+  },
   keys = {
     {
       "<leader>.",
@@ -28,20 +26,6 @@ return {
         Snacks.scratch.select()
       end,
       desc = "Select Scratch Buffer",
-    },
-    {
-      "<leader>n",
-      function()
-        Snacks.notifier.show_history()
-      end,
-      desc = "Notification History",
-    },
-    {
-      "<leader>un",
-      function()
-        Snacks.notifier.hide()
-      end,
-      desc = "Dismiss All Notifications",
     },
   },
   config = function(_, opts)
