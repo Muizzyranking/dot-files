@@ -24,11 +24,9 @@ return {
     keys = {
       { "<leader>bp", "<Cmd>BufferLineTogglePin<CR>", desc = "Toggle pin" },
       { "<leader>bP", "<Cmd>BufferLineGroupClose ungrouped<CR>", desc = "Delete non-pinned buffers" },
-      { "<leader>bo", "<Cmd>BufferLineCloseOthers<CR>", desc = "Delete other buffers" },
       { "<leader>br", "<Cmd>BufferLineCloseRight<CR>", desc = "Delete buffers to the right" },
       { "<leader>bl", "<Cmd>BufferLineCloseLeft<CR>", desc = "Delete buffers to the left" },
       { "<leader>bc", "<Cmd>BufferLinePick<CR>", desc = "Choose a buffer" },
-      { "<leader>bd", Utils.keys.bufremove, desc = "Delete buffer" },
       { "<S-h>", "<cmd>BufferLineCyclePrev<cr>", desc = "Prev buffer" },
       { "<S-l>", "<cmd>BufferLineCycleNext<cr>", desc = "Next buffer" },
     },
@@ -36,11 +34,11 @@ return {
       options = {
         separator_style = "",
         close_command = function(n)
-          Utils.keys.bufremove(n)
+          Snacks.bufdelete.delete(n)
         end,
 
         right_mouse_command = function(n)
-          Utils.keys.bufremove(n)
+          Snacks.bufdelete.delete(n)
         end,
 
         diagnostics = "nvim_lsp",
@@ -64,10 +62,8 @@ return {
     config = function(_, opts)
       Utils.on_load("which-key.nvim", function()
         require("which-key").add({
-          { "<leader>bd", icon = { icon = "󰛌 ", color = "red" } },
           { "<leader>bl", icon = { icon = "󰛌 ", color = "red" } },
           { "<leader>br", icon = { icon = "󰛌 ", color = "red" } },
-          { "<leader>bo", icon = { icon = "󰛌 ", color = "red" } },
           { "<leader>bP", icon = { icon = "󰛌 ", color = "red" } },
           { "<leader>bp", icon = { icon = " ", color = "red" } },
           { "<leader>bc", icon = { icon = " ", color = "red" } },
