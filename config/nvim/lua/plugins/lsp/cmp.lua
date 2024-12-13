@@ -40,7 +40,9 @@ return { -- Autocompletion
     local cmp = require("cmp")
     return {
       snippet = {
-        expand = Utils.cmp.expand_snippet,
+        expand = function(args)
+          Utils.cmp.expand_snippet(args)
+        end,
       },
       completion = {
         completeopt = "menu,menuone,noinsert",
@@ -49,8 +51,8 @@ return { -- Autocompletion
         "python",
       },
       mapping = cmp.mapping.preset.insert({
-        ["<C-n>"] = cmp.mapping.select_next_item(),
-        ["<C-p>"] = cmp.mapping.select_prev_item(),
+        ["<C-n>"] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Insert }),
+        ["<C-p>"] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Insert }),
         ["<C-a>"] = cmp.mapping.abort(),
         ["<Cr>"] = cmp.mapping.confirm({ select = true }),
         ["<C-y>"] = cmp.mapping.complete(),
@@ -74,11 +76,7 @@ return { -- Autocompletion
           max_height = 12,
         },
       },
-      experimental = {
-        ghost_text = {
-          hl_group = "CmpGhostText",
-        },
-      },
+      -- experimental = { ghost_text = { hl_group = "CmpGhostText" } },
       formatting = {
         format = function(entry, item)
           local kind = item.kind

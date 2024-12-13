@@ -8,11 +8,13 @@ return {
     ensure_installed = { "stylua" },
   },
   config = function(_, opts)
-    require("mason").setup(opts)
-    local mr = require("mason-registry")
+    local mason = require("mason")
+    local mason_registry = require("mason-registry")
+    local mason_lspconfig_ok, mason_lspconfig = pcall(require, "mason-lspconfig")
+    mason.setup(opts)
 
     -- Trigger lazy events after successful package installation
-    mr:on("package:install:success", function()
+    mason_registry:on("package:install:success", function()
       vim.defer_fn(function()
         require("lazy.core.handler.event").trigger({
           event = "FileType",
@@ -21,7 +23,21 @@ return {
       end, 100)
     end)
 
-    local tools = {}
+    local all_tools = {}
+    local installed_tools_set = {}
+    -- Add tools to a consolidated list, avoiding duplicates
+    ---@param entries string[]|string List of tools to add
+    local function add_tools(entries)
+      if type(entries) == "string" then
+        entries = { entries }
+      end
+      for _, tool in ipairs(entries) do
+        if not installed_tools_set[tool] then
+          all_tools[#all_tools + 1] = tool
+          installed_tools_set[tool] = true
+        end
+      end
+    end
     -- Populate a list of tools to be installed
     -- Combines tools from various conform and nvim-lint
     ---@param ... table[] List of tool definitions from plugins
@@ -29,13 +45,10 @@ return {
       ---@param entries table A collection of tools grouped by filetype
       local function process_entries(entries)
         for _, group in pairs(entries) do
-          for _, item in ipairs(group) do
-            -- Skip if the item is not available in mason-registry
-            local ok = pcall(function()
-              return mr.get_package(item)
-            end)
-            if ok then
-              table.insert(tools, item)
+          for _, tool in ipairs(group) do
+            -- stylua: ignore
+            if pcall(function() return mason_registry.get_package(tool) end) then
+              add_tools( tool )
             end
           end
         end
@@ -52,42 +65,60 @@ return {
       Utils.opts("nvim-lint").linters_by_ft or {}
     )
 
-    local all_tools = {}
-    local installed_set = {}
-    -- Add tools to a consolidated list, avoiding duplicates
-    ---@param entries string[] List of tools to add
-    local function add_tools(entries)
-      for _, tool in ipairs(entries) do
-        if not installed_set[tool] then
-          table.insert(all_tools, tool)
-          installed_set[tool] = true
-        end
-      end
-    end
-
-    add_tools(tools)
     add_tools(opts.ensure_installed)
 
     -- Add Prettier tools if the use_prettier option is set
     if #Utils.opts("conform.nvim").use_prettier > 0 then
-      add_tools({ "prettier", "prettierd" })
+      add_tools("prettierd")
     end
 
     -- Ensure all tools in the list are installed
     local function ensure_installed()
       for _, tool in ipairs(all_tools) do
-        local p = mr.get_package(tool)
+        local p = mason_registry.get_package(tool)
         if not p:is_installed() then
           p:install()
         end
       end
     end
 
+    -- Helper: Clean up unneeded tools
+    local function remove_unused_tools()
+      local installed_packages = mason_registry.get_installed_packages()
+      local lsp_to_package_map = {}
+      local installed_lsp_servers = {}
+
+      if mason_lspconfig_ok then
+        installed_lsp_servers = mason_lspconfig.get_installed_servers() or {}
+        lsp_to_package_map = require("mason-lspconfig.mappings.server").lspconfig_to_package
+      end
+
+      local valid_tools_set = {}
+      for _, tool in ipairs(all_tools) do
+        valid_tools_set[tool] = true
+      end
+
+      for _, lsp in ipairs(installed_lsp_servers) do
+        valid_tools_set[lsp_to_package_map[lsp] or lsp] = true
+      end
+
+      for _, package in ipairs(installed_packages) do
+        if not valid_tools_set[package.name] then
+          package:uninstall()
+        end
+      end
+    end
+
     -- Trigger installation of tools, refreshing the registry if needed
-    if mr.refresh then
-      mr.refresh(ensure_installed)
+    if mason_registry.refresh then
+      mason_registry.refresh(ensure_installed)
+      mason_registry.refresh(function()
+        ensure_installed()
+        remove_unused_tools()
+      end)
     else
       ensure_installed()
+      remove_unused_tools()
     end
   end,
 }

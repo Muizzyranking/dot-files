@@ -11,6 +11,14 @@ return {
     document_highlight = {
       enabled = true,
     },
+    capabilities = {
+      workspace = {
+        fileOperations = {
+          didRename = true,
+          willRename = true,
+        },
+      },
+    },
     diagnostics = {
       underline = true,
       update_in_insert = false,
@@ -138,23 +146,24 @@ return {
       },
       {
         "<leader>cr",
-        vim.lsp.buf.rename,
+        Utils.lsp.rename,
         desc = "Rename",
         icon = { icon = "󰑕 ", color = "orange" },
+        expr = true,
         has = "rename",
+        silent = false,
       },
-      {
-        "<leader>uh",
-        function()
+      Utils.toggle_map({
+        key = "<leader>ui",
+        get_state = function()
+          return vim.lsp.inlay_hint.is_enabled({ bufnr = 0 })
+        end,
+        toggle_fn = function()
           Utils.lsp.toggle_inlay_hints(0)
         end,
-        desc = "Toggle inlay hints",
-        icon = function()
-          local enabled = vim.lsp.inlay_hint.is_enabled({ bufnr = 0 })
-          return enabled and { icon = " ", color = "green" } or { icon = " ", color = "yellow" }
-        end,
+        desc = "Inlay hint",
         has = "inlayHint",
-      },
+      }),
       -- don't really use this
       -- {
       --   "<leader>D",
@@ -186,9 +195,15 @@ return {
     end
 
     Utils.lsp.on_attach(function(client, buffer)
+      if not vim.api.nvim_buf_is_valid(buffer) then
+        return
+      end
       key_on_attach(client, buffer)
       Utils.lsp.on_support_methods("textDocument/documentHighlight", function()
         if client.server_capabilities.documentHighlightProvider then
+          if not vim.api.nvim_buf_is_valid(buffer) then
+            return
+          end
           local highlight_augroup = vim.api.nvim_create_augroup("lsp-highlight", { clear = true })
           vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
             buffer = buffer,
@@ -202,6 +217,7 @@ return {
           })
           vim.api.nvim_create_autocmd("LspDetach", {
             group = vim.api.nvim_create_augroup("lsp-detach", { clear = true }),
+            buffer = buffer,
             callback = function()
               vim.lsp.buf.clear_references()
               vim.api.nvim_clear_autocmds({ group = highlight_augroup })
