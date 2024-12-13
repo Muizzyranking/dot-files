@@ -32,7 +32,6 @@ return {
         },
         opts = { skip = true },
       },
-      -- disable neotree notification for empty directory
       {
         filter = {
           event = "notify",
@@ -40,7 +39,6 @@ return {
         },
         opts = { skip = true },
       },
-      -- disable neotree notification for toggle hidden files
       {
         filter = {
           event = "notify",
@@ -51,7 +49,7 @@ return {
       {
         filter = {
           event = "notify",
-          find = "Rename",
+          find = "Neo-tree INFO",
         },
         opts = { skip = true },
       },
