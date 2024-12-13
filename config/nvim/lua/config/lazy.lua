@@ -19,8 +19,9 @@ require("config.events").setup_ingitrepo()
 
 require("lazy").setup({
   spec = {
-    { import = "plugins.lsp" },
+    { import = "plugins.first" },
     { import = "plugins.editor" },
+    { import = "plugins.lsp" },
     { import = "plugins.ui" },
     { import = "plugins.ai" },
     { import = "plugins.lang.lua" },
@@ -36,6 +37,7 @@ require("lazy").setup({
     -- { import = "plugins.lang.c" },
     -- { import = "plugins.extras.refactoring" },
     { import = "plugins.extras.codesnap" },
+    { import = "plugins.extras.obsidian" },
     { import = "plugins" },
   },
   defaults = {
