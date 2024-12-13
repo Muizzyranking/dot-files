@@ -13,6 +13,7 @@ return {
     local lualine_require = require("lualine_require")
     lualine_require.require = require
 
+    vim.o.laststatus = vim.g.lualine_laststatus
     return {
       options = {
         icons_enabled = true,
@@ -24,7 +25,10 @@ return {
         section_separators = { left = "", right = "" },
 
         disabled_filetypes = {
-          statusline = { "dashboard" },
+          statusline = {
+            "dashboard",
+            "snacks_dashboard",
+          },
         },
         winbar = { "" },
         ignore_focus = { "" },
@@ -118,7 +122,6 @@ return {
       inactive_winbar = {},
       extensions = {
         Utils.telescope.lualine,
-        Utils.git.lualine,
         Utils.terminal.lualine,
         Utils.runner.lualine,
         "oil",
