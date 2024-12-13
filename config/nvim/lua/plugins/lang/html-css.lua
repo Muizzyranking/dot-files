@@ -16,6 +16,19 @@ return Utils.setup_lang({
         filetypes = { "html", "htmldjango" },
       },
       tailwindcss = {
+        root_dir = function(fname)
+          local root_patterns = {
+            "tailwind.config.js",
+            "tailwind.config.cjs",
+            "tailwind.config.mjs",
+            "tailwind.config.ts",
+            "postcss.config.js",
+            "postcss.config.cjs",
+            "postcss.config.mjs",
+            "postcss.config.ts",
+          }
+          return require("lspconfig.util").root_pattern(unpack(root_patterns))(fname)
+        end,
         filetypes_exclude = { "markdown" },
         filetypes_include = {},
         settings = {
@@ -48,7 +61,7 @@ return Utils.setup_lang({
   },
   formatting = {
     use_prettier = true,
-    format_on_save = false,
+    format_on_save = true,
   },
   highlighting = {
     parsers = {
@@ -65,6 +78,7 @@ return Utils.setup_lang({
     {
       "brianhuster/live-preview.nvim",
       cmd = { "LivePreview" },
+      keys = { { "<leader>cp", "<cmd>LivePreview start<CR>", ft = { "html" }, desc = "Start Live Preview" } },
       dependencies = {},
       opts = {},
     },

@@ -55,7 +55,7 @@ return Utils.setup_lang({
         },
         keys = {
           {
-            "gD",
+            "<leader>D",
             function()
               local params = vim.lsp.util.make_position_params()
               Utils.lsp.execute({
@@ -158,6 +158,7 @@ return Utils.setup_lang({
                     default = vim.fn.fnamemodify(fname, ":h") .. "/",
                     completion = "file",
                   }, function(newf)
+                    ---@diagnostic disable-next-line: redundant-return-value
                     return newf and move(newf)
                   end)
                 elseif f then
@@ -171,7 +172,7 @@ return Utils.setup_lang({
 
       eslint = function()
         Utils.lsp.on_attach(function(_, bufnr)
-          vim.api.nvim_create_autocmd("BufWritePre", {
+          vim.api.nvim_create_autocmd("BufWritePost", {
             buffer = bufnr,
             callback = function()
               local cl = Utils.lsp.get_clients({ name = "eslint", bufnr = bufnr })[1]
@@ -217,5 +218,16 @@ return Utils.setup_lang({
   options = {
     shiftwidth = 2,
     tabstop = 2,
+  },
+  plugins = {
+    {
+      "garymjr/nvim-snippets",
+      opts = {
+        extended_filetypes = {
+          { javascript = { "javascriptreact" } },
+          { typescript = { "javascript" } },
+        },
+      },
+    },
   },
 })

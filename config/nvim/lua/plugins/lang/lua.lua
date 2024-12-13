@@ -49,6 +49,8 @@ return Utils.setup_lang({
         library = {
           { path = "luvit-meta/library", words = { "vim%.uv" } },
           { path = "utils", words = { "Utils" } },
+          { path = "snacks.nvim", words = { "Snacks" } },
+          { path = "lazy.nvim", words = { "LazyVim" } },
         },
       },
     },
