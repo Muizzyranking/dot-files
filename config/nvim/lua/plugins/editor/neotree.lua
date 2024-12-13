@@ -84,21 +84,23 @@ return {
         commands = {
           -- Override delete to use trash instead of rm
           trash = function(state)
-            if Utils.is_executable("trash") then
-              local node = state.tree:get_node()
-              if node.type == "message" then
+            if not Utils.is_executable("trash") then
+              Utils.notify.error("Trash command not found")
+              return
+            end
+            local node = state.tree:get_node()
+            if node.type == "message" then
+              return
+            end
+            local _, name = require("neo-tree.utils").split_path(node.path)
+            local msg = string.format("Are you sure you want to trash '%s'?", name)
+            require("neo-tree.ui.inputs").confirm(msg, function(confirmed)
+              if not confirmed then
                 return
               end
-              local _, name = require("neo-tree.utils").split_path(node.path)
-              local msg = string.format("Are you sure you want to trash '%s'?", name)
-              require("neo-tree.ui.inputs").confirm(msg, function(confirmed)
-                if not confirmed then
-                  return
-                end
-                vim.api.nvim_command("silent !trash -F " .. node.path)
-                require("neo-tree.sources.manager").refresh(state)
-              end)
-            end
+              vim.api.nvim_command("silent !trash -F " .. node.path)
+              require("neo-tree.sources.manager").refresh(state)
+            end)
           end,
         },
         use_libuv_file_watcher = true,
@@ -126,6 +128,9 @@ return {
             vim.cmd("setlocal signcolumn=no")
             if Utils.has("nvim-notify") then
               require("notify").dismiss({ silent = true, pending = true })
+            end
+            if Utils.has("snacks.nvim") then
+              Snacks.notifier.hide()
             end
           end,
         },
