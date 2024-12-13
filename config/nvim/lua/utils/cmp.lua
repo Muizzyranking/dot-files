@@ -3,67 +3,72 @@ local M = {}
 
 --------------------------------------------------
 ---Previews a snippet by parsing it with vim.lsp grammar
----If parsing fails, falls back to basic string substitution
 ---@param snippet string The snippet text to preview
+---@return string The preview text
 --------------------------------------------------
-local function snippet_preview(snippet)
+function M.snippet_preview(snippet)
   local ok, parsed = pcall(vim.lsp._snippet_grammar.parse, snippet)
   if ok then
     return tostring(parsed)
   else
+    ---@diagnostic disable-next-line: redundant-return-value
     return snippet:gsub("%${%d+:(.-)}", "%1"):gsub("%$%d+", ""):gsub("%$0", "")
   end
 end
 
 --------------------------------------------------
----Fixes snippet syntax by normalizing placeholder texts
----@param snippet string The snippet to fix
+---Replaces placeholders in a snippet using a callback function
+---@param snippet string The snippet to process
+---@param fn function The callback function to process each placeholder
+---@return string The processed snippet
 --------------------------------------------------
-local function snippet_fix(snippet)
-  local texts = {}
+function M.snippet_replace(snippet, fn)
   return snippet:gsub("%$%b{}", function(m)
     local n, name = m:match("^%${(%d+):(.+)}$")
-    if n then
-      texts[n] = texts[n] or snippet_preview(name)
-      return "${" .. n .. ":" .. texts[n] .. "}"
-    end
-    return m
-  end)
+    return n and fn({ n = n, text = name }) or m
+  end) or snippet
 end
 
----Notifies the user about snippet expansion status
----@param success boolean Whether the operation was successful
----@param msg string The message to display
----@param snippet string The snippet that was processed
-local function notify_user(success, msg, snippet)
-  local status = success and "warn" or "error"
-  Utils.notify[status](
-    ([[%s
-      ```%s
-      %s
-      ```]]):format(msg, vim.bo.filetype, snippet),
-    { title = "vim.snippet" }
-  )
+--------------------------------------------------
+---Fixes snippet syntax by normalizing placeholder texts
+---@param snippet string The snippet to fix
+---@return string The fixed snippet
+--------------------------------------------------
+function M.snippet_fix(snippet)
+  local texts = {} ---@type table<number, string>
+  return M.snippet_replace(snippet, function(placeholder)
+    texts[placeholder.n] = texts[placeholder.n] or M.snippet_preview(placeholder.text)
+    return "${" .. placeholder.n .. ":" .. texts[placeholder.n] .. "}"
+  end)
 end
 
 --------------------------------------------------
 ---Expands a snippet with error handling and automatic fixing
----@param args table Arguments containing the snippet body
+---@param args string The snippet to expand
 --------------------------------------------------
 function M.expand_snippet(args)
   local snippet = args.body
+  -- Native sessions don't support nested snippet sessions.
+  -- Always use the top-level session.
   local session = vim.snippet.active() and vim.snippet._session or nil
 
   -- Attempt to expand the snippet
   local ok, err = pcall(vim.snippet.expand, snippet)
-
   if not ok then
-    -- Try to fix the snippet and expand again if it fails
-    local fixed = snippet_fix(snippet)
+    -- Try to fix the snippet and expand again
+    local fixed = M.snippet_fix(snippet)
     ok = pcall(vim.snippet.expand, fixed)
     local msg = ok and "Failed to parse snippet, but was able to fix it automatically."
       or ("Failed to parse snippet.\n" .. err)
-    notify_user(ok, msg, snippet)
+
+    -- Use your notification system here
+    Utils.notify[ok and "warn" or "error"](
+      ([[%s
+```%s
+%s
+```]]):format(msg, vim.bo.filetype, snippet),
+      { title = "vim.snippet" }
+    )
   end
 
   -- Restore the original snippet session if necessary

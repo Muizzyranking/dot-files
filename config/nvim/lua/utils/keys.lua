@@ -24,20 +24,20 @@ end
 -----------------------------------------------------------
 -- Toggle diagnostics
 -----------------------------------------------------------
-local spell_enabled = true
+local diagnostics_enabled = true
 function M.toggle_diagnostics()
   if vim.diagnostic.is_disabled then
-    spell_enabled = not vim.diagnostic.is_disabled()
+    diagnostics_enabled = not vim.diagnostic.is_disabled()
   end
-  spell_enabled = not spell_enabled
+  diagnostics_enabled = not diagnostics_enabled
 
-  if spell_enabled then
+  if diagnostics_enabled then
     vim.diagnostic.enable()
   else
     vim.diagnostic.disable()
   end
-  Utils.notify[spell_enabled and "info" or "warn"](
-    spell_enabled and "Enabled diagnostics" or "Disabled diagnostics",
+  Utils.notify[diagnostics_enabled and "info" or "warn"](
+    diagnostics_enabled and "Enabled diagnostics" or "Disabled diagnostics",
     { title = "Diagnostics" }
   )
 end
@@ -113,51 +113,121 @@ function M.duplicate_selection()
   vim.api.nvim_win_set_cursor(0, { new_cursor_line, 0 })
 end
 
--------------------------------------
--- Remove a buffer, prompting to save changes if the buffer is modified.
----@param buf number|nil
--------------------------------------
-function M.bufremove(buf)
-  buf = buf or 0
-  buf = buf == 0 and vim.api.nvim_get_current_buf() or buf
-
-  if vim.bo.modified then
-    local choice = vim.fn.confirm(("Save changes to %q?"):format(vim.fn.bufname()), "&Yes\n&No\n&Cancel")
-    if choice == 0 then -- Cancel
-      return
+----------------------------------------------------
+--- Split a string into words based on its case style
+---@param str string The string to split into words
+---@return string[] Array of words in lowercase
+----------------------------------------------------
+local function split_into_words(str)
+  -- Handle snake_case
+  if str:find("_") then
+    local words = {}
+    for word in str:gmatch("[^_]+") do
+      table.insert(words, word:lower())
     end
-    if choice == 1 then -- Yes
-      vim.cmd.write()
+    return words
+  end
+
+  local words = {}
+  local current_word = ""
+
+  for i = 1, #str do
+    local char = str:sub(i, i)
+    if char:match("[A-Z]") and current_word ~= "" then
+      table.insert(words, current_word:lower())
+      current_word = char
+    else
+      current_word = current_word .. char
     end
   end
 
-  for _, win in ipairs(vim.fn.win_findbuf(buf)) do
-    vim.api.nvim_win_call(win, function()
-      if not vim.api.nvim_win_is_valid(win) or vim.api.nvim_win_get_buf(win) ~= buf then
-        return
-      end
-      -- Try using alternate buffer
-      local alt = vim.fn.bufnr("#")
-      if alt ~= buf and vim.fn.buflisted(alt) == 1 then
-        vim.api.nvim_win_set_buf(win, alt)
-        return
-      end
-
-      -- Try using previous buffer
-      ---@diagnostic disable-next-line: param-type-mismatch
-      local has_previous = pcall(vim.cmd, "bprevious")
-      if has_previous and buf ~= vim.api.nvim_win_get_buf(win) then
-        return
-      end
-
-      -- Create new listed buffer
-      local new_buf = vim.api.nvim_create_buf(true, false)
-      vim.api.nvim_win_set_buf(win, new_buf)
-    end)
+  if current_word ~= "" then
+    table.insert(words, current_word:lower())
   end
-  if vim.api.nvim_buf_is_valid(buf) then
-    ---@diagnostic disable-next-line: param-type-mismatch
-    pcall(vim.cmd, "bdelete! " .. buf)
+
+  return words
+end
+
+----------------------------------------------------
+--- Convert array of words to camelCase
+---@param words string[] Array of words to convert
+---@return string The camelCase string
+----------------------------------------------------
+local function to_camel_case(words)
+  local result = words[1]
+  for i = 2, #words do
+    result = result .. words[i]:sub(1, 1):upper() .. words[i]:sub(2)
+  end
+  return result
+end
+
+----------------------------------------------------
+--- Convert array of words to snake_case
+--- @param words string[] Array of words to convert
+--- @return string The snake_case string
+----------------------------------------------------
+local function to_snake_case(words)
+  return table.concat(words, "_")
+end
+
+----------------------------------------------------
+--- Convert a word between camelCase and snake_case
+--- @param word string The word to convert
+--- @return string The converted word
+----------------------------------------------------
+local function convert_case(word)
+  local words = split_into_words(word)
+  if word:find("_") then
+    return to_camel_case(words)
+  else
+    return to_snake_case(words)
+  end
+end
+
+----------------------------------------------------
+--- Check if LSP is available and supports rename for current buffer
+--- @return boolean Whether LSP with rename support is available
+----------------------------------------------------
+local function has_rename_support()
+  local bufnr = vim.api.nvim_get_current_buf()
+  if not vim.api.nvim_buf_is_valid(bufnr) or not vim.bo[bufnr].buflisted then
+    return false
+  end
+
+  return Utils.lsp.has(bufnr, "rename")
+end
+
+----------------------------------------------------
+--- Toggle case of word under cursor with LSP support
+--- Uses LSP rename when available, falls back to local change
+----------------------------------------------------
+function M.toggle_case()
+  local current_word = vim.fn.expand("<cword>")
+  if current_word == "" then
+    return
+  end
+
+  local new_word = convert_case(current_word)
+  if has_rename_support() then
+    local bufnr = vim.api.nvim_get_current_buf()
+    local clients = Utils.lsp.get_clients({
+      bufnr = bufnr,
+      method = "textDocument/rename",
+    })
+    if #clients > 0 then
+      if Utils.has("inc-rename.nvim") then
+        vim.cmd("IncRename " .. new_word)
+      else
+        vim.lsp.buf.rename(new_word)
+      end
+    else
+      local cmd = string.format("normal! ciw%s", new_word)
+      vim.cmd(cmd)
+      Utils.notify.warn("LSP detached, performed local rename only", { title = "Case Toggle" })
+    end
+  else
+    local cmd = string.format("normal! ciw%s", new_word)
+    vim.cmd(cmd)
   end
 end
 

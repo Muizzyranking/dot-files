@@ -184,10 +184,14 @@ M.action = setmetatable({}, {
 ---@param rename? fun()
 ----------------------------------------------------
 function M.on_rename_file(from, to, rename)
-  local changes = { files = { {
-    oldUri = vim.uri_from_fname(from),
-    newUri = vim.uri_from_fname(to),
-  } } }
+  local changes = {
+    files = {
+      {
+        oldUri = vim.uri_from_fname(from),
+        newUri = vim.uri_from_fname(to),
+      },
+    },
+  }
 
   local clients = (vim.lsp.get_clients or vim.lsp.get_active_clients)()
   for _, client in ipairs(clients) do
@@ -273,6 +277,14 @@ function M.toggle_inlay_hints(buffer)
     string.format("Inlay Hints %s", disabled and "disabled" or "enabled"),
     { timeout = 2000, title = "LSP" }
   )
+end
+
+-- rename a variable under the cursoe using inc-rename or in built LSP
+function M.rename()
+  if Utils.has("inc-rename.nvim") then
+    return ":IncRename " .. vim.fn.expand("<cword>")
+  end
+  vim.lsp.buf.rename()
 end
 
 return M

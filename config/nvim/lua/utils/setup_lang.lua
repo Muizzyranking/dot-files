@@ -1,6 +1,7 @@
 ---@class utils.setup_lang
 
 -----------------------------------------------------------------
+-- TODO: proper plugin handling
 --- Normalize a plugin configuration to ensure it has a filetype.
 ---@param plugin string|table Plugin configuration
 ---@return table Normalized plugin configuration
@@ -177,9 +178,15 @@ local function setup_language(config)
 
   -- Icons Configuration
   if config.icons then
+    local icons = {}
+    for _, icon_type in ipairs({ "default", "directory", "extension", "file", "filetype", "lsp", "os" }) do
+      if config.icons[icon_type] then
+        icons[icon_type] = config.icons[icon_type]
+      end
+    end
     table.insert(plugins, {
       "echasnovski/mini.icons",
-      opts = config.icons,
+      opts = icons,
     })
   end
 

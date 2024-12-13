@@ -26,27 +26,41 @@ end
 --- @param enable? boolean Explicitly enable or disable (optional)
 ----------------------------------------------------
 function M.toggle(buf, enable)
-  if enable == nil then
-    enable = not M.enabled(buf)
-  end
+  local current_buf = buf or vim.api.nvim_get_current_buf()
+  local gaf = vim.g.autoformat == nil or vim.g.autoformat
+  local baf = vim.b[current_buf].autoformat
+
   if buf then
-    vim.b.autoformat = enable
+    if enable == nil then
+      enable = not M.enabled(current_buf)
+    end
+    vim.b[current_buf].autoformat = enable
   else
+    if enable == nil then
+      if baf == true and not gaf then
+        enable = true
+      else
+        enable = not gaf
+      end
+    end
+
     vim.g.autoformat = enable
-    vim.b.autoformat = nil
+    if not enable then
+      vim.b[current_buf].autoformat = nil
+    end
   end
 
-  -- Show format status
-  local gaf = vim.g.autoformat == nil or vim.g.autoformat
-  local baf = vim.b[buf or vim.api.nvim_get_current_buf()].autoformat
-  local enabled = M.enabled(buf)
+  -- Show status
+  local new_gaf = vim.g.autoformat == nil or vim.g.autoformat
+  local new_baf = vim.b[current_buf].autoformat
+  local enabled = M.enabled(current_buf)
 
   local lines = {
     "# Status",
-    ("- [%s] global **%s**"):format(gaf and "x" or " ", gaf and "enabled" or "disabled"),
+    ("- [%s] global **%s**"):format(new_gaf and "x" or " ", new_gaf and "enabled" or "disabled"),
     ("- [%s] buffer **%s**"):format(
       enabled and "x" or " ",
-      baf == nil and "inherit" or baf and "enabled" or "disabled"
+      new_baf == nil and "inherit" or new_baf and "enabled" or "disabled"
     ),
   }
 
@@ -73,10 +87,10 @@ end
 
 function M.setup()
   vim.api.nvim_create_autocmd("BufWritePre", {
-    group = vim.api.nvim_create_augroup("LazyFormat", {}),
+    group = vim.api.nvim_create_augroup("LazyFormat", { clear = true }),
     callback = function(event)
       if M.enabled() then
-        M.format({ force = true })
+        M.format({ bufnr = event.buf, force = true })
       end
     end,
   })
