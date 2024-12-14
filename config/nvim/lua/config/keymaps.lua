@@ -255,7 +255,7 @@ local maps = {
   },
   {
     "<leader>ut",
-    Utils.keys.toggle_case,
+    Utils.keys.change_var_case,
     desc = "Change variable case",
     icon = { icon = "󰯍 ", color = "red" },
   },

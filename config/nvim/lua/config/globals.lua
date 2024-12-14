@@ -7,3 +7,4 @@ vim.highlight.priorities.semantic_tokens = 95
 -- vim.g.colorscheme                     = "rose-pine"
 vim.g.autoformat                         = false -- Disable autoformat by default
 vim.b.autoformat                         = false -- Disable autoformat by default
+vim.g.use_blink = true
