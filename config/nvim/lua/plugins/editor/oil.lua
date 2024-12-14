@@ -24,7 +24,9 @@ return {
       vim.api.nvim_create_autocmd("FileType", {
         pattern = "oil",
         callback = function()
-          require("cmp").setup.buffer({ enabled = false })
+          if Utils.has("nvim-cmp") then
+            require("cmp").setup.buffer({ enabled = false })
+          end
         end,
       })
       return {
@@ -96,5 +98,16 @@ return {
         },
       }
     end,
+  },
+  {
+    "saghen/blink.cmp",
+    optional = true,
+    opts = {
+      sources = {
+        per_filetype = {
+          oil = {},
+        },
+      },
+    },
   },
 }

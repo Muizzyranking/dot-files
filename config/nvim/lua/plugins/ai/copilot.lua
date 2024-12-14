@@ -3,6 +3,7 @@ return {
     "zbirenbaum/copilot.lua",
     cmd = "Copilot",
     build = ":Copilot auth",
+    event = "InsertEnter",
     opts = {
       suggestion = { enabled = false },
       panel = { enabled = false },
@@ -37,6 +38,23 @@ return {
         priority = 100,
       })
     end,
+  },
+  {
+    "saghen/blink.cmp",
+    optional = true,
+    dependencies = { "giuxtaposition/blink-cmp-copilot" },
+    opts = {
+      sources = {
+        default = { "copilot" },
+        providers = {
+          copilot = {
+            name = "copilot",
+            module = "blink-cmp-copilot",
+            kind = "Copilot",
+          },
+        },
+      },
+    },
   },
   {
     "nvim-lualine/lualine.nvim",

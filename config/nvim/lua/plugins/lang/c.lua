@@ -89,6 +89,7 @@ return Utils.setup_lang({
 
     {
       "nvim-cmp",
+      optional = true,
       opts = function(_, opts)
         table.insert(opts.sorting.comparators, 1, require("clangd_extensions.cmp_scores"))
       end,

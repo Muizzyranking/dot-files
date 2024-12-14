@@ -222,6 +222,7 @@ return Utils.setup_lang({
   plugins = {
     {
       "garymjr/nvim-snippets",
+      optional = true,
       opts = {
         extended_filetypes = {
           { javascript = { "javascriptreact" } },

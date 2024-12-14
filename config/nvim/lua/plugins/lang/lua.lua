@@ -57,9 +57,25 @@ return Utils.setup_lang({
     { "Bilal2453/luvit-meta", lazy = true },
     {
       "nvim-cmp",
+      optional = true,
       opts = function(_, opts)
         table.insert(opts.sources, { name = "lazydev", group_index = 0 })
       end,
+    },
+    {
+      "saghen/blink.cmp",
+      optional = true,
+      opts = {
+        sources = {
+          default = { "lazydev" },
+          providers = {
+            lazydev = {
+              name = "LazyDev",
+              module = "lazydev.integrations.blink",
+            },
+          },
+        },
+      },
     },
   },
 })
