@@ -75,7 +75,7 @@ table.insert(plugins, {
       template = nil,
     },
     completion = {
-      nvim_cmp = true,
+      nvim_cmp = vim.g.use_cmp and true or false,
       min_chars = 2,
     },
     mappings = {

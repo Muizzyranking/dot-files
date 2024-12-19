@@ -3,11 +3,7 @@ return {
     "nvim-neotest/neotest",
     dependencies = { "nvim-neotest/neotest-python", "nvim-neotest/nvim-nio" },
     opts = {
-      adapters = {
-        ["neotest-python"] = {
-          runner = "unittest",
-        },
-      },
+      adapters = {},
       status = { virtual_text = true },
       output = { open_on_run = true },
       quickfix = {
