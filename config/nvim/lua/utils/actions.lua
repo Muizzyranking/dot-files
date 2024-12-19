@@ -1,4 +1,4 @@
----@class utils.keys
+---@class utils.actions
 local M = {}
 
 -----------------------------------------------------------
@@ -22,69 +22,20 @@ function M.new_file()
 end
 
 -----------------------------------------------------------
--- Toggle diagnostics
------------------------------------------------------------
-local diagnostics_enabled = true
-function M.toggle_diagnostics()
-  if vim.diagnostic.is_disabled then
-    diagnostics_enabled = not vim.diagnostic.is_disabled()
-  end
-  diagnostics_enabled = not diagnostics_enabled
-
-  if diagnostics_enabled then
-    vim.diagnostic.enable()
-  else
-    vim.diagnostic.disable()
-  end
-  Utils.notify[diagnostics_enabled and "info" or "warn"](
-    diagnostics_enabled and "Enabled diagnostics" or "Disabled diagnostics",
-    { title = "Diagnostics" }
-  )
-end
-
------------------------------------------------------------
--- Toggle line wrap
------------------------------------------------------------
-function M.toggle_line_wrap()
-  local wrapped = vim.opt.wrap:get()
-  vim.opt.wrap = not wrapped
-  Utils.notify[wrapped and "warn" or "info"](
-    wrapped and "Line wrap disabled." or "Line wrap enabled.",
-    { title = "Option" }
-  )
-end
-
------------------------------------------------------------
--- Toggle spell checking
------------------------------------------------------------
-function M.toggle_spell()
-  local spell = vim.opt.spell:get()
-  vim.opt.spell = not spell -- Toggle wrap based on current state
-  Utils.notify[spell and "warn" or "info"](spell and "Spell disabled." or "Spell enabled.", { title = "Option" })
-end
-
------------------------------------------------------------
 -- Make the current file executable
 -----------------------------------------------------------
-function M.toggle_file_executable()
+function M.toggle_file_executable(state)
   local filename = vim.fn.expand("%:p")
-  local cmd, success_message, error_message
-  if Utils.is_executable(filename) then
-    cmd = "chmod -x " .. filename
-    success_message = "File made unexecutable"
-    error_message = "Error making file unexecutable"
-  else
-    cmd = "chmod +x " .. filename
-    success_message = "File made executable"
-    error_message = "Error making file executable"
-  end
-  local output = vim.fn.system(cmd)
+  local cmd = ("chmod %s %s"):format(state and "-x" or "+x", filename)
+  local success_message = ("File made %s"):format(state and "unexecutable" or "executable")
+  local error_message = ("Error making file %s"):format(state and "unexecutable" or "executable")
 
-  if vim.v.shell_error == 0 then
-    Utils.notify.info(success_message, { title = "Option" })
-  else
-    Utils.notify.warn(error_message .. ": " .. output, { title = "Option" })
-  end
+  local output = vim.fn.system(cmd)
+  local err = vim.v.shell_error
+  Utils.notify[err == 0 and "info" or "warn"](
+    err == 0 and success_message or error_message .. ": " .. output,
+    { title = "Options" }
+  )
 end
 
 -------------------------------------
