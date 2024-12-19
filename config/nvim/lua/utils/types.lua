@@ -54,3 +54,18 @@
 ---@field silent? boolean
 ---@field remap? boolean
 ---@field expr? boolean
+
+---@class ToggleMap
+---@field [1] string The keymap to be set.
+---@field name? string The name of the toggle option (used in notifications and descriptions).
+---@field desc? string|fun(state: boolean):string A description or a function returning a description based on the toggle state.
+---@field icon? table Icons for the enabled and disabled states.
+---@field icon.enabled? string Icon for the enabled state (default: "").
+---@field icon.disabled? string Icon for the disabled state (default: "").
+---@field icon.color_enabled? string Color for the enabled state icon (default: "green").
+---@field icon.color_disabled? string Color for the disabled state icon (default: "yellow").
+---@field get_state fun():boolean A function returning the current state of the toggle (true for enabled, false for disabled).
+---@field change_state fun(state: boolean) A function to change the state of the toggle.
+---@field toggle_fn? fun() A custom function to execute when toggling the state. If not provided, a default implementation is used.
+---@field notify? boolean Whether to display notifications when toggling (default: true).
+---@field set_key? boolean Whether to set the keymap directly (default: true). If false, the function returns the mapping table instead.

@@ -266,19 +266,6 @@ function M.diagnostic_goto(next, severity)
   end
 end
 
-----------------------------------------------------
---- Toggle inlay hints for a buffer
---- @param buffer number Buffer number
-----------------------------------------------------
-function M.toggle_inlay_hints(buffer)
-  local disabled = vim.lsp.inlay_hint.is_enabled({ bufnr = buffer })
-  vim.lsp.inlay_hint.enable(not disabled)
-  Utils.notify[disabled and "warn" or "info"](
-    string.format("Inlay Hints %s", disabled and "disabled" or "enabled"),
-    { timeout = 2000, title = "LSP" }
-  )
-end
-
 -- rename a variable under the cursoe using inc-rename or in built LSP
 function M.rename()
   if Utils.has("inc-rename.nvim") then

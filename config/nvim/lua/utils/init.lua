@@ -1,6 +1,6 @@
 ---@class utils
 ---@field icons utils.icons
----@field keys utils.keys
+---@field actions utils.actions
 ---@field lsp utils.lsp
 ---@field cmp utils.cmp
 ---@field format utils.format
@@ -188,7 +188,7 @@ function M.map(mappings)
   if type(mappings[1]) ~= "table" then
     mappings = { mappings }
   end
-  local keys = {}
+  local wk_maps = {}
   local have_wk = M.has("which-key.nvim")
 
   for _, mapping in ipairs(mappings) do
@@ -204,57 +204,67 @@ function M.map(mappings)
     vim.keymap.set(mapping.mode or "n", lhs, rhs, opts)
 
     if mapping.icon and have_wk then
-      keys[#keys + 1] = {
+      table.insert(wk_maps, {
         lhs,
         mode = mapping.mode or "n",
         icon = mapping.icon,
         desc = mapping.desc or "",
         buffer = mapping.buffer,
-      }
+      })
     end
   end
 
-  if #keys > 0 and have_wk then
+  if #wk_maps > 0 and have_wk then
     M.on_load("which-key.nvim", function()
-      require("which-key").add(keys)
+      require("which-key").add(wk_maps)
     end)
   end
 end
 
 ---------------------------------------------------------------
---- create a toggle keymap
----@param opts MapTable
+---@param opts ToggleMapOptions
+---@return table|nil Returns a mapping table if `set_key` is `false`, otherwise sets the keymap and returns `nil`.
 ---------------------------------------------------------------
 function M.toggle_map(opts)
-  local key = opts.key
-  local get_state = opts.get_state
-  local toggle_fn = opts.toggle_fn
-  local icon_enabled = opts.icon_enabled or "  "
-  local icon_disabled = opts.icon_disabled or " "
-  local color_enabled = opts.color_enabled or "green"
-  local color_disabled = opts.color_disabled or "yellow"
-
-  local ret = {
-    key,
-    toggle_fn,
-    desc = "Toggle " .. opts.desc,
+  local mapping = {
+    opts[1],
+    opts.toggle_fn or function()
+      opts.change_state(opts.get_state())
+      if opts.notify ~= false then
+        Utils.notify[opts.get_state() and "info" or "warn"](
+          ("%s %s"):format(opts.get_state() and "Enabled" or "Disabled", opts.name or " "),
+          { title = opts.name or "Option" }
+        )
+      end
+    end,
+    desc = type(opts.desc) == "function" and function()
+      return opts.desc(opts.get_state())
+    end or opts.desc or ("Toggle %s"):format(opts.name),
     icon = function()
-      local state = get_state()
+      local state = opts.get_state()
+      local icon = opts.icon or {}
+      local color = opts.color or {}
       return {
-        icon = state and icon_enabled or icon_disabled,
-        color = state and color_enabled or color_disabled,
+        icon = state and (icon.enabled or "  ") or (icon.disabled or " "),
+        color = state and (color.enabled or "green") or (color.disabled or "yellow"),
       }
     end,
   }
   for k, v in pairs(opts) do
-    if ret[k] == nil then
-      ret[k] = v
+    if mapping[k] == nil then
+      mapping[k] = v
     end
   end
-  ret.key = nil
-  ret.get_state = nil
-  ret.toggle_fn = nil
-  return ret
+  for _, field in ipairs({ "key", "get_state", "toggle_fn", "change_state" }) do
+    mapping[field] = nil
+  end
+
+  if opts.set_key ~= false then
+    M.map(mapping)
+    return
+  end
+
+  return mapping
 end
 
 --------------------------------
@@ -271,7 +281,6 @@ end
 --------------------------------
 function M.count_words_and_characters()
   local buffer = vim.api.nvim_get_current_buf()
-
   local lines = vim.api.nvim_buf_get_lines(buffer, 0, -1, true)
 
   local word_count = 0
@@ -279,7 +288,6 @@ function M.count_words_and_characters()
 
   for _, line in ipairs(lines) do
     char_count = char_count + #line
-
     for _ in string.gmatch(line, "%S+") do --Matches one or more non-whitespace characters
       word_count = word_count + 1
     end

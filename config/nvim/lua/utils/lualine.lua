@@ -51,7 +51,7 @@ function M.fg(name)
   local hl = vim.api.nvim_get_hl and vim.api.nvim_get_hl(0, { name = name, link = false })
     or vim.api.nvim_get_hl_by_name(name, true)
   local fg = hl and (hl.fg or hl.foreground)
-  return fg and { fg = string.format("#%06x", fg) } or nil
+  return fg and { fg = ("#%06x"):format(fg) } or nil
 end
 
 ------------------------------------------------------------------------------
@@ -103,14 +103,14 @@ M.file = {
     end
 
     local file_state_icon = vim.bo.modified and "●" or "◯"
-    return string.format("%s %s %s", icon, name, file_state_icon)
+    return ("%s %s %s"):format(icon, name, file_state_icon)
   end,
 
   color = function()
     local file_path = vim.api.nvim_buf_get_name(M.stbufnr())
     local is_exec = file_path ~= "" and Utils.is_executable(file_path)
     local hl_group = is_exec and "DiagnosticOk" or "Constant"
-    return vim.tbl_extend("force", M.fg(hl_group), { gui = "italic,bold" })
+    return vim.tbl_extend("force", {}, M.fg(hl_group), { gui = "italic,bold" })
   end,
 }
 
@@ -119,11 +119,9 @@ M.file = {
 ------------------------------------------------------------------------------
 M.mode = {
   function()
-    return " " .. (M.mode_map[vim.api.nvim_get_mode().mode] or "__")
+    return ("%s"):format(M.mode_map[vim.api.nvim_get_mode().mode] or "__")
   end,
-  padding = { left = 0, right = 0 },
-  color = {},
-  cond = nil,
+  padding = { left = 2, right = 1 },
 }
 
 ------------------------------------------------------------------------------
@@ -132,23 +130,23 @@ M.mode = {
 M.lsp = {
   function()
     local buf_clients = Utils.lsp.get_clients({ bufnr = 0 })
-    local buf_client_names = {}
+    local client_names = {}
     for _, client in pairs(buf_clients) do
       if client.name ~= "conform" and client.name ~= "copilot" then
-        table.insert(buf_client_names, client.name)
+        client_names[#client_names + 1] = client.name
       end
     end
-    if #buf_client_names == 0 then
+    if #client_names == 0 then
       return ""
     end
 
-    local unique_client_names = table.concat(buf_client_names, ", ")
+    local unique_client_names = table.concat(client_names, ", ")
     local lsp_icon = Utils.icons.ui.ActiveLSP or ""
-    return string.format("%s %s", lsp_icon, unique_client_names)
+    return ("%s %s"):format(lsp_icon, unique_client_names)
   end,
   cond = M.conditions.hide_in_width,
   color = function()
-    return vim.tbl_extend("force", M.fg("DiagnosticOk"), { gui = "italic,bold" })
+    return vim.tbl_extend("force", {}, M.fg("DiagnosticOk"), { gui = "italic,bold" })
   end,
 }
 
@@ -164,21 +162,21 @@ M.formatters = {
     if not ok then
       return ""
     end
-    local formatters = conform.list_formatters(0)
-    local ready_formatters = {}
-    for _, formatter in ipairs(formatters) do
+    local conform_formatters = conform.list_formatters(0)
+    local formatters = {}
+    for _, formatter in ipairs(conform_formatters) do
       if formatter.available then
         local icon = M.get_formatter_icon(formatter.name)
-        table.insert(ready_formatters, icon .. " " .. formatter.name)
+        formatters[#formatters + 1] = ("%s %s"):format(icon, formatter.name)
       end
     end
-    if #ready_formatters == 0 then
+    if #formatters == 0 then
       return ""
     end
-    return table.concat(ready_formatters, ", ")
+    return table.concat(formatters, ", ")
   end,
   color = function()
-    return vim.tbl_extend("force", M.fg("Constant"), { gui = "italic,bold" })
+    return vim.tbl_extend("force", {}, M.fg("Constant"), { gui = "italic,bold" })
   end,
   cond = M.conditions.hide_in_width,
 }
