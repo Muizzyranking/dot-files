@@ -104,9 +104,7 @@ return {
     optional = true,
     opts = {
       sources = {
-        per_filetype = {
-          oil = {},
-        },
+        disable_ft = { "oil" },
       },
     },
   },

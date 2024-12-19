@@ -6,7 +6,7 @@ return {
   keys = {
     {
       "<leader>E",
-      "<cmd>Neotree toggle<cr>",
+      "<cmd>Neotree focus<cr>",
       desc = "File Explorer",
     },
     {

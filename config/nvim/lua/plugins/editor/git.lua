@@ -1,7 +1,8 @@
 return {
   {
     "lewis6991/gitsigns.nvim",
-    event = "InGitRepo",
+    event = "LazyFile",
+    cond = Utils.is_in_git_repo,
     opts = {
       signs = {
         add = { text = "▎" },

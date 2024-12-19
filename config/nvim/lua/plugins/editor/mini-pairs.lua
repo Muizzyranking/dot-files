@@ -20,16 +20,16 @@ return {
 
   config = function(_, opts)
     -- Define the pairs setup and a toggle to enable/disable it with <leader>up
-    vim.keymap.set("n", "<leader>up", function()
-      local state = not vim.g.minipairs_disable
-      vim.g.minipairs_disable = state
-      if state == true then
-        Utils.notify.warn("Mini Pairs disabled", { title = "Mini Pairs" })
-      else
-        Utils.notify.info("Mini Pairs enabled", { title = "Mini Pairs" })
-      end
-    end, { desc = "Toggle Mini Pairs" })
-
+    Utils.toggle_map({
+      "<leader>up",
+      get_state = function()
+        return not vim.g.minipairs_disable
+      end,
+      change_state = function(state)
+        vim.g.minipairs_disable = state
+      end,
+      name = "Mini Pairs",
+    })
     -- Load the mini.pairs plugin with the given options
     local pairs = require("mini.pairs")
     pairs.setup(opts)

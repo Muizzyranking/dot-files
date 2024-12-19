@@ -36,7 +36,7 @@ return {
           local grug = require("grug-far")
           grug.grug_far({
             transient = true,
-            prefills = { paths = vim.fn.expand("%") },
+            prefills = { paths = vim.fn.expand("%p") },
           })
         end,
         desc = "Search and Replace (in current file)",
