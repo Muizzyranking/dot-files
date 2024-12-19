@@ -62,8 +62,8 @@
 ---@field icon? table Icons for the enabled and disabled states.
 ---@field icon.enabled? string Icon for the enabled state (default: "").
 ---@field icon.disabled? string Icon for the disabled state (default: "").
----@field icon.color_enabled? string Color for the enabled state icon (default: "green").
----@field icon.color_disabled? string Color for the disabled state icon (default: "yellow").
+---@field color.enabled? string Color for the enabled state icon (default: "green").
+---@field color.disabled? string Color for the disabled state icon (default: "yellow").
 ---@field get_state fun():boolean A function returning the current state of the toggle (true for enabled, false for disabled).
 ---@field change_state fun(state: boolean) A function to change the state of the toggle.
 ---@field toggle_fn? fun() A custom function to execute when toggling the state. If not provided, a default implementation is used.

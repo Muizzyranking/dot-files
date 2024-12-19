@@ -222,7 +222,7 @@ function M.map(mappings)
 end
 
 ---------------------------------------------------------------
----@param opts ToggleMapOptions
+---@param opts ToggleMap
 ---@return table|nil Returns a mapping table if `set_key` is `false`, otherwise sets the keymap and returns `nil`.
 ---------------------------------------------------------------
 function M.toggle_map(opts)
@@ -255,7 +255,15 @@ function M.toggle_map(opts)
       mapping[k] = v
     end
   end
-  for _, field in ipairs({ "key", "get_state", "toggle_fn", "change_state" }) do
+  for _, field in ipairs({
+    "name",
+    "get_state",
+    "toggle_fn",
+    "change_state",
+    "color",
+    "notify",
+    "set_key",
+  }) do
     mapping[field] = nil
   end
 
