@@ -39,166 +39,11 @@ return {
 
     vim.diagnostic.config(vim.deepcopy(opts.diagnostics))
     Utils.format.setup()
-
-    local keys = {
-      {
-        "gd",
-        function()
-          require("telescope.builtin").lsp_definitions({
-            reuse_win = true,
-          })
-        end,
-        desc = "Goto Definition",
-        has = "definition",
-      },
-      {
-        "gD",
-        function()
-          require("telescope.builtin").lsp_definitions({
-            jump_type = "vsplit",
-          })
-        end,
-        desc = "Goto Definition (vsplit)",
-        has = "definition",
-      },
-      {
-        "g;",
-        function()
-          vim.lsp.buf.declaration()
-        end,
-        desc = "Goto Declaration",
-        has = "declaration",
-      },
-      {
-        "gr",
-        function()
-          require("telescope.builtin").lsp_references()
-        end,
-        desc = "Goto References",
-        has = "references",
-      },
-      {
-        "gI",
-        function()
-          require("telescope.builtin").lsp_implementations()
-        end,
-        desc = "Goto Implementation",
-      },
-      {
-        "K",
-        function()
-          vim.lsp.buf.hover()
-        end,
-        desc = "Hover",
-        has = "hover",
-      },
-      {
-        "]d",
-        Utils.lsp.diagnostic_goto(true),
-        desc = "Next Diagnostic",
-      },
-      {
-        "[d",
-        Utils.lsp.diagnostic_goto(false),
-        desc = "Prev Diagnostic",
-      },
-      {
-        "]e",
-        Utils.lsp.diagnostic_goto(true, "ERROR"),
-        desc = "Next Error",
-      },
-      {
-        "[e",
-        Utils.lsp.diagnostic_goto(false, "ERROR"),
-        desc = "Prev Error",
-      },
-      {
-        "]w",
-        Utils.lsp.diagnostic_goto(true, "WARN"),
-        desc = "Next Warning",
-      },
-      {
-        "[w",
-        Utils.lsp.diagnostic_goto(false, "WARN"),
-        desc = "Prev Warning",
-      },
-      {
-        "<leader>cf",
-        function()
-          Utils.format.format({ force = true })
-        end,
-        desc = "Format buffer",
-        icon = { icon = " ", color = "green" },
-        mode = { "n", "v" },
-      },
-      {
-        "<leader>cl",
-        "<cmd>LspInfo<cr>",
-        desc = "Lsp Info",
-        icon = { icon = " ", color = "blue" },
-      },
-      {
-        "<leader>ca",
-        vim.lsp.buf.code_action,
-        desc = "Code Action",
-        icon = { icon = " ", color = "orange" },
-        has = "codeAction",
-      },
-      {
-        "<leader>cr",
-        Utils.lsp.rename,
-        desc = "Rename",
-        icon = { icon = "󰑕 ", color = "orange" },
-        expr = true,
-        has = "rename",
-        silent = false,
-      },
-      Utils.toggle_map({
-        key = "<leader>ui",
-        get_state = function()
-          return vim.lsp.inlay_hint.is_enabled({ bufnr = 0 })
-        end,
-        toggle_fn = function()
-          Utils.lsp.toggle_inlay_hints(0)
-        end,
-        desc = "Inlay hint",
-        has = "inlayHint",
-      }),
-      -- don't really use this
-      -- {
-      --   "<leader>D",
-      --   function()
-      --     require("telescope.builtin").lsp_type_definitions()
-      --   end,
-      --   desc = "Goto References",
-      -- },
-    }
-    local all_keys = {}
-    local function key_on_attach(_, buffer)
-      local clients = Utils.lsp.get_clients({ bufnr = buffer })
-      for _, client in ipairs(clients) do
-        local maps = opts.servers[client.name] and opts.servers[client.name].keys or {}
-        for _, key in ipairs(maps) do
-          table.insert(keys, key)
-        end
-      end
-      for _, key in ipairs(keys) do
-        local has = not key.has or Utils.lsp.has(buffer, key.has)
-        if has then
-          key.has = nil
-          key.buffer = buffer
-          key.silent = key.silent ~= false
-          table.insert(all_keys, key)
-        end
-      end
-      Utils.map(all_keys)
-    end
-
     Utils.lsp.on_attach(function(client, buffer)
       if not vim.api.nvim_buf_is_valid(buffer) then
         return
       end
-      key_on_attach(client, buffer)
+      require("plugins.lsp.lspconfig.keymaps").on_attach(client, buffer)
       Utils.lsp.on_support_methods("textDocument/documentHighlight", function()
         if client.server_capabilities.documentHighlightProvider then
           if not vim.api.nvim_buf_is_valid(buffer) then
@@ -227,7 +72,7 @@ return {
       end)
     end)
     Utils.lsp.setup()
-    Utils.lsp.on_dynamic_capability(key_on_attach)
+    Utils.lsp.on_dynamic_capability(require("plugins.lsp.lspconfig.keymaps").on_attach)
 
     local has_cmp, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
     local has_blink, blink = pcall(require, "blink.cmp")
