@@ -5,8 +5,8 @@ return {
       incremental_selection = {
         enable = true,
         keymaps = {
-          init_selection = "<C-\\>",
-          node_incremental = "<C-\\>",
+          init_selection = "<cr>",
+          node_incremental = "<cr>",
           scope_incremental = false,
           node_decremental = "<bs>",
         },
@@ -14,16 +14,13 @@ return {
     },
   },
   {
-    {
-      "nvim-treesitter/nvim-treesitter",
-      opts = function(_, opts)
-        local parsers = {
+    "nvim-treesitter/nvim-treesitter",
+    opts = function(_, opts)
+      if type(opts.ensure_installed) == "table" then
+        vim.list_extend(opts.ensure_installed, {
           "sql",
-        }
-        if type(opts.ensure_installed) == "table" then
-          vim.list_extend(opts.ensure_installed, parsers)
-        end
-      end,
-    },
+        })
+      end
+    end,
   },
 }
