@@ -51,14 +51,14 @@ return {
 
       sources = {
         default = { "lsp", "snippets", "buffer", "path" },
-        per_filetype = {
-          oil = {},
-        },
         compat = {},
         -- optionally disable cmdline completions
         -- cmdline = {},
       },
       completion = {
+        trigger = {
+          show_on_insert_on_trigger_charater = true,
+        },
         accept = {
           -- experimental auto-brackets support
           auto_brackets = {
