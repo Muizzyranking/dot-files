@@ -9,12 +9,12 @@ return {
   },
   config = function(_, opts)
     local mason = require("mason")
-    local mason_registry = require("mason-registry")
+    local mr = require("mason-registry")
     local mason_lspconfig_ok, mason_lspconfig = pcall(require, "mason-lspconfig")
     mason.setup(opts)
 
     -- Trigger lazy events after successful package installation
-    mason_registry:on("package:install:success", function()
+    mr:on("package:install:success", function()
       vim.defer_fn(function()
         require("lazy.core.handler.event").trigger({
           event = "FileType",
@@ -47,7 +47,7 @@ return {
         for _, group in pairs(entries) do
           for _, tool in ipairs(group) do
             -- stylua: ignore
-            if pcall(function() return mason_registry.get_package(tool) end) then
+            if pcall(function() return mr.get_package(tool) end) then
               add_tools( tool )
             end
           end
@@ -75,7 +75,7 @@ return {
     -- Ensure all tools in the list are installed
     local function ensure_installed()
       for _, tool in ipairs(all_tools) do
-        local p = mason_registry.get_package(tool)
+        local p = mr.get_package(tool)
         if not p:is_installed() then
           p:install()
         end
@@ -84,7 +84,7 @@ return {
 
     -- Helper: Clean up unneeded tools
     local function remove_unused_tools()
-      local installed_packages = mason_registry.get_installed_packages()
+      local installed_packages = mr.get_installed_packages()
       local lsp_to_package_map = {}
       local installed_lsp_servers = {}
 
@@ -110,9 +110,8 @@ return {
     end
 
     -- Trigger installation of tools, refreshing the registry if needed
-    if mason_registry.refresh then
-      mason_registry.refresh(ensure_installed)
-      mason_registry.refresh(function()
+    if mr.refresh then
+      mr.refresh(function()
         ensure_installed()
         remove_unused_tools()
       end)
