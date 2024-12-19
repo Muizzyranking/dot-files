@@ -14,16 +14,15 @@ vim.opt.rtp:prepend(vim.env.LAZY or lazypath)
 
 vim.keymap.set("n", "<leader>l", ":Lazy<cr>", { desc = "Lazy", silent = true })
 
-require("config.events").setup_lazyfile()
-require("config.events").setup_ingitrepo()
+require("config.lazyfile").setup()
 
 require("lazy").setup({
   spec = {
-    { import = "plugins.first" },
+    { import = "plugins.core" },
     { import = "plugins.editor" },
     { import = "plugins.lsp" },
     { import = "plugins.ui" },
-    { import = "plugins.ai" },
+    { import = "plugins.ai.copilot" },
     { import = "plugins.lang.lua" },
     { import = "plugins.lang.python" },
     { import = "plugins.lang.typescript" },

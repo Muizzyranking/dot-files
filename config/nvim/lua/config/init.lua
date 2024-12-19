@@ -22,8 +22,8 @@ local function load_module(module)
   if ok then
     loaded = loaded + 1
   else
-    table.insert(failed, module)
-    vim.api.nvim_err_writeln(string.format("Error loading module '%s': %s", module, err))
+    failed[#failed + 1] = module
+    vim.api.nvim_err_writeln(("Error loading module '%s': %s"):format(module, err))
   end
   return ok
 end
@@ -48,13 +48,6 @@ vim.api.nvim_create_autocmd("User", {
     end
     load_module("keymaps")
     load_module("abbrevations")
-  end,
-})
-
-vim.api.nvim_create_autocmd("User", {
-  pattern = "LazyFile",
-  callback = function()
-    require("utils.colorify").setup()
   end,
 })
 
