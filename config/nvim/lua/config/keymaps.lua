@@ -44,7 +44,7 @@ set("n", "<C-Right>", "<cmd>vertical resize +2<cr>", { desc = "Increase Window W
 ------------------------
 -- saving and quitting
 ------------------------
-set({ "i", "x", "n", "s" }, "<C-s>", "<cmd>update<cr><esc>", { desc = "Save File" })
+set(                                  { "i", "x", "n", "s" }, "<C-s>", "<cmd>update<cr><esc>", { desc = "Save File" })
 set("n", "<C-q>", "<cmd>q<cr>",       { desc = "Quit file" })
 set("n", "<leader>qq", "<cmd>qa<cr>", { desc = "Save all and quit", silent = true })
 
@@ -63,26 +63,26 @@ set("n", "<Esc>", "<cmd>nohlsearch<CR>") -- Clear search highlight on pressing <
 ------------------------
 -- editing
 ------------------------
-if Utils.is_in_tmux() then
-  set("i", "<C-o>", "<esc>o",  { desc = "Go to next line", remap = true }) -- go to next line in insert
-else
-  set("i", "<C-cr>", "<esc>o", { desc = "Go to next line" }) -- go to next line in insert
-end
-set("i", "<C-b>", "<esc>I",    { desc = "Go to beginning of line" }) -- Go to beginning of line in insert
-set(                           { "n", "v" }, "B", "^", { desc = "Go to beginning of line" }) -- go to beginning of line in normal
-set("i", "<C-e>", "<esc>A",    { desc = "Go to end of line" }) -- go to end of line in insert
-set(                           { "n", "v" }, "E", "$", { desc = "Go to end of line" }) -- go to end of line in normal
+set("i", ("<c-%s>"):format(
+  Utils.is_in_tmux() and "o" or "cr"
+), "<esc>o", { desc = "Go to next line", remap = true }) -- go to next line in insert
+
+set("i", "<C-b>", "<esc>I", { desc = "Go to beginning of line" }) -- Go to beginning of line in insert
+set({ "n", "v" }, "B", "^", { desc = "Go to beginning of line" }) -- go to beginning of line in normal
+set("i", "<C-e>", "<esc>A", { desc = "Go to end of line" }) -- go to end of line in insert
+set({ "n", "v" }, "E", "$", { desc = "Go to end of line" }) -- go to end of line in normal
 -- set("i", "jj", "<Esc>",     { desc = "Go to normal mode" }) -- esc with jj
-set("n", "<BS>", '"_ciw',      { desc = "Change inner word" }) -- change word
+set("n", "<BS>", '"_ciw', { desc = "Change inner word" }) -- change word
 
 -- NOTE: this is the way to make <c-bs> work in tmux for some reasons
-if Utils.is_in_tmux() then
-  set({ "i", "c" }, "<c-h>", "<c-w>",  { desc = "Delete word" }) -- delete word with <c-bs>
-else
-  set({ "i", "c" }, "<C-BS>", "<c-w>", { desc = "Delete word" }) -- delete word with <c-bs>
-end
+set(
+  { "i", "c" },
+  ("<C-%s>"):format(Utils.is_in_tmux() and "h" or "BS"),
+  "<c-w>",
+  { desc = "Delete word" }
+) -- delete word with <c-bs>
 
-set({ "n" }, "D", '"_D',      { desc = "Delete without yanking" }) -- delete line without yanking
+set(                          { "n" }, "D", '"_D', { desc = "Delete without yanking" }) -- delete line without yanking
 set("n", "<C-a>", "gg<S-v>G", { desc = "Select all", noremap = true, silent = true }) -- select all
 set("v", "<S-Tab>", "<gv",    { noremap = false, silent = true })
 set("v", "<Tab>", ">gv",      { noremap = false, silent = true })
@@ -94,7 +94,6 @@ set({ "n" }, "ciw", '"_ciw')
 set({ "n" }, "C", '"_C')
 set({ "n", "v", "x" }, "x", '"_x') -- delete text without yanking
 
--- set({ "n", "i", "t" }, "<C-_>", terminal, { noremap = true, silent = true, desc = "Toggle Terminal" })
 set({ "n", "i", "t" }, "<F7>", Utils.terminal.float_term, { noremap = true, silent = true, desc = "Toggle Terminal" })
 -- stylua: ignore end
 
@@ -129,81 +128,9 @@ local maps = {
     icon = { icon = "󰛌 ", color = "red" },
   },
   {
-    "<leader>cx",
-    function()
-      Utils.keys.toggle_file_executable()
-    end,
-    desc = function()
-      local file = vim.fn.expand("%:p")
-      return "Make file " .. (Utils.is_executable(file) and "unexecutable" or "executable")
-    end,
-    icon = function()
-      local file = vim.fn.expand("%:p")
-      return Utils.is_executable(file) and { icon = "󰜺 ", color = "yellow" } or { icon = "󱐌 ", color = "red" }
-    end,
-  },
-  Utils.toggle_map({
-    key = "<leader>uw",
-    get_state = function()
-      return vim.opt.wrap:get()
-    end,
-    toggle_fn = Utils.keys.toggle_line_wrap,
-    desc = "line wrap",
-  }),
-  Utils.toggle_map({
-    key = "<leader>ud",
-    get_state = function()
-      return not vim.diagnostic.is_disabled()
-    end,
-    toggle_fn = Utils.keys.toggle_diagnostics,
-    desc = "diagnostic",
-  }),
-  Utils.toggle_map({
-    key = "<leader>us",
-    get_state = function()
-      return vim.wo.spell
-    end,
-    toggle_fn = Utils.keys.toggle_spell,
-    desc = "spell",
-  }),
-  Utils.toggle_map({
-    key = "<leader>uf",
-    get_state = function()
-      return vim.g.autoformat
-    end,
-    toggle_fn = Utils.format.toggle,
-    desc = "Autoformat (Global)",
-  }),
-  Utils.toggle_map({
-    key = "<leader>uF",
-    get_state = function()
-      return Utils.format.enabled(vim.api.nvim_get_current_buf())
-    end,
-    toggle_fn = function()
-      Utils.format.toggle(vim.api.nvim_get_current_buf())
-    end,
-    desc = "Autoformat (Buffer)",
-  }),
-  Utils.toggle_map({
-    key = "<leader>uT",
-    get_state = function()
-      return vim.b.ts_highlight
-    end,
-    toggle_fn = function()
-      if vim.b.ts_highlight then
-        vim.treesitter.stop()
-        Utils.notify.warn("Treesitter Highlight disabled", { title = "Options" })
-      else
-        vim.treesitter.start()
-        Utils.notify.info("Treesitter Highlight enabled", { title = "Options" })
-      end
-    end,
-    desc = "treesitter Highlight",
-  }),
-  {
     "<leader>j",
     function()
-      Utils.keys.duplicate_line()
+      Utils.actions.duplicate_line()
     end,
     desc = "Dulicate line",
     icon = { icon = "󰆑 " },
@@ -211,10 +138,11 @@ local maps = {
   {
     "<leader>j",
     function()
-      Utils.keys.duplicate_selection()
+      Utils.actions.duplicate_selection()
     end,
     desc = "Dulicate selection",
     icon = { icon = "󰆑 " },
+
     mode = { "v" },
   },
   {
@@ -235,7 +163,7 @@ local maps = {
   {
     "<leader>fn",
     function()
-      Utils.keys.new_file()
+      Utils.actions.new_file()
     end,
     desc = "Create new file",
     icon = { icon = " ", color = "orange" },
@@ -255,51 +183,161 @@ local maps = {
   },
   {
     "<leader>ut",
-    Utils.keys.change_var_case,
+    Utils.actions.change_var_case,
     desc = "Change variable case",
     icon = { icon = "󰯍 ", color = "red" },
   },
 }
 
 if Utils.is_in_git_repo() then
-  local git_maps = {
+  vim.list_extend(maps, {
     {
       "<leader>gb",
       function()
-        -- Utils.git.blame_line()
         Snacks.git.blame_line()
       end,
       desc = "Git blame",
       icon = { icon = " " },
     },
-    {
-      "<leader>gg",
-      function()
-        Snacks.lazygit()
-      end,
-      desc = "Lazygit",
-      icon = { icon = " ", color = "orange" },
-    },
-    {
-      "<leader>gc",
-      function()
-        Snacks.lazygit.log()
-      end,
-      desc = "Lazygit log",
-      icon = { icon = " ", color = "orange" },
-    },
-    {
-      "<leader>gC",
-      function()
-        Snacks.lazygit.log_file()
-      end,
-      desc = "Lazygit log (current file)",
-      icon = { icon = " ", color = "orange" },
-    },
-  }
-  for _, git_map in ipairs(git_maps) do
-    table.insert(maps, git_map)
+  })
+  if Utils.is_executable("lazygit") then
+    vim.list_extend(maps, {
+      {
+        "<leader>gg",
+        function()
+          Snacks.lazygit()
+        end,
+        desc = "Lazygit",
+        icon = { icon = " ", color = "orange" },
+      },
+      {
+        "<leader>gc",
+        function()
+          Snacks.lazygit.log()
+        end,
+        desc = "Lazygit log",
+        icon = { icon = " ", color = "orange" },
+      },
+      {
+        "<leader>gC",
+        function()
+          Snacks.lazygit.log_file()
+        end,
+        desc = "Lazygit log (current file)",
+        icon = { icon = " ", color = "orange" },
+      },
+    })
   end
 end
 
 Utils.map(maps)
+
+------------------------------------
+-- toggle keymaps
+------------------------------------
+-- if Utils.has("copilot.lua") then
+--   Utils.toggle_map({
+--     "<leader>cc",
+--     get_state = function()
+--       return require("copilot.client").buf_is_attached(0)
+--     end,
+--     change_state = function(state)
+--       if not state then
+--         vim.cmd("Copilot attach")
+--       else
+--         vim.cmd("Copilot detach")
+--       end
+--     end,
+--     name = "Copilot",
+--   })
+-- end
+
+Utils.toggle_map({
+  "<leader>cx",
+  get_state = function()
+    return Utils.is_executable(vim.fn.expand("%:p"))
+  end,
+  change_state = function(state)
+    Utils.actions.toggle_file_executable(state)
+  end,
+  desc = function(state)
+    return ("Make file %s"):format(state and "unexecutable" or "executable")
+  end,
+  notify = false,
+  icon = {
+    enabled = "󰜺 ",
+    disabled = "󱐌 ",
+  },
+  color = {
+    enabled = "yellow",
+    disabled = "red",
+  },
+})
+Utils.toggle_map({
+  "<leader>uw",
+  get_state = function()
+    return vim.opt.wrap:get()
+  end,
+  change_state = function(state)
+    vim.opt.wrap = not state
+  end,
+  name = "Line wrap",
+})
+Utils.toggle_map({
+  "<leader>ud",
+  get_state = function()
+    local enabled = false
+    if vim.diagnostic.is_enabled then
+      enabled = vim.diagnostic.is_enabled()
+    elseif vim.diagnostic.is_disabled then
+      enabled = not vim.diagnostic.is_disabled()
+    end
+    return enabled
+  end,
+  change_state = function(state)
+    vim.diagnostic[not state and "enable" or "disable"]()
+  end,
+  name = "diagnostic",
+})
+Utils.toggle_map({
+  "<leader>us",
+  get_state = function()
+    return vim.wo.spell
+  end,
+  change_state = function(state)
+    vim.opt.spell = not state
+  end,
+  name = "spell",
+})
+Utils.toggle_map({
+  "<leader>uf",
+  get_state = function()
+    return vim.g.autoformat
+  end,
+  -- toggle_fn = Utils.format.toggle,
+  change_state = function(state)
+    Utils.format.toggle(nil, not state)
+  end,
+  name = "Autoformat (Global)",
+})
+Utils.toggle_map({
+  "<leader>uF",
+  get_state = function()
+    return Utils.format.enabled(vim.api.nvim_get_current_buf())
+  end,
+  change_state = function(state)
+    Utils.format.toggle(vim.api.nvim_get_current_buf(), not state)
+  end,
+  name = "Autoformat (Buffer)",
+})
+Utils.toggle_map({
+  "<leader>uT",
+  get_state = function()
+    return vim.b.ts_highlight
+  end,
+  change_state = function(state)
+    vim.treesitter[state and "stop" or "start"]()
+    vim.b.ts_highlight = not state
+  end,
+  name = "treesitter Highlight",
+})
