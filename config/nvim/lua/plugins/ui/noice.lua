@@ -42,6 +42,13 @@ return {
       {
         filter = {
           event = "notify",
+          find = "not attached to buffer",
+        },
+        opts = { skip = true },
+      },
+      {
+        filter = {
+          event = "notify",
           find = "Toggling hidden files",
         },
         opts = { skip = true },

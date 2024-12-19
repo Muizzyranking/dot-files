@@ -29,7 +29,6 @@ return {
           mouse_scrolled = false
           return false
         end
-        -- Default filter conditions plus our custom ones
         return vim.g.snacks_scroll ~= false and vim.b[buf].snacks_scroll ~= false and vim.bo[buf].buftype ~= "terminal"
       end,
     }

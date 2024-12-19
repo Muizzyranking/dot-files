@@ -3,14 +3,14 @@ return {
   opts = {
     dashboard = {
       preset = {
-        header = Utils.ui.logo.muizzy,
+        header = Utils.ui.logo.one,
         keys = {
           {
             icon = " ",
             key = "n",
             desc = "New File",
             action = function()
-              Utils.keys.new_file()
+              Utils.actions.new_file()
             end,
           },
           {
