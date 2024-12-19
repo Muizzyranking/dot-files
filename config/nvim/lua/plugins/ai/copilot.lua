@@ -15,6 +15,7 @@ return {
   },
   {
     "nvim-cmp",
+    optional = true,
     dependencies = {
       {
         "zbirenbaum/copilot-cmp",
