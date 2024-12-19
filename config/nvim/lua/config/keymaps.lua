@@ -235,23 +235,6 @@ Utils.map(maps)
 ------------------------------------
 -- toggle keymaps
 ------------------------------------
--- if Utils.has("copilot.lua") then
---   Utils.toggle_map({
---     "<leader>cc",
---     get_state = function()
---       return require("copilot.client").buf_is_attached(0)
---     end,
---     change_state = function(state)
---       if not state then
---         vim.cmd("Copilot attach")
---       else
---         vim.cmd("Copilot detach")
---       end
---     end,
---     name = "Copilot",
---   })
--- end
-
 Utils.toggle_map({
   "<leader>cx",
   get_state = function()
