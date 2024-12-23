@@ -33,11 +33,20 @@ end
 ---@param callback fun(event: table)
 -----------------------------------------------------------------
 local function create_autocmd(event, pattern, callback)
-  local opts = {
-    pattern = pattern,
-    callback = callback,
-  }
-  vim.api.nvim_create_autocmd(event, opts)
+  local lazy_load = vim.fn.argc(-1) == 0
+
+  local function setup_autocmd()
+    vim.api.nvim_create_autocmd(event, {
+      pattern = pattern,
+      callback = callback,
+    })
+  end
+
+  if not lazy_load then
+    setup_autocmd()
+  else
+    Utils.on_very_lazy(setup_autocmd)
+  end
 end
 
 -----------------------------------------------------------------
@@ -96,6 +105,36 @@ local function setup_language(config)
     table.insert(plugins, {
       "neovim/nvim-lspconfig",
       opts = config.lsp,
+    })
+  end
+
+  -- install tools
+  if config.tools then
+    local tools
+    if type(config.tools) == "function" then
+      tools = config.tools()
+    elseif type(config.tools) == "string" then
+      tools = { config.tools }
+    else
+      tools = config.tools
+    end
+    table.insert(plugins, {
+      "williamboman/mason.nvim",
+      optional = true,
+      opts = {
+        ensure_installed = tools,
+      },
+    })
+  end
+
+  if config.test then
+    table.insert(plugins, {
+      "nvim-neotest/neotest",
+      optional = true,
+      dependecies = config.test.dependencies or {},
+      opts = {
+        adapters = config.test.adapters or {},
+      },
     })
   end
 
@@ -192,26 +231,18 @@ local function setup_language(config)
 
   -- Comments Configuration
   if config.commentstring then
-    local opts = {}
     if type(config.commentstring) == "string" then
-      ---@diagnostic disable-next-line: param-type-mismatch
-      for _, ft in ipairs(config.ft) do
-        opts[ft] = config.commentstring
-      end
+      create_autocmd("FileType", config.ft, function(event)
+        vim.bo[event.buf].commentstring = config.commentstring
+      end)
     elseif type(config.commentstring) == "table" then
-      ---@type table<string, string>
-      local comment_table = config.commentstring
-      for ft, commentstring in pairs(comment_table) do
-        opts[ft] = commentstring
+      ---@diagnostic disable-next-line: param-type-mismatch
+      for ft, commentstring in pairs(config.commentstring) do
+        create_autocmd("FileType", ft, function(event)
+          vim.bo[event.buf].commentstring = commentstring
+        end)
       end
     end
-    table.insert(plugins, {
-      "folke/ts-comments.nvim",
-      optional = true,
-      opts = {
-        lang = opts,
-      },
-    })
   end
 
   -- Add custom plugins
@@ -233,14 +264,11 @@ local function setup_language(config)
 
   -- Setup filetype-specific options
   if config.options then
-    vim.api.nvim_create_autocmd("FileType", {
-      pattern = config.ft,
-      callback = function(event)
-        for option, value in pairs(config.options) do
-          vim.bo[event.buf][option] = value
-        end
-      end,
-    })
+    create_autocmd("Filetype", config.ft, function(event)
+      for option, value in pairs(config.options) do
+        vim.bo[event.buf][option] = value
+      end
+    end)
   end
 
   return plugins

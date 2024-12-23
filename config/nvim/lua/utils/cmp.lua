@@ -7,13 +7,13 @@ local M = {}
 ---@return string The preview text
 --------------------------------------------------
 function M.snippet_preview(snippet)
-  local ok, parsed = pcall(vim.lsp._snippet_grammar.parse, snippet)
-  if ok then
-    return tostring(parsed)
-  else
-    ---@diagnostic disable-next-line: redundant-return-value
-    return snippet:gsub("%${%d+:(.-)}", "%1"):gsub("%$%d+", ""):gsub("%$0", "")
-  end
+  local ok, parsed = pcall(function()
+    return vim.lsp._snippet_grammar.parse(snippet)
+  end)
+  return ok and tostring(parsed)
+    or M.snippet_replace(snippet, function(placeholder)
+      return M.snippet_preview(placeholder.text)
+    end):gsub("%$0", "")
 end
 
 --------------------------------------------------
@@ -44,24 +44,23 @@ end
 
 --------------------------------------------------
 ---Expands a snippet with error handling and automatic fixing
----@param args string The snippet to expand
+---@param snippet string The snippet to expand
 --------------------------------------------------
-function M.expand_snippet(args)
-  local snippet = args.body
+function M.expand(snippet)
   -- Native sessions don't support nested snippet sessions.
   -- Always use the top-level session.
+  -- Otherwise, when on the first placeholder and selecting a new completion,
+  -- the nested session will be used instead of the top-level session.
   local session = vim.snippet.active() and vim.snippet._session or nil
 
-  -- Attempt to expand the snippet
   local ok, err = pcall(vim.snippet.expand, snippet)
   if not ok then
-    -- Try to fix the snippet and expand again
     local fixed = M.snippet_fix(snippet)
     ok = pcall(vim.snippet.expand, fixed)
-    local msg = ok and "Failed to parse snippet, but was able to fix it automatically."
+
+    local msg = ok and "Failed to parse snippet,\nbut was able to fix it automatically."
       or ("Failed to parse snippet.\n" .. err)
 
-    -- Use your notification system here
     Utils.notify[ok and "warn" or "error"](
       ([[%s
 ```%s
@@ -71,7 +70,7 @@ function M.expand_snippet(args)
     )
   end
 
-  -- Restore the original snippet session if necessary
+  -- Restore top-level session when needed
   if session then
     vim.snippet._session = session
   end

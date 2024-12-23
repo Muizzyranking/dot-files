@@ -29,12 +29,18 @@
 ---@field parsers? string[] # Parser names to install
 ---@field custom_parsers? ParserInfo # Custom parser configurations
 
+---@class TestConfig
+---@field adapters? table<string, fun():table> # Adapters for tests
+---@field dependencies? string[] # Dependencies for tests
+
 ---@class LanguageConfig
 ---@field name string # Language name
 ---@field ft? string|string[] # Filetype(s)
 ---@field add_ft? AddFt # Filetype detection configuration
 ---@field autocmds? AutocmdConfig[] # Autocommands
 ---@field lsp? LspConfig # LSP configuration
+---@field tools? string[]|fun() # Tools to be installed
+---@field test? TestConfig # adapters for tests
 ---@field formatting? FormattingConfig # Formatting configuration
 ---@field linting? LintingConfig # Linting configuration
 ---@field highlighting? TreesitterConfig # Treesitter configuration

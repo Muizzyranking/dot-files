@@ -110,5 +110,6 @@ return {
     -- TypeParameter = " ",
     -- Value = " ",
     -- Variable = "󰀫 ",
+    Obsidian = " ",
   },
 }
