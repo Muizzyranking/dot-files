@@ -1,16 +1,16 @@
 return {
-  "NvChad/nvim-colorizer.lua",
+  -- "NvChad/nvim-colorizer.lua",
+  "catgoose/nvim-colorizer.lua",
   event = "BufReadPre",
   opts = function()
-    local colorizer = require("colorizer")
     local bufnr = vim.api.nvim_get_current_buf()
     Utils.toggle_map({
       "<leader>uh",
       get_state = function()
-        return colorizer.is_buffer_attached(bufnr) > 1
+        return require("colorizer").is_buffer_attached(bufnr) > 1
       end,
       change_state = function(state)
-        colorizer[state and "detach_from_buffer" or "attach_to_buffer"](bufnr)
+        require("colorizer")[state and "detach_from_buffer" or "attach_to_buffer"](bufnr)
       end,
       name = "Color highlight",
     })
