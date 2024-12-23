@@ -62,6 +62,12 @@ return Utils.setup_lang({
       htmldjango = { "djlint" },
     },
   },
+  test = {
+    dependencies = { "nvim-neotest/neotest-python" },
+    adapters = {
+      ["python"] = {},
+    },
+  },
   highlighting = {
     parsers = {
       "python",

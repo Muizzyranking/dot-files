@@ -3,11 +3,6 @@ return Utils.setup_lang({
   ft = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
   lsp = {
     servers = {
-      eslint = {
-        settings = {
-          workingDirectories = { mode = "auto" },
-        },
-      },
       vtsls = {
         settings = {
           complete_function_calls = true,
@@ -169,23 +164,6 @@ return Utils.setup_lang({
           end
         end, "vtsls")
       end,
-
-      eslint = function()
-        Utils.lsp.on_attach(function(_, bufnr)
-          vim.api.nvim_create_autocmd("BufWritePost", {
-            buffer = bufnr,
-            callback = function()
-              local cl = Utils.lsp.get_clients({ name = "eslint", bufnr = bufnr })[1]
-              if cl then
-                local diag = vim.diagnostic.get(bufnr, { namespace = vim.lsp.diagnostic.get_namespace(cl.id) })
-                if #diag > 0 then
-                  vim.cmd("EslintFixAll")
-                end
-              end
-            end,
-          })
-        end, "eslint")
-      end,
     },
   },
 
@@ -215,6 +193,40 @@ return Utils.setup_lang({
       ["yarn.lock"] = { glyph = "", hl = "MiniIconsBlue" },
     },
   },
+  keys = {
+    {
+      "t",
+      function()
+        vim.api.nvim_feedkeys("t", "n", true) -- pass through the trigger char
+        local col = vim.api.nvim_win_get_cursor(0)[2]
+        local textBeforeCursor = vim.api.nvim_get_current_line():sub(col - 3, col)
+        if textBeforeCursor ~= "awai" then
+          return
+        end
+        -----------------------------------------------------------------------------
+
+        local funcNode
+        local functionNodes = { "arrow_function", "function_declaration", "function" }
+        repeat -- loop trough ancestors till function node found
+          funcNode = vim.treesitter.get_node()
+          funcNode = funcNode and funcNode:parent()
+          if not funcNode then
+            return
+          end
+        until vim.tbl_contains(functionNodes, funcNode:type())
+        local functionText = vim.treesitter.get_node_text(funcNode, 0)
+
+        if vim.startswith(functionText, "async") then
+          return
+        end -- already async
+
+        local startRow, startCol = funcNode:start()
+        vim.api.nvim_buf_set_text(0, startRow, startCol, startRow, startCol, { "async " })
+      end,
+      mode = "i",
+      desc = "Auto add async",
+    },
+  },
   options = {
     shiftwidth = 2,
     tabstop = 2,
@@ -230,5 +242,6 @@ return Utils.setup_lang({
         },
       },
     },
+    { import = "plugins.lang.eslint" },
   },
 })
