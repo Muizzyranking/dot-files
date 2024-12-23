@@ -75,7 +75,7 @@ table.insert(plugins, {
       template = nil,
     },
     completion = {
-      nvim_cmp = vim.g.use_cmp and true or false,
+      nvim_cmp = not should_use_blink(),
       min_chars = 2,
     },
     mappings = {
@@ -128,6 +128,34 @@ table.insert(plugins, {
     },
   },
 })
+
+if should_use_blink() and Utils.is_in_notes_dir() then
+  table.insert(plugins, {
+    "saghen/blink.cmp",
+    dependencies = {
+      { "epwalsh/obsidian.nvim", "saghen/blink.compat" },
+    },
+    opts = {
+      sources = {
+        compat = { "obsidian", "obsidian_new", "obsidian_tags" },
+        providers = {
+          obsidian = {
+            kind = "Obsidian",
+            async = true,
+          },
+          obsidian_new = {
+            kind = "Obsidian",
+            async = true,
+          },
+          obsidian_tags = {
+            kind = "Obsidian",
+            async = true,
+          },
+        },
+      },
+    },
+  })
+end
 
 if Utils.is_in_notes_dir() then
   table.insert(plugins, {
