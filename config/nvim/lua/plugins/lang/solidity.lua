@@ -16,7 +16,7 @@ return Utils.setup_lang({
   formatting = {
     formatters = {
       prettier_sol = {
-        command = "/home/muizzyranking/.npm-global/bin/prettier",
+        command = "/home/muizzyranking/.npm-global/bin/prettierd",
         args = {
           "--write",
           "--plugin=prettier-plugin-solidity",

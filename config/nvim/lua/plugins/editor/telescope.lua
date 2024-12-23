@@ -274,11 +274,11 @@ return {
           desc = "Goto Implementation",
         },
         {
-          "gy",
+          "gT",
           function()
             require("telescope.builtin").lsp_type_definitions({ reuse_win = true })
           end,
-          desc = "Goto T[y]pe Definition",
+          desc = "Goto Type Definition",
         },
       })
     end,

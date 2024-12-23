@@ -50,18 +50,4 @@ return {
       show_message = true,
     },
   },
-  {
-    "chrisgrieser/nvim-rip-substitute",
-    config = function() end,
-    -- keys = {
-    --   {
-    --     "<leader>fs",
-    --     function()
-    --       require("rip-substitute").sub()
-    --     end,
-    --     mode = { "n", "x" },
-    --     desc = "Rip substitute",
-    --   },
-    -- },
-  },
 }

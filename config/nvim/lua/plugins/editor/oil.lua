@@ -103,9 +103,7 @@ return {
     "saghen/blink.cmp",
     optional = true,
     opts = {
-      sources = {
-        disable_ft = { "oil" },
-      },
+      disable_ft = { "oil" },
     },
   },
 }

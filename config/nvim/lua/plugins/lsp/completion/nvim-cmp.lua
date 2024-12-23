@@ -47,7 +47,7 @@ return {
       return {
         snippet = {
           expand = function(args)
-            Utils.cmp.expand_snippet(args)
+            Utils.cmp.expand_snippet(args.body)
           end,
         },
         completion = {

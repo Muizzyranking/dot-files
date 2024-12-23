@@ -72,6 +72,7 @@ return Utils.setup_lang({
             lazydev = {
               name = "LazyDev",
               module = "lazydev.integrations.blink",
+              score_offset = 100,
             },
           },
         },
