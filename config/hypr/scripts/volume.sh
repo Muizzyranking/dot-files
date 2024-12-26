@@ -41,7 +41,7 @@ inc_volume() {
     if [ "$(pamixer --get-mute)" == "true" ]; then
         toggle_mute
     else
-        wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+ && notify_user
+        wpctl set-volume -l 2 @DEFAULT_AUDIO_SINK@ 5%+
     fi
 }
 
@@ -50,7 +50,7 @@ dec_volume() {
     if [ "$(pamixer --get-mute)" == "true" ]; then
         toggle_mute
     else
-        wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%- && notify_user
+        wpctl set-volume -l 2 @DEFAULT_AUDIO_SINK@ 5%-
     fi
 }
 
