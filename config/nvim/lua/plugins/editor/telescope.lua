@@ -283,4 +283,11 @@ return {
       })
     end,
   },
+  {
+    "saghen/blink.cmp",
+    optional = true,
+    opts = {
+      disable_ft = { "TelescopePrompt" },
+    },
+  },
 }

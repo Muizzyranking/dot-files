@@ -21,14 +21,6 @@ return {
     opts = function()
       -- disable cmp in oil buffer
       local detail = false
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = "oil",
-        callback = function()
-          if Utils.has("nvim-cmp") then
-            require("cmp").setup.buffer({ enabled = false })
-          end
-        end,
-      })
       return {
         default_file_explorer = true,
         delete_to_trash = true,
@@ -101,6 +93,13 @@ return {
   },
   {
     "saghen/blink.cmp",
+    optional = true,
+    opts = {
+      disable_ft = { "oil" },
+    },
+  },
+  {
+    "nvim-cmp",
     optional = true,
     opts = {
       disable_ft = { "oil" },

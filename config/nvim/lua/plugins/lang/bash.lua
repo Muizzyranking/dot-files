@@ -34,7 +34,7 @@ return Utils.setup_lang({
     parsers = { "bash", "hyprlang", "rasi" },
   },
   commentstring = {
-    hyprlang = "# %s",
+    hyprlang = "### %s",
   },
   keys = {
     {

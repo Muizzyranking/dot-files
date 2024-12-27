@@ -2,6 +2,8 @@ return {
   "folke/snacks.nvim",
   opts = {
     dashboard = {
+      row = nil,
+      col = nil,
       preset = {
         header = Utils.ui.logo.one,
         keys = {

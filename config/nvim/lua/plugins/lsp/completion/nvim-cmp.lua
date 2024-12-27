@@ -21,6 +21,9 @@ return {
       "hrsh7th/cmp-path",
       "hrsh7th/cmp-buffer",
     },
+    opts_extend = {
+      "disable_ft",
+    },
     keys = {
       {
         "<Tab>",
@@ -45,6 +48,7 @@ return {
       vim.api.nvim_set_hl(0, "CmpGhostText", { link = "Comment", default = true })
       local cmp = require("cmp")
       return {
+        disbale_ft = { "prompt" },
         snippet = {
           expand = function(args)
             Utils.cmp.expand_snippet(args.body)
@@ -121,6 +125,15 @@ return {
           fields = { "kind", "abbr", "menu" },
         },
       }
+    end,
+    config = function(_, opts)
+      opts = opts or {}
+      local disabled_filetypes = opts.disable_ft or {}
+      opts.enabled = function()
+        return not vim.tbl_contains(disabled_filetypes, vim.bo.filetype) and vim.b.completion ~= false
+      end
+      opts.disable_ft = nil
+      require("cmp").setup(opts)
     end,
   },
 }

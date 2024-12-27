@@ -60,9 +60,6 @@ if #failed > 0 then
   )
 end
 
-------------------------------
--- Set the colorscheme
-------------------------------
 Utils.ui.set_colorscheme("rose-pine")
 vim.opt.pumblend = 0
 vim.opt.winblend = 0

@@ -1,9 +1,13 @@
 return Utils.setup_lang({
   name = "c",
-  ft = { "c" },
+  ft = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
+  highlighting = {
+    parsers = { "cpp" },
+  },
   lsp = {
     servers = {
       clangd = {
+        ft = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
         root_dir = function(fname)
           return require("lspconfig.util").root_pattern(
             "Makefile",
@@ -97,13 +101,10 @@ return Utils.setup_lang({
     {
       "dense-analysis/ale",
       ft = { "c", "h" },
-      enabled = Utils.is_executable("betty"),
+      cond = Utils.is_executable("betty"),
       dependencies = {
         {
           "JuanDAC/betty-ale-vim",
-          dependencies = {
-            "dense-analysis/ale",
-          },
         },
       },
       config = function()

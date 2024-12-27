@@ -229,20 +229,27 @@ local function setup_language(config)
     })
   end
 
-  -- Comments Configuration
+  -- commentstring Configuration
   if config.commentstring then
+    local opts = {}
     if type(config.commentstring) == "string" then
-      create_autocmd("FileType", config.ft, function(event)
-        vim.bo[event.buf].commentstring = config.commentstring
-      end)
+      ---@diagnostic disable-next-line: param-type-mismatch
+      for _, ft in ipairs(config.ft) do
+        opts[ft] = config.commentstring
+      end
     elseif type(config.commentstring) == "table" then
       ---@diagnostic disable-next-line: param-type-mismatch
       for ft, commentstring in pairs(config.commentstring) do
-        create_autocmd("FileType", ft, function(event)
-          vim.bo[event.buf].commentstring = commentstring
-        end)
+        opts[ft] = commentstring
       end
     end
+    table.insert(plugins, {
+      "folke/ts-comments.nvim",
+      optional = true,
+      opts = {
+        lang = opts,
+      },
+    })
   end
 
   -- Add custom plugins

@@ -73,20 +73,12 @@ end
 ---@param colorscheme string|function
 ------------------------------------------------------------
 function M.set_colorscheme(colorscheme)
-  local ok
-  if type(colorscheme) == "function" then
-    ok = pcall(colorscheme)
-  else
-    ok = pcall(function()
-      vim.cmd("colorscheme " .. colorscheme)
-    end)
-  end
+  local ok = pcall(function()
+    vim.cmd("colorscheme " .. colorscheme)
+  end)
 
-  -- local ok = pcall(function()
-  --   vim.cmd("colorscheme " .. name)
-  -- end)
   if ok then
-    M.colorsheme = type(colorscheme) == "function" and colorscheme() or colorscheme
+    M.colorsheme = colorscheme
   else
     vim.notify("Failed to load colorscheme: " .. colorscheme, vim.log.levels.ERROR)
     vim.cmd("colorscheme habamax")

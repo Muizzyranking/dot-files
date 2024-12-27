@@ -24,8 +24,8 @@ return {
       "disable_ft",
     },
     opts = {
-      -- list of filetypes to be disabled
-      disable_ft = {},
+      -- custom props to disable blink in certain filetypes
+      disable_ft = { "prompt" },
       snippets = {
         expand = function(snippet, _)
           return Utils.cmp.expand(snippet)
@@ -39,6 +39,25 @@ return {
         ["<C-a>"] = { "hide", "fallback" },
         ["<CR>"] = { "accept", "fallback" },
         ["<C-y>"] = { "select_and_accept" },
+        ["<Tab>"] = { "snippet_forward", "fallback" },
+        ["<S-Tab>"] = { "snippet_backward", "fallback" },
+        -- cmdline = {
+        --   preset = "enter",
+        --   ["<CR>"] = { "accept", "fallback" },
+        --   ["<C-y>"] = { "select_and_accept" },
+        --   ["<esc>"] = {
+        --     "hide",
+        --     "cancel",
+        --     -- HACK:stop esc from exeuting commands in insert mode
+        --     -- from https://github.com/Saghen/blink.cmp/issues/547
+        --     function()
+        --       if vim.fn.getcmdtype() ~= "" then
+        --         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-c>", true, true, true), "n", true)
+        --         return
+        --       end
+        --     end,
+        --   },
+        -- },
       },
       appearance = {
         use_nvim_cmp_as_default = true,
@@ -49,18 +68,9 @@ return {
       sources = {
         default = { "lsp", "snippets", "buffer", "path" },
         compat = {},
-        cmdline = function()
-          local type = vim.fn.getcmdtype()
-          -- Search forward and backward
-          if type == "/" or type == "?" then
-            return { "buffer" }
-          end
-          -- Commands
-          if type == ":" then
-            return { "cmdline" }
-          end
-          return {}
-        end,
+        -- disable for now, it is messing with tab completion
+        -- TODO: try later
+        cmdline = {},
       },
       completion = {
         accept = {
@@ -103,23 +113,20 @@ return {
       },
     },
     config = function(_, opts)
-      local enabled = opts.sources.default
       for _, source in ipairs(opts.sources.compat or {}) do
         opts.sources.providers[source] = vim.tbl_deep_extend(
           "force",
           { name = source, module = "blink.compat.source" },
           opts.sources.providers[source] or {}
         )
-        if type(enabled) == "table" and not vim.tbl_contains(enabled, source) then
-          table.insert(enabled, source)
+        if type(opts.sources.default) == "table" and not vim.tbl_contains(opts.sources.default, source) then
+          table.insert(opts.sources.default, source)
         end
       end
       local disabled_filetypes = opts.disable_ft or {}
       opts.enabled = function()
         -- will use to disable completions on certain filetypes
-        return not vim.tbl_contains(disabled_filetypes, vim.bo.filetype)
-          and vim.bo.buftype ~= "prompt"
-          and vim.b.completion ~= false
+        return not vim.tbl_contains(disabled_filetypes, vim.bo.filetype) and vim.b.completion ~= false
       end
       opts.sources.compat = nil
       opts.disable_ft = nil

@@ -1,5 +1,8 @@
 -- global variables
 _G.Utils = require("utils")
+_G.P = function(...)
+  vim.print(vim.inspect(...))
+end
 function _G.should_use_blink()
   if vim.g.use_cmp then
     return false
