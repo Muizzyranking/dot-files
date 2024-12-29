@@ -1,5 +1,5 @@
 return Utils.setup_lang({
-  name = "eslint",
+  name = "eslintbiome",
   ft = {
     "javascript",
     "javascriptreact",
@@ -20,6 +20,7 @@ return Utils.setup_lang({
           workingDirectories = { mode = "auto" },
         },
       },
+      biome = {},
     },
     setup = {
       eslint = function()
