@@ -32,9 +32,14 @@ return {
     },
   },
   config = function(_, opts)
-    for type, icon in pairs(Utils.icons.diagnostics) do
-      local hl = "DiagnosticSign" .. type
-      vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+    opts.diagnostics.signs = {
+      text = {},
+      numhl = {},
+    }
+    for name, icon in pairs(Utils.icons.diagnostics) do
+      local severity = vim.diagnostic.severity[name:upper()]
+      opts.diagnostics.signs.text[severity] = icon
+      opts.diagnostics.signs.numhl[severity] = "DiagnosticSign" .. name
     end
 
     vim.diagnostic.config(vim.deepcopy(opts.diagnostics))

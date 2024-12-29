@@ -214,12 +214,11 @@ return {
               ["<C-u>"] = actions.preview_scrolling_up,
               ["<C-d>"] = actions.delete_buffer,
               ["<C-c>"] = actions.close,
-              -- ["<C-o>"] = actions.open_in_new_buffer,
-              ["<C-o>"] = Utils.telescope.open_in_new_buffer,
+              ["<Cr>"] = Utils.telescope.open_in_new_buffer,
             },
             n = {
               ["q"] = actions.close,
-              ["<C-o>"] = Utils.telescope.open_in_new_buffer,
+              ["<Cr>"] = Utils.telescope.open_in_new_buffer,
               ["<C-d>"] = actions.delete_buffer,
               ["<C-t>"] = require("trouble.sources.telescope").open,
               ["<C-f>"] = actions.preview_scrolling_down,
@@ -253,6 +252,7 @@ return {
           function()
             require("telescope.builtin").lsp_definitions({
               jump_type = "vsplit",
+              reuse_win = true,
             })
           end,
           desc = "Goto Definition (vsplit)",

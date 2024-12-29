@@ -64,7 +64,7 @@ return {
         nerd_font_variant = "mono",
         kind_icons = Utils.icons.kinds,
       },
-      signature = { enabled = true },
+      signature = { enabled = false },
       sources = {
         default = { "lsp", "snippets", "buffer", "path" },
         compat = {},
