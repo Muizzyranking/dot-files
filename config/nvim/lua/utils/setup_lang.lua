@@ -145,12 +145,12 @@ local function setup_language(config)
       formatters_by_ft = config.formatting.formatters_by_ft or {},
     }
 
-    if config.formatting.use_prettier then
-      -- if use_prettier is a boolean, use it for all filetypes
-      if type(config.formatting.use_prettier) == "boolean" and config.formatting.use_prettier == true then
-        conform_opts.use_prettier = config.ft
+    if config.formatting.use_prettier_biome then
+      -- if use_prettier_biome is a boolean, use it for all filetypes
+      if type(config.formatting.use_prettier_biome) == "boolean" and config.formatting.use_prettier_biome == true then
+        conform_opts.use_prettier_biome = config.ft
       else
-        conform_opts.use_prettier = config.formatting.use_prettier
+        conform_opts.use_prettier_biome = config.formatting.use_prettier_biome
       end
     end
 
@@ -271,10 +271,18 @@ local function setup_language(config)
 
   -- Setup filetype-specific options
   if config.options then
-    create_autocmd("Filetype", config.ft, function(event)
-      for option, value in pairs(config.options) do
-        vim.bo[event.buf][option] = value
-      end
+    create_autocmd("FileType", config.ft, function(event)
+      vim.api.nvim_buf_call(event.buf, function()
+        for option, value in pairs(config.options) do
+          local ok, err = pcall(vim.api.nvim_buf_set_option, event.buf, option, value)
+          if not ok then
+            vim.notify(
+              string.format("Error setting option %s = %s: %s", option, vim.inspect(value), err),
+              vim.log.levels.ERROR
+            )
+          end
+        end
+      end)
     end)
   end
 

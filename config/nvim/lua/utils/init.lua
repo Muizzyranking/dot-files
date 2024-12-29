@@ -188,6 +188,11 @@ function M.map(mappings)
   if type(mappings[1]) ~= "table" then
     mappings = { mappings }
   end
+  for _, v in ipairs(mappings) do
+    if type(v) ~= "table" then
+      error("keys must be an array of arrays")
+    end
+  end
   local wk_maps = {}
   local have_wk = M.has("which-key.nvim")
 
@@ -302,6 +307,21 @@ function M.count_words_and_characters()
   end
 
   return { words = word_count, characters = char_count }
+end
+
+local cache = {} ---@type table<(fun()), table<string, any>>
+---@generic T: fun()
+---@param fn T
+---@return T
+function M.memoize(fn)
+  return function(...)
+    local key = vim.inspect({ ... })
+    cache[fn] = cache[fn] or {}
+    if cache[fn][key] == nil then
+      cache[fn][key] = fn(...)
+    end
+    return cache[fn][key]
+  end
 end
 
 return M

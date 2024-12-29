@@ -19,7 +19,7 @@
 ---@field formatters? table<string, conform.FormatterConfigOverride|fun(bufnr: integer): nil|conform.FormatterConfigOverride> Custom formatters and overrides for built-in formatters.
 ---@field formatters_by_ft? table<string, conform.FiletypeFormatter> Map of filetype to formatters
 ---@field format_on_save? boolean # Whether to format on save
----@field use_prettier? boolean|string[] # Whether to use prettier for this filetypes or use prettier for specific filetypes
+---@field use_prettier_biome? boolean|string[] # Whether to use prettier for this filetypes or use prettier for specific filetypes
 
 ---@class LintingConfig
 ---@field linters_by_ft? table<string, string[]> # Linters by filetype
