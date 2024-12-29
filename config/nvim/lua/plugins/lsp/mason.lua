@@ -67,9 +67,9 @@ return {
 
     add_tools(opts.ensure_installed)
 
-    -- Add Prettier tools if the use_prettier option is set
-    if #Utils.opts("conform.nvim").use_prettier > 0 then
-      add_tools("prettierd")
+    -- Add Prettier tools if the use_prettier_biome option is set
+    if #Utils.opts("conform.nvim").use_prettier_biome > 0 then
+      add_tools({ "prettierd", "biome" })
     end
 
     -- Ensure all tools in the list are installed
