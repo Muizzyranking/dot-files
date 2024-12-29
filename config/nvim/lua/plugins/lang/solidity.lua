@@ -4,9 +4,9 @@ return Utils.setup_lang({
   lsp = {
     servers = {
       solidity_ls_nomicfoundation = {
-        root_dir = Utils.on_load("nvim-lspconfig", function()
-          require("lspconfig.util").find_git_ancestor()
-        end),
+        root_dir = function()
+          return require("lspconfig.util").find_git_ancestor()
+        end,
       },
     },
   },

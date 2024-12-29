@@ -7,7 +7,7 @@ Utils.setup_lang({
   -- Filetypes associated with this language
   -- Can be a string or a table of strings
   -- If not provided, defaults to the value of 'name'
-  -- this is needed for keymaps, autocmds, options and use_prettier
+  -- this is needed for keymaps, autocmds, options and use_prettier_biome
   ft = { "typescript", "typescriptreact", "typescript.tsx" },
 
   -- Add custom filetype detection
@@ -126,8 +126,8 @@ Utils.setup_lang({
 
     -- since lots of filetypes use prettier, this saves time by allowing pass filetypes
     -- filetypes passed will use prettier
-    use_prettier = { "typescript", "typescriptreact" },
-    -- Alternative: use_prettier = true  -- use for all filetypes set above
+    use_prettier_biome = { "typescript", "typescriptreact" },
+    -- Alternative: use_prettier_biome = true  -- use for all filetypes set above
 
     -- Auto-format on save
     -- Can be boolean or a function

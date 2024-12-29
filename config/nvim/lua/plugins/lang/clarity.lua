@@ -12,9 +12,9 @@ return Utils.setup_lang({
         filetypes = { "clar", "clarity" },
         single_file_support = true,
         init_options = {},
-        root_dir = Utils.on_load("nvim-lspconfig", function()
-          require("lspconfig").util.root_pattern(".git", "Clarinet.toml")
-        end),
+        root_dir = function()
+          return require("lspconfig").util.root_pattern(".git", "Clarinet.toml")
+        end,
       },
     },
   },

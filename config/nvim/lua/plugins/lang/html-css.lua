@@ -60,7 +60,7 @@ return Utils.setup_lang({
     },
   },
   formatting = {
-    use_prettier = true,
+    use_prettier_biome = true,
     format_on_save = true,
   },
   highlighting = {
