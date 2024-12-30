@@ -201,8 +201,6 @@ local function setup_language(config)
             table.insert(opts.ensure_installed, name)
           end
         end
-
-        return opts
       end
     else
       treesitter_opts = {

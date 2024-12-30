@@ -269,6 +269,9 @@ end
 -- rename a variable under the cursoe using inc-rename or in built LSP
 function M.rename()
   if Utils.has("inc-rename.nvim") then
+    -- clearing highlight before renaming with inc rename
+    -- I get unexplainable issues when renaming with search highlights
+    vim.cmd("nohlsearch")
     return ":IncRename " .. vim.fn.expand("<cword>")
   end
   vim.lsp.buf.rename()

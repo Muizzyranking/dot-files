@@ -12,22 +12,36 @@ local M = {}
 ---
 --- @param prompt_bufnr number The buffer number of the Telescope prompt
 ------------------------------------------------------------------------------
-function M.open_in_new_buffer(prompt_bufnr)
+function M.open(prompt_bufnr)
   local actions = require("telescope.actions")
   local action_state = require("telescope.actions.state")
   local picker = action_state.get_current_picker(prompt_bufnr)
   local selections = picker:get_multi_selection()
-  if #selections == 0 then
-    table.insert(selections, action_state.get_selected_entry())
-  end
-  actions.close(prompt_bufnr)
-  for _, selection in ipairs(selections) do
-    if selection.filename then
-      vim.cmd("badd " .. vim.fn.fnameescape(selection.filename))
+
+  if picker.prompt_title:match("Files") then
+    if #selections == 0 then
+      table.insert(selections, action_state.get_selected_entry())
     end
-  end
-  if #selections > 0 and selections[#selections].filename then
-    vim.cmd("buffer " .. vim.fn.fnameescape(selections[#selections].filename))
+    actions.close(prompt_bufnr)
+    for _, selection in ipairs(selections) do
+      if selection.filename and vim.fn.filereadable(selection.filename) == 1 then
+        -- If it's a file and is readable, open it in a new buffer
+        vim.cmd("badd " .. vim.fn.fnameescape(selection.filename))
+      else
+        -- Handle non-file entries gracefully
+        vim.notify("Selection is not a valid file: " .. (selection.value or "unknown"), vim.log.levels.WARN)
+      end
+    end
+    -- Focus on the last valid file if any were opened
+    if
+      #selections > 0
+      and selections[#selections].filename
+      and vim.fn.filereadable(selections[#selections].filename) == 1
+    then
+      vim.cmd("buffer " .. vim.fn.fnameescape(selections[#selections].filename))
+    end
+  else
+    actions.select_default(prompt_bufnr)
   end
 end
 
