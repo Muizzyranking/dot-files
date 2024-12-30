@@ -96,6 +96,19 @@ set({ "n", "v", "x" }, "x", '"_x') -- delete text without yanking
 
 set({ "n", "i", "t" }, "<F7>", Utils.terminal.float_term, { noremap = true, silent = true, desc = "Toggle Terminal" })
 -- stylua: ignore end
+set("n", "z=", function()
+  local word = vim.fn.expand("<cword>")
+  local suggestions = vim.fn.spellsuggest(word)
+  vim.ui.select(
+    suggestions,
+    {},
+    vim.schedule_wrap(function(selected)
+      if selected then
+        vim.cmd.normal({ args = { "ciw" .. selected }, bang = true })
+      end
+    end)
+  )
+end, { desc = "Spelling suggestions" })
 
 -- disable arrow key in normal mode
 set("n", "<UP>", function()
