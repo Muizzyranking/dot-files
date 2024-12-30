@@ -17,7 +17,19 @@ HYPHEN_INSENSITIVE="true" # Case-sensitive completion
 ENABLE_CORRECTION="true" # auto correction
 
 
-plugins=( git sudo fzf fzf-tab zsh-history-substring-search history copypath zsh-autosuggestions zsh-syntax-highlighting encode64)
+plugins=(
+    git
+    sudo
+    fzf
+    fzf-tab
+    zsh-history-substring-search
+    history
+    copypath
+    zsh-autosuggestions
+    zsh-syntax-highlighting
+    encode64
+    zsh-magic-dashboard
+)
 # source oh-my-zsh after theme
 source $ZSH/oh-my-zsh.sh
 # You may need to manually set your language environment
