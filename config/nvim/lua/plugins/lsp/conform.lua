@@ -74,7 +74,8 @@ return {
       opts.formatters["biome"] = {
         require_cwd = true,
         condition = function(_, ctx)
-          return M.use_biome(ctx)
+          local ft = vim.bo[ctx.buf].filetype
+          return M.use_biome(ctx) and vim.tbl_contains(M.biome_supported, ft)
         end,
       }
       opts.formatters["prettierd"] = {

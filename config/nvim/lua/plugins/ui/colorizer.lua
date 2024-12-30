@@ -7,7 +7,7 @@ return {
     Utils.toggle_map({
       "<leader>uh",
       get_state = function()
-        return require("colorizer").is_buffer_attached(bufnr) > 1
+        return require("colorizer").is_buffer_attached(bufnr)
       end,
       change_state = function(state)
         require("colorizer")[state and "detach_from_buffer" or "attach_to_buffer"](bufnr)
@@ -15,7 +15,7 @@ return {
       name = "Color highlight",
     })
     return {
-      filetypes = { "*" },
+      filetypes = { "html", "css", "javascript", "javascriptreact" },
       user_default_options = {
         names = true,
         RGB = true,
