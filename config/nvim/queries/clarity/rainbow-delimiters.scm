@@ -74,3 +74,7 @@
   "{" @delimiter
   "}" @delimiter @sentinel) @container
 
+(list_type
+  "(" @delimiter
+  ")" @delimiter @sentinel) @container
+

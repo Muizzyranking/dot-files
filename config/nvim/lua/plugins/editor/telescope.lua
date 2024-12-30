@@ -91,11 +91,7 @@ return {
       {
         "<leader>fC",
         function()
-          require("telescope.builtin").resume({
-            layout_config = {
-              preview_width = 0.6,
-            },
-          })
+          require("telescope.builtin").resume()
         end,
         desc = "Search Continue",
       },
@@ -214,11 +210,11 @@ return {
               ["<C-u>"] = actions.preview_scrolling_up,
               ["<C-d>"] = actions.delete_buffer,
               ["<C-c>"] = actions.close,
-              ["<Cr>"] = Utils.telescope.open_in_new_buffer,
+              ["<C-o>"] = Utils.telescope.open_in_new_buffer,
             },
             n = {
               ["q"] = actions.close,
-              ["<Cr>"] = Utils.telescope.open_in_new_buffer,
+              ["<C-o>"] = Utils.telescope.open_in_new_buffer,
               ["<C-d>"] = actions.delete_buffer,
               ["<C-t>"] = require("trouble.sources.telescope").open,
               ["<C-f>"] = actions.preview_scrolling_down,
@@ -261,7 +257,7 @@ return {
         {
           "gr",
           function()
-            require("telescope.builtin").lsp_references()
+            require("telescope.builtin").lsp_references({ reuse_win = true })
           end,
           desc = "Goto References",
           has = "references",

@@ -12,8 +12,8 @@ return Utils.setup_lang({
         filetypes = { "clar", "clarity" },
         single_file_support = true,
         init_options = {},
-        root_dir = function()
-          return require("lspconfig").util.root_pattern(".git", "Clarinet.toml")
+        root_dir = function(fname)
+          return require("lspconfig").util.root_pattern(".git", "Clarinet.toml")(fname)
         end,
       },
     },

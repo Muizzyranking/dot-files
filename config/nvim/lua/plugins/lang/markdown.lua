@@ -19,6 +19,9 @@ return Utils.setup_lang({
     },
     format_on_save = false,
   },
+  linting = {
+    linters_by_ft = { markdown = { "markdownlint-cli2" } },
+  },
   highlighting = {
     parsers = { "markdown", "markdown_inline" },
   },
