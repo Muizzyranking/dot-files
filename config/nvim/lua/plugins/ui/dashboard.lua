@@ -33,7 +33,7 @@ return {
             key = "g",
             desc = "Find Text",
             action = function()
-              require("telescope.builtin").live_grep({
+              Utils.telescope.multi_grep({
                 layout_config = {
                   preview_width = 0.6,
                 },

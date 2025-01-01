@@ -33,7 +33,7 @@ require("lazy").setup({
     { import = "plugins.lang.clarity" },
     { import = "plugins.lang.solidity" },
     -- { import = "plugins.lang.sql" },
-    -- { import = "plugins.lang.c" },
+    { import = "plugins.lang.c" },
     -- { import = "plugins.extras.refactoring" },
     -- { import = "plugins.extras.codesnap" },
     { import = "plugins.extras.obsidian" },

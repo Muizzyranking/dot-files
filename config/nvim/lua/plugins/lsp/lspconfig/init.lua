@@ -97,9 +97,9 @@ return {
 
       -- try to get the server config if exists
       -- if not found, then it is a custom server and it is added to lspconfig
-      local found, _ = pcall(Utils.lsp.get_config, server)
-      if not found then
-        if not server_opts and not server_opts.cmd then
+      local config_available, config = pcall(Utils.lsp.get_config, server)
+      if not config_available or not config.default_config then
+        if not server_opts or not server_opts.cmd then
           vim.api.nvim_err_writeln(("Missing configuration for server '%s'"):format(server))
           return
         end

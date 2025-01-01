@@ -22,7 +22,7 @@ return {
       scope = {
         enabled = true,
         char = "│",
-        underline = false,
+        underline = true,
         only_current = false,
         hl = "SnacksIndentScope",
       },

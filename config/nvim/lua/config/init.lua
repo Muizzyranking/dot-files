@@ -75,5 +75,7 @@ if #failed > 0 then
 end
 
 Utils.ui.set_colorscheme("rose-pine")
+vim.api.nvim_set_hl(0, "WinBar", {})
+vim.api.nvim_set_hl(0, "WinBarNC", {})
 vim.opt.pumblend = 0
 vim.opt.winblend = 0

@@ -68,7 +68,7 @@ return {
       {
         "<leader>fg",
         function()
-          require("telescope.builtin").live_grep({
+          Utils.telescope.multi_grep({
             cwd = get_root(),
             layout_config = {
               preview_width = 0.6,
