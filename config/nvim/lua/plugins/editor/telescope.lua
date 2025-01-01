@@ -1,6 +1,3 @@
-local function get_root()
-  return Utils.find_root_directory(0, { ".git", "lua" })
-end
 return {
   {
     "nvim-telescope/telescope.nvim",
@@ -30,62 +27,30 @@ return {
       },
       {
         "<leader>ff",
-        function()
-          require("telescope.builtin").find_files({
-            cwd = get_root(),
-            layout_config = {
-              preview_width = 0.6,
-            },
-          })
-        end,
+        Utils.telescope.layout(require("telescope.builtin").find_files, "wide_preview"),
         desc = "Find Files (root)",
       },
       {
         "<leader>fh",
-        function()
-          require("telescope.builtin").find_files({
-            find_command = { "rg", "--files", "--hidden", "--no-ignore", "-g", "!.git" },
-            cwd = get_root(),
-            prompt_title = "Show all files",
-            layout_config = {
-              preview_width = 0.6,
-            },
-          })
-        end,
+        Utils.telescope.layout(require("telescope.builtin").find_files, "wide_preview", {
+          find_command = { "rg", "--files", "--hidden", "--no-ignore", "-g", "!.git" },
+          prompt_title = "Show all files",
+        }),
         desc = "Find Files(hidden)",
       },
       {
         "<leader>sw",
-        function()
-          require("telescope.builtin").grep_string({
-            layout_config = {
-              preview_width = 0.6,
-            },
-          })
-        end,
+        Utils.telescope.layout(require("telescope.builtin").grep_string, "wide_preview", { cwd = false }),
         desc = "Search word under cursor",
       },
       {
         "<leader>fg",
-        function()
-          Utils.telescope.multi_grep({
-            cwd = get_root(),
-            layout_config = {
-              preview_width = 0.6,
-            },
-          })
-        end,
+        Utils.telescope.layout(Utils.telescope.multi_grep, "wide_preview", {}),
         desc = "Find by Grep (root)",
       },
       {
         "<leader>fG",
-        function()
-          require("telescope.builtin").live_grep({
-            layout_config = {
-              preview_width = 0.6,
-            },
-          })
-        end,
+        Utils.telescope.layout(Utils.telescope.multi_grep, "wide_preview", { cwd = false }),
         desc = "Find by Grep",
       },
       {
@@ -97,42 +62,36 @@ return {
       },
       {
         "<leader>fR",
-        function()
-          require("telescope.builtin").oldfiles({
-            prompt_title = "Recent Files",
-            layout_config = {
-              preview_width = 0.6,
-            },
-          })
-        end,
+        Utils.telescope.layout(
+          require("telescope.builtin").oldfiles,
+          "wide_preview",
+          { cwd = false, prompt_title = "Recent Files" }
+        ),
         desc = "Find Recent Files",
       },
       {
         "<leader>fr",
-        function()
-          require("telescope.builtin").oldfiles({
-            only_cwd = true,
-            cwd_only = true,
-            prompt_title = "Recent Files in cwd",
-            layout_config = {
-              preview_width = 0.6,
-            },
-          })
-        end,
+        Utils.telescope.layout(
+          require("telescope.builtin").oldfiles,
+          "wide_preview",
+          { cwd_only = true, prompt_title = "Recent Files in cwd" }
+        ),
         desc = "Find Recent Files (cwd)",
       },
       {
         "<leader>fb",
-        function()
-          require("telescope.builtin").buffers(require("telescope.themes").get_dropdown({
-            winblend = 0,
-            previewer = false,
-          }))
-        end,
+        Utils.telescope.layout(require("telescope.builtin").buffers, "dropdown"),
         desc = "Find buffers",
       },
-
-      { "<leader>,", "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>", desc = "Find Buffers" },
+      {
+        "<leader>,",
+        Utils.telescope.layout(
+          require("telescope.builtin").buffers,
+          "dropdown",
+          { sort_mru = true, sort_lastused = true }
+        ),
+        desc = "Find buffers",
+      },
       {
         "<leader>fm",
         function()
@@ -142,12 +101,7 @@ return {
       },
       {
         "<leader>:",
-        function()
-          require("telescope.builtin").command_history(require("telescope.themes").get_dropdown({
-            winblend = 0,
-            previewer = false,
-          }))
-        end,
+        Utils.telescope.layout(require("telescope.builtin").command_history, "dropdown"),
         desc = "Command History",
       },
       {
@@ -159,37 +113,25 @@ return {
       },
       {
         "<leader>fw",
-        function()
-          require("telescope.builtin").current_buffer_fuzzy_find(require("telescope.themes").get_dropdown({
-            winblend = 0,
-            previewer = false,
-          }))
-        end,
+        Utils.telescope.layout(require("telescope.builtin").current_buffer_fuzzy_find, "dropdown"),
         desc = "Find in Current Buffer",
       },
       {
         "<leader>fW",
-        function()
-          require("telescope.builtin").live_grep({
-            grep_open_files = true,
-            prompt_title = "Live Grep in Open Files",
-            layout_config = {
-              preview_width = 0.6,
-            },
-          })
-        end,
+        Utils.telescope.layout(
+          require("telescope.builtin").live_grep,
+          "wide_preview",
+          { grep_open_files = true, prompt_title = "Live Grep in Open Files" }
+        ),
         desc = "Find in Open Files",
       },
       {
         "<leader>fc",
-        function()
-          require("telescope.builtin").find_files({
-            cwd = vim.fn.stdpath("config"),
-            layout_config = {
-              preview_width = 0.6,
-            },
-          })
-        end,
+        Utils.telescope.layout(
+          require("telescope.builtin").find_files,
+          "wide_preview",
+          { cwd = vim.fn.stdpath("config") }
+        ),
         desc = "Find Config Files",
       },
     },
@@ -197,6 +139,7 @@ return {
       local actions = require("telescope.actions")
       return {
         defaults = {
+          file_ignore_patterns = {},
           layout_strategy = "horizontal",
           layout_config = {
             prompt_position = "top",
