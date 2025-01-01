@@ -1,4 +1,4 @@
-alias v='nvim'
+alias v='nv'
 alias cl='clear'
 alias lv='NVIM_APPNAME=lazyvim nvim'
 alias cat='bat'
@@ -7,12 +7,38 @@ alias ls='eza --color=always --icons=always'
 alias cd='z'
 
 # find directory and cd into it
-alias fdir='find_dir.sh'
+# alias fdir='find_dir.sh'
+unalias fdir 2>/dev/null
+unalias ff 2>/dev/null
+unalias of 2>/dev/null
+fdir() {
+    local selected_dir
+    selected_dir=$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse)
+    if [ -n "$selected_dir" ]; then
+        cd "$selected_dir" || echo "Failed to change directory to $selected_dir"
+    else
+        echo "None"
+    fi
+}
 
-# find file and open it in nvim
-alias of='open-file.sh'
+# find files and echo the location
+ff() {
+    local selected_dir
+    select_file=$(fd --type f --hidden --exclude .git | fzf-tmux -p --reverse)
+    if [ -n "$select_file" ]; then
+        echo "$select_file"
+    fi
 
-alias ff='find_files.sh'
+}
+
+# find files and open it in nvim
+of() {
+    local selected_dir
+    selected_file=$(fzf --tmux 80% --preview="bat --color=always {}")
+    if [ -n "$selected_file" ]; then
+        nvim "$selected_file"
+    fi
+}
 
 alias gg='lazygit'
 
@@ -25,7 +51,7 @@ alias tmuxrc='$EDITOR $TMUXRC'
 alias zshrc='$EDITOR $ZSHRC'
 alias aliases='$EDITOR $ALIASES'
 
-alias rm="echo Use 'del', or the full path i.e. '/bin/rm'"
+alias rm="echo Use 'trash', or the full path i.e. '/bin/rm'"
 
 venv-create() {
     if [[ $# -eq 0 ]]; then
