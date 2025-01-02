@@ -117,5 +117,17 @@ return Utils.setup_lang({
         },
       },
     },
+    {
+      "nvim-telescope/telescope.nvim",
+      optional = true,
+      opts = {
+        defaults = {
+          file_ignore_patterns = {
+            "venv",
+            "env",
+          },
+        },
+      },
+    },
   },
 })
