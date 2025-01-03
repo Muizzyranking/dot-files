@@ -20,6 +20,7 @@ set({ "n" }, "<C-h>", "<C-w>h",                     { desc = "Go to left window"
 set({ "n" }, "<C-j>", "<C-w>j",                     { desc = "Go to lower window", remap = true })
 set({ "n" }, "<C-k>", "<C-w>k",                     { desc = "Go to upper window", remap = true })
 set({ "n" }, "<C-l>", "<C-w>l",                     { desc = "Go to right window", remap = true })
+set({ "n" }, "<C-p>", "<C-w>p",                     { desc = "Go to previous window", remap = true })
 set("t", "<Esc><Esc>", "<C-\\><C-n>",               { desc = "Exit terminal mode" })
 set("t", "<C-h>", "<cmd>wincmd h<cr>",              { desc = "Go to Left Window" })
 set("t", "<C-j>", "<cmd>wincmd j<cr>",              { desc = "Go to Lower Window" })
