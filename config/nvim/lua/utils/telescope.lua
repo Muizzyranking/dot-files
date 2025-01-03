@@ -136,4 +136,92 @@ M.lualine = {
   filetypes = { "TelescopePrompt" },
 }
 
+local function get_root()
+  return Utils.find_root_directory(0, { ".git", "lua" })
+end
+
+---@type table<string, table>
+local themes = {
+  wide_preview = {
+    theme = "wide_preview",
+    cwd = get_root(),
+    layout_config = {
+      preview_width = 0.6,
+    },
+  },
+  dropdown = {
+    theme = "dropdown",
+
+    results_title = false,
+    winblend = 0,
+    previewer = false,
+
+    sorting_strategy = "ascending",
+    layout_strategy = "center",
+    layout_config = {
+      preview_cutoff = 1, -- Preview should always show (unless previewer = false)
+
+      width = function(_, max_columns, _)
+        return math.min(max_columns, 90)
+      end,
+
+      height = function(_, _, max_lines)
+        return math.min(max_lines, 20)
+      end,
+    },
+
+    border = true,
+    borderchars = {
+      prompt = { "─", "│", " ", "│", "╭", "╮", "│", "│" },
+      results = { "─", "│", "─", "│", "├", "┤", "╯", "╰" },
+      preview = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
+    },
+  },
+  command_pane = {
+    theme = "command_pane",
+    previewer = false,
+    prompt_title = false,
+    results_title = false,
+    sorting_strategy = "descending",
+    layout_strategy = "bottom_pane",
+    layout_config = {
+      height = 13,
+      preview_cutoff = 1,
+      prompt_position = "bottom",
+    },
+  },
+  ivy_plus = {
+    theme = "ivy_plus",
+    previewer = false,
+    prompt_title = false,
+    results_title = false,
+    layout_strategy = "bottom_pane",
+    layout_config = {
+      height = 13,
+      preview_cutoff = 120,
+      prompt_position = "bottom",
+    },
+    borderchars = {
+      prompt = { "─", "│", "─", "│", "┌", "┐", "┘", "└" },
+      results = { "─", "│", "─", "│", "┌", "┬", "┴", "└" },
+      preview = { "─", "│", " ", " ", "─", "┐", "│", " " },
+    },
+  },
+}
+
+---@param picker function The telescope picker function to run
+---@param layout string The theme layout to use (must be a key in themes table)
+---@param opts? table Optional settings to override theme defaults
+---@return function
+function M.layout(picker, layout, opts)
+  opts = opts or {}
+  if opts.cwd == false then
+    opts.cwd = nil
+  end
+  return function()
+    local theme = opts and vim.tbl_deep_extend("force", themes[layout], opts) or themes[layout]
+    picker(theme)
+  end
+end
+
 return M
