@@ -1,10 +1,5 @@
 return {
   {
-    "nvim-cmp",
-    optional = true,
-    enabled = false,
-  },
-  {
     "saghen/blink.cmp",
     dependencies = {
       "rafamadriz/friendly-snippets",
