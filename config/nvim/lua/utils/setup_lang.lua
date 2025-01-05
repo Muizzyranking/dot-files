@@ -33,20 +33,13 @@ end
 ---@param callback fun(event: table)
 -----------------------------------------------------------------
 local function create_autocmd(event, pattern, callback)
-  local lazy_load = vim.fn.argc(-1) == 0
-
   local function setup_autocmd()
     vim.api.nvim_create_autocmd(event, {
       pattern = pattern,
       callback = callback,
     })
   end
-
-  if not lazy_load then
-    setup_autocmd()
-  else
-    Utils.on_very_lazy(setup_autocmd)
-  end
+  vim.schedule(setup_autocmd)
 end
 
 -----------------------------------------------------------------
@@ -79,7 +72,9 @@ local function setup_language(config)
 
   -- Setup filetype detection
   if config.add_ft then
-    vim.filetype.add(setup_detection(config.add_ft))
+    vim.schedule(function()
+      vim.filetype.add(setup_detection(config.add_ft))
+    end)
 
     if config.add_ft.filetype then
       for orig, target in pairs(config.add_ft.filetype) do
@@ -160,12 +155,9 @@ local function setup_language(config)
     })
 
     if config.formatting.format_on_save and config.formatting.format_on_save ~= false then
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = config.ft,
-        callback = function(event)
-          vim.b[event.buf].autoformat = true
-        end,
-      })
+      create_autocmd("FileType", config.ft, function(event)
+        vim.b[event.buf].autoformat = true
+      end)
     end
   end
 

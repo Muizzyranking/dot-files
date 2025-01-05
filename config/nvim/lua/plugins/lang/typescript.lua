@@ -1,3 +1,4 @@
+---@diagnostic disable: param-type-mismatch
 return Utils.setup_lang({
   name = "typescript",
   ft = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
@@ -232,16 +233,6 @@ return Utils.setup_lang({
     tabstop = 2,
   },
   plugins = {
-    {
-      "garymjr/nvim-snippets",
-      optional = true,
-      opts = {
-        extended_filetypes = {
-          { javascript = { "javascriptreact" } },
-          { typescript = { "javascript" } },
-        },
-      },
-    },
     {
       "nvim-telescope/telescope.nvim",
       optional = true,
