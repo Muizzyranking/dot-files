@@ -52,6 +52,7 @@ require("lazy").setup({
   },
   checker = {
     enabled = false,
+    version = false,
   },
   performance = {
     rtp = {
