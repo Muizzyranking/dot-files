@@ -98,11 +98,4 @@ return {
       disable_ft = { "oil" },
     },
   },
-  {
-    "nvim-cmp",
-    optional = true,
-    opts = {
-      disable_ft = { "oil" },
-    },
-  },
 }
