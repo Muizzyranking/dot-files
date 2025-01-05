@@ -27,12 +27,12 @@ return {
       },
       {
         "<leader>ff",
-        Utils.telescope.layout(require("telescope.builtin").find_files, "wide_preview"),
+        Utils.telescope.pick("find_files", "wide_preview"),
         desc = "Find Files (root)",
       },
       {
         "<leader>fh",
-        Utils.telescope.layout(require("telescope.builtin").find_files, "wide_preview", {
+        Utils.telescope.pick("find_files", "wide_preview", {
           find_command = { "rg", "--files", "--hidden", "--no-ignore", "-g", "!.git" },
           prompt_title = "Show all files",
         }),
@@ -40,17 +40,17 @@ return {
       },
       {
         "<leader>sw",
-        Utils.telescope.layout(require("telescope.builtin").grep_string, "wide_preview", { cwd = false }),
+        Utils.telescope.pick("grep_string", "wide_preview", { cwd = false }),
         desc = "Search word under cursor",
       },
       {
         "<leader>fg",
-        Utils.telescope.layout(Utils.telescope.multi_grep, "wide_preview", {}),
+        Utils.telescope.pick("multi_grep", "wide_preview", {}),
         desc = "Find by Grep (root)",
       },
       {
         "<leader>fG",
-        Utils.telescope.layout(Utils.telescope.multi_grep, "wide_preview", { cwd = false }),
+        Utils.telescope.pick("multi_grep", "wide_preview", { cwd = false }),
         desc = "Find by Grep",
       },
       {
@@ -62,34 +62,22 @@ return {
       },
       {
         "<leader>fR",
-        Utils.telescope.layout(
-          require("telescope.builtin").oldfiles,
-          "wide_preview",
-          { cwd = false, prompt_title = "Recent Files" }
-        ),
+        Utils.telescope.pick("oldfiles", "wide_preview", { cwd = false, prompt_title = "Recent Files" }),
         desc = "Find Recent Files",
       },
       {
         "<leader>fr",
-        Utils.telescope.layout(
-          require("telescope.builtin").oldfiles,
-          "wide_preview",
-          { cwd_only = true, prompt_title = "Recent Files in cwd" }
-        ),
+        Utils.telescope.pick("oldfiles", "wide_preview", { cwd_only = true, prompt_title = "Recent Files in cwd" }),
         desc = "Find Recent Files (cwd)",
       },
       {
         "<leader>fb",
-        Utils.telescope.layout(require("telescope.builtin").buffers, "dropdown"),
+        Utils.telescope.pick("buffers", "dropdown"),
         desc = "Find buffers",
       },
       {
         "<leader>,",
-        Utils.telescope.layout(
-          require("telescope.builtin").buffers,
-          "dropdown",
-          { sort_mru = true, sort_lastused = true }
-        ),
+        Utils.telescope.pick("buffers", "dropdown", { sort_mru = true, sort_lastused = true }),
         desc = "Find buffers",
       },
       {
@@ -101,7 +89,7 @@ return {
       },
       {
         "<leader>:",
-        Utils.telescope.layout(require("telescope.builtin").command_history, "dropdown"),
+        Utils.telescope.pick("command_history", "dropdown"),
         desc = "Command History",
       },
       {
@@ -113,13 +101,13 @@ return {
       },
       {
         "<leader>fw",
-        Utils.telescope.layout(require("telescope.builtin").current_buffer_fuzzy_find, "dropdown"),
+        Utils.telescope.pick("current_buffer_fuzzy_find", "dropdown"),
         desc = "Find in Current Buffer",
       },
       {
         "<leader>fW",
-        Utils.telescope.layout(
-          require("telescope.builtin").live_grep,
+        Utils.telescope.pick(
+          "live_grep",
           "wide_preview",
           { grep_open_files = true, prompt_title = "Live Grep in Open Files" }
         ),
@@ -127,10 +115,10 @@ return {
       },
       {
         "<leader>fc",
-        Utils.telescope.layout(
-          require("telescope.builtin").find_files,
+        Utils.telescope.pick(
+          "find_files",
           "wide_preview",
-          { cwd = vim.fn.stdpath("config") }
+          { cwd = vim.fn.stdpath("config"), prompt_title = "Find Config Files" }
         ),
         desc = "Find Config Files",
       },

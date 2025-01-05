@@ -1,5 +1,6 @@
 ---@class utils.telescope
 local M = {}
+M.pickers = {}
 
 ------------------------------------------------------------------------------
 --- Opens selected Telescope entries in new buffers
@@ -18,7 +19,8 @@ function M.open(prompt_bufnr)
   local picker = action_state.get_current_picker(prompt_bufnr)
   local selections = picker:get_multi_selection()
 
-  if picker.prompt_title:match("Files") then
+  local prompt_title = picker.prompt_title:lower()
+  if prompt_title:match("files") or picker.prompt_title:match("grep") then
     if #selections == 0 then
       table.insert(selections, action_state.get_selected_entry())
     end
@@ -79,7 +81,7 @@ function M.get_telescope_num()
   return "Total Results: " .. total_results
 end
 
-function M.multi_grep(opts)
+function M.pickers.multi_grep(opts)
   local pickers = require("telescope.pickers")
   local finders = require("telescope.finders")
   local make_entry = require("telescope.make_entry")
@@ -136,58 +138,35 @@ M.lualine = {
   filetypes = { "TelescopePrompt" },
 }
 
-local function get_root()
-  return Utils.find_root_directory(0, { ".git", "lua" })
-end
-
 ---@type table<string, table>
-local themes = {
+M.themes = {
   wide_preview = {
     theme = "wide_preview",
-    cwd = get_root(),
     layout_config = {
       preview_width = 0.6,
     },
   },
   dropdown = {
     theme = "dropdown",
-
     results_title = false,
     winblend = 0,
     previewer = false,
-
     sorting_strategy = "ascending",
     layout_strategy = "center",
     layout_config = {
-      preview_cutoff = 1, -- Preview should always show (unless previewer = false)
-
+      preview_cutoff = 1,
       width = function(_, max_columns, _)
         return math.min(max_columns, 90)
       end,
-
       height = function(_, _, max_lines)
         return math.min(max_lines, 20)
       end,
     },
-
     border = true,
     borderchars = {
       prompt = { "─", "│", " ", "│", "╭", "╮", "│", "│" },
       results = { "─", "│", "─", "│", "├", "┤", "╯", "╰" },
       preview = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
-    },
-  },
-  command_pane = {
-    theme = "command_pane",
-    previewer = false,
-    prompt_title = false,
-    results_title = false,
-    sorting_strategy = "descending",
-    layout_strategy = "bottom_pane",
-    layout_config = {
-      height = 13,
-      preview_cutoff = 1,
-      prompt_position = "bottom",
     },
   },
   ivy_plus = {
@@ -208,19 +187,32 @@ local themes = {
     },
   },
 }
-
----@param picker function The telescope picker function to run
+---@param picker string The telescope picker to run
 ---@param layout string The theme layout to use (must be a key in themes table)
 ---@param opts? table Optional settings to override theme defaults
 ---@return function
-function M.layout(picker, layout, opts)
+function M.wrap(picker, layout, opts)
   opts = opts or {}
+  local buf = vim.api.nvim_get_current_buf() or 0
+  local root_pattern = opts.root_pattern or { ".git", "lua" }
+  opts.root_pattern = nil
+  opts.cwd = Utils.find_root_directory(buf, root_pattern)
   if opts.cwd == false then
     opts.cwd = nil
   end
+  opts = vim.tbl_deep_extend("force", M.themes[layout], opts or {})
   return function()
-    local theme = opts and vim.tbl_deep_extend("force", themes[layout], opts) or themes[layout]
-    picker(theme)
+    if M.pickers[picker] then
+      M.pickers[picker](opts)
+    else
+      require("telescope.builtin")[picker](opts)
+    end
+  end
+end
+
+function M.pick(picker, layout, opts)
+  return function()
+    M.wrap(picker, layout, opts)()
   end
 end
 
