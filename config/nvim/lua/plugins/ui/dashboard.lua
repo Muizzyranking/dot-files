@@ -33,7 +33,7 @@ return {
             key = "g",
             desc = "Find Text",
             action = function()
-              Utils.telescope.multi_grep({
+              Utils.telescope.pickers.multi_grep({
                 layout_config = {
                   preview_width = 0.6,
                 },
