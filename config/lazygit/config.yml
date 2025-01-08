@@ -25,6 +25,4 @@ os:
   editPreset: "nvim"
 
 git:
-  commit:
-    signOff: true
-    command: "git cmt -m"
+  overrideGpg: true
