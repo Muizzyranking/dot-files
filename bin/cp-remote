@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
+set -euo pipefail
 # copies files from local storage to a remote server
 
 if [ "$#" -lt 2 ] || [ "$#" -gt 3 ]; then
-	echo "Usage: $(basename "$0") PATH_TO_FILE IP"
-	exit 1
+    echo "Usage: $(basename "$0") PATH_TO_FILE IP"
+    exit 1
 fi
 
 # Check if the first argument is '-r'
 if [ "$1" == "-r" ]; then
-	RECURSIVE="-r"
-	shift # Remove the '-r' option from arguments
+    RECURSIVE="-r"
+    shift # Remove the '-r' option from arguments
 else
-	RECURSIVE=""
+    RECURSIVE=""
 fi
 
 PATH_TO_FILE_OR_DIRECTORY=$1

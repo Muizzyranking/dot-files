@@ -1,53 +1,97 @@
 #!/bin/bash
+set -euo pipefail
+
 # adds or updates the 'origin' remote of a git repository
 
-add_remote() {
+cleanup() {
+    echo
+    print_message info "Script interrupted....."
+    exit 1
+}
+
+# Set up trap for cleanup
+trap cleanup INT TERM
+
+set_remote() {
     local remote_name="origin"
     local remote_url="$1"
-
+    local command="$2"
     if [[ $remote_url =~ ^(https://|git@github) ]]; then
-        git remote add "$remote_name" "$remote_url"
+        git remote "$command" "$remote_name" "$remote_url"
     else
-        git remote add "$remote_name" "git@github.com:muizzyranking/$remote_url.git"
+        git remote "$command" "$remote_name" "git@github.com:muizzyranking/$remote_url.git"
     fi
 }
 
 print_message() {
     case "$1" in
-        error)   echo -e "\033[0;31mError: $2\033[0m" ;;
-        success) echo -e "\033[0;32mSuccess: $2\033[0m" ;;
-        info)    echo -e "\033[0;34m$2\033[0m" ;;
+    error) echo -e "\033[0;31mError: $2\033[0m" ;;
+    success) echo -e "\033[0;32mSuccess: $2\033[0m" ;;
+    info) echo -e "\033[0;34m$2\033[0m" ;;
     esac
 }
 
-if [ $# -eq 0 ]; then
-    print_message error "No repository provided."
-    print_message info "Usage: $0 <repository>"
+# Validate git installation
+if ! command -v git >/dev/null 2>&1; then
+    print_message error "Git is not installed. Please install git first."
     exit 1
 fi
 
 if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    print_message error "Not a git repository. Please run this script from within a git repository."
-    exit 1
+    print_message info "Not a git repository."
+    read -r -p "Would you like to initialize a git repository here? (y/n): " init_choice
+    if [[ $init_choice =~ ^[Yy]$ ]]; then
+        if git init >/dev/null 2>&1; then
+            print_message success "Git repository initialized successfully."
+        else
+            print_message error "Failed to initialize git repository."
+            exit 1
+        fi
+    else
+        print_message info "Operation cancelled. Please run this script from within a git repository."
+        exit 0
+    fi
+fi
+
+# Get repository name from argument or current directory
+if [ $# -eq 0 ]; then
+    repo_name=$(basename "$(pwd)")
+    print_message info "No repository name provided. Current directory name is: $repo_name"
+    read -r -p "Do you want to use this as the repository name? (y/n): " use_dirname_choice
+    if [[ ! $use_dirname_choice =~ ^[Yy]$ ]]; then
+        print_message info "Operation cancelled. Please run the script again with a repository name."
+        exit 0
+    fi
+else
+    repo_name="$1"
 fi
 
 if git remote | grep -q "^origin$"; then
     print_message error "Remote 'origin' already exists."
     print_message info "Current 'origin' URL: $(git remote get-url origin)"
+
     read -r -p "Do you want to update the existing 'origin' remote? (y/n): " update_choice
     if [[ $update_choice =~ ^[Yy]$ ]]; then
-        git remote remove origin
-        add_remote "$1"
-        print_message success "Remote 'origin' updated successfully."
+        if set_remote "$repo_name" "set-url"; then
+            print_message success "Remote 'origin' updated successfully."
+        else
+            print_message error "Failed to update remote 'origin'."
+            exit 1
+        fi
     else
         print_message info "No changes made to remote 'origin'."
     fi
+
 else
-    add_remote "$1"
-    print_message success "Remote 'origin' added successfully."
+    if set_remote "$repo_name" "add"; then
+        print_message success "Remote 'origin' added successfully."
+    else
+        print_message error "Failed to add remote 'origin'."
+        exit 1
+    fi
 fi
 
 echo -e "\n"
 print_message info "Current remotes:"
 echo "==============================================================="
-git remote -v | awk '{print $1, $2}'
+git remote -v
