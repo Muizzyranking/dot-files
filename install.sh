@@ -1,5 +1,16 @@
 #!/bin/bash
 
+set -euo pipefail
+
+cleanup() {
+    echo
+    print_message info "Script interrupted....."
+    exit 1
+}
+
+# Set up trap for cleanup
+trap cleanup INT TERM
+
 # Ensure the script is run with sudo
 if [ "$EUID" -ne 0 ]; then
     echo "This script requires sudo privileges. Re-running with sudo..."

@@ -2,6 +2,15 @@
 
 set -euo pipefail
 
+cleanup() {
+    echo
+    print_message info "Script interrupted....."
+    exit 1
+}
+
+# Set up trap for cleanup
+trap cleanup INT TERM
+
 dotfiles_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 config_dir="$HOME/.config"
 backup_dir="$HOME/config_backup"
@@ -9,23 +18,20 @@ backup_timestamp=$(date +"%Y%m%d_%H%M%S")
 
 source "$dotfiles_dir/scripts/utils.sh"
 
-if [[ ! -d "$config_dir" ]]; then
-    if mkdir -p "$config_dir"; then
-        print_message success "Created $config_dir directory"
-    else
-        print_message error "Failed to create $config_dir directory"
-        exit 1
+ensure_dir() {
+    local dir="$1"
+    if [[ ! -d "$dir" ]]; then
+        print_message warning "Directory $dir does not exist. Creating..."
+        if mkdir -p "$dir"; then
+            print_message success "Created $dir directory"
+        else
+            print_message error "Failed to create directory: $dir"
+            exit 1
+        fi
     fi
-fi
-
-if [[ ! -d "$backup_dir" ]]; then
-    if mkdir -p "$backup_dir"; then
-        print_message success "Created backup directory at $backup_dir"
-    else
-        print_message error "Failed to create backup directory"
-        exit 1
-    fi
-fi
+}
+ensure_dir "$config_dir"
+ensure_dir "$backup_dir"
 
 # Create symbolic link
 create_symlink() {
@@ -106,6 +112,18 @@ link_home_file() {
     print_message success "Successfully created symbolic link for $file"
 }
 
+link_zsh_files() {
+    local zsh_files=(".zshrc" ".p10k.zsh")
+    for file in "${zsh_files[@]}"; do
+        link_home_file "$file"
+    done
+    link_config "zsh"
+}
+
+link_git_files() {
+    link_home_file ".gitconfig"
+}
+
 # Available config files
 configs=("bat" "cava" "git" "hypr" "kitty" "Kvantum" "lazygit" "lazyvim" "fastfetch" "nvim" "rofi" "swaync" "tmux" "waybar" "wlogout" "zsh")
 
@@ -120,27 +138,19 @@ fi
 for arg in "$@"; do
     if [ "$arg" = "all" ]; then
         for config in "${configs[@]}"; do
-            if [ "$config" = "zsh" ]; then
-                link_home_file ".zshrc"
-                link_home_file ".p10k.zsh"
-                link_config "zsh"
-            elif [ "$config" = "git" ]; then
-                link_home_file ".gitconfig"
-            else
-                link_config "$config"
-            fi
+            case "$config" in
+            "zsh") link_zsh_files ;;
+            "git") link_git_files ;;
+            *) link_config "$config" ;;
+            esac
         done
         break
     elif [[ " ${configs[*]} " == *" $arg "* ]]; then
-        if [ "$arg" = "zsh" ]; then
-            link_home_file ".zshrc"
-            link_home_file ".p10k.zsh"
-            link_config "zsh"
-        elif [ "$arg" = "git" ]; then
-            link_home_file ".gitconfig"
-        else
-            link_config "$arg"
-        fi
+        case "$arg" in
+        "zsh") link_zsh_files ;;
+        "git") link_git_files ;;
+        *) link_config "$arg" ;;
+        esac
     else
         print_message error "Unknown config: $arg"
         exit 1
