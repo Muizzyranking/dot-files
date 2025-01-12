@@ -170,36 +170,28 @@ return {
       vim.list_extend(Keys, {
         {
           "gd",
-          function()
-            require("telescope.builtin").lsp_definitions({ reuse_win = true })
-          end,
+          Utils.telescope.pick("lsp_definitions", "wide_preview", { reuse_win = true }),
           desc = "Goto Definition",
           has = "definition",
         },
         {
           "gD",
-          function()
-            require("telescope.builtin").lsp_definitions({
-              jump_type = "vsplit",
-              reuse_win = true,
-            })
-          end,
+          Utils.telescope.pick("lsp_definitions", "wide_preview", {
+            jump_type = "vsplit",
+            reuse_win = true,
+          }),
           desc = "Goto Definition (vsplit)",
           has = "definition",
         },
         {
           "gr",
-          function()
-            require("telescope.builtin").lsp_references({ reuse_win = true })
-          end,
+          Utils.telescope.pick("lsp_references", "wide_preview", { reuse_win = true }),
           desc = "Goto References",
           has = "references",
         },
         {
           "gI",
-          function()
-            require("telescope.builtin").lsp_implementations({ reuse_win = true })
-          end,
+          Utils.telescope.pick("lsp_implementations", "wide_preview", { reuse_win = true }),
           desc = "Goto Implementation",
         },
         {

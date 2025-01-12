@@ -19,34 +19,46 @@ function M.open(prompt_bufnr)
   local picker = action_state.get_current_picker(prompt_bufnr)
   local selections = picker:get_multi_selection()
 
-  local prompt_title = picker.prompt_title:lower()
-  if prompt_title:match("files") or picker.prompt_title:match("grep") then
-    if #selections == 0 then
-      table.insert(selections, action_state.get_selected_entry())
-    end
+  local entry_maker = picker._entry_makers and picker._entry_makers[1]
+  local is_file_picker = entry_maker and entry_maker.display_items and entry_maker.display_items.path
+
+  if #selections == 0 then
+    selections = { action_state.get_selected_entry() }
+  end
+
+  if is_file_picker or selections[1].filename then
     actions.close(prompt_bufnr)
+
+    local first_valid_file
+
     for _, selection in ipairs(selections) do
-      if selection.filename and vim.fn.filereadable(selection.filename) == 1 then
-        -- If it's a file and is readable, open it in a new buffer
-        vim.cmd("badd " .. vim.fn.fnameescape(selection.filename))
-      else
-        -- Handle non-file entries gracefully
-        vim.notify("Selection is not a valid file: " .. (selection.value or "unknown"), vim.log.levels.WARN)
+      local filename = selection.filename or selection.path
+      if filename then
+        filename = vim.fn.fnamemodify(filename, ":p")
+
+        if vim.fn.filereadable(filename) == 1 then
+          -- Add file to buffer list without switching to it
+          vim.cmd.badd(vim.fn.fnameescape(filename))
+
+          -- Store first valid file
+          if not first_valid_file then
+            first_valid_file = filename
+          end
+        else
+          vim.notify(string.format("Cannot read file: %s", filename), vim.log.levels.WARN)
+        end
       end
     end
-    -- Focus on the last valid file if any were opened
-    if
-      #selections > 0
-      and selections[#selections].filename
-      and vim.fn.filereadable(selections[#selections].filename) == 1
-    then
-      vim.cmd("buffer " .. vim.fn.fnameescape(selections[#selections].filename))
+
+    -- Switch to the first valid file if one was found
+    if first_valid_file then
+      vim.cmd.buffer(vim.fn.fnameescape(first_valid_file))
     end
   else
+    -- If not dealing with files, use default action
     actions.select_default(prompt_bufnr)
   end
 end
-
 ------------------------------------------------------------------------------
 -- Gets the current telescope prompt
 ---@return string?
