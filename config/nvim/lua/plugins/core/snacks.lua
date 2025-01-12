@@ -12,6 +12,11 @@ return {
     statuscolumn = { enabled = false },
     words = { enabled = true },
     scroll = { enabled = true },
+    lazygit = {
+      config = {
+        git = { overrideGpg = true },
+      },
+    },
   },
   keys = {
     {
