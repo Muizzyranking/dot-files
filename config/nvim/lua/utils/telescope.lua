@@ -18,7 +18,6 @@ function M.open(prompt_bufnr)
   local action_state = require("telescope.actions.state")
   local picker = action_state.get_current_picker(prompt_bufnr)
   local selections = picker:get_multi_selection()
-
   local entry_maker = picker._entry_makers and picker._entry_makers[1]
   local is_file_picker = entry_maker and entry_maker.display_items and entry_maker.display_items.path
 
@@ -28,21 +27,23 @@ function M.open(prompt_bufnr)
 
   if is_file_picker or selections[1].filename then
     actions.close(prompt_bufnr)
-
     local first_valid_file
+    local first_valid_line
+    local first_valid_col
 
     for _, selection in ipairs(selections) do
       local filename = selection.filename or selection.path
       if filename then
         filename = vim.fn.fnamemodify(filename, ":p")
-
         if vim.fn.filereadable(filename) == 1 then
           -- Add file to buffer list without switching to it
           vim.cmd.badd(vim.fn.fnameescape(filename))
-
-          -- Store first valid file
+          -- Store first valid file and its position
           if not first_valid_file then
             first_valid_file = filename
+            -- Store line and column if available
+            first_valid_line = selection.lnum
+            first_valid_col = selection.col
           end
         else
           vim.notify(string.format("Cannot read file: %s", filename), vim.log.levels.WARN)
@@ -53,12 +54,62 @@ function M.open(prompt_bufnr)
     -- Switch to the first valid file if one was found
     if first_valid_file then
       vim.cmd.buffer(vim.fn.fnameescape(first_valid_file))
+      -- Jump to the specific line and column if available
+      if first_valid_line then
+        vim.api.nvim_win_set_cursor(0, { first_valid_line, (first_valid_col or 0) })
+      end
     end
   else
     -- If not dealing with files, use default action
     actions.select_default(prompt_bufnr)
   end
 end
+-- function M.open(prompt_bufnr)
+--   local actions = require("telescope.actions")
+--   local action_state = require("telescope.actions.state")
+--   local picker = action_state.get_current_picker(prompt_bufnr)
+--   local selections = picker:get_multi_selection()
+--
+--   local entry_maker = picker._entry_makers and picker._entry_makers[1]
+--   local is_file_picker = entry_maker and entry_maker.display_items and entry_maker.display_items.path
+--
+--   if #selections == 0 then
+--     selections = { action_state.get_selected_entry() }
+--   end
+--
+--   if is_file_picker or selections[1].filename then
+--     actions.close(prompt_bufnr)
+--
+--     local first_valid_file
+--
+--     for _, selection in ipairs(selections) do
+--       local filename = selection.filename or selection.path
+--       if filename then
+--         filename = vim.fn.fnamemodify(filename, ":p")
+--
+--         if vim.fn.filereadable(filename) == 1 then
+--           -- Add file to buffer list without switching to it
+--           vim.cmd.badd(vim.fn.fnameescape(filename))
+--
+--           -- Store first valid file
+--           if not first_valid_file then
+--             first_valid_file = filename
+--           end
+--         else
+--           vim.notify(string.format("Cannot read file: %s", filename), vim.log.levels.WARN)
+--         end
+--       end
+--     end
+--
+--     -- Switch to the first valid file if one was found
+--     if first_valid_file then
+--       vim.cmd.buffer(vim.fn.fnameescape(first_valid_file))
+--     end
+--   else
+--     -- If not dealing with files, use default action
+--     actions.select_default(prompt_bufnr)
+--   end
+-- end
 ------------------------------------------------------------------------------
 -- Gets the current telescope prompt
 ---@return string?
