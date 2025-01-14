@@ -9,7 +9,7 @@ M.pickers = {}
 --- 1. Gets currently selected or multi-selected entries
 --- 2. Closes the Telescope prompt
 --- 3. Adds selected files to buffer list
---- 4. Switches to the last selected file's buffer
+--- 4. Switches to the first selected file's buffer
 ---
 --- @param prompt_bufnr number The buffer number of the Telescope prompt
 ------------------------------------------------------------------------------
@@ -30,6 +30,7 @@ function M.open(prompt_bufnr)
     local first_valid_file
     local first_valid_line
     local first_valid_col
+    local positions = {}
 
     for _, selection in ipairs(selections) do
       local filename = selection.filename or selection.path
@@ -38,10 +39,22 @@ function M.open(prompt_bufnr)
         if vim.fn.filereadable(filename) == 1 then
           -- Add file to buffer list without switching to it
           vim.cmd.badd(vim.fn.fnameescape(filename))
+          -- Get buffer number for the added file
+          local bufnr = vim.fn.bufnr(filename)
+          -- Mark this buffer as opened by telescope
+          vim.api.nvim_buf_set_var(bufnr, "telescope_opened", true)
+
+          -- Store position information for this buffer
+          if selection.lnum then
+            positions[bufnr] = {
+              line = selection.lnum,
+              col = selection.col or 0,
+            }
+          end
+
           -- Store first valid file and its position
           if not first_valid_file then
             first_valid_file = filename
-            -- Store line and column if available
             first_valid_line = selection.lnum
             first_valid_col = selection.col
           end
@@ -51,65 +64,56 @@ function M.open(prompt_bufnr)
       end
     end
 
+    -- Set cursor position for all buffers
+    for bufnr, pos in pairs(positions) do
+      -- Get all windows displaying this buffer
+      local wins = vim.fn.win_findbuf(bufnr)
+      for _, win in ipairs(wins) do
+        -- Set cursor position for each window
+        vim.api.nvim_win_set_cursor(win, { pos.line, pos.col })
+      end
+
+      -- Also store the cursor position in the buffer variables
+      -- This will be used when the buffer is displayed later
+      vim.api.nvim_buf_set_var(bufnr, "telescope_cursor_pos", pos)
+    end
+
     -- Switch to the first valid file if one was found
     if first_valid_file then
       vim.cmd.buffer(vim.fn.fnameescape(first_valid_file))
       -- Jump to the specific line and column if available
       if first_valid_line then
         vim.api.nvim_win_set_cursor(0, { first_valid_line, (first_valid_col or 0) })
+        -- Center the cursor in the window
+        vim.cmd("normal! zz")
       end
     end
+
+    -- Set up an autocmd to restore cursor position when switching buffers
+    vim.api.nvim_create_autocmd("BufWinEnter", {
+      group = vim.api.nvim_create_augroup("TelescopeCursorRestore", { clear = true }),
+      callback = function(opts)
+        local bufnr = opts.buf
+        -- Only restore cursor if this buffer was opened by telescope
+        local was_opened_by_telescope = pcall(vim.api.nvim_buf_get_var, bufnr, "telescope_opened")
+        if was_opened_by_telescope then
+          local ok, pos = pcall(vim.api.nvim_buf_get_var, bufnr, "telescope_cursor_pos")
+          if ok and pos then
+            vim.api.nvim_win_set_cursor(0, { pos.line, pos.col })
+            vim.cmd("normal! zz")
+            -- clean up the variable after using it
+            vim.api.nvim_buf_del_var(bufnr, "telescope_cursor_pos")
+            vim.api.nvim_buf_del_var(bufnr, "telescope_opened")
+          end
+        end
+      end,
+    })
   else
     -- If not dealing with files, use default action
     actions.select_default(prompt_bufnr)
   end
 end
--- function M.open(prompt_bufnr)
---   local actions = require("telescope.actions")
---   local action_state = require("telescope.actions.state")
---   local picker = action_state.get_current_picker(prompt_bufnr)
---   local selections = picker:get_multi_selection()
---
---   local entry_maker = picker._entry_makers and picker._entry_makers[1]
---   local is_file_picker = entry_maker and entry_maker.display_items and entry_maker.display_items.path
---
---   if #selections == 0 then
---     selections = { action_state.get_selected_entry() }
---   end
---
---   if is_file_picker or selections[1].filename then
---     actions.close(prompt_bufnr)
---
---     local first_valid_file
---
---     for _, selection in ipairs(selections) do
---       local filename = selection.filename or selection.path
---       if filename then
---         filename = vim.fn.fnamemodify(filename, ":p")
---
---         if vim.fn.filereadable(filename) == 1 then
---           -- Add file to buffer list without switching to it
---           vim.cmd.badd(vim.fn.fnameescape(filename))
---
---           -- Store first valid file
---           if not first_valid_file then
---             first_valid_file = filename
---           end
---         else
---           vim.notify(string.format("Cannot read file: %s", filename), vim.log.levels.WARN)
---         end
---       end
---     end
---
---     -- Switch to the first valid file if one was found
---     if first_valid_file then
---       vim.cmd.buffer(vim.fn.fnameescape(first_valid_file))
---     end
---   else
---     -- If not dealing with files, use default action
---     actions.select_default(prompt_bufnr)
---   end
--- end
+
 ------------------------------------------------------------------------------
 -- Gets the current telescope prompt
 ---@return string?
@@ -144,6 +148,12 @@ function M.get_telescope_num()
   return "Total Results: " .. total_results
 end
 
+------------------------------------------------------------------------------
+--- Creates a multi-grep picker that allows searching with both pattern and file glob
+--- Usage: pattern  glob (note: two spaces between pattern and glob)
+---
+--- @param opts table Configuration options for the picker
+------------------------------------------------------------------------------
 function M.pickers.multi_grep(opts)
   local pickers = require("telescope.pickers")
   local finders = require("telescope.finders")
@@ -250,10 +260,14 @@ M.themes = {
     },
   },
 }
----@param picker string The telescope picker to run
----@param layout string The theme layout to use (must be a key in themes table)
----@param opts? table Optional settings to override theme defaults
----@return function
+------------------------------------------------------------------------------
+--- Wraps a telescope picker with a specific layout theme
+---
+--- @param picker string The telescope picker to run
+--- @param layout string The theme layout to use (must be a key in themes table)
+--- @param opts? table Optional settings to override theme defaults
+--- @return function The wrapped picker function with applied theme and options
+------------------------------------------------------------------------------
 function M.wrap(picker, layout, opts)
   opts = opts or {}
   local buf = vim.api.nvim_get_current_buf() or 0
@@ -273,6 +287,14 @@ function M.wrap(picker, layout, opts)
   end
 end
 
+------------------------------------------------------------------------------
+--- Creates a telescope picker function with predefined layout and options
+---
+--- @param picker string The telescope picker to run
+--- @param layout string The theme layout to use
+--- @param opts? table Optional settings to override theme defaults
+--- @return function Function that executes the configured picker
+------------------------------------------------------------------------------
 function M.pick(picker, layout, opts)
   return function()
     M.wrap(picker, layout, opts)()

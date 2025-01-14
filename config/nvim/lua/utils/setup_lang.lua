@@ -1,5 +1,11 @@
 ---@class utils.setup_lang
 
+local api = vim.api
+local schedule = vim.schedule
+local create_augroup = api.nvim_create_augroup
+local nvim_create_autocmd = api.nvim_create_autocmd
+local set_buf_option = api.nvim_buf_set_option
+
 -----------------------------------------------------------------
 -- TODO: proper plugin handling
 --- Normalize a plugin configuration to ensure it has a filetype.
@@ -27,19 +33,35 @@ local function ensure_list(value)
 end
 
 -----------------------------------------------------------------
--- Create an autocmd with additional options.
----@param event string|string[]
----@param pattern string|string[]
----@param callback fun(event: table)
+-- Create an augroup for language-specific autocommands
+---@param config_name string Name of the language configuration
+---@return function create_grouped_autocmd Function to create autocmds in this group
 -----------------------------------------------------------------
-local function create_autocmd(event, pattern, callback)
-  local function setup_autocmd()
-    vim.api.nvim_create_autocmd(event, {
-      pattern = pattern,
-      callback = callback,
-    })
+local function create_autocmd_group(config_name)
+  local group_name = string.format("language_setup_%s", config_name)
+  local group = create_augroup(group_name, { clear = true })
+  local lazy_load = vim.fn.argc(-1) == 0
+
+  ---@param event string|string[]
+  ---@param pattern string|string[]
+  ---@param callback fun(event: table)
+  return function(event, pattern, callback)
+    if not lazy_load then
+      nvim_create_autocmd(event, {
+        group = group,
+        pattern = pattern,
+        callback = callback,
+      })
+    else
+      schedule(function()
+        nvim_create_autocmd(event, {
+          group = group,
+          pattern = pattern,
+          callback = callback,
+        })
+      end)
+    end
   end
-  vim.schedule(setup_autocmd)
 end
 
 -----------------------------------------------------------------
@@ -69,10 +91,11 @@ local function setup_language(config)
   config.ft = ensure_list(config.ft or config.name) ---@type string[]
 
   local plugins = {}
+  local create_autocmd = create_autocmd_group(config.name)
 
   -- Setup filetype detection
   if config.add_ft then
-    vim.schedule(function()
+    schedule(function()
       vim.filetype.add(setup_detection(config.add_ft))
     end)
 
@@ -262,17 +285,16 @@ local function setup_language(config)
   -- Setup filetype-specific options
   if config.options then
     create_autocmd("FileType", config.ft, function(event)
-      vim.api.nvim_buf_call(event.buf, function()
-        for option, value in pairs(config.options) do
-          local ok, err = pcall(vim.api.nvim_buf_set_option, event.buf, option, value)
-          if not ok then
-            vim.notify(
-              string.format("Error setting option %s = %s: %s", option, vim.inspect(value), err),
-              vim.log.levels.ERROR
-            )
-          end
+      local buf = event.buf
+      for option, value in pairs(config.options) do
+        local ok, err = pcall(set_buf_option, buf, option, value)
+        if not ok then
+          vim.notify(
+            string.format("Error setting option %s = %s: %s", option, vim.inspect(value), err),
+            vim.log.levels.ERROR
+          )
         end
-      end)
+      end
     end)
   end
 
