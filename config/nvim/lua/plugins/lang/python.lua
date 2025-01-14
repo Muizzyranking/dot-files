@@ -22,6 +22,11 @@ return Utils.setup_lang({
             Utils.lsp.action["source.organizeImports"],
             desc = "Organize Imports",
           },
+          {
+            "<leader>cu",
+            Utils.lsp.action["source.fixAll"],
+            desc = "Fix all fixable diagnostics",
+          },
         },
       },
     },
@@ -48,6 +53,9 @@ return Utils.setup_lang({
             "2",
           }
         end,
+      },
+      black = {
+        append_args = { "--line-length", "79" },
       },
     },
     formatters_by_ft = {

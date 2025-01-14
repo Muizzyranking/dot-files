@@ -32,45 +32,48 @@ return {
     },
   },
   config = function(_, opts)
+    local api = vim.api
+    local lsp = vim.lsp
+    local diagnostic = vim.diagnostic
     opts.diagnostics.signs = {
       text = {},
       numhl = {},
     }
     for name, icon in pairs(Utils.icons.diagnostics) do
-      local severity = vim.diagnostic.severity[name:upper()]
+      local severity = diagnostic.severity[name:upper()]
       opts.diagnostics.signs.text[severity] = icon
       opts.diagnostics.signs.numhl[severity] = "DiagnosticSign" .. name
     end
 
-    vim.diagnostic.config(vim.deepcopy(opts.diagnostics))
+    diagnostic.config(vim.deepcopy(opts.diagnostics))
     Utils.format.setup()
     Utils.lsp.on_attach(function(client, buffer)
-      if not vim.api.nvim_buf_is_valid(buffer) then
+      if not api.nvim_buf_is_valid(buffer) then
         return
       end
       require("plugins.lsp.lspconfig.keymaps").on_attach(client, buffer)
       Utils.lsp.on_support_methods("textDocument/documentHighlight", function()
         if client.server_capabilities.documentHighlightProvider then
-          if not vim.api.nvim_buf_is_valid(buffer) then
+          if not api.nvim_buf_is_valid(buffer) then
             return
           end
-          local highlight_augroup = vim.api.nvim_create_augroup("lsp-highlight", { clear = true })
-          vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+          local highlight_augroup = api.nvim_create_augroup("lsp-highlight", { clear = true })
+          api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
             buffer = buffer,
             group = highlight_augroup,
-            callback = vim.lsp.buf.document_highlight,
+            callback = lsp.buf.document_highlight,
           })
-          vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+          api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
             buffer = buffer,
             group = highlight_augroup,
-            callback = vim.lsp.buf.clear_references,
+            callback = lsp.buf.clear_references,
           })
-          vim.api.nvim_create_autocmd("LspDetach", {
-            group = vim.api.nvim_create_augroup("lsp-detach", { clear = true }),
+          api.nvim_create_autocmd("LspDetach", {
+            group = api.nvim_create_augroup("lsp-detach", { clear = true }),
             buffer = buffer,
             callback = function()
-              vim.lsp.buf.clear_references()
-              vim.api.nvim_clear_autocmds({ group = highlight_augroup })
+              lsp.buf.clear_references()
+              api.nvim_clear_autocmds({ group = highlight_augroup })
             end,
           })
         end
@@ -83,7 +86,7 @@ return {
     local capabilities = vim.tbl_deep_extend(
       "force",
       {},
-      vim.lsp.protocol.make_client_capabilities(),
+      lsp.protocol.make_client_capabilities(),
       has_blink and blink.get_lsp_capabilities() or {},
       opts.capabilities or {}
     )
@@ -97,21 +100,18 @@ return {
       -- if not found, then it is a custom server and it is added to lspconfig
       local config_available, config = pcall(Utils.lsp.get_config, server)
       if not config_available or not config.default_config then
-        if not server_opts or not server_opts.cmd then
-          vim.api.nvim_err_writeln(("Missing configuration for server '%s'"):format(server))
+        if not opts.servers[server] or not opts.servers[server].cmd then
+          api.nvim_err_writeln(("Missing configuration for server '%s'"):format(server))
           return
         end
         local ok, configs = pcall(require, "lspconfig.configs")
         if not ok then
           return
         end
-        local default_config = server_opts
-        -- set filetypes to server name if not provided
-        if not default_config.filetypes then
-          default_config.filetypes = { server }
-        end
         configs[server] = {
-          default_config = default_config,
+          default_config = vim.tbl_extend("keep", opts.servers[server], {
+            filetypes = { server },
+          }),
         }
       end
 
