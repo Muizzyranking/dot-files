@@ -2,10 +2,7 @@ local plugins = {}
 table.insert(plugins, {
   "epwalsh/obsidian.nvim",
   version = "*",
-  event = {
-    "BufReadPre /home/muizzyranking/Documents/Notes/*.md",
-    "BufNewFile /home/muizzyranking/Documents/Notes/*.md",
-  },
+  ft = "markdown",
   cond = Utils.is_in_notes_dir(),
   cmd = "Obsidian",
   keys = {},
@@ -13,9 +10,9 @@ table.insert(plugins, {
     "nvim-lua/plenary.nvim",
   },
   opts = function()
-    vim.api.nvim_create_augroup("ObsidianKeymaps", { clear = true })
+    local group = vim.api.nvim_create_augroup("ObsidianKeymaps", { clear = true })
     vim.api.nvim_create_autocmd("BufEnter", {
-      group = vim.api.nvim_create_augroup("ObsidianKeymaps", { clear = true }),
+      group = group,
       pattern = "/home/muizzyranking/Documents/Notes/*",
       callback = function(event)
         local maps = {

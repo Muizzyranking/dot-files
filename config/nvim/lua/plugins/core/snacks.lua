@@ -13,6 +13,11 @@ return {
     words = { enabled = true },
     scroll = { enabled = true },
     lazygit = {
+      win = {
+        bo = {
+          filetype = "lazygit",
+        },
+      },
       config = {
         git = { overrideGpg = true },
       },
