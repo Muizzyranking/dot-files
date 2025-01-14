@@ -20,9 +20,10 @@ gui:
       - "#494d65"
     unstagedChangesColor:
       - "#ed8797"
+  nerdFontsVersion: "3"
 
 os:
-  editPreset: "nvim"
+  editPreset: "nvim-remote"
 
 git:
   overrideGpg: true
