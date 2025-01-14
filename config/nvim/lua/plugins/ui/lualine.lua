@@ -131,6 +131,21 @@ return {
         "mason",
         "man",
         "trouble",
+        {
+          sections = {
+            lualine_a = {
+              function()
+                return " Lazygit"
+              end,
+            },
+            lualine_b = { "branch" },
+            lualine_c = {},
+            lualine_x = {},
+            lualine_y = {},
+            lualine_z = {},
+          },
+          filetypes = { "lazygit" },
+        },
       },
     }
   end,
