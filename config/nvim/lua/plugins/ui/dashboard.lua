@@ -20,12 +20,7 @@ return {
             key = "f",
             desc = "Find File",
             action = function()
-              require("telescope.builtin").find_files({
-                cwd = Utils.find_root_directory(0, { ".git", "lua" }),
-                layout_config = {
-                  preview_width = 0.6,
-                },
-              })
+              Utils.telescope.pick("find_files", "wide_preview")()
             end,
           },
           {
@@ -33,11 +28,7 @@ return {
             key = "g",
             desc = "Find Text",
             action = function()
-              Utils.telescope.pickers.multi_grep({
-                layout_config = {
-                  preview_width = 0.6,
-                },
-              })
+              Utils.telescope.pick("multi_grep", "wide_preview", {})()
             end,
           },
           {

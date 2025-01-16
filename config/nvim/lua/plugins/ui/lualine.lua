@@ -38,7 +38,7 @@ return {
         lualine_a = { Utils.lualine.mode },
         lualine_b = {
           { "branch", color = { gui = "italic" } },
-          Utils.lualine.root_dir,
+          Utils.lualine.root_dir(),
           {
             "diff",
             symbols = {
@@ -123,7 +123,6 @@ return {
       extensions = {
         Utils.telescope.lualine,
         Utils.terminal.lualine,
-        Utils.runner.lualine,
         "oil",
         "neo-tree",
         "lazy",

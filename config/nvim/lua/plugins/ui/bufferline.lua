@@ -13,7 +13,7 @@ return {
     },
     opts = {
       options = {
-        separator_style = "",
+        separator_style = "thick",
         close_command = function(n)
           Snacks.bufdelete.delete(n)
         end,
@@ -30,6 +30,9 @@ return {
             .. (diag.warning and icons.Warn .. diag.warning or "")
           return vim.trim(ret)
         end,
+        sort_by = "insert_at_end",
+        persist_buffer_sort = false,
+        show_close_icon = false,
         offsets = {
           -- {
           --   filetype = "neo-tree",
