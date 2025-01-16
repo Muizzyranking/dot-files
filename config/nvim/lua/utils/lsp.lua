@@ -277,4 +277,24 @@ function M.rename()
   vim.lsp.buf.rename()
 end
 
+function M.available_code_actions()
+  local params = vim.lsp.util.make_range_params()
+  params.context = {
+    diagnostics = vim.lsp.diagnostic.get_line_diagnostics(),
+    only = { "quickfix", "refactor", "source" },
+  }
+
+  vim.lsp.buf_request(0, "textDocument/codeAction", params, function(err, results, ctx, config)
+    if err then
+      print("Error: " .. vim.inspect(err))
+      return
+    end
+    if not results or vim.tbl_isempty(results) then
+      print("No code actions available")
+      return
+    end
+    print("Available actions: " .. vim.inspect(results))
+  end)
+end
+
 return M

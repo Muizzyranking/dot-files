@@ -1,3 +1,4 @@
+---@diagnostic disable: param-type-mismatch
 ---@class utils.lualine
 local M = {}
 local window_width_limit = 100
@@ -149,18 +150,31 @@ M.formatters = {
 ------------------------------------------------------------------------------
 -- Defines the root directory component for the statusline
 ------------------------------------------------------------------------------
-M.root_dir = {
-  function()
-    local icon = "󱉭 "
-    local root_dir = Utils.find_root_directory(0, { ".git" })
-    local result = root_dir:gsub("%s+$", "")
-
-    if not root_dir or root_dir == nil or root_dir == "." then
-      return ""
+function M.root_dir()
+  local icon = "󱉭 "
+  local function get()
+    local cwd = Utils.root.get_cwd()
+    local root = Utils.root.get() or cwd -- Fallback to cwd if root is nil
+    local name = vim.fs.basename(root)
+    return name or nil
+  end
+  local function display()
+    local result = get()
+    if result then
+      return (icon .. " " or "") .. result
     end
-    return icon .. result:match("([^/]+)$")
-  end,
-  color = M.fg("Special"),
-}
+    return ""
+  end
+
+  return {
+    function()
+      return display()
+    end,
+    cond = function()
+      return get() ~= nil
+    end,
+    color = M.fg("Special"),
+  }
+end
 
 return M

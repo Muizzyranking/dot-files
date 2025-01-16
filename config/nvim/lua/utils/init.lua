@@ -4,7 +4,7 @@
 ---@field lsp utils.lsp
 ---@field cmp utils.cmp
 ---@field format utils.format
----@field runner utils.runner
+---@field root utils.root
 ---@field terminal utils.terminal
 ---@field ui utils.ui
 ---@field lualine utils.lualine
@@ -128,56 +128,19 @@ M.is_executable = function(path)
 end
 
 ---------------------------------------------------------------
---- Find the root directory of a project based on specified patterns
----@param buf number The buffer number
----@param patterns string|table The pattern(s) to search for
----@return string The root directory path or "." if not found
+-- Normalize path (handles ~, slashes, and trailing slashes)
+---@param path string path to normalize
 ---------------------------------------------------------------
-function M.find_root_directory(buf, patterns)
-  -- Convert string patterns to a table if only one pattern is provided
-  if type(patterns) == "string" then
-    patterns = { patterns }
+function M.norm(path)
+  if path:sub(1, 1) == "~" then
+    local home = vim.uv.os_homedir()
+    if home:sub(-1) == "\\" or home:sub(-1) == "/" then
+      home = home:sub(1, -2)
+    end
+    path = home .. path:sub(2)
   end
-
-  -- Retrieve the buffer path or current working directory if buffer path is unavailable
-  local path = vim.api.nvim_buf_get_name(buf) or ""
-  if path == "" then
-    path = vim.uv.cwd() or ""
-  else
-    -- Resolve the real path and normalize it
-    path = vim.uv.fs_realpath(path) or path
-
-    -- Normalize the path (expand ~, replace backslashes, and remove trailing slash)
-    ---@diagnostic disable-next-line: param-type-mismatch
-    if path:sub(1, 1) == "~" then
-      local home = vim.uv.os_homedir()
-      if home then
-        if home:sub(-1) == "\\" or home:sub(-1) == "/" then
-          home = home:sub(1, -2)
-        end
-        ---@diagnostic disable-next-line: param-type-mismatch
-        path = home .. path:sub(2)
-      end
-    end
-    ---@diagnostic disable-next-line: param-type-mismatch
-    path = path:gsub("\\", "/"):gsub("/+", "/")
-    if path:sub(-1) == "/" then
-      path = path:sub(1, -2)
-    end
-  end
-
-  -- Search for a pattern match in the filesystem
-  local pattern = vim.fs.find(function(name)
-    for _, p in ipairs(patterns) do
-      if name == p or (p:sub(1, 1) == "*" and name:find(vim.pesc(p:sub(2)) .. "$")) then
-        return true
-      end
-    end
-    return false
-  end, { path = path, upward = true })[1]
-
-  -- Return the directory containing the matched pattern, or "." if not found
-  return pattern and vim.fs.dirname(pattern)
+  path = path:gsub("\\", "/"):gsub("/+", "/")
+  return path:sub(-1) == "/" and path:sub(1, -2) or path
 end
 
 ---------------------------------------------------------------
@@ -285,7 +248,7 @@ end
 ---@return boolean
 --------------------------------
 function M.is_in_notes_dir()
-  local root = Utils.find_root_directory(0, { ".obsidian" })
+  local root = Utils.root.find_pattern_root(0, { ".obsidian" })
   return root ~= nil
 end
 

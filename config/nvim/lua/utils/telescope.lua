@@ -271,11 +271,9 @@ M.themes = {
 function M.wrap(picker, layout, opts)
   opts = opts or {}
   local buf = vim.api.nvim_get_current_buf() or 0
-  local root_pattern = opts.root_pattern or { ".git", "lua" }
-  opts.root_pattern = nil
-  opts.cwd = Utils.find_root_directory(buf, root_pattern)
-  if opts.cwd == false then
-    opts.cwd = nil
+  local root_pattern = opts.root_pattern or { ".git", "lua", ".env", "package.json" }
+  if not opts.cwd and opts.root ~= false then
+    opts.cwd = Utils.root.get({ buf = buf, patterns = root_pattern })
   end
   opts = vim.tbl_deep_extend("force", M.themes[layout], opts or {})
   return function()

@@ -85,6 +85,42 @@ function M.format(opts)
   end
 end
 
+-- function M.format(opts)
+--   -- Trigger pre-format event
+--   vim.api.nvim_exec_autocmds("User", {
+--     pattern = "LazyFormatPre",
+--     modeline = false,
+--   })
+--
+--   local ok, conform = pcall(require, "conform")
+--
+--   -- Create a callback to trigger post-format event
+--   local function on_format_done()
+--     vim.api.nvim_exec_autocmds("User", {
+--       pattern = "LazyFormatPost",
+--       modeline = false,
+--     })
+--   end
+--
+--   if ok then
+--     -- For conform, we need to wrap the callback
+--     local original_callback = opts and opts.callback
+--     opts = opts or {}
+--     opts.callback = function(err)
+--       if original_callback then
+--         original_callback(err)
+--       end
+--       on_format_done()
+--     end
+--     conform.format(opts)
+--   else
+--     -- For LSP formatting, we can use async_format
+--     opts = opts or {}
+--     opts.async = true
+--     opts.callback = on_format_done
+--     vim.lsp.buf.format(opts)
+--   end
+-- end
 function M.setup()
   vim.api.nvim_create_autocmd("BufWritePre", {
     group = vim.api.nvim_create_augroup("LazyFormat", { clear = true }),
