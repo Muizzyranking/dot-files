@@ -25,4 +25,4 @@ vim.g.autoformat = false
 
 -- disable providers
 vim.g.loaded_ruby_provider = 0
-vim.g.lazyvim_picker = "fzf"
+vim.g.lazyvim_picker = "snacks"

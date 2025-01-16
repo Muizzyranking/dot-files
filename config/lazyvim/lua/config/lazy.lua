@@ -29,6 +29,7 @@ require("lazy").setup({
 
     { import = "lazyvim.plugins.extras.test.core" },
     { import = "lazyvim.plugins.extras.editor.refactoring" },
+    { import = "lazyvim.plugins.extras.editor.snacks_picker" },
 
     --markdown
     { import = "lazyvim.plugins.extras.lang.markdown" },
