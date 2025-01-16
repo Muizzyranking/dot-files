@@ -131,14 +131,6 @@ return Utils.setup_lang({
       "<cmd>ClangdSwitchSourceHeader<cr>",
       desc = "Switch Source/Header",
     },
-    {
-      "<F5>",
-      function()
-        Utils.runner.setup("c")
-      end,
-      icon = { icon = " ", color = "red" },
-      desc = "Code runner",
-    },
   },
   options = {
     shiftwidth = 8,

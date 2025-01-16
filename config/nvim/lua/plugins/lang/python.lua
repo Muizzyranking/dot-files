@@ -86,15 +86,6 @@ return Utils.setup_lang({
   },
   keys = {
     {
-      "<F5>",
-      function()
-        Utils.runner.setup("python")
-      end,
-      icon = { icon = " ", color = "red" },
-      desc = "Code runner",
-      mode = "n",
-    },
-    {
       "<leader>cb",
       [[<Cmd>normal! ggO#!/usr/bin/env python3<CR><Esc>]],
       icon = { icon = " ", color = "red" },
