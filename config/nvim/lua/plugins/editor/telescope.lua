@@ -31,6 +31,11 @@ return {
         desc = "Find Files (root)",
       },
       {
+        "<leader>fF",
+        Utils.telescope.pick("find_files", "wide_preview", { root = false }),
+        desc = "Find Files (root)",
+      },
+      {
         "<leader>fh",
         Utils.telescope.pick("find_files", "wide_preview", {
           find_command = { "rg", "--files", "--hidden", "--no-ignore", "-g", "!.git" },

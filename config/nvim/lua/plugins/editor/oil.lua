@@ -13,7 +13,7 @@ return {
       {
         "_",
         function()
-          require("oil").toggle_float(vim.fn.getcwd())
+          require("oil").toggle_float(Utils.root.get())
         end,
         desc = "File Browser (CWD - Oil)",
       },

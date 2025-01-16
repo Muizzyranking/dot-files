@@ -6,8 +6,19 @@ return {
     },
     keys = {
       {
-        "<leader>E",
+        "<leader>fe",
         "<cmd>Neotree focus<cr>",
+        desc = "Neotree focus",
+      },
+      {
+        "<leader>E",
+        function()
+          require("neo-tree.command").execute({
+            toggle = true,
+            reveal_force_cwd = true,
+            dir = Utils.root.get(),
+          })
+        end,
         desc = "File Explorer",
       },
       {
@@ -16,6 +27,7 @@ return {
           require("neo-tree.command").execute({
             toggle = true,
             reveal_force_cwd = true,
+            dir = vim.uv.cwd(),
           })
         end,
         desc = "File Explorer",
