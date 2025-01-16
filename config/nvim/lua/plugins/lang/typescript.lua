@@ -1,7 +1,7 @@
 ---@diagnostic disable: param-type-mismatch
 return Utils.setup_lang({
   name = "typescript",
-  ft = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
+  ft = { "typescript", "typescriptreact", "javascript", "javascriptreact", "jsx", "tsx" },
   lsp = {
     servers = {
       vtsls = {
@@ -205,17 +205,48 @@ return Utils.setup_lang({
           return
         end
         -----------------------------------------------------------------------------
-
         local funcNode
         local functionNodes = { "arrow_function", "function_declaration", "function" }
-        repeat -- loop trough ancestors till function node found
-          funcNode = vim.treesitter.get_node()
-          funcNode = funcNode and funcNode:parent()
-          if not funcNode then
+        local safety_counter = 0
+        local max_iterations = 100 -- Prevent infinite loops
+
+        -- Get initial node
+        local current_node = vim.treesitter.get_node()
+        if not current_node then
+          print("No treesitter node found at cursor")
+          return
+        end
+
+        repeat
+          safety_counter = safety_counter + 1
+          funcNode = current_node
+          current_node = current_node:parent()
+
+          -- Safety checks
+          if safety_counter >= max_iterations then
+            print("Exceeded maximum number of parent node checks")
             return
           end
+
+          if not current_node then
+            print("Reached root without finding function node")
+            return
+          end
+
+          funcNode = current_node
         until vim.tbl_contains(functionNodes, funcNode:type())
+
+        -- Additional validation before modification
+        if not funcNode or not funcNode:type() then
+          print("Invalid function node")
+          return
+        end
+
         local functionText = vim.treesitter.get_node_text(funcNode, 0)
+        if not functionText then
+          print("Could not get function text")
+          return
+        end
 
         if vim.startswith(functionText, "async") then
           return
@@ -224,6 +255,33 @@ return Utils.setup_lang({
         local startRow, startCol = funcNode:start()
         vim.api.nvim_buf_set_text(0, startRow, startCol, startRow, startCol, { "async " })
       end,
+      -- function()
+      --   vim.api.nvim_feedkeys("t", "n", true) -- pass through the trigger char
+      --   local col = vim.api.nvim_win_get_cursor(0)[2]
+      --   local textBeforeCursor = vim.api.nvim_get_current_line():sub(col - 3, col)
+      --   if textBeforeCursor ~= "awai" then
+      --     return
+      --   end
+      --   -----------------------------------------------------------------------------
+      --
+      --   local funcNode
+      --   local functionNodes = { "arrow_function", "function_declaration", "function" }
+      --   repeat -- loop trough ancestors till function node found
+      --     funcNode = vim.treesitter.get_node()
+      --     funcNode = funcNode and funcNode:parent()
+      --     if not funcNode then
+      --       return
+      --     end
+      --   until vim.tbl_contains(functionNodes, funcNode:type())
+      --   local functionText = vim.treesitter.get_node_text(funcNode, 0)
+      --
+      --   if vim.startswith(functionText, "async") then
+      --     return
+      --   end -- already async
+      --
+      --   local startRow, startCol = funcNode:start()
+      --   vim.api.nvim_buf_set_text(0, startRow, startCol, startRow, startCol, { "async " })
+      -- end,
       mode = "i",
       desc = "Auto add async",
     },
