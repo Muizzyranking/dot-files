@@ -45,6 +45,7 @@ if vim.g.neovide then
   vim.g.neovide_transparency   = 1
   vim.g.transparency           = 0.8
   vim.g.neovide_window_blurred = true
+  vim.o.guifont = "Maple Mono NF:h11"
 end
 -----------------------------------------------------------
 -- Undo and Backup
@@ -55,7 +56,7 @@ o.undofile                     = true
 
 -----------------------------------------------------------
 -- Folding
------------------------------------------------------------
+----------------------------------------------------------
 o.foldlevel                    = 99
 o.foldmethod                   = "expr"
 o.foldexpr                     = "v:lua.vim.treesitter.foldexpr()"
@@ -105,6 +106,7 @@ o.spell                        = false -- Disable spell checking by default
 o.pumblend                     = 10 -- Popup blend
 o.pumheight                    = 10 -- Maximum number of entries in a popup
 -- opt.conceallevel = 2 -- Hide * markup for bold and italic, but not markers with substitutions
+-- stylua: ignore end
 
 local providers = { "ruby", "node", "perl" }
 for _, provider in ipairs(providers) do

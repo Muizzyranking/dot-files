@@ -283,16 +283,11 @@ Utils.toggle_map({
 Utils.toggle_map({
   "<leader>ud",
   get_state = function()
-    local enabled = false
-    if vim.diagnostic.is_enabled then
-      enabled = vim.diagnostic.is_enabled()
-    elseif vim.diagnostic.is_disabled then
-      enabled = not vim.diagnostic.is_disabled()
-    end
-    return enabled
+    return vim.diagnostic.is_enabled()
   end,
   change_state = function(state)
-    vim.diagnostic[not state and "enable" or "disable"]()
+    -- vim.diagnostic[not state and "enable" or "disable"]()
+    vim.diagnostic.enable(not state)
   end,
   name = "diagnostic",
 })

@@ -20,6 +20,7 @@ return {
       },
       highlight_groups = {
         Keyword = { fg = "#f7768e", italic = true },
+        -- Keyword = { fg = "#ea696f", italic = true },
         String = { fg = "#9ece6a", italic = true },
         ["@string.documentation"] = { fg = "#ff9e64" },
         Operator = { fg = "#7aa2f7" },
@@ -32,6 +33,8 @@ return {
         TelescopeTitle = { fg = "base", bg = "love" },
         TelescopePromptTitle = { fg = "base", bg = "pine" },
         TelescopePreviewTitle = { fg = "base", bg = "iris" },
+        -- CursorLineNr = { bg = "" },
+        -- CursorLine = { fg = "base", bg = "pine" },
       },
     },
     config = function(_, opts)
