@@ -209,6 +209,16 @@ create_autocmd("BufWritePost", {
   end,
 })
 
+-----------------------------------------------------------
+-- Remove hl search when enter Insert
+-----------------------------------------------------------
+create_autocmd({ "InsertEnter", "CmdlineEnter" }, {
+  desc = "Remove hl search when enter Insert",
+  callback = vim.schedule_wrap(function()
+    vim.cmd.nohlsearch()
+  end),
+})
+
 -- Remove from menu
 vim.api.nvim_command([[aunmenu PopUp.How-to\ disable\ mouse]])
 -- -- Add to menu
