@@ -42,15 +42,16 @@ inc_volume() {
         toggle_mute
     else
         # wpctl set-volume -l 2 @DEFAULT_AUDIO_SINK@ 5%+
-        current_volume=$(pamixer --get-volume)
-        if [[ "$current_volume" -le 200 ]]; then
-            if [[ "$current_volume" -ge 195 ]]; then
-                inc=$((200 - current_volume))
-                pamixer --allow-boost -i $inc
-            else
-                pamixer --allow-boost -i 5
-            fi
-        fi
+        pamixer -i 5
+        # current_volume=$(pamixer --get-volume)
+        # if [[ "$current_volume" -le 200 ]]; then
+        #     if [[ "$current_volume" -ge 195 ]]; then
+        #         inc=$((200 - current_volume))
+        #         pamixer --allow-boost -i $inc
+        #     else
+        #         pamixer --allow-boost -i 5
+        #     fi
+        # fi
     fi
 }
 
@@ -60,7 +61,8 @@ dec_volume() {
         toggle_mute
     else
         # wpctl set-volume -l 2 @DEFAULT_AUDIO_SINK@ 5%-
-        pamixer --allow-boost -d 5
+        pamixer -d 5
+        # pamixer --allow-boost -d 5
     fi
 }
 
