@@ -95,7 +95,9 @@ set({ "n" }, "ciw", '"_ciw')
 set({ "n" }, "C", '"_C')
 set({ "n", "v", "x" }, "x", '"_x') -- delete text without yanking
 
-set({ "n", "i", "t" }, "<F7>", Utils.terminal.float_term, { noremap = true, silent = true, desc = "Toggle Terminal" })
+set({ "n", "i", "t" }, "<F7>", function ()
+ Utils.terminal()
+end, { noremap = true, silent = true, desc = "Toggle Terminal" })
 -- stylua: ignore end
 set("n", "z=", function()
   local word = vim.fn.expand("<cword>")
@@ -173,14 +175,6 @@ local maps = {
     icon = { icon = "󱆿 " },
     remap = true,
     mode = { "v", "x" },
-  },
-  {
-    "<leader>fn",
-    function()
-      Utils.actions.new_file()
-    end,
-    desc = "Create new file",
-    icon = { icon = " ", color = "orange" },
   },
   {
     "<leader>d",
@@ -286,7 +280,6 @@ Utils.toggle_map({
     return vim.diagnostic.is_enabled()
   end,
   change_state = function(state)
-    -- vim.diagnostic[not state and "enable" or "disable"]()
     vim.diagnostic.enable(not state)
   end,
   name = "diagnostic",
