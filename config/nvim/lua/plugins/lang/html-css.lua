@@ -74,6 +74,17 @@ return Utils.setup_lang({
     shiftwidth = 2,
     tabstop = 2,
   },
+  keys = {
+    {
+      "<leader>cc",
+      function()
+        Utils.color_converter()
+      end,
+      desc = "Convert color",
+      icon = { icon = "󰸌 ", color = "green" },
+      mode = { "n", "v" },
+    },
+  },
   plugins = {
     {
       "brianhuster/live-preview.nvim",
