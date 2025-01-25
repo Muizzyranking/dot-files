@@ -42,10 +42,28 @@ return {
     -- Combines tools from various conform and nvim-lint
     ---@param ... table[] List of tool definitions from plugins
     local function populate_ensure_installed(...)
+      --- Flattens a table, ensuring no nested tables remain
+      ---@param t table The table to flatten
+      ---@return table The flattened table
+      local function flatten(t)
+        local flat = {}
+        for _, v in ipairs(t) do
+          if type(v) == "table" then
+            for _, nested in ipairs(flatten(v)) do
+              table.insert(flat, nested)
+            end
+          else
+            table.insert(flat, v)
+          end
+        end
+        return flat
+      end
+
       ---@param entries table A collection of tools grouped by filetype
       local function process_entries(entries)
         for _, group in pairs(entries) do
-          for _, tool in ipairs(group) do
+          local flat_group = flatten(group)
+          for _, tool in ipairs(flat_group) do
             -- stylua: ignore
             if pcall(function() return mr.get_package(tool) end) then
               add_tools( tool )

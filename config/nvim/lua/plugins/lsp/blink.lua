@@ -32,10 +32,7 @@ return {
         ["<C-e>"] = {},
         -- a as in abort makes sense to me
         ["<C-a>"] = { "hide", "fallback" },
-        ["<CR>"] = { "accept", "fallback" },
         ["<C-y>"] = { "select_and_accept" },
-        ["<Tab>"] = { "snippet_forward", "fallback" },
-        ["<S-Tab>"] = { "snippet_backward", "fallback" },
         -- cmdline = {
         --   preset = "enter",
         --   ["<CR>"] = { "accept", "fallback" },
@@ -61,7 +58,7 @@ return {
       },
       signature = { enabled = false },
       sources = {
-        default = { "lsp", "snippets", "buffer", "path" },
+        default = { "lsp", "path", "snippets", "buffer" },
         compat = {},
         -- disable for now, it is messing with tab completion
         -- TODO: try later
