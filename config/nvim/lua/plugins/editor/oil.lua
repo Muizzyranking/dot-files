@@ -13,7 +13,7 @@ return {
       {
         "_",
         function()
-          require("oil").toggle_float(Utils.root.get())
+          require("oil").toggle_float(Utils.root())
         end,
         desc = "File Browser (CWD - Oil)",
       },

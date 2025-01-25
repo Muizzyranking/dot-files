@@ -16,7 +16,7 @@ return {
           require("neo-tree.command").execute({
             toggle = true,
             reveal_force_cwd = true,
-            dir = Utils.root.get(),
+            dir = Utils.root(),
           })
         end,
         desc = "File Explorer",
