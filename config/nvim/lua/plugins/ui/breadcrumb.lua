@@ -27,4 +27,13 @@ return {
       end,
     },
   },
+  config = function(_, opts)
+    local types = require("dropbar.configs").opts.sources.treesitter.valid_types
+    for k, v in pairs(types) do
+      if v == "module" then
+        table.remove(types, k)
+      end
+    end
+    require("dropbar").setup(opts)
+  end,
 }

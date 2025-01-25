@@ -2,8 +2,6 @@ return {
   "folke/snacks.nvim",
   opts = {
     dashboard = {
-      row = nil,
-      col = nil,
       preset = {
         header = Utils.ui.logo.one,
         keys = {
@@ -11,66 +9,46 @@ return {
             icon = " ",
             key = "n",
             desc = "New File",
-            action = function()
-              Utils.actions.new_file()
-            end,
+            action = Utils.actions.new_file,
           },
           {
             icon = " ",
             key = "f",
             desc = "Find File",
-            action = function()
-              Utils.telescope.pick("find_files", "wide_preview")()
-            end,
+            action = Utils.telescope("find_files", "wide_preview"),
           },
           {
             icon = " ",
             key = "g",
             desc = "Find Text",
-            action = function()
-              Utils.telescope.pick("multi_grep", "wide_preview", {})()
-            end,
+            action = Utils.telescope("multi_grep", "wide_preview", {}),
           },
           {
             icon = " ",
             key = "r",
             desc = "Recent Files(cwd)",
-            action = function()
-              require("telescope.builtin").oldfiles({
-                prompt_title = "Recent Files in current working directory",
-                cwd_only = true,
-                layout_config = {
-                  preview_width = 0.6,
-                },
-              })
-            end,
+            action = Utils.telescope("oldfiles", "wide_preview", {
+              prompt_title = "Recent Files (cwd)",
+              cwd_only = true,
+            }),
           },
           {
             icon = " ",
             key = "R",
             desc = "Recent Files",
-            action = function()
-              require("telescope.builtin").oldfiles({
-                prompt_title = "Recent Files",
-                layout_config = {
-                  preview_width = 0.6,
-                },
-              })
-            end,
+            action = Utils.telescope("oldfiles", "wide_preview", {
+              prompt_title = "Recent Files",
+              root = false,
+            }),
           },
           {
             icon = " ",
             key = "c",
             desc = "Config",
-            action = function()
-              require("telescope.builtin").find_files({
-                cwd = vim.fn.stdpath("config"),
-                prompt_title = "Config Files",
-                layout_config = {
-                  preview_width = 0.6,
-                },
-              })
-            end,
+            action = Utils.telescope("find_files", "wide_preview", {
+              cwd = vim.fn.stdpath("config"),
+              prompt_title = "Config Files",
+            }),
           },
           {
             icon = " ",
