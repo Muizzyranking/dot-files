@@ -107,7 +107,7 @@ function M.get()
     {
       "<leader>cf",
       function()
-        Utils.format.format({ force = true })
+        Utils.format({ force = true })
       end,
       desc = "Format buffer",
       icon = { icon = " ", color = "green" },
