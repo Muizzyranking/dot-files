@@ -2,26 +2,6 @@
 local M = {}
 
 -----------------------------------------------------------
--- Create a new file
------------------------------------------------------------
-function M.new_file()
-  local path_and_filename = vim.fn.input("Enter file name: ")
-  if path_and_filename == "" then
-    return
-  end
-  local path, filename = vim.fn.fnamemodify(path_and_filename, ":p:h"), vim.fn.fnamemodify(path_and_filename, ":t")
-  vim.fn.mkdir(path, "p")
-  local full_path = path .. "/" .. filename
-  local success, error_msg = pcall(vim.fn.writefile, { "" }, full_path)
-  if not success then
-    Utils.notify.warn("Error creating file: " .. error_msg, { title = "File" })
-    return
-  end
-  vim.cmd("e " .. full_path)
-  Utils.notify.info(path_and_filename .. " created", { title = "File" })
-end
-
------------------------------------------------------------
 -- Make the current file executable
 -----------------------------------------------------------
 function M.toggle_file_executable(state)
@@ -211,7 +191,11 @@ local function show_case_selection(current_word, current_case)
         })
         if #clients > 0 then
           if Utils.has("inc-rename.nvim") then
-            vim.cmd("IncRename " .. new_word)
+            local ok, _ = pcall(require, "inc_rename")
+            if ok then
+              vim.cmd("nohlsearch")
+              vim.cmd("IncRename " .. new_word)
+            end
           else
             vim.lsp.buf.rename(new_word)
           end
