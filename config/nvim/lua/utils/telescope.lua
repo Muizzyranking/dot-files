@@ -1,5 +1,11 @@
 ---@class utils.telescope
-local M = {}
+local M = setmetatable({}, {
+  __call = function(m, picker, layout, opts)
+    return function()
+      m.wrap(picker, layout, opts)()
+    end
+  end,
+})
 M.pickers = {}
 
 ------------------------------------------------------------------------------
@@ -217,6 +223,8 @@ M.themes = {
     theme = "wide_preview",
     layout_config = {
       preview_width = 0.6,
+      width = 0.7,
+      height = 0.85,
     },
   },
   dropdown = {
@@ -263,17 +271,18 @@ M.themes = {
 ------------------------------------------------------------------------------
 --- Wraps a telescope picker with a specific layout theme
 ---
---- @param picker string The telescope picker to run
---- @param layout string The theme layout to use (must be a key in themes table)
---- @param opts? table Optional settings to override theme defaults
---- @return function The wrapped picker function with applied theme and options
+---@param picker string The telescope picker to run
+---@param layout? string The theme layout to use (must be a key in themes table)
+---@param opts? table Optional settings to override theme defaults
+---@return function The wrapped picker function with applied theme and options
 ------------------------------------------------------------------------------
 function M.wrap(picker, layout, opts)
   opts = opts or {}
+  layout = layout or "wide_preview"
   local buf = vim.api.nvim_get_current_buf() or 0
   local root_pattern = opts.root_pattern or { ".git", "lua", ".env", "package.json" }
-  if not opts.cwd and opts.root ~= false then
-    opts.cwd = Utils.root.get({ buf = buf, patterns = root_pattern })
+  if not opts.cwd and opts.root ~= false and opts.cwd_only ~= true then
+    opts.cwd = Utils.root({ buf = buf, patterns = root_pattern })
   end
   opts = vim.tbl_deep_extend("force", M.themes[layout], opts or {})
   return function()
@@ -282,20 +291,6 @@ function M.wrap(picker, layout, opts)
     else
       require("telescope.builtin")[picker](opts)
     end
-  end
-end
-
-------------------------------------------------------------------------------
---- Creates a telescope picker function with predefined layout and options
----
---- @param picker string The telescope picker to run
---- @param layout string The theme layout to use
---- @param opts? table Optional settings to override theme defaults
---- @return function Function that executes the configured picker
-------------------------------------------------------------------------------
-function M.pick(picker, layout, opts)
-  return function()
-    M.wrap(picker, layout, opts)()
   end
 end
 

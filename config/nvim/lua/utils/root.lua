@@ -1,5 +1,10 @@
 ---@class utils.root
-local M = {}
+local M = setmetatable({}, {
+  ---@param opts? {patterns?: string|string[], buf?: number}
+  __call = function(m, opts)
+    return m.get(opts)
+  end,
+})
 
 -- Default root patterns
 M.root_patterns = { ".git", "lua" }
@@ -14,7 +19,7 @@ function M.get_real_path(path)
 end
 
 -- Get current working directory
-function M.get_cwd()
+function M.cwd()
   return M.get_real_path(vim.uv.cwd())
 end
 
@@ -97,7 +102,7 @@ function M.get(opts)
     return root
   end
 
-  return M.get_cwd()
+  return M.cwd()
 end
 
 return M

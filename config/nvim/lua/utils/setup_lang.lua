@@ -65,7 +65,7 @@ local function create_autocmd_group(config_name)
 end
 
 -----------------------------------------------------------------
----@param config AddFt
+---@param config setup_lang.add_ft
 ---@return vim.filetype.add.filetypes
 -----------------------------------------------------------------
 local function setup_detection(config)
@@ -82,7 +82,7 @@ local function setup_detection(config)
 end
 -----------------------------------------------------------------
 -- Setup a language configuration.
----@param config LanguageConfig
+---@param config setup_lang.config
 ---@return table plugins
 -----------------------------------------------------------------
 local function setup_language(config)

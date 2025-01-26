@@ -153,15 +153,17 @@ M.formatters = {
 function M.root_dir()
   local icon = "󱉭 "
   local function get()
-    local cwd = Utils.root.get_cwd()
-    local root = Utils.root.get() or cwd -- Fallback to cwd if root is nil
+    local root = Utils.root()
     local name = vim.fs.basename(root)
     return name or nil
   end
   local function display()
     local result = get()
+    if result == "" or result == nil or result == "." then
+      return ""
+    end
     if result then
-      return (icon .. " " or "") .. result
+      return icon .. " " .. result
     end
     return ""
   end

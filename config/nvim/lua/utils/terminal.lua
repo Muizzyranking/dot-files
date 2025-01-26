@@ -1,5 +1,9 @@
 ---@class utils.terminal
-local M = {}
+local M = setmetatable({}, {
+  __call = function(m, cmd)
+    return m.float_term(cmd)
+  end,
+})
 
 ---------------------------------------------------------------
 --- Calculate dimensions for a floating window
