@@ -1,15 +1,16 @@
 ---@class utils
----@field icons utils.icons
 ---@field actions utils.actions
----@field lsp utils.lsp
 ---@field cmp utils.cmp
+---@field color_converter utils.color_converter
 ---@field format utils.format
+---@field icons utils.icons
+---@field lsp utils.lsp
+---@field lualine utils.lualine
 ---@field root utils.root
+---@field setup_lang utils.setup_lang
+---@field telescope utils.telescope
 ---@field terminal utils.terminal
 ---@field ui utils.ui
----@field lualine utils.lualine
----@field telescope utils.telescope
----@field setup_lang utils.setup_lang
 local M = {}
 
 setmetatable(M, {
@@ -145,7 +146,7 @@ end
 
 ---------------------------------------------------------------
 --- Set keymap using which key
----@param mappings MapTable
+---@param mappings utils.maptable[]
 ---------------------------------------------------------------
 function M.map(mappings)
   if type(mappings[1]) ~= "table" then
@@ -190,7 +191,7 @@ function M.map(mappings)
 end
 
 ---------------------------------------------------------------
----@param opts ToggleMap
+---@param opts utils.togglemap
 ---@return table|nil Returns a mapping table if `set_key` is `false`, otherwise sets the keymap and returns `nil`.
 ---------------------------------------------------------------
 function M.toggle_map(opts)
