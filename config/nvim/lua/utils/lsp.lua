@@ -269,31 +269,61 @@ end
 -- rename a variable under the cursoe using inc-rename or in built LSP
 function M.rename()
   if Utils.has("inc-rename.nvim") then
-    -- clearing highlight before renaming with inc rename
-    -- I get unexplainable issues when renaming with search highlights
-    vim.cmd("nohlsearch")
-    return ":IncRename " .. vim.fn.expand("<cword>")
+    local ok, _ = pcall(require, "inc_rename")
+    if ok then
+      vim.cmd("nohlsearch")
+      -- Use direct API call instead of command string
+      return ":IncRename " .. vim.fn.expand("<cword>")
+    end
   end
   vim.lsp.buf.rename()
 end
 
+-- function M.available_code_actions()
+--   local params = vim.lsp.util.make_range_params()
+--   params.context = {
+--     diagnostics = vim.lsp.diagnostic.get_line_diagnostics(),
+--     only = { "quickfix", "refactor", "source" },
+--   }
+--
+--   vim.lsp.buf_request(0, "textDocument/codeAction", params, function(err, results, ctx, config)
+--     if err then
+--       print("Error: " .. vim.inspect(err))
+--       return
+--     end
+--     if not results or vim.tbl_isempty(results) then
+--       print("No code actions available")
+--       return
+--     end
+--     print("Available actions: " .. vim.inspect(results))
+--   end)
+-- end
+
 function M.available_code_actions()
   local params = vim.lsp.util.make_range_params()
+  ---@diagnostic disable-next-line: inject-field
   params.context = {
     diagnostics = vim.lsp.diagnostic.get_line_diagnostics(),
-    only = { "quickfix", "refactor", "source" },
+    triggerKind = 1,
   }
 
-  vim.lsp.buf_request(0, "textDocument/codeAction", params, function(err, results, ctx, config)
-    if err then
-      print("Error: " .. vim.inspect(err))
-      return
+  -- Request code actions from all LSP clients
+  vim.lsp.buf_request_all(0, "textDocument/codeAction", params, function(response)
+    local actions = {}
+    -- Collect all code actions from all LSP servers
+    for _, res in pairs(response) do
+      if res.result then
+        for _, action in ipairs(res.result) do
+          table.insert(actions, { title = action.title, command = action.command or "", action = action.action or "" })
+        end
+      end
     end
-    if not results or vim.tbl_isempty(results) then
-      print("No code actions available")
-      return
+
+    -- Print or use the actions
+    print("Available Code Actions:")
+    for _, v in ipairs(actions) do
+      P(v)
     end
-    print("Available actions: " .. vim.inspect(results))
   end)
 end
 
