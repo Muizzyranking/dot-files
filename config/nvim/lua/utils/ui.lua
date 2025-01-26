@@ -3,6 +3,19 @@ local M = {}
 local api = vim.api
 M.colorsheme = "habamax"
 
+------------------------------------------------------------------------------
+-- Get the color of a highlight group
+---@param name string
+---@return string?
+------------------------------------------------------------------------------
+function M.get_hl_color(name)
+  local hl = vim.api.nvim_get_hl and vim.api.nvim_get_hl(0, { name = name, link = false })
+    or vim.api.nvim_get_hl_by_name(name, true)
+  local fg = hl and (hl.fg or hl.foreground)
+  local ret = ("#%06x"):format(fg)
+  return fg and ret or " "
+end
+
 --------------------------------------------------
 -- Get signs for a specific buffer and line number
 ---@param buf number
@@ -70,7 +83,7 @@ end
 
 ------------------------------------------------------------
 -- sets the colorscheme
----@param colorscheme string|function
+---@param colorscheme string
 ------------------------------------------------------------
 function M.set_colorscheme(colorscheme)
   local ok = pcall(function()
@@ -83,6 +96,15 @@ function M.set_colorscheme(colorscheme)
     vim.notify("Failed to load colorscheme: " .. colorscheme, vim.log.levels.ERROR)
     vim.cmd("colorscheme habamax")
   end
+  local function custom_hl()
+    vim.api.nvim_set_hl(0, "WinBar", {})
+    vim.api.nvim_set_hl(0, "WinBarNC", {})
+  end
+  custom_hl()
+  vim.api.nvim_create_autocmd("ColorScheme", {
+    group = vim.api.nvim_create_augroup("WinBar Hl", { clear = true }),
+    callback = custom_hl,
+  })
 end
 
 ------------------------------------------------------------
@@ -144,9 +166,9 @@ function M.fold_text()
 
   local res = {}
   vim.list_extend(res, fold_header_hl)
-  res[#res + 1] = { "  ", "Fold" }
+  res[#res + 1] = { "  ", "Constant" }
   vim.list_extend(res, fold_footer_hl)
-  res[#res + 1] = { string.format(" %s (%d L)", filler, lines_count), "Fold" }
+  res[#res + 1] = { string.format(" %s (%d)", filler, lines_count), "Constant" }
 
   fold_cache[first_line] = { line = last_linenr, content = res }
   return res
