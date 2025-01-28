@@ -219,6 +219,21 @@ create_autocmd({ "InsertEnter", "CmdlineEnter" }, {
   end),
 })
 
+-----------------------------------------------------------
+-- restore tmux bar if hidden
+-----------------------------------------------------------
+create_autocmd("VimLeave", {
+  callback = function()
+    local handle = io.popen("tmux display-message -p '#{status}'")
+    local status = handle:read("*a")
+    handle:close()
+    local state = status:match("on")
+    if not state then
+      os.execute("tmux set-option -g status on")
+    end
+  end,
+})
+
 -- Remove from menu
 vim.api.nvim_command([[aunmenu PopUp.How-to\ disable\ mouse]])
 -- -- Add to menu
