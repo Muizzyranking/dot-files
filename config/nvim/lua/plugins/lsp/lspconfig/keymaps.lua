@@ -76,7 +76,7 @@ function M.get()
       function()
         local diags = vim.diagnostic.get(0, { lnum = vim.fn.line(".") - 1 })
         if #diags == 0 then
-          vim.notify("[LSP] no diagnostics found in current line", vim.log.levels.WARN)
+          Utils.notify.warn("[LSP] no diagnostics found in current line")
           return
         end
 
@@ -89,7 +89,7 @@ function M.get()
         if #diags == 1 then
           local msg = diags[1].message
           _yank(msg)
-          vim.notify(string.format([[[LSP] yanked diagnostic message '%s']], msg), vim.log.levels.INFO)
+          Utils.notify(string.format([[[LSP] yanked diagnostic message '%s']], msg))
           return
         end
 

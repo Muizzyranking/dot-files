@@ -10,7 +10,8 @@ return Utils.setup_lang({
   },
   lsp = {
     servers = {
-      emmet_ls = {},
+      -- emmet_ls = {},
+      emmet_language_server = {},
       cssls = {},
       html = {
         filetypes = { "html", "htmldjango" },
