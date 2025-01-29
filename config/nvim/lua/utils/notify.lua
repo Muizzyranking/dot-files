@@ -1,5 +1,11 @@
 ---@class utils.notify
-local M = {}
+local M = setmetatable({}, {
+  ---@param msg string|table
+  ---@param opts? table
+  __call = function(m, msg, opts)
+    return m.info(msg, opts)
+  end,
+})
 
 ----------------------------------------------------------
 --- Wrapper function for Neovim's notification system
