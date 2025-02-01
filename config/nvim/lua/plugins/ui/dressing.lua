@@ -1,6 +1,5 @@
 return {
   "stevearc/dressing.nvim",
-  keys = { "z=" },
   event = "UIEnter",
   init = function()
     ---@diagnostic disable-next-line: duplicate-set-field

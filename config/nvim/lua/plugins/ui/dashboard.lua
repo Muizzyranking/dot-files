@@ -9,7 +9,9 @@ return {
             icon = " ",
             key = "n",
             desc = "New File",
-            action = Utils.actions.new_file,
+            action = function()
+              vim.cmd("enew")
+            end,
           },
           {
             icon = " ",
