@@ -136,7 +136,7 @@ function M.get()
       has = "rename",
       silent = false,
     },
-    Utils.toggle_map({
+    Utils.map.toggle_map({
       "<leader>ui",
       get_state = function()
         return vim.lsp.inlay_hint.is_enabled({ bufnr = 0 })
@@ -171,7 +171,7 @@ function M.on_attach(_, buffer)
       all_keys[#all_keys + 1] = key
     end
   end
-  Utils.map(all_keys)
+  Utils.map.set_keymaps(all_keys)
 end
 
 return M

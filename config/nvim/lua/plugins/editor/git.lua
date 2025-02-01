@@ -13,7 +13,7 @@ return {
       },
       on_attach = function(buffer)
         local gs = package.loaded.gitsigns
-        Utils.map({
+        Utils.map.set_keymaps({
           {
             "]h",
             function()

@@ -278,7 +278,7 @@ local function setup_language(config)
       for _, mapping in ipairs(config.keys) do
         mapping.buffer = event.buf
       end
-      Utils.map(config.keys)
+      Utils.map.set_keymaps(config.keys)
     end)
   end
 

@@ -238,26 +238,28 @@ if Utils.is_in_git_repo() then
   end
 end
 
-Utils.map(maps)
+Utils.map.set_keymaps(maps)
 
 ------------------------------------
 -- toggle keymaps
 ------------------------------------
-Utils.toggle_map({
-  "<leader>cx",
-  get_state = function()
-    return Utils.is_executable(vim.fn.expand("%:p"))
-  end,
-  change_state = function(state)
-    Utils.actions.toggle_file_executable(state)
-  end,
-  desc = function(state)
-    return ("Make file %s"):format(state and "unexecutable" or "executable")
-  end,
-  notify = false,
-  icon = {
-    enabled = "󰜺 ",
-    disabled = "󱐌 ",
+Utils.map.toggle_maps({
+  {
+    "<leader>ub",
+    get_state = function()
+      local handle = io.popen("tmux display-message -p '#{status}'")
+      local status = handle:read("*a")
+      handle:close()
+      return status:match("on")
+    end,
+    change_state = function(state)
+      os.execute(string.format("tmux set-option -g status %s", state and "off" or "on"))
+      Utils.notify(("%s Tmux Bar"):format(state and "Hide" or "Show"), { title = "Tmux" })
+    end,
+    desc = function(state)
+      return ("%s Tmux Bar"):format(state and "Hide" or "Show")
+    end,
+    notify = false,
   },
   color = {
     enabled = "yellow",

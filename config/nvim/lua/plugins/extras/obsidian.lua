@@ -44,7 +44,7 @@ return {
           for _, map in ipairs(maps) do
             map.buffer = event.buf
           end
-          Utils.map(maps)
+          Utils.map.set_keymaps(maps)
         end,
       })
       return {

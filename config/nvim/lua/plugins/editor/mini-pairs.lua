@@ -20,7 +20,7 @@ return {
 
   config = function(_, opts)
     -- Define the pairs setup and a toggle to enable/disable it with <leader>up
-    Utils.toggle_map({
+    Utils.map.toggle_map({
       "<leader>up",
       get_state = function()
         return not vim.g.minipairs_disable
