@@ -50,32 +50,6 @@
 ---@field icons? table<string, table> # File icons configuration
 ---@field commentstring? string|table<string, any> # Comment string configuration
 
----@class utils.maptable
----@field [1] string
----@field [2] string|function
----@field desc? string|function
----@field mode? string|string[]
----@field buffer? number|boolean
----@field icon? string|function
----@field silent? boolean
----@field remap? boolean
----@field expr? boolean
-
----@class utils.togglemap
----@field [1] string The keymap to be set.
----@field name? string The name of the toggle option (used in notifications and descriptions).
----@field desc? string|fun(state: boolean):string A description or a function returning a description based on the toggle state.
----@field icon? table Icons for the enabled and disabled states.
----@field icon.enabled? string Icon for the enabled state (default: "").
----@field icon.disabled? string Icon for the disabled state (default: "").
----@field color.enabled? string Color for the enabled state icon (default: "green").
----@field color.disabled? string Color for the disabled state icon (default: "yellow").
----@field get_state fun():boolean A function returning the current state of the toggle (true for enabled, false for disabled).
----@field change_state fun(state: boolean) A function to change the state of the toggle.
----@field toggle_fn? fun() A custom function to execute when toggling the state. If not provided, a default implementation is used.
----@field notify? boolean Whether to display notifications when toggling (default: true).
----@field set_key? boolean Whether to set the keymap directly (default: true). If false, the function returns the mapping table instead.
-
 ---@class color_converter.color_pattern
 ---@field pattern string The strict validation pattern
 ---@field regex string The buffer matching regex
@@ -93,3 +67,38 @@
 ---@field rgba function RGBA formatter
 ---@field hsl function HSL formatter
 ---@field hsla function HSLA formatter
+
+---@alias KeymapMode
+---| '"n"' # Normal mode
+---| '"i"' # Insert mode
+---| '"v"' # Visual mode
+---| '"x"' # Visual block mode
+---| '"s"' # Select mode
+---| '"o"' # Operator pending mode
+---| '"t"' # Terminal mode
+---| '"c"' # Command mode
+
+---@class map.KeymapOpts
+---@field [1] string The left-hand side of the mapping
+---@field [2] string|function The right-hand side of the mapping
+---@field mode? KeymapMode|KeymapMode[] Vim mode(s) for the mapping
+---@field desc? string|function Description of the mapping
+---@field buffer? number Buffer number for buffer-local mapping
+---@field silent? boolean Whether the mapping should be silent
+---@field remap? boolean Whether the mapping should be remappable
+---@field expr? boolean Whether the mapping is an expression
+---@field unique? boolean Whether to error on duplicate mappings
+---@field icon? string|table Icon for which-key integration
+
+---@class map.ToggleOpts
+---@field [1] string The left-hand side of the mapping
+---@field name string Name of the toggle
+---@field get_state function Function that returns the current state
+---@field change_state? function Function to change the state
+---@field toggle_fn? function Custom toggle function
+---@field mode? KeymapMode|KeymapMode[] Vim mode(s) for the mapping
+---@field desc? string|function Description of the mapping
+---@field icon? table Icon configuration
+---@field color? table Color configuration
+---@field notify? boolean Whether to show notifications
+---@field set_key? boolean Whether to set the keymap immediately
