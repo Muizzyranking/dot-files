@@ -65,63 +65,65 @@ return Utils.setup_lang({
             },
             ---_
           },
-          headings = {
-            enable = true,
-            shift_width = 0,
+          markdown = {
+            headings = {
+              enable = true,
+              shift_width = 0,
 
-            heading_1 = {
-              style = "label",
-              sign = "󰌕 ",
-              sign_hl = "MarkviewHeading1Sign",
+              heading_1 = {
+                style = "label",
+                sign = "󰌕 ",
+                sign_hl = "MarkviewHeading1Sign",
 
-              padding_left = " ",
-              padding_right = " ",
-              icon = "󰼏  ",
-              hl = "MarkviewHeading1",
+                padding_left = " ",
+                padding_right = " ",
+                icon = "󰼏  ",
+                hl = "MarkviewHeading1",
+              },
+              heading_2 = {
+                style = "label",
+                sign = "󰌖 ",
+                sign_hl = "MarkviewHeading2Sign",
+
+                padding_left = " ",
+                padding_right = " ",
+                icon = "󰎨  ",
+                hl = "MarkviewHeading2",
+              },
+              heading_3 = {
+                style = "label",
+
+                padding_left = " ",
+                padding_right = " ",
+                icon = "󰼑  ",
+                hl = "MarkviewHeading3",
+              },
+              heading_4 = {
+                style = "label",
+
+                padding_left = " ",
+                padding_right = " ",
+                icon = "󰎲  ",
+                hl = "MarkviewHeading4",
+              },
+              heading_5 = {
+                style = "label",
+
+                padding_left = " ",
+                padding_right = " ",
+                icon = "󰼓  ",
+                hl = "MarkviewHeading5",
+              },
+              heading_6 = {
+                style = "label",
+
+                padding_left = " ",
+                padding_right = " ",
+                icon = "󰎴  ",
+                hl = "MarkviewHeading6",
+              },
+              ---_
             },
-            heading_2 = {
-              style = "label",
-              sign = "󰌖 ",
-              sign_hl = "MarkviewHeading2Sign",
-
-              padding_left = " ",
-              padding_right = " ",
-              icon = "󰎨  ",
-              hl = "MarkviewHeading2",
-            },
-            heading_3 = {
-              style = "label",
-
-              padding_left = " ",
-              padding_right = " ",
-              icon = "󰼑  ",
-              hl = "MarkviewHeading3",
-            },
-            heading_4 = {
-              style = "label",
-
-              padding_left = " ",
-              padding_right = " ",
-              icon = "󰎲  ",
-              hl = "MarkviewHeading4",
-            },
-            heading_5 = {
-              style = "label",
-
-              padding_left = " ",
-              padding_right = " ",
-              icon = "󰼓  ",
-              hl = "MarkviewHeading5",
-            },
-            heading_6 = {
-              style = "label",
-
-              padding_left = " ",
-              padding_right = " ",
-              icon = "󰎴  ",
-              hl = "MarkviewHeading6",
-            },
-            ---_
           },
           links = {
             inline_links = {
@@ -139,7 +141,7 @@ return Utils.setup_lang({
             enable = true,
             icons = "internal",
             style = "language",
-            hl = "CursorLine",
+            border_hl = "CursorLine",
             info_hl = "CursorLine",
             min_width = 40,
             pad_amount = 3,

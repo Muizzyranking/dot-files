@@ -1,4 +1,4 @@
-local set = vim.keymap.set
+local set = Utils.map
 
 -- stylua: ignore start
 ------------------------
@@ -100,6 +100,8 @@ set({ "n", "i", "t" }, "<F7>", function ()
 end, { noremap = true, silent = true, desc = "Toggle Terminal" })
 -- stylua: ignore end
 set("n", "z=", function()
+  -- make sure dressing is loaded
+  pcall(require, "dressing")
   local word = vim.fn.expand("<cword>")
   local suggestions = vim.fn.spellsuggest(word)
   vim.ui.select(
@@ -261,87 +263,87 @@ Utils.map.toggle_maps({
     end,
     notify = false,
   },
-  color = {
-    enabled = "yellow",
-    disabled = "red",
+  {
+    "<leader>uT",
+    get_state = function()
+      return vim.b.ts_highlight
+    end,
+    change_state = function(state)
+      vim.treesitter[state and "stop" or "start"]()
+      vim.b.ts_highlight = not state
+    end,
+    name = "treesitter Highlight",
   },
-})
-Utils.toggle_map({
-  "<leader>uw",
-  get_state = function()
-    return vim.opt.wrap:get()
-  end,
-  change_state = function(state)
-    vim.opt.wrap = not state
-  end,
-  name = "Line wrap",
-})
-Utils.toggle_map({
-  "<leader>ud",
-  get_state = function()
-    return vim.diagnostic.is_enabled()
-  end,
-  change_state = function(state)
-    vim.diagnostic.enable(not state)
-  end,
-  name = "diagnostic",
-})
-Utils.toggle_map({
-  "<leader>us",
-  get_state = function()
-    return vim.wo.spell
-  end,
-  change_state = function(state)
-    vim.opt.spell = not state
-  end,
-  name = "spell",
-})
-Utils.toggle_map({
-  "<leader>uf",
-  get_state = function()
-    return vim.g.autoformat
-  end,
-  -- toggle_fn = Utils.format.toggle,
-  change_state = function(state)
-    Utils.format.toggle(nil, not state)
-  end,
-  name = "Autoformat (Global)",
-})
-Utils.toggle_map({
-  "<leader>uF",
-  get_state = function()
-    return Utils.format.enabled(vim.api.nvim_get_current_buf())
-  end,
-  change_state = function(state)
-    Utils.format.toggle(vim.api.nvim_get_current_buf(), not state)
-  end,
-  name = "Autoformat (Buffer)",
-})
-Utils.toggle_map({
-  "<leader>uT",
-  get_state = function()
-    return vim.b.ts_highlight
-  end,
-  change_state = function(state)
-    vim.treesitter[state and "stop" or "start"]()
-    vim.b.ts_highlight = not state
-  end,
-  name = "treesitter Highlight",
-})
-Utils.toggle_map({
-  "<leader>ub",
-  get_state = function()
-    local handle = io.popen("tmux display-message -p '#{status}'")
-    local status = handle:read("*a")
-    handle:close()
-    return status:match("on")
-  end,
-  change_state = function(state)
-    os.execute(string.format("tmux set-option -g status %s", state and "off" or "on"))
-    Utils.notify(("%s Tmux Bar"):format(state and "Hide" or "Show"), { title = "Tmux" })
-  end,
-  desc = function(state)
-    return ("%s Tmux Bar"):format(state and "Hide" or "Show")
-  end,
-  notify = false,
+  {
+    "<leader>uF",
+    get_state = function()
+      return Utils.format.enabled(vim.api.nvim_get_current_buf())
+    end,
+    change_state = function(state)
+      Utils.format.toggle(vim.api.nvim_get_current_buf(), not state)
+    end,
+    name = "Autoformat (Buffer)",
+  },
+  {
+    "<leader>uf",
+    get_state = function()
+      return vim.g.autoformat
+    end,
+    -- toggle_fn = Utils.format.toggle,
+    change_state = function(state)
+      Utils.format.toggle(nil, not state)
+    end,
+    name = "Autoformat (Global)",
+  },
+  {
+    "<leader>us",
+    get_state = function()
+      return vim.wo.spell
+    end,
+    change_state = function(state)
+      vim.opt.spell = not state
+    end,
+    name = "spell",
+  },
+  {
+    "<leader>ud",
+    get_state = function()
+      return vim.diagnostic.is_enabled()
+    end,
+    change_state = function(state)
+      vim.diagnostic.enable(not state)
+    end,
+    name = "diagnostic",
+  },
+  {
+    "<leader>uw",
+    get_state = function()
+      return vim.opt.wrap:get()
+    end,
+    change_state = function(state)
+      vim.opt.wrap = not state
+    end,
+    name = "Line wrap",
+  },
+  {
+    "<leader>cx",
+    get_state = function()
+      return Utils.is_executable(vim.fn.expand("%:p"))
+    end,
+    change_state = function(state)
+      Utils.actions.toggle_file_executable(state)
+    end,
+    desc = function(state)
+      return ("Make file %s"):format(state and "unexecutable" or "executable")
+    end,
+    notify = false,
+    icon = {
+      enabled = "󰜺 ",
+      disabled = "󱐌 ",
+    },
+    color = {
+      enabled = "yellow",
+      disabled = "red",
+    },
+  },
 })

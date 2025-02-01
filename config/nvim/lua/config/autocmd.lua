@@ -233,9 +233,3 @@ create_autocmd("VimLeave", {
     end
   end,
 })
-
--- Remove from menu
-vim.api.nvim_command([[aunmenu PopUp.How-to\ disable\ mouse]])
--- -- Add to menu
-vim.api.nvim_command([[menu PopUp.Format\ \Code <cmd>lua require("utils.format").format()<CR>]])
-vim.api.nvim_command([[menu PopUp.-1- <Nop>]])
