@@ -34,7 +34,7 @@ return {
   },
   config = function(_, opts)
     local buf = vim.api.nvim_get_current_buf()
-    Utils.toggle_map({
+    Utils.map.toggle_map({
       "<leader>uh",
       get_state = function()
         return require("colorizer").is_buffer_attached(buf)

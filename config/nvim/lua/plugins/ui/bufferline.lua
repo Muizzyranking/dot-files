@@ -43,15 +43,13 @@ return {
       },
     },
     config = function(_, opts)
-      Utils.on_load("which-key.nvim", function()
-        require("which-key").add({
-          { "<leader>bl", icon = { icon = "󰛌 ", color = "red" } },
-          { "<leader>br", icon = { icon = "󰛌 ", color = "red" } },
-          { "<leader>bP", icon = { icon = "󰛌 ", color = "red" } },
-          { "<leader>bp", icon = { icon = " ", color = "red" } },
-          { "<leader>bc", icon = { icon = " ", color = "red" } },
-        })
-      end)
+      Utils.map.add_to_wk({
+        { "<leader>bl", icon = { icon = "󰛌 ", color = "red" } },
+        { "<leader>br", icon = { icon = "󰛌 ", color = "red" } },
+        { "<leader>bP", icon = { icon = "󰛌 ", color = "red" } },
+        { "<leader>bp", icon = { icon = " ", color = "red" } },
+        { "<leader>bc", icon = { icon = " ", color = "red" } },
+      })
       require("bufferline").setup(opts)
       -- Fix bufferline when restoring a session
       vim.api.nvim_create_autocmd("BufAdd", {
