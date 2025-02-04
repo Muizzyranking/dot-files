@@ -145,35 +145,6 @@ function M.norm(path)
   return path:sub(-1) == "/" and path:sub(1, -2) or path
 end
 
---------------------------------
--- checks if the current buffer is a notes directory
----@return boolean
---------------------------------
-function M.is_in_notes_dir()
-  local root = Utils.root.find_pattern_root(0, { ".obsidian" })
-  return root ~= nil
-end
-
---------------------------------
--- Get the current word count and character count
---------------------------------
-function M.count_words_and_characters()
-  local buffer = vim.api.nvim_get_current_buf()
-  local lines = vim.api.nvim_buf_get_lines(buffer, 0, -1, true)
-
-  local word_count = 0
-  local char_count = 0
-
-  for _, line in ipairs(lines) do
-    char_count = char_count + #line
-    for _ in string.gmatch(line, "%S+") do --Matches one or more non-whitespace characters
-      word_count = word_count + 1
-    end
-  end
-
-  return { words = word_count, characters = char_count }
-end
-
 local cache = {} ---@type table<(fun()), table<string, any>>
 ---@generic T: fun()
 ---@param fn T
