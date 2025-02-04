@@ -1,19 +1,17 @@
-local servers = {
-  "prettierd",
-  "prettier",
-  "sql-formatter",
-  "autopep8",
-  "flake8",
-  "shellcheck",
-}
-
 return {
   {
     "williamboman/mason.nvim",
     opts = function(_, opts)
-      for _, server in ipairs(servers) do
-        table.insert(opts.ensure_installed, server)
-      end
+      opts = opts or {}
+      opts.ensure_installed = opts.ensure_installed or {}
+      vim.list_extend(opts.ensure_installed, {
+        "prettierd",
+        "prettier",
+        "sql-formatter",
+        "autopep8",
+        "flake8",
+        "shellcheck",
+      })
     end,
   },
 }
