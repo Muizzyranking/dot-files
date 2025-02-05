@@ -1,4 +1,5 @@
-return Utils.setup_lang({
+-- plugins/lang/solidity.lua
+return {
   name = "solidity",
   ft = "solidity",
   lsp = {
@@ -34,4 +35,4 @@ return Utils.setup_lang({
       solidity = { "solhint" },
     },
   },
-})
+}

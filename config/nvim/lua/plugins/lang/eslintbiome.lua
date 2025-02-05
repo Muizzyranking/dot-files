@@ -1,4 +1,4 @@
-return Utils.setup_lang({
+return {
   name = "eslintbiome",
   ft = {
     "javascript",
@@ -44,4 +44,4 @@ return Utils.setup_lang({
       end,
     },
   },
-})
+}

@@ -1,4 +1,4 @@
-return Utils.setup_lang({
+return {
   name = "markdown",
   lsp = {
     servers = {
@@ -172,4 +172,4 @@ return Utils.setup_lang({
       end,
     },
   },
-})
+}

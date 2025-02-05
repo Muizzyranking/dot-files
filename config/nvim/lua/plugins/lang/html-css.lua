@@ -1,4 +1,4 @@
-return Utils.setup_lang({
+return {
   name = "html-css",
   ft = {
     "html",
@@ -95,4 +95,4 @@ return Utils.setup_lang({
       opts = {},
     },
   },
-})
+}

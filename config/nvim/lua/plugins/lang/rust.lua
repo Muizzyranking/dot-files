@@ -1,4 +1,4 @@
-return Utils.setup_lang({
+return {
   name = "rust",
   ft = { "rust" },
 
@@ -107,4 +107,4 @@ return Utils.setup_lang({
       },
     },
   },
-})
+}

@@ -1,4 +1,4 @@
-return Utils.setup_lang({
+return {
   name = "sql",
   lsp = {
     servers = {
@@ -22,4 +22,4 @@ return Utils.setup_lang({
       "sql",
     },
   },
-})
+}

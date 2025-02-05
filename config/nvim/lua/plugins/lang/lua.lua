@@ -1,4 +1,4 @@
-return Utils.setup_lang({
+return {
   name = "lua",
   lsp = {
     servers = {
@@ -40,6 +40,20 @@ return Utils.setup_lang({
     shiftwidth = 2,
     tabstop = 2,
   },
+  keys = {
+    {
+      "<leader>sh",
+      function()
+        local word = vim.fn.expand("<cword>")
+        local ok, _ = pcall(vim.cmd, "help " .. word)
+        if not ok then
+          Utils.notify.warn("No help found for: " .. word)
+        end
+      end,
+      desc = "Show help",
+      icon = { icon = "󰞋 ", color = "blue" },
+    },
+  },
   plugins = {
     {
       "folke/lazydev.nvim",
@@ -54,14 +68,7 @@ return Utils.setup_lang({
         },
       },
     },
-    { "Bilal2453/luvit-meta", lazy = true },
-    {
-      "nvim-cmp",
-      optional = true,
-      opts = function(_, opts)
-        table.insert(opts.sources, { name = "lazydev", group_index = 0 })
-      end,
-    },
+    { "Bilal2453/luvit-meta" },
     {
       "saghen/blink.cmp",
       optional = true,
@@ -79,4 +86,4 @@ return Utils.setup_lang({
       },
     },
   },
-})
+}

@@ -1,4 +1,4 @@
-return Utils.setup_lang({
+return {
   name = "clarity",
   ft = "clarity",
   commentstring = ";; %s",
@@ -48,4 +48,4 @@ return Utils.setup_lang({
     --   command = "e %",
     -- },
   },
-})
+}

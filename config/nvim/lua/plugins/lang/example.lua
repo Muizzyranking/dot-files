@@ -1,5 +1,8 @@
+-- stylua: ignore
+if true then return {} end
+
 --- example language set up using setup_lan
-Utils.setup_lang({
+return {
   -- Name of the language configuration
   -- This is a required field and is often used as a default for other options
   name = "example",
@@ -230,5 +233,4 @@ Utils.setup_lang({
       ft = { "typescript", "typescriptreact" },
     },
   },
-})
-return {}
+}

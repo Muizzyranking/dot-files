@@ -1,4 +1,4 @@
-return Utils.setup_lang({
+return {
   name = "json",
   ft = { "json", "json5", "jsonc" },
   lsp = {
@@ -56,4 +56,4 @@ return Utils.setup_lang({
       version = false, -- last release is way too old
     },
   },
-})
+}

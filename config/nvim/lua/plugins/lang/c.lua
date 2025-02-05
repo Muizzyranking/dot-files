@@ -1,4 +1,4 @@
-return Utils.setup_lang({
+return {
   name = "c",
   ft = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
   highlighting = {
@@ -138,4 +138,4 @@ return Utils.setup_lang({
     softtabstop = 8,
     expandtab = false,
   },
-})
+}

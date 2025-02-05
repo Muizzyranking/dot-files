@@ -1,4 +1,4 @@
-return Utils.setup_lang({
+return {
   name = "python",
   lsp = {
     servers = {
@@ -84,6 +84,24 @@ return Utils.setup_lang({
       "htmldjango",
     },
   },
+  autocmds = {
+    {
+      pattern = "html",
+      callback = function(event)
+        local buf = event.buf
+        local root = Utils.root.find_pattern_root(buf, {
+          "manage.py",
+          "urls.py",
+          "settings.py",
+          "templates/",
+          "apps.py",
+        })
+        if root ~= nil then
+          vim.api.nvim_buf_set_option(event.buf, "filetype", "htmldjango")
+        end
+      end,
+    },
+  },
   keys = {
     {
       "<leader>cb",
@@ -103,20 +121,6 @@ return Utils.setup_lang({
 
   plugins = {
     {
-      "linux-cultist/venv-selector.nvim",
-      cmd = "VenvSelect",
-      keys = { { "<leader>cv", "<cmd>:VenvSelect<cr>", desc = "Select VirtualEnv", ft = "python" } },
-      opts = {
-        dap_enabled = false,
-        name = {
-          "venv",
-          ".venv",
-          "env",
-          ".env",
-        },
-      },
-    },
-    {
       "nvim-telescope/telescope.nvim",
       optional = true,
       opts = {
@@ -129,4 +133,4 @@ return Utils.setup_lang({
       },
     },
   },
-})
+}

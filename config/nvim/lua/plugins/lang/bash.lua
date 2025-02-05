@@ -1,4 +1,4 @@
-return Utils.setup_lang({
+return {
   name = "bash",
   ft = { "sh", "bash" },
   add_ft = {
@@ -54,4 +54,4 @@ return Utils.setup_lang({
       silent = true,
     },
   },
-})
+}
