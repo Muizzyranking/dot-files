@@ -346,4 +346,28 @@ Utils.map.toggle_maps({
       disabled = "red",
     },
   },
-})
+}
+
+if Utils.is_in_tmux() then
+  vim.list_extend(toggle_maps, {
+    {
+      "<leader>ub",
+      get_state = function()
+        local handle = io.popen("tmux display-message -p '#{status}'")
+        local status = handle:read("*a")
+        handle:close()
+        return status:match("on")
+      end,
+      change_state = function(state)
+        os.execute(string.format("tmux set-option -g status %s", state and "off" or "on"))
+        Utils.notify(("%s Tmux Bar"):format(state and "Hide" or "Show"), { title = "Tmux" })
+      end,
+      desc = function(state)
+        return ("%s Tmux Bar"):format(state and "Hide" or "Show")
+      end,
+      notify = false,
+    },
+  })
+end
+
+Utils.map.toggle_maps(toggle_maps)
