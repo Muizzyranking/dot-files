@@ -1,24 +1,11 @@
 ---@class utils.setup_lang
+local M = {}
 
 local api = vim.api
 local schedule = vim.schedule
 local create_augroup = api.nvim_create_augroup
 local nvim_create_autocmd = api.nvim_create_autocmd
 local set_buf_option = api.nvim_buf_set_option
-
------------------------------------------------------------------
--- TODO: proper plugin handling
---- Normalize a plugin configuration to ensure it has a filetype.
----@param plugin string|table Plugin configuration
----@return table Normalized plugin configuration
------------------------------------------------------------------
-local function normalize_plugin(plugin)
-  if type(plugin) == "string" then
-    return { plugin }
-  end
-
-  return plugin
-end
 
 -----------------------------------------------------------------
 --- Normalize a value to ensure it’s always a list.
@@ -46,20 +33,17 @@ local function create_autocmd_group(config_name)
   ---@param pattern string|string[]
   ---@param callback fun(event: table)
   return function(event, pattern, callback)
-    if not lazy_load then
+    local autocmd = function()
       nvim_create_autocmd(event, {
         group = group,
         pattern = pattern,
         callback = callback,
       })
+    end
+    if not lazy_load then
+      autocmd()
     else
-      schedule(function()
-        nvim_create_autocmd(event, {
-          group = group,
-          pattern = pattern,
-          callback = callback,
-        })
-      end)
+      Utils.on_very_lazy(autocmd)
     end
   end
 end
@@ -85,7 +69,7 @@ end
 ---@param config setup_lang.config
 ---@return table plugins
 -----------------------------------------------------------------
-local function setup_language(config)
+function M.setup_language(config)
   -- Set defaults
   assert(config.name, "LanguageConfig must have a 'name'")
   config.ft = ensure_list(config.ft or config.name) ---@type string[]
@@ -114,6 +98,7 @@ local function setup_language(config)
       local callback = autocmd.callback or function()
         vim.cmd(autocmd.command)
       end
+      create_autocmd = autocmd.group and create_autocmd_group(autocmd.group) or create_autocmd
       create_autocmd(autocmd.events or "FileType", autocmd.pattern or config.ft or {}, callback)
     end
   end
@@ -164,7 +149,6 @@ local function setup_language(config)
     }
 
     if config.formatting.use_prettier_biome then
-      -- if use_prettier_biome is a boolean, use it for all filetypes
       if type(config.formatting.use_prettier_biome) == "boolean" and config.formatting.use_prettier_biome == true then
         conform_opts.use_prettier_biome = config.ft
       else
@@ -199,15 +183,11 @@ local function setup_language(config)
 
     if config.highlighting.custom_parsers then
       treesitter_opts = function(_, opts)
-        -- Ensure opts.ensure_installed exists and is a table
         opts.ensure_installed = opts.ensure_installed or {}
-
-        -- Add base parsers
         for _, parser in ipairs(base_parsers) do
           table.insert(opts.ensure_installed, parser)
         end
 
-        -- Configure custom parsers
         local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
         for name, parser_info in pairs(config.highlighting.custom_parsers) do
           parser_config[name] = parser_info
@@ -268,7 +248,7 @@ local function setup_language(config)
   -- Add custom plugins
   if config.plugins then
     for _, plugin in ipairs(config.plugins) do
-      table.insert(plugins, normalize_plugin(plugin))
+      table.insert(plugins, ensure_list(plugin))
     end
   end
 
@@ -301,4 +281,29 @@ local function setup_language(config)
   return plugins
 end
 
-return setup_language
+-----------------------------------------------------------------
+-- adds a language to the setup.
+---@param langs string|string[]
+---@return table[]
+-----------------------------------------------------------------
+function M.add_lang(langs)
+  if not langs then
+    langs = "lua"
+  end
+  if type(langs) == "string" then
+    langs = { langs }
+  end
+  local results = {}
+  for _, lang in ipairs(langs) do
+    local ok, lang_config = pcall(require, "plugins.lang." .. lang)
+    if not ok then
+      vim.notify(string.format("Error loading language %s: %s", lang, lang_config), vim.log.levels.ERROR)
+      return {}
+    end
+    local lang_setup = M.setup_language(lang_config)
+    table.insert(results, lang_setup)
+  end
+  return results
+end
+
+return M
