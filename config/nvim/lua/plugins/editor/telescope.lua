@@ -163,47 +163,6 @@ return {
     end,
   },
   {
-    "neovim/nvim-lspconfig",
-    opts = function()
-      local Keys = require("plugins.lsp.lspconfig.keymaps").get()
-      vim.list_extend(Keys, {
-        {
-          "gd",
-          Utils.telescope("lsp_definitions", "wide_preview", { reuse_win = true }),
-          desc = "Goto Definition",
-          has = "definition",
-        },
-        {
-          "gD",
-          Utils.telescope("lsp_definitions", "wide_preview", {
-            jump_type = "vsplit",
-            reuse_win = true,
-          }),
-          desc = "Goto Definition (vsplit)",
-          has = "definition",
-        },
-        {
-          "gr",
-          Utils.telescope("lsp_references", "wide_preview", { reuse_win = true }),
-          desc = "Goto References",
-          has = "references",
-        },
-        {
-          "gI",
-          Utils.telescope("lsp_implementations", "wide_preview", { reuse_win = true }),
-          desc = "Goto Implementation",
-        },
-        {
-          "gT",
-          function()
-            require("telescope.builtin").lsp_type_definitions({ reuse_win = true })
-          end,
-          desc = "Goto Type Definition",
-        },
-      })
-    end,
-  },
-  {
     "saghen/blink.cmp",
     optional = true,
     opts = {

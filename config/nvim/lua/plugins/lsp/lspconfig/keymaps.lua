@@ -1,5 +1,4 @@
 local M = {}
-
 M._keys = nil
 
 function M.get()
@@ -9,23 +8,43 @@ function M.get()
   M._keys = {
     {
       "gd",
-      vim.lsp.buf.definition,
+      Utils.telescope("lsp_definitions", "wide_preview", { reuse_win = true }),
       desc = "Goto Definition",
       has = "definition",
     },
     {
-      "gr",
-      vim.lsp.buf.references,
-      desc = "References",
+      "gD",
+      Utils.telescope("lsp_definitions", "wide_preview", {
+        jump_type = "vsplit",
+        reuse_win = true,
+      }),
+      desc = "Goto Definition (vsplit)",
+      has = "definition",
     },
-    { "gI", vim.lsp.buf.implementation, desc = "Goto Implementation" },
-    { "gT", vim.lsp.buf.type_definition, desc = "Goto Type Definition" },
     {
-      "g;",
-      vim.lsp.buf.declaration,
-      desc = "Goto Declaration",
-      has = "declaration",
+      "gr",
+      Utils.telescope("lsp_references", "wide_preview", { reuse_win = true }),
+      desc = "Goto References",
+      has = "references",
     },
+    {
+      "gI",
+      Utils.telescope("lsp_implementations", "wide_preview", { reuse_win = true }),
+      desc = "Goto Implementation",
+    },
+    {
+      "gT",
+      function()
+        require("telescope.builtin").lsp_type_definitions({ reuse_win = true })
+      end,
+      desc = "Goto Type Definition",
+    },
+
+    -- { "gd", vim.lsp.buf.definition, desc = "Goto Definition", has = "definition" },
+    -- { "gr", vim.lsp.buf.references, desc = "References" },
+    -- { "gI", vim.lsp.buf.implementation, desc = "Goto Implementation" },
+    -- { "gT", vim.lsp.buf.type_definition, desc = "Goto Type Definition" },
+    -- { "g;", vim.lsp.buf.declaration, desc = "Goto Declaration", has = "declaration" },
     {
       "K",
       function()
@@ -73,34 +92,7 @@ function M.get()
     },
     {
       "gy",
-      function()
-        local diags = vim.diagnostic.get(0, { lnum = vim.fn.line(".") - 1 })
-        if #diags == 0 then
-          Utils.notify.warn("[LSP] no diagnostics found in current line")
-          return
-        end
-
-        ---@param msg string
-        local function _yank(msg)
-          vim.fn.setreg('"', msg)
-          vim.fn.setreg(vim.v.register, msg)
-        end
-
-        if #diags == 1 then
-          local msg = diags[1].message
-          _yank(msg)
-          Utils.notify(string.format([[[LSP] yanked diagnostic message '%s']], msg))
-          return
-        end
-
-        vim.ui.select(
-          vim.tbl_map(function(d)
-            return d.message
-          end, diags),
-          { prompt = "Select diagnostic message to yank: " },
-          _yank
-        )
-      end,
+      Utils.lsp.copy_diagnostics,
       desc = "Yank diagnostic message on current line",
       mode = { "n", "x" },
     },
