@@ -45,7 +45,7 @@ set("n", "<C-Right>", "<cmd>vertical resize +2<cr>", { desc = "Increase Window W
 ------------------------
 -- saving and quitting
 ------------------------
-set(                                  { "i", "x", "n", "s" }, "<C-s>", "<cmd>update<cr><esc>", { desc = "Save File" })
+set({ "i", "x", "n", "s" }, "<C-s>", "<cmd>update<cr><esc>", { desc = "Save File" })
 set("n", "<C-q>", "<cmd>q<cr>",       { desc = "Quit file" })
 set("n", "<leader>qq", "<cmd>qa<cr>", { desc = "Save all and quit", silent = true })
 
@@ -245,24 +245,7 @@ Utils.map.set_keymaps(maps)
 ------------------------------------
 -- toggle keymaps
 ------------------------------------
-Utils.map.toggle_maps({
-  {
-    "<leader>ub",
-    get_state = function()
-      local handle = io.popen("tmux display-message -p '#{status}'")
-      local status = handle:read("*a")
-      handle:close()
-      return status:match("on")
-    end,
-    change_state = function(state)
-      os.execute(string.format("tmux set-option -g status %s", state and "off" or "on"))
-      Utils.notify(("%s Tmux Bar"):format(state and "Hide" or "Show"), { title = "Tmux" })
-    end,
-    desc = function(state)
-      return ("%s Tmux Bar"):format(state and "Hide" or "Show")
-    end,
-    notify = false,
-  },
+local toggle_maps = {
   {
     "<leader>uT",
     get_state = function()
@@ -270,7 +253,6 @@ Utils.map.toggle_maps({
     end,
     change_state = function(state)
       vim.treesitter[state and "stop" or "start"]()
-      vim.b.ts_highlight = not state
     end,
     name = "treesitter Highlight",
   },
