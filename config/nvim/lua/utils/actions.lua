@@ -1,5 +1,6 @@
 ---@class utils.actions
 local M = {}
+local api = vim.api
 
 -----------------------------------------------------------
 -- Make the current file executable
@@ -22,10 +23,10 @@ end
 -- Duplicate the current line.
 -------------------------------------
 function M.duplicate_line()
-  local current_line = vim.api.nvim_get_current_line() -- Get the current line
-  local cursor = vim.api.nvim_win_get_cursor(0) -- Get current cursor position
-  vim.api.nvim_buf_set_lines(0, cursor[1], cursor[1], false, { current_line })
-  vim.api.nvim_win_set_cursor(0, { cursor[1] + 1, cursor[2] }) -- Move cursor to the duplicated line
+  local current_line = api.nvim_get_current_line() -- Get the current line
+  local cursor = api.nvim_win_get_cursor(0) -- Get current cursor position
+  api.nvim_buf_set_lines(0, cursor[1], cursor[1], false, { current_line })
+  api.nvim_win_set_cursor(0, { cursor[1] + 1, cursor[2] }) -- Move cursor to the duplicated line
 end
 
 -------------------------------------
@@ -37,11 +38,11 @@ function M.duplicate_selection()
   if start_line > end_line then
     start_line, end_line = end_line, start_line
   end
-  local selected_lines = vim.api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
-  vim.api.nvim_buf_set_lines(0, end_line, end_line, false, selected_lines)
-  local new_cursor_line = math.min(end_line + #selected_lines, vim.api.nvim_buf_line_count(0))
-  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
-  vim.api.nvim_win_set_cursor(0, { new_cursor_line, 0 })
+  local selected_lines = api.nvim_buf_get_lines(0, start_line - 1, end_line, false)
+  api.nvim_buf_set_lines(0, end_line, end_line, false, selected_lines)
+  local new_cursor_line = math.min(end_line + #selected_lines, api.nvim_buf_line_count(0))
+  api.nvim_feedkeys(api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
+  api.nvim_win_set_cursor(0, { new_cursor_line, 0 })
 end
 
 ----------------------------------------------------
@@ -147,8 +148,8 @@ end
 ---@return boolean Whether LSP with rename support is available
 ----------------------------------------------------
 local function has_rename_support()
-  local bufnr = vim.api.nvim_get_current_buf()
-  if not vim.api.nvim_buf_is_valid(bufnr) or not vim.bo[bufnr].buflisted then
+  local bufnr = api.nvim_get_current_buf()
+  if not api.nvim_buf_is_valid(bufnr) or not vim.bo[bufnr].buflisted then
     return false
   end
   return Utils.lsp.has(bufnr, "rename")
@@ -184,7 +185,7 @@ local function show_case_selection(current_word, current_case)
       local new_word = convert_to_case(current_word, choice.value)
 
       if has_rename_support() then
-        local bufnr = vim.api.nvim_get_current_buf()
+        local bufnr = api.nvim_get_current_buf()
         local clients = Utils.lsp.get_clients({
           bufnr = bufnr,
           method = "textDocument/rename",
