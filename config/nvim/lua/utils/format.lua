@@ -5,13 +5,14 @@ local M = setmetatable({}, {
   end,
 })
 
+local api = vim.api
 ----------------------------------------------------
 -- Check if autoformat is enabled for the given buffer
 ---@param buf number|nil The buffer to check. Defaults to the current buffer if nil.
 ---@return boolean Whether autoformat is enabled for the buffer.
 ----------------------------------------------------
 function M.enabled(buf)
-  buf = (buf == nil or buf == 0) and vim.api.nvim_get_current_buf() or buf
+  buf = (buf == nil or buf == 0) and api.nvim_get_current_buf() or buf
   local gaf = vim.g.autoformat
   local baf = vim.b[buf].autoformat
 
@@ -30,7 +31,7 @@ end
 --- @param enable? boolean Explicitly enable or disable (optional)
 ----------------------------------------------------
 function M.toggle(buf, enable)
-  local current_buf = buf or vim.api.nvim_get_current_buf()
+  local current_buf = buf or api.nvim_get_current_buf()
   local gaf = vim.g.autoformat == nil or vim.g.autoformat
   local baf = vim.b[current_buf].autoformat
 
@@ -90,10 +91,11 @@ function M.format(opts)
 end
 
 function M.setup()
-  vim.api.nvim_create_autocmd("BufWritePre", {
-    group = vim.api.nvim_create_augroup("LazyFormat", { clear = true }),
+  api.nvim_create_autocmd("BufWritePre", {
+    group = api.nvim_create_augroup("LazyFormat", { clear = true }),
     callback = function(event)
-      if M.enabled() then
+      local errors = vim.diagnostic.get(0, { severity = vim.diagnostic.severity.ERROR })
+      if M.enabled() and #errors == 0 then
         M.format({ bufnr = event.buf, force = true })
       end
     end,
