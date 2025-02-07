@@ -79,13 +79,6 @@ function M.on_very_lazy(fn)
   })
 end
 
-----------------------------------------------------
--- Merge multiple tables
---@param ... any Tables to merge
----@return table Merged table
-----------------------------------------------------
--- M.merge = "require('lazy.core.util').merge"
-
 ---------------------------------------------------------------
 -- Check if the Neovim is running inside a TMUX session.
 ---@return boolean

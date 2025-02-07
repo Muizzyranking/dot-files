@@ -400,7 +400,6 @@ function M.show_conversion_options()
       return
     end
 
-    -- Replace the original color in the buffer
     vim.api.nvim_buf_set_text(0, line, current_color.start - 1, line, current_color.last, { converted })
     Utils.notify(("Converted from %s to: %s "):format(current_color.text, converted), { title = "Color Converter" })
   end)

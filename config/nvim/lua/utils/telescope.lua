@@ -10,13 +10,6 @@ M.pickers = {}
 
 ------------------------------------------------------------------------------
 --- Opens selected Telescope entries in new buffers
----
---- This function does the following:
---- 1. Gets currently selected or multi-selected entries
---- 2. Closes the Telescope prompt
---- 3. Adds selected files to buffer list
---- 4. Switches to the first selected file's buffer
----
 --- @param prompt_bufnr number The buffer number of the Telescope prompt
 ------------------------------------------------------------------------------
 function M.open(prompt_bufnr)
@@ -248,23 +241,6 @@ M.themes = {
       prompt = { "─", "│", " ", "│", "╭", "╮", "│", "│" },
       results = { "─", "│", "─", "│", "├", "┤", "╯", "╰" },
       preview = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
-    },
-  },
-  ivy_plus = {
-    theme = "ivy_plus",
-    previewer = false,
-    prompt_title = false,
-    results_title = false,
-    layout_strategy = "bottom_pane",
-    layout_config = {
-      height = 13,
-      preview_cutoff = 120,
-      prompt_position = "bottom",
-    },
-    borderchars = {
-      prompt = { "─", "│", "─", "│", "┌", "┐", "┘", "└" },
-      results = { "─", "│", "─", "│", "┌", "┬", "┴", "└" },
-      preview = { "─", "│", " ", " ", "─", "┐", "│", " " },
     },
   },
 }

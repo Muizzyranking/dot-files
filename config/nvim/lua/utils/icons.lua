@@ -110,7 +110,6 @@ return {
     -- TypeParameter = " ",
     -- Value = " ",
     -- Variable = "󰀫 ",
-    Obsidian = " ",
   },
   modes = {
     ["n"] = " ",
