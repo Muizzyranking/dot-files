@@ -87,6 +87,7 @@ return {
   autocmds = {
     {
       pattern = "html",
+      group = "htmldjango detection",
       callback = function(event)
         local buf = event.buf
         local root = Utils.root.find_pattern_root(buf, {
