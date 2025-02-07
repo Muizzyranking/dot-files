@@ -7,6 +7,7 @@
 ---@field lsp utils.lsp
 ---@field lualine utils.lualine
 ---@field map utils.map
+---@field notify utils.notify
 ---@field root utils.root
 ---@field setup_lang utils.setup_lang
 ---@field telescope utils.telescope

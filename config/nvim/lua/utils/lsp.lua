@@ -279,25 +279,37 @@ function M.rename()
   vim.lsp.buf.rename()
 end
 
--- function M.available_code_actions()
---   local params = vim.lsp.util.make_range_params()
---   params.context = {
---     diagnostics = vim.lsp.diagnostic.get_line_diagnostics(),
---     only = { "quickfix", "refactor", "source" },
---   }
---
---   vim.lsp.buf_request(0, "textDocument/codeAction", params, function(err, results, ctx, config)
---     if err then
---       print("Error: " .. vim.inspect(err))
---       return
---     end
---     if not results or vim.tbl_isempty(results) then
---       print("No code actions available")
---       return
---     end
---     print("Available actions: " .. vim.inspect(results))
---   end)
--- end
+-----------------------------------------------
+-- copy the diagnostic message under the cursor
+-----------------------------------------------
+function M.copy_diagnostics()
+  local diags = vim.diagnostic.get(0, { lnum = vim.fn.line(".") - 1 })
+  if #diags == 0 then
+    Utils.notify.warn("[LSP] no diagnostics found in current line")
+    return
+  end
+
+  ---@param msg string
+  local function _yank(msg)
+    vim.fn.setreg('"', msg)
+    vim.fn.setreg(vim.v.register, msg)
+  end
+
+  if #diags == 1 then
+    local msg = diags[1].message
+    _yank(msg)
+    Utils.notify(string.format([[[LSP] yanked diagnostic message '%s']], msg))
+    return
+  end
+
+  vim.ui.select(
+    vim.tbl_map(function(d)
+      return d.message
+    end, diags),
+    { prompt = "Select diagnostic message to yank: " },
+    _yank
+  )
+end
 
 function M.available_code_actions()
   local params = vim.lsp.util.make_range_params()

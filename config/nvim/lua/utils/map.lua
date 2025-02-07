@@ -5,6 +5,7 @@ local M = setmetatable({}, {
   end,
 })
 M._wk_maps = {}
+M._is_setup = false
 local api = vim.api
 local tbl_contains = vim.tbl_contains
 local deepcopy = vim.deepcopy
@@ -119,23 +120,21 @@ function M.set_keymap(mapping)
   end
 
   if mapping.icon then
-    table.insert(M._wk_maps, {
-      lhs = lhs,
-      mode = mode,
-      icon = mapping.icon,
-      desc = mapping.desc or "",
+    M.add_to_wk({
+      {
+        lhs = lhs,
+        mode = mode,
+        icon = mapping.icon,
+        desc = mapping.desc or "",
+      },
     })
   end
 
-  api.nvim_exec_autocmds("User", {
-    pattern = "KeymapSet",
-    data = {
-      has_icon = mapping.icon ~= nil,
-    },
-  })
   return true
 end
 
+---@param mappings map.KeymapOpts[] Keymap options
+---@return boolean success
 function M.set_keymaps(mappings)
   if type(mappings) ~= "table" then
     if is_debug() then
@@ -153,6 +152,7 @@ function M.set_keymaps(mappings)
     end
     M.set_keymap(map)
   end
+  return true
 end
 
 ---------------------------------------------------------------
@@ -260,6 +260,14 @@ function M.add_to_wk(mappings)
       table.insert(M._wk_maps, map)
     end
   end
+  if M._is_setup then
+    api.nvim_exec_autocmds("User", {
+      pattern = "KeymapSet",
+      data = {
+        has_icon = true,
+      },
+    })
+  end
   return true
 end
 
@@ -284,6 +292,9 @@ api.nvim_create_autocmd("User", {
   end,
 })
 
-Utils.on_load("which-key.nvim", M._apply_which_key)
+Utils.on_load("which-key.nvim", function()
+  M._apply_which_key()
+  M._is_setup = true
+end)
 
 return M

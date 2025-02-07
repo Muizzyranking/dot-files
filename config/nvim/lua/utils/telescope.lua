@@ -2,7 +2,7 @@
 local M = setmetatable({}, {
   __call = function(m, picker, layout, opts)
     return function()
-      m.wrap(picker, layout, opts)()
+      m.pick(picker, layout, opts)()
     end
   end,
 })
@@ -252,7 +252,7 @@ M.themes = {
 ---@param opts? table Optional settings to override theme defaults
 ---@return function The wrapped picker function with applied theme and options
 ------------------------------------------------------------------------------
-function M.wrap(picker, layout, opts)
+function M.pick(picker, layout, opts)
   opts = opts or {}
   layout = layout or "wide_preview"
   local buf = vim.api.nvim_get_current_buf() or 0
@@ -260,7 +260,10 @@ function M.wrap(picker, layout, opts)
   if not opts.cwd and opts.root ~= false and opts.cwd_only ~= true then
     opts.cwd = Utils.root({ buf = buf, patterns = root_pattern })
   end
-  opts = vim.tbl_deep_extend("force", M.themes[layout], opts or {})
+  opts = vim.tbl_deep_extend("force", M.themes[layout] or M.themes["dropdown"], opts or {})
+  if picker == "buffers" or picker:match("buffer") then
+    opts.initial_mode = "normal"
+  end
   return function()
     if M.pickers[picker] then
       M.pickers[picker](opts)
