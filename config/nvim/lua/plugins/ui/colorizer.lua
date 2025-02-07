@@ -66,7 +66,7 @@ return {
     opts = opts or {}
     opts.filetypes = opts.filetypes or {}
     opts.user_default_options.hooks = opts.user_default_options.hooks or {}
-    opts.user_default_options.hooks.disable_line_highlight = function(line, line_nr, bufnr)
+    opts.user_default_options.hooks.disable_line_highlight = function(line, _, bufnr)
       local comment_string = vim.api.nvim_buf_get_option(bufnr, "commentstring")
 
       local left_comment, right_comment = comment_string:match("^(.-)%s*%%s%s*(.-)%s*$")
@@ -75,7 +75,7 @@ return {
       return is_comment(line, left_comment, right_comment)
     end
     for _, ft in ipairs({ "css", "html", "javascript", "javascriptreact" }) do
-      opts.filetypes[ft] = vim.tbl_extend("force", {}, opts.filetypes[ft] or {}, {
+      opts.filetypes[ft] = vim.tbl_extend("keep", {}, opts.filetypes[ft] or {}, {
         names = true,
         names_opts = {
           lowercase = true,
@@ -86,6 +86,7 @@ return {
         names_custom = {},
         tailwind = true,
       })
+      opts.filetypes.htmldjango = opts.filetypes.html
     end
     require("colorizer").setup(opts)
   end,
