@@ -2,7 +2,15 @@ return {
   "folke/snacks.nvim",
   lazy = false,
   priority = 1000,
+  init = function()
+    ---@diagnostic disable-next-line: duplicate-set-field
+    vim.ui.select = function(...)
+      require("lazy").load({ plugins = { "snacks.nvim" } })
+      return Snacks.picker.select(...)
+    end
+  end,
   opts = {
+    input = {},
     bigfile = {
       enabled = true,
       size = vim.g.big_file,
@@ -37,6 +45,18 @@ return {
         Snacks.scratch.select()
       end,
       desc = "Select Scratch Buffer",
+    },
+    {
+      "<leader>cs",
+      function()
+        Snacks.picker.lsp_symbols({
+          layout = { preset = "vscode", preview = "main" },
+          on_show = function()
+            vim.cmd("stopinsert")
+          end,
+        })
+      end,
+      desc = "Lsp Symbols",
     },
   },
   config = function(_, opts)

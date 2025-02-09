@@ -100,8 +100,7 @@ set({ "n", "i", "t" }, "<F7>", function ()
 end, { noremap = true, silent = true, desc = "Toggle Terminal" })
 -- stylua: ignore end
 set("n", "z=", function()
-  -- make sure dressing is loaded
-  pcall(require, "dressing")
+  pcall(require, "snacks")
   local word = vim.fn.expand("<cword>")
   local suggestions = vim.fn.spellsuggest(word)
   vim.ui.select(
