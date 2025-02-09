@@ -79,7 +79,7 @@ return {
             cond = function()
               return package.loaded["noice"] and require("noice").api.status.command.has()
             end,
-            color = Utils.lualine.fg("Statement"),
+            color = { fg = Utils.ui.get_hl_color("Statement") },
           },
           {
             function()
@@ -88,7 +88,7 @@ return {
             cond = function()
               return package.loaded["noice"] and require("noice").api.status.mode.has()
             end,
-            color = Utils.lualine.fg("Constant"),
+            color = { fg = Utils.ui.get_hl_color("Constant") },
           },
         },
         lualine_y = {

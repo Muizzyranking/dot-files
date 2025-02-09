@@ -14,10 +14,8 @@ M.mode_map = Utils.icons.modes
 ---@return table?
 ------------------------------------------------------------------------------
 function M.fg(name)
-  local hl = vim.api.nvim_get_hl and vim.api.nvim_get_hl(0, { name = name, link = false })
-    or vim.api.nvim_get_hl_by_name(name, true)
-  local fg = hl and (hl.fg or hl.foreground)
-  return fg and { fg = ("#%06x"):format(fg) } or nil
+  local fg = Utils.ui.get_hl_color(name)
+  return fg and { fg = fg } or nil
 end
 
 ------------------------------------------------------------------------------
@@ -76,7 +74,7 @@ M.file = {
     local file_path = vim.api.nvim_buf_get_name(M.stbufnr())
     local is_exec = file_path ~= "" and Utils.is_executable(file_path)
     local hl_group = is_exec and "DiagnosticOk" or "Constant"
-    return vim.tbl_extend("force", {}, M.fg(hl_group), { gui = "italic,bold" })
+    return { fg = Utils.ui.get_hl_color(hl_group), gui = "italic,bold" }
   end,
 }
 
@@ -112,7 +110,7 @@ M.lsp = {
   end,
   cond = M.conditions.hide_in_width,
   color = function()
-    return vim.tbl_extend("force", {}, M.fg("DiagnosticOk"), { gui = "italic,bold" })
+    return { fg = Utils.ui.get_hl_color("DiagnosticOk"), gui = "italic,bold" }
   end,
 }
 
@@ -142,7 +140,7 @@ M.formatters = {
     return table.concat(formatters, ", ")
   end,
   color = function()
-    return vim.tbl_extend("force", {}, M.fg("Constant"), { gui = "italic,bold" })
+    return { fg = Utils.ui.get_hl_color("Constant"), gui = "italic,bold" }
   end,
   cond = M.conditions.hide_in_width,
 }
@@ -175,7 +173,7 @@ function M.root_dir()
     cond = function()
       return get() ~= nil
     end,
-    color = M.fg("Special"),
+    color = { fg = Utils.ui.get_hl_color("Special") },
   }
 end
 
