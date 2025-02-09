@@ -45,14 +45,22 @@ function M.opts(name)
   return Plugin.values(plugin, "opts", false)
 end
 
+---------------------------------------------------------------
+-- checks if a plugin is loaded
+---@param name string name of the plugin
+---------------------------------------------------------------
+function M.is_loaded(name)
+  local Config = require("lazy.core.config")
+  return Config.plugins[name] and Config.plugins[name]._.loaded
+end
+
 --------------------------------------------------------------------------
 -- Execute a function when a plugin is loaded or schedule it for later if the plugin is not yet loaded.
 ---@param name string
 ---@param fn function
 --------------------------------------------------------------------------
 function M.on_load(name, fn)
-  local Config = require("lazy.core.config")
-  if Config.plugins[name] and Config.plugins[name]._.loaded then
+  if M.is_loaded(name) then
     fn(name)
   else
     vim.api.nvim_create_autocmd("User", {

@@ -275,7 +275,7 @@ end
 ---Apply which-key mappings if available
 ---------------------------------------------------------------
 function M._apply_which_key()
-  if #M._wk_maps > 0 and package.loaded["which-key"] then
+  if #M._wk_maps > 0 and Utils.is_loaded("which-key.nvim") then
     local wk = require("which-key")
     local current_maps = deepcopy(M._wk_maps)
     M._wk_maps = {}
