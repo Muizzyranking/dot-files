@@ -27,24 +27,6 @@ return {
         -- a as in abort makes sense to me
         ["<C-a>"] = { "hide", "fallback" },
         ["<C-y>"] = { "select_and_accept" },
-        cmdline = {
-          preset = "enter",
-          ["<tab>"] = {},
-          ["<CR>"] = { "accept", "fallback" },
-          ["<C-y>"] = { "select_and_accept" },
-          ["<esc>"] = {
-            "hide",
-            "cancel",
-            -- HACK:stop esc from exeuting commands in insert mode
-            -- from https://github.com/Saghen/blink.cmp/issues/547
-            function()
-              if vim.fn.getcmdtype() ~= "" then
-                vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-c>", true, true, true), "n", true)
-                return
-              end
-            end,
-          },
-        },
       },
       appearance = {
         use_nvim_cmp_as_default = true,
@@ -54,8 +36,8 @@ return {
       signature = { enabled = false },
       sources = {
         default = { "lsp", "path", "snippets", "buffer" },
-        -- TODO: try later
-        -- cmdline = {},
+        -- i don't like command line completions
+        cmdline = {},
       },
       completion = {
         list = { selection = { preselect = true, auto_insert = false } },
