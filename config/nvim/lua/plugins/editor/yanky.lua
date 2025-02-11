@@ -1,9 +1,8 @@
 return {
   "gbprod/yanky.nvim",
-  dependencies = { "kkharji/sqlite.lua" },
+  event = "LazyFile",
   opts = {
     highlight = { timer = 250 },
-    ring = { storage = "sqlite" },
   },
   keys = {
     {
@@ -14,7 +13,13 @@ return {
     {
       "<leader>p",
       function()
-        require("telescope").extensions.yank_history.yank_history({})
+        require("telescope").extensions.yank_history.yank_history({
+          layout_config = {
+            preview_width = 0.5,
+            width = 0.7,
+            height = 0.85,
+          },
+        })
       end,
       desc = "Open Yank History",
     },
