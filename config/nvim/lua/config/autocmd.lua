@@ -254,14 +254,19 @@ create_autocmd({ "InsertEnter", "CmdlineEnter" }, {
 -----------------------------------------------------------
 -- restore tmux bar if hidden
 -----------------------------------------------------------
-create_autocmd("VimLeave", {
+create_autocmd("User", {
+  pattern = "TmuxBarToggle",
   callback = function()
-    local handle = io.popen("tmux display-message -p '#{status}'")
-    local status = handle:read("*a")
-    handle:close()
-    local state = status:match("on")
-    if not state then
-      os.execute("tmux set-option -g status on")
-    end
+    create_autocmd("VimLeave", {
+      callback = function()
+        local handle = io.popen("tmux display-message -p '#{status}'")
+        local status = handle:read("*a")
+        handle:close()
+        local state = status:match("on")
+        if not state then
+          os.execute("tmux set-option -g status on")
+        end
+      end,
+    })
   end,
 })
