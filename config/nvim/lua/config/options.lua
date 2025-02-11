@@ -103,7 +103,8 @@ o.sessionoptions               = { "buffers", "curdir", "tabpages", "winsize", "
 o.spelllang                    = { "en" } -- Set spell languages
 o.spell                        = false -- Disable spell checking by default
 
-o.pumblend                     = 10 -- Popup blend
+o.pumblend                     = 0 -- Popup blend
+o.winblend                     = 0 -- Popup blend
 o.pumheight                    = 10 -- Maximum number of entries in a popup
 -- opt.conceallevel = 2 -- Hide * markup for bold and italic, but not markers with substitutions
 -- stylua: ignore end
