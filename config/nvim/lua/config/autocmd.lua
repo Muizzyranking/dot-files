@@ -3,44 +3,76 @@ local function augroup(name)
 end
 
 local create_autocmd = vim.api.nvim_create_autocmd
+local reload_group = augroup("Reload Config")
 
 -----------------------------------------------------------
--- Reload config files on save
+-- Kitty config
 -----------------------------------------------------------
-create_autocmd("BufWritePost", {
-  group = augroup("reload configs"),
-  pattern = {
-    "*/kitty/kitty.conf",
-    "*/tmux/tmux.conf",
-    "*/waybar/config",
-    "*/waybar/style.css",
-  },
-  callback = function()
-    local file = vim.fn.expand("<afile>")
-    local cmd = ""
+vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
+  group = reload_group,
+  pattern = "*/kitty/kitty.conf",
+  callback = function(event)
+    Utils.map.set_keymap({
+      "<leader>rr",
+      function()
+        Utils.reload_config({
+          cmd = "kill -SIGUSR1 $(pgrep kitty)",
+          title = "Tmux",
+        })
+      end,
+      desc = "Reload Config",
+      buffer = event.buf,
+      silent = true,
+      icon = " ",
+    })
+  end,
+})
 
-    if file:match("kitty.conf$") then
-      cmd = "kill -SIGUSR1 $(pgrep kitty)"
-    elseif file:match("tmux.conf$") then
-      cmd = "tmux source-file ~/.config/tmux/tmux.conf"
-    elseif file:match("config$") or file:match("style.css$") then
-      cmd = "if pgrep -x waybar > /dev/null; then killall waybar; fi; waybar &"
+-----------------------------------------------------------
+-- Tmux config
+-----------------------------------------------------------
+vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
+  group = reload_group,
+  pattern = "*/tmux/tmux.conf",
+  callback = function(event)
+    if Utils.is_in_tmux() then
+      Utils.map.set_keymap({
+        "<leader>rr",
+        function()
+          Utils.reload_config({
+            cmd = "tmux source-file ~/.config/tmux/tmux.conf",
+            title = "Tmux",
+          })
+        end,
+        desc = "Reload Config",
+        buffer = event.buf,
+        silent = true,
+        icon = " ",
+      })
     end
+  end,
+})
 
-    if cmd ~= "" then
-      local output = vim.fn.system(cmd)
-      local opts = { title = "Config Reload" }
-      if vim.v.shell_error ~= 0 then
-        Utils.notify.error("Error reloading config" .. output, opts)
-      else
-        Utils.notify.info("Config reloaded successfully", opts)
-      end
-    end
-
-    if file:match("nvim/lua/*") and not file:match("nvim/lua/plugins/*") then
-      vim.cmd("source " .. file)
-      vim.notify("Sourced file: " .. file, vim.log.levels.INFO)
-    end
+-----------------------------------------------------------
+-- Waybar config
+-----------------------------------------------------------
+vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
+  group = reload_group,
+  pattern = { "*/waybar/config", "*/waybar/style.css" },
+  callback = function(event)
+    Utils.map.set_keymap({
+      "<leader>rr",
+      function()
+        Utils.reload_config({
+          cmd = "if pgrep -x waybar > /dev/null; then killall waybar; fi; waybar &",
+          title = "Tmux",
+        })
+      end,
+      desc = "Reload Config",
+      buffer = event.buf,
+      silent = true,
+      icon = " ",
+    })
   end,
 })
 
