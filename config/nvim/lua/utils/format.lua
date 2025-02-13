@@ -94,8 +94,7 @@ function M.setup()
   api.nvim_create_autocmd("BufWritePre", {
     group = api.nvim_create_augroup("LazyFormat", { clear = true }),
     callback = function(event)
-      local errors = vim.diagnostic.get(0, { severity = vim.diagnostic.severity.ERROR })
-      if M.enabled() and #errors == 0 then
+      if M.enabled() then
         M.format({ bufnr = event.buf, force = true })
       end
     end,
