@@ -108,7 +108,7 @@ return {
     enabled = true,
     config = function()
       if Utils.is_loaded("nvim-treesitter") then
-        local opts = Utils.opts("nvim-treesitter")
+        local opts = Utils.get_opts("nvim-treesitter")
         require("nvim-treesitter.configs").setup({ textobjects = opts.textobjects })
       end
 

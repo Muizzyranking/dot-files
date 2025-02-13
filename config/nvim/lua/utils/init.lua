@@ -36,7 +36,7 @@ end
 ---@param name string
 ---@return table
 ---------------------------------------------------------------
-function M.opts(name)
+function M.get_opts(name)
   local plugin = require("lazy.core.config").plugins[name]
   if not plugin then
     return {}

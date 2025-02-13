@@ -44,7 +44,7 @@ return {
     setup = {
       clangd = function(_, opts)
         if Utils.has("clangd_extensions.nvim") then
-          local clangd_ext_opts = Utils.opts("clangd_extensions.nvim")
+          local clangd_ext_opts = Utils.get_opts("clangd_extensions.nvim")
           require("clangd_extensions").setup(vim.tbl_deep_extend("force", clangd_ext_opts or {}, { server = opts }))
           return false
         end
