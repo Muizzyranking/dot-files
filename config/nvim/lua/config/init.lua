@@ -1,3 +1,4 @@
+-- TODO: remove deprecated
 -- global variables
 _G.Utils = require("utils")
 _G.P = function(...)
@@ -67,5 +68,7 @@ if #failed > 0 then
 end
 
 Utils.ui.set_colorscheme("rose-pine")
-vim.opt.pumblend = 0
-vim.opt.winblend = 0
+Utils.ui.add_highlights({
+  WinBar = {},
+  WinBarNc = {},
+})

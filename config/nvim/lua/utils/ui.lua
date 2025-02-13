@@ -2,10 +2,12 @@
 local M = {}
 local api = vim.api
 M.colorsheme = "habamax"
+M._highlights = {}
 
 ------------------------------------------------------------------------------
 -- Get the color of a highlight group
 ---@param name string
+---@param ground? "fg"|"bg"
 ---@return string?
 ------------------------------------------------------------------------------
 function M.get_hl_color(name, ground)
@@ -17,70 +19,31 @@ function M.get_hl_color(name, ground)
   return color and ret or " "
 end
 
---------------------------------------------------
--- Get signs for a specific buffer and line number
----@param buf number
----@param lnum number
----@return Sign[]
---------------------------------------------------
-function M.get_signs(buf, lnum)
-  -- Get regular signs
-  ---@type Sign[]
-  local signs = {}
-  -- Get extmark signs
-  local extmarks = vim.api.nvim_buf_get_extmarks(
-    buf,
-    -1,
-    { lnum - 1, 0 },
-    { lnum - 1, -1 },
-    { details = true, type = "sign" }
-  )
-  for _, extmark in pairs(extmarks) do
-    signs[#signs + 1] = {
-      name = extmark[4].sign_hl_group or "",
-      text = extmark[4].sign_text,
-      texthl = extmark[4].sign_hl_group,
-      priority = extmark[4].priority,
-    }
+-----------------------------------------------
+-- add/override highlights
+---@param highlights table<string, table>
+-----------------------------------------------
+function M.add_highlights(highlights)
+  for group, opts in pairs(highlights) do
+    local hl_name = opts.name or group
+    local hl_opts = vim.tbl_deep_extend("force", {}, opts, { name = nil })
+    M._highlights[hl_name] = hl_opts
   end
-
-  -- Sort by priority
-  table.sort(signs, function(a, b)
-    return (a.priority or 0) < (b.priority or 0)
-  end)
-
-  return signs
 end
 
---------------------------------------------------
--- Get mark for a specific buffer and line number
----@param buf number
----@param lnum number
----@return {text: string, texthl: string}|nil
---------------------------------------------------
-function M.get_mark(buf, lnum)
-  local marks = vim.fn.getmarklist(buf)
-  vim.list_extend(marks, vim.fn.getmarklist())
-  for _, mark in ipairs(marks) do
-    if mark.pos[1] == buf and mark.pos[2] == lnum and mark.mark:match("[a-zA-Z]") then
-      return { text = mark.mark:sub(2), texthl = "DiagnosticHint" }
+-----------------------------------------------
+-- apply the highlights
+-----------------------------------------------
+vim.api.nvim_create_autocmd({ "ColorScheme", "UiEnter" }, {
+  group = vim.api.nvim_create_augroup("WinBar Hl", { clear = true }),
+  callback = function()
+    local highlights = M._highlights
+    for group, opts in pairs(highlights) do
+      vim.api.nvim_set_hl(0, group, opts)
     end
-  end
-end
-
---------------------------------------------------
--- Generate icon string from sign
----@param sign table|nil
----@param len number|nil
----@return string
---------------------------------------------------
-function M.icon(sign, len)
-  sign = sign or {}
-  len = len or 2
-  local text = vim.fn.strcharpart(sign.text or "", 0, len) ---@type string
-  text = text .. string.rep(" ", len - vim.fn.strchars(text))
-  return sign.texthl and ("%#" .. sign.texthl .. "#" .. text .. "%*") or text
-end
+    M._highlights = {}
+  end,
+})
 
 ------------------------------------------------------------
 -- sets the colorscheme
@@ -95,17 +58,8 @@ function M.set_colorscheme(colorscheme)
     M.colorsheme = colorscheme
   else
     vim.notify("Failed to load colorscheme: " .. colorscheme, vim.log.levels.ERROR)
-    vim.cmd("colorscheme habamax")
+    vim.cmd("colorscheme " .. M.colorsheme)
   end
-  local function custom_hl()
-    vim.api.nvim_set_hl(0, "WinBar", {})
-    vim.api.nvim_set_hl(0, "WinBarNC", {})
-  end
-  custom_hl()
-  vim.api.nvim_create_autocmd("ColorScheme", {
-    group = vim.api.nvim_create_augroup("WinBar Hl", { clear = true }),
-    callback = custom_hl,
-  })
 end
 
 ------------------------------------------------------------
@@ -150,7 +104,7 @@ end
 ---@type table<string, { line: integer, content: string[] }>
 local fold_cache = {}
 function M.fold_text()
-  local first_linenr, last_linenr = vim.v.foldstart, vim.v.foldend -- both 1-idx
+  local first_linenr, last_linenr = vim.v.foldstart, vim.v.foldend
   local first_line = vim.fn.getline(first_linenr)
 
   if fold_cache[first_line] and fold_cache[first_line].line == last_linenr then
@@ -167,7 +121,7 @@ function M.fold_text()
 
   local res = {}
   vim.list_extend(res, fold_header_hl)
-  res[#res + 1] = { "  ", "Constant" }
+  res[#res + 1] = { "  " }
   vim.list_extend(res, fold_footer_hl)
   res[#res + 1] = { string.format(" %s (%d)", filler, lines_count), "Constant" }
 
