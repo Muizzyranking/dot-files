@@ -1,4 +1,3 @@
----@diagnostic disable: param-type-mismatch
 ---@class utils.lualine
 local M = {}
 local window_width_limit = 100

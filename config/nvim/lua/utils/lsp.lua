@@ -311,6 +311,7 @@ function M.copy_diagnostics()
   )
 end
 
+-- TODO: Improve this
 function M.available_code_actions()
   local params = vim.lsp.util.make_range_params()
   ---@diagnostic disable-next-line: inject-field

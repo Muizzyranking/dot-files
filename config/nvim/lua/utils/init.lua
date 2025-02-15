@@ -103,7 +103,7 @@ end
 function M.is_in_git_repo()
   local handle, err = io.popen("git rev-parse --is-inside-work-tree 2>/dev/null")
   if not handle then
-    Utils.notify.error("Failed to check git repository: " .. (err or "unknown error"))
+    M.notify.error("Failed to check git repository: " .. (err or "unknown error"))
     return false
   end
 
@@ -111,7 +111,7 @@ function M.is_in_git_repo()
   handle:close()
 
   if not result then
-    Utils.notify.error("Failed to read git command output.")
+    M.notify.error("Failed to read git command output.")
     return false
   end
 
@@ -148,9 +148,11 @@ function M.norm(path)
 end
 
 local cache = {} ---@type table<(fun()), table<string, any>>
+----------------------------------------
 ---@generic T: fun()
 ---@param fn T
 ---@return T
+---------------------------------------
 function M.memoize(fn)
   return function(...)
     local key = vim.inspect({ ... })
@@ -160,6 +162,43 @@ function M.memoize(fn)
     end
     return cache[fn][key]
   end
+end
+
+-----------------------------------
+-- reloads configs e.g kitty
+---@param opts table
+-----------------------------------
+function M.reload_config(opts)
+  local output = vim.fn.system(opts.cmd)
+  local notify_opts = { title = opts.title }
+  local error = vim.v.shell_error ~= 0
+  local mgs = ("%s %s %s"):format(error and "Error reloading" or "Reloaded", opts.title, error and ": " .. output or "")
+  M.notify[error and "error" or "info"](mgs, notify_opts)
+end
+
+-----------------------------
+-- shows nvim version
+---@return string
+-----------------------------
+function M.nvim_version()
+  local version = vim.version()
+  local v = "v" .. version.major .. "." .. version.minor .. "." .. version.patch
+  return v
+end
+
+--------------------------------
+-- shows plugin status
+---@return table
+--------------------------------
+function M.plugin_stats()
+  local stats = require("lazy").stats()
+  local updates = require("lazy.manage.checker").updated
+  return {
+    count = stats.count,
+    loaded = stats.loaded,
+    startuptime = (math.floor(stats.startuptime * 100 + 0.5) / 100),
+    updates = #updates,
+  }
 end
 
 return M
