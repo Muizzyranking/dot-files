@@ -3,10 +3,15 @@ return {
   lazy = false,
   priority = 1000,
   init = function()
+    -- enter vim.ui in normal mode
     ---@diagnostic disable-next-line: duplicate-set-field
     vim.ui.select = function(...)
-      require("lazy").load({ plugins = { "snacks.nvim" } })
-      return Snacks.picker.select(...)
+      local result = Snacks.picker.select(...)
+      -- start the picker in normal mode
+      vim.schedule(function()
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
+      end)
+      return result
     end
   end,
   opts = {
