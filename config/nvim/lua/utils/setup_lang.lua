@@ -113,19 +113,11 @@ function M.setup_language(config)
 
   -- install tools
   if config.tools then
-    local tools
-    if type(config.tools) == "function" then
-      tools = config.tools()
-    elseif type(config.tools) == "string" then
-      tools = { config.tools }
-    else
-      tools = config.tools
-    end
     table.insert(plugins, {
       "williamboman/mason.nvim",
       optional = true,
       opts = {
-        ensure_installed = tools,
+        ensure_installed = ensure_list(config.tools),
       },
     })
   end
@@ -134,7 +126,7 @@ function M.setup_language(config)
     table.insert(plugins, {
       "nvim-neotest/neotest",
       optional = true,
-      dependecies = config.test.dependencies or {},
+      dependencies = config.test.dependencies or {},
       opts = {
         adapters = config.test.adapters or {},
       },
