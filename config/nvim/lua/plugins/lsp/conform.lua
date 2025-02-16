@@ -53,7 +53,7 @@ return {
     opts = {
       -- since prettier is used for multiple filetypes
       -- this options allows to specify which filetypes to use with prettier
-      use_prettier_biome = {},
+      use_prettier_biome = { "yaml" },
       notify_on_error = true,
       default_format_opts = {
         timeout_ms = 2500,

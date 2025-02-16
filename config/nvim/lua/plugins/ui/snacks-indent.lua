@@ -11,7 +11,7 @@ return {
         hl = "SnacksIndent",
       },
       animate = {
-        enabled = vim.fn.has("nvim-0.10") == 1,
+        enabled = true,
         style = "out",
         easing = "linear",
         duration = {
@@ -22,7 +22,7 @@ return {
       scope = {
         enabled = true,
         char = "│",
-        underline = true,
+        underline = false,
         only_current = false,
         hl = "SnacksIndentScope",
       },
