@@ -79,14 +79,14 @@ return {
 
     -- Gather tools from conform.nvim and nvim-lint plugins
     populate_ensure_installed(
-      Utils.opts("conform.nvim").formatters_by_ft or {},
-      Utils.opts("nvim-lint").linters_by_ft or {}
+      Utils.get_opts("conform.nvim").formatters_by_ft or {},
+      Utils.get_opts("nvim-lint").linters_by_ft or {}
     )
 
     add_tools(opts.ensure_installed)
 
     -- Add Prettier tools if the use_prettier_biome option is set
-    if #Utils.opts("conform.nvim").use_prettier_biome > 0 then
+    if #Utils.get_opts("conform.nvim").use_prettier_biome > 0 then
       add_tools({ "prettierd", "biome" })
     end
 
