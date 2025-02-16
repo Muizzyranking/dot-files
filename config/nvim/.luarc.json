@@ -7,9 +7,10 @@
     "deprecated",
     "undefined-doc-name",
     "missing-parameter",
-        "cast-local-type",
-        "param-type-mismatch"
+    "cast-local-type",
+    "param-type-mismatch"
   ],
-  "diagnostics.globals": ["MiniHipatterns"]
+  "diagnostics.globals": [
+    "MiniHipatterns"
+  ]
 }
-
