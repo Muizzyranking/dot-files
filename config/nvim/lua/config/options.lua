@@ -4,6 +4,7 @@ local o = vim.opt
 -----------------------------------------------------------
 -- General
 -----------------------------------------------------------
+o.wildignore:append({ "*/colors/*.vim", "*/colors/vim.lua" })
 vim.schedule(function() -- Schedule to decease startup time
   o.clipboard                  = "unnamedplus" -- use system clipboard
 end)

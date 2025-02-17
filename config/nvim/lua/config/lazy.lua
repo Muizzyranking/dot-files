@@ -23,6 +23,7 @@ require("lazy").setup({
     { import = "plugins.ui" },
     { import = "plugins.ai.copilot" },
     { import = "plugins.extras.neotest" },
+    { import = "plugins.extras.http" },
     { import = "plugins" },
   },
   defaults = {

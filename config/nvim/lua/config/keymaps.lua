@@ -83,7 +83,7 @@ set(
   { desc = "Delete word" }
 ) -- delete word with <c-bs>
 
-set(                          { "n" }, "D", '"_D', { desc = "Delete without yanking" }) -- delete line without yanking
+set({ "n" }, "D", '"_D',      { desc = "Delete without yanking" }) -- delete line without yanking
 set("n", "<C-a>", "gg<S-v>G", { desc = "Select all", noremap = true, silent = true }) -- select all
 set("v", "<S-Tab>", "<gv",    { noremap = false, silent = true })
 set("v", "<Tab>", ">gv",      { noremap = false, silent = true })
@@ -93,26 +93,10 @@ set({ "v", "x" }, "P", '"_dp')
 set({ "n", "v", "x" }, "c", '"_c')
 set({ "n" }, "ciw", '"_ciw')
 set({ "n" }, "C", '"_C')
+set({ "i" }, "<c-v>", "<c-r>+", { desc = "Paste in insert mode", silent = false })
 set({ "n", "v", "x" }, "x", '"_x') -- delete text without yanking
 
-set({ "n", "i", "t" }, "<F7>", function ()
- Utils.terminal()
-end, { noremap = true, silent = true, desc = "Toggle Terminal" })
 -- stylua: ignore end
-set("n", "z=", function()
-  pcall(require, "snacks")
-  local word = vim.fn.expand("<cword>")
-  local suggestions = vim.fn.spellsuggest(word)
-  vim.ui.select(
-    suggestions,
-    {},
-    vim.schedule_wrap(function(selected)
-      if selected then
-        vim.cmd.normal({ args = { "ciw" .. selected }, bang = true })
-      end
-    end)
-  )
-end, { desc = "Spelling suggestions" })
 
 -- disable arrow key in normal mode
 set("n", "<UP>", function()
