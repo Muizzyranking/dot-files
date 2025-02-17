@@ -13,13 +13,7 @@ return {
     {
       "<leader>p",
       function()
-        require("telescope").extensions.yank_history.yank_history({
-          layout_config = {
-            preview_width = 0.5,
-            width = 0.7,
-            height = 0.85,
-          },
-        })
+        vim.cmd([[YankyRingHistory]])
       end,
       desc = "Open Yank History",
     },

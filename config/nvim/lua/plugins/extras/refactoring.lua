@@ -10,7 +10,7 @@ return {
       {
         "<leader>rs",
         function()
-          require("telescope").extensions.refactoring.refactors()
+          require("refactoring").select_refactor()
         end,
         mode = "v",
         desc = "Refactor",
@@ -114,13 +114,5 @@ return {
       print_var_statements = {},
       show_success_message = true, -- shows a message with information about the refactor on success
     },
-    config = function(_, opts)
-      require("refactoring").setup(opts)
-      if Utils.has("telescope.nvim") then
-        Utils.on_load("telescope.nvim", function()
-          require("telescope").load_extension("refactoring")
-        end)
-      end
-    end,
   },
 }
