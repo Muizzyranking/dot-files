@@ -12,18 +12,10 @@ vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
   group = reload_group,
   pattern = "*/kitty/kitty.conf",
   callback = function(event)
-    Utils.map.set_keymap({
-      "<leader>rr",
-      function()
-        Utils.reload_config({
-          cmd = "kill -SIGUSR1 $(pgrep kitty)",
-          title = "Tmux",
-        })
-      end,
-      desc = "Reload Config",
+    Utils.reload_config({
+      cmd = "kill -SIGUSR1 $(pgrep kitty)",
+      title = "Kitty",
       buffer = event.buf,
-      silent = true,
-      icon = " ",
     })
   end,
 })
@@ -35,21 +27,12 @@ vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
   group = reload_group,
   pattern = "*/tmux/tmux.conf",
   callback = function(event)
-    if Utils.is_in_tmux() then
-      Utils.map.set_keymap({
-        "<leader>rr",
-        function()
-          Utils.reload_config({
-            cmd = "tmux source-file ~/.config/tmux/tmux.conf",
-            title = "Tmux",
-          })
-        end,
-        desc = "Reload Config",
-        buffer = event.buf,
-        silent = true,
-        icon = " ",
-      })
-    end
+    Utils.reload_config({
+      cmd = "tmux source-file ~/.config/tmux/tmux.conf",
+      title = "Tmux",
+      buffer = event.buf,
+      cond = Utils.is_in_tmux(),
+    })
   end,
 })
 
@@ -60,18 +43,10 @@ vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
   group = reload_group,
   pattern = { "*/waybar/config", "*/waybar/style.css" },
   callback = function(event)
-    Utils.map.set_keymap({
-      "<leader>rr",
-      function()
-        Utils.reload_config({
-          cmd = "if pgrep -x waybar > /dev/null; then killall waybar; fi; waybar &",
-          title = "Tmux",
-        })
-      end,
-      desc = "Reload Config",
+    Utils.reload_config({
+      cmd = "if pgrep -x waybar > /dev/null; then killall waybar; fi; waybar &",
+      title = "Waybar",
       buffer = event.buf,
-      silent = true,
-      icon = " ",
     })
   end,
 })
@@ -129,8 +104,6 @@ create_autocmd("FileType", {
     "checkhealth",
     "neotest-summary",
     "neotest-output-panel",
-    "Telescope",
-    "telescope",
     "grug-far",
     "AvanteInput",
   },
