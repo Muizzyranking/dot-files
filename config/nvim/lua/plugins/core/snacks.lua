@@ -51,18 +51,6 @@ return {
       end,
       desc = "Select Scratch Buffer",
     },
-    {
-      "<leader>cs",
-      function()
-        Snacks.picker.lsp_symbols({
-          layout = { preset = "vscode", preview = "main" },
-          on_show = function()
-            vim.cmd("stopinsert")
-          end,
-        })
-      end,
-      desc = "Lsp Symbols",
-    },
   },
   config = function(_, opts)
     local notify = vim.notify
