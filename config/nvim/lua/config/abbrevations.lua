@@ -1,7 +1,2 @@
-local function abbrev(lhs, rhs)
-  local cmd = "abbrev " .. lhs .. " " .. rhs
-  vim.cmd(cmd)
-end
-
-abbrev("dont", "don't")
-abbrev("Dont", "Don't")
+Utils.create_abbrev("dont", "don't")
+Utils.create_abbrev("Dont", "Don't")

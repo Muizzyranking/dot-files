@@ -106,6 +106,15 @@ return {
         end
       end,
     },
+    {
+      pattern = "python",
+      callback = function(event)
+        local buf = event.buf
+        local opts = { buffer = buf }
+        Utils.create_abbrev("true", "True", opts)
+        Utils.create_abbrev("false", "False", opts)
+      end,
+    },
   },
   keys = {
     {

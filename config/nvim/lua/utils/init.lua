@@ -169,11 +169,48 @@ end
 ---@param opts table
 -----------------------------------
 function M.reload_config(opts)
-  local output = vim.fn.system(opts.cmd)
-  local notify_opts = { title = opts.title }
-  local error = vim.v.shell_error ~= 0
-  local mgs = ("%s %s %s"):format(error and "Error reloading" or "Reloaded", opts.title, error and ": " .. output or "")
-  M.notify[error and "error" or "info"](mgs, notify_opts)
+  if opts.cond ~= nil and not opts.cond then
+    return
+  end
+  if not opts.cmd then
+    M.notify.error("No command provided to reload config")
+    return
+  end
+  local function reload_conf()
+    local output = vim.fn.system(opts.cmd)
+    local notify_opts = { title = opts.title or "Config" }
+    local error = vim.v.shell_error ~= 0
+    local mgs = ("%s %s %s"):format(
+      error and "Error reloading" or "Reloaded",
+      opts.title,
+      error and ": " .. output or ""
+    )
+    M.notify[error and "error" or "info"](mgs, notify_opts)
+  end
+  M.map.set_keymap({
+    "<leader>rr",
+    reload_conf,
+    desc = "Reload Config",
+    silent = true,
+    buffer = opts.buffer,
+    icon = { icon = "󰑓 ", color = "orange" },
+  })
+end
+
+-----------------------------------
+-- create abbreviations
+---@param word string
+---@param new_word string
+---@param opts vim.keymap.set.Opts
+-----------------------------------
+function M.create_abbrev(word, new_word, opts)
+  if not word or not new_word then
+    return
+  end
+  opts = opts or {}
+  local mode = opts.mode or "ia"
+  opts = vim.tbl_extend("force", opts or {}, { mode = nil })
+  vim.keymap.set(mode, word, new_word, opts)
 end
 
 -----------------------------
