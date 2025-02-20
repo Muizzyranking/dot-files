@@ -124,6 +124,8 @@ return {
             hide_gitignored = true,
             hide_by_name = {
               "node_modules",
+              "venv",
+              ".venv",
             },
             never_show = {
               ".DS_Store",
