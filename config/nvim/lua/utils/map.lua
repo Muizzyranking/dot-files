@@ -11,14 +11,17 @@ local deepcopy = vim.deepcopy
 
 ---------------------------------------------------------------
 -- Validation functions
----@param mapping map.KeymapOpts
+---@param mappings map.KeymapOpts
 ---@return boolean success
 ---------------------------------------------------------------
-local function validate_keymap(mapping)
+local function validate_keymap(mappings)
+  if not mappings then
+    return false
+  end
   if
-    type(mapping) ~= "table"
-    or type(mapping[1]) ~= "string"
-    or (type(mapping[2]) ~= "string" and type(mapping[2]) ~= "function")
+    type(mappings) ~= "table"
+    or type(mappings[1]) ~= "string"
+    or (type(mappings[2]) ~= "string" and type(mappings[2]) ~= "function")
   then
     return false
   end
@@ -94,6 +97,7 @@ function M.set_keymap(mapping)
         mode = mode,
         icon = mapping.icon,
         desc = mapping.desc or "",
+        buffer = mapping.buffer,
       },
     })
   end

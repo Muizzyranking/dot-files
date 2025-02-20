@@ -9,20 +9,17 @@ local set_buf_option = api.nvim_buf_set_option
 
 -----------------------------------------------------------------
 --- Normalize a value to ensure it’s always a list.
----@param value any Input value
----@return table Listified value
+---@param value any # Input value
+---@return table # Listified value
 -----------------------------------------------------------------
 local function ensure_list(value)
-  if type(value) == "string" then
-    return { value }
-  end
-  return value
+  return type(value) == "table" and value or { value }
 end
 
 -----------------------------------------------------------------
 -- Create an augroup for language-specific autocommands
----@param config_name string Name of the language configuration
----@return function create_grouped_autocmd Function to create autocmds in this group
+---@param config_name string # Name of the language configuration
+---@return function # create_grouped_autocmd Function to create autocmds in this group
 -----------------------------------------------------------------
 local function create_autocmd_group(config_name)
   local group_name = string.format("language_setup_%s", config_name)
@@ -32,13 +29,15 @@ local function create_autocmd_group(config_name)
   ---@param event string|string[]
   ---@param pattern string|string[]
   ---@param callback fun(event: table)
-  return function(event, pattern, callback)
+  ---@param opts? table
+  return function(event, pattern, callback, opts)
+    opts = vim.tbl_extend("force", {
+      group = group,
+      pattern = pattern,
+      callback = callback,
+    }, opts or {})
     local autocmd = function()
-      nvim_create_autocmd(event, {
-        group = group,
-        pattern = pattern,
-        callback = callback,
-      })
+      nvim_create_autocmd(event, opts)
     end
     if not lazy_load then
       autocmd()
@@ -61,6 +60,7 @@ local function setup_detection(config)
       filetype_config[detect_type] = config[detect_type]
     end
   end
+  vim.filetype.add(filetype_config)
 
   return filetype_config
 end
@@ -98,8 +98,9 @@ function M.setup_language(config)
       local callback = autocmd.callback or function()
         vim.cmd(autocmd.command)
       end
-      create_autocmd = autocmd.group and create_autocmd_group(autocmd.group) or create_autocmd
-      create_autocmd(autocmd.events or "FileType", autocmd.pattern or config.ft or {}, callback)
+      local opts = autocmd.opts or {}
+      local augroup = autocmd.group and create_autocmd_group(autocmd.group) or create_autocmd
+      augroup(autocmd.events or "FileType", autocmd.pattern or config.ft or {}, callback, opts)
     end
   end
 
@@ -273,6 +274,7 @@ function M.setup_language(config)
   return plugins
 end
 
+M._registered = {}
 -----------------------------------------------------------------
 -- adds a language to the setup.
 ---@param langs string|string[]
@@ -287,14 +289,19 @@ function M.add_lang(langs)
   end
   local results = {}
   for _, lang in ipairs(langs) do
+    if M._registered[lang] then
+      goto continue
+    end
     local ok, lang_config = pcall(require, "plugins.lang." .. lang)
     if not ok then
       vim.notify(string.format("Error loading language %s: %s", lang, lang_config), vim.log.levels.ERROR)
-      return {}
+      goto continue
     end
+    M._registered[lang] = true
     local lang_setup = M.setup_language(lang_config)
     table.insert(results, lang_setup)
   end
+  ::continue::
   return results
 end
 

@@ -324,20 +324,72 @@ function M.available_code_actions()
   vim.lsp.buf_request_all(0, "textDocument/codeAction", params, function(response)
     local actions = {}
     -- Collect all code actions from all LSP servers
-    for _, res in pairs(response) do
+    for client_id, res in pairs(response) do
       if res.result then
         for _, action in ipairs(res.result) do
-          table.insert(actions, { title = action.title, command = action.command or "", action = action.action or "" })
+          table.insert(actions, {
+            title = action.title or "",
+            command = vim.inspect(action.command) or "", -- Use vim.inspect for better command visibility
+            action = action.action or "",
+            kind = action.kind or "",
+            -- Include the raw action for debugging
+            raw = vim.inspect(action),
+            -- Include which client provided this action
+            client = vim.lsp.get_client_by_id(client_id).name,
+          })
         end
       end
     end
 
-    -- Print or use the actions
-    print("Available Code Actions:")
-    for _, v in ipairs(actions) do
-      P(v)
+    -- Print the actions in a more readable format
+    print("\nAvailable Code Actions:")
+    print("--------------------")
+    for i, action in ipairs(actions) do
+      print(string.format("\nAction %d (from %s):", i, action.client))
+      print("Title: " .. action.title)
+      print("Kind: " .. action.kind)
+      print("Command: " .. action.command)
+      print("Action: " .. action.action)
+      print("Raw data:")
+      print(action.raw)
+      print("--------------------")
     end
+
+    -- Also return the actions table in case you want to use it programmatically
+    return actions
   end)
 end
+
+-- You can map this function to a key:
+-- vim.keymap.set('n', '<leader>ca', M.available_code_actions, { noremap = true, silent = true })
+-- function M.available_code_actions()
+--   local params = vim.lsp.util.make_range_params()
+--   ---@diagnostic disable-next-line: inject-field
+--   params.context = {
+--     diagnostics = vim.lsp.diagnostic.get_line_diagnostics(),
+--     triggerKind = 1,
+--   }
+--
+--   -- Request code actions from all LSP clients
+--   vim.lsp.buf_request_all(0, "textDocument/codeAction", params, function(response)
+--     local actions = {}
+--     -- Collect all code actions from all LSP servers
+--     for _, res in pairs(response) do
+--       if res.result then
+--         for _, action in ipairs(res.result) do
+--           table.insert(actions, { title = action.title, command = action.command or "", action = action.action or "" })
+--         end
+--       end
+--     end
+--
+--     -- Print or use the actions
+--     print("Available Code Actions:")
+--     P(#actions)
+--     print(vim.inspect(actions))
+--     -- for _, v in ipairs(actions) do
+--     --   P(v)
+--     -- end
+--   end)
+-- end
 
 return M

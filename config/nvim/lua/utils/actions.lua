@@ -12,9 +12,9 @@ function M.toggle_file_executable(state)
   local error_message = ("Error making file %s"):format(state and "unexecutable" or "executable")
 
   local output = vim.fn.system(cmd)
-  local err = vim.v.shell_error
-  Utils.notify[err == 0 and "info" or "warn"](
-    err == 0 and success_message or error_message .. ": " .. output,
+  local err = vim.v.shell_error == 0
+  Utils.notify[err and "info" or "warn"](
+    err and success_message or error_message .. ": " .. output,
     { title = "Options" }
   )
 end
@@ -191,12 +191,9 @@ local function show_case_selection(current_word, current_case)
           method = "textDocument/rename",
         })
         if #clients > 0 then
-          if Utils.has("inc-rename.nvim") then
-            local ok, _ = pcall(require, "inc_rename")
-            if ok then
-              vim.cmd("nohlsearch")
-              vim.cmd("IncRename " .. new_word)
-            end
+          if Utils.has("inc-rename.nvim") and pcall(require, "inc_rename") then
+            vim.cmd("nohlsearch")
+            vim.cmd("IncRename " .. new_word)
           else
             vim.lsp.buf.rename(new_word)
           end

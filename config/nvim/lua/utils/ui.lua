@@ -41,7 +41,6 @@ vim.api.nvim_create_autocmd({ "ColorScheme", "UiEnter" }, {
     for group, opts in pairs(highlights) do
       vim.api.nvim_set_hl(0, group, opts)
     end
-    M._highlights = {}
   end,
 })
 
