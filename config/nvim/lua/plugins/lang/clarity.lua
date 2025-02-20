@@ -43,9 +43,5 @@ return {
       pattern = "*.clar",
       command = "set filetype=clarity",
     },
-    -- {
-    --   events = { "BufWritePost" },
-    --   command = "e %",
-    -- },
   },
 }

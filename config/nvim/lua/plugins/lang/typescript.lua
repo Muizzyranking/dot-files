@@ -274,12 +274,14 @@ return {
   },
   plugins = {
     {
-      "nvim-telescope/telescope.nvim",
+      "folke/snacks.nvim",
       optional = true,
       opts = {
-        defaults = {
-          file_ignore_patterns = {
-            "node_modules",
+        picker = {
+          sources = {
+            files = {
+              exclude = { "node_modules" },
+            },
           },
         },
       },

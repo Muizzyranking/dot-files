@@ -22,18 +22,30 @@ return {
             Utils.lsp.action["source.organizeImports"],
             desc = "Organize Imports",
           },
-          {
-            "<leader>cu",
-            Utils.lsp.action["source.fixAll"],
-            desc = "Fix all fixable diagnostics",
-          },
         },
       },
     },
     setup = {
       ruff = function()
-        Utils.lsp.on_attach(function(client, _)
+        Utils.lsp.on_attach(function(client, bufnr)
           client.server_capabilities.hoverProvider = false
+          if client then
+            Utils.map.set_keymap({
+              "<leader>cu",
+              function()
+                local diag = vim.diagnostic.get(bufnr)
+                local ruff_diags = vim.tbl_filter(function(d)
+                  return d.source and d.source:lower() == "ruff"
+                end, diag)
+                if #ruff_diags > 0 then
+                  Utils.lsp.action["source.fixAll.ruff"]()
+                end
+              end,
+              desc = "Fix all fixable diagnostics",
+              icon = { icon = "󰁨 ", color = "red" },
+              buffer = bufnr,
+            })
+          end
         end, "ruff")
       end,
       ruff_lsp = function()
@@ -99,7 +111,6 @@ return {
           "urls.py",
           "settings.py",
           "templates/",
-          "apps.py",
         })
         if root ~= nil then
           vim.api.nvim_buf_set_option(event.buf, "filetype", "htmldjango")
@@ -135,13 +146,14 @@ return {
 
   plugins = {
     {
-      "nvim-telescope/telescope.nvim",
+      "folke/snacks.nvim",
       optional = true,
       opts = {
-        defaults = {
-          file_ignore_patterns = {
-            "venv",
-            "env",
+        picker = {
+          sources = {
+            files = {
+              exclude = { "venv", ".venv", ".pytest_cache", ".mypy_cache", "__pycache__" },
+            },
           },
         },
       },

@@ -31,8 +31,8 @@ return {
               local cl = Utils.lsp.get_clients({ name = "eslint", bufnr = bufnr })[1]
               if cl then
                 local diagnostics = vim.diagnostic.get(bufnr)
-                local eslint_diagnostics = vim.tbl_filter(function(diagnostic)
-                  return diagnostic.source == "eslint"
+                local eslint_diagnostics = vim.tbl_filter(function(d)
+                  return d.source and d.source:lower() == "eslint"
                 end, diagnostics)
                 if #eslint_diagnostics > 0 then
                   vim.cmd("EslintFixAll")
