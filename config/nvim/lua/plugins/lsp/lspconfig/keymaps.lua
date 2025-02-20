@@ -8,36 +8,63 @@ function M.get()
   M._keys = {
     {
       "gd",
-      Utils.telescope("lsp_definitions", "wide_preview", { reuse_win = true }),
+      function()
+        Snacks.picker.lsp_definitions()
+      end,
       desc = "Goto Definition",
       has = "definition",
     },
+    -- vsplit jump
     {
       "gD",
-      Utils.telescope("lsp_definitions", "wide_preview", {
-        jump_type = "vsplit",
-        reuse_win = true,
-      }),
-      desc = "Goto Definition (vsplit)",
+      function()
+        Snacks.picker.lsp_definitions({ confirm = "edit_vsplit" })
+      end,
+      desc = "Goto Definition (Vsplit)",
       has = "definition",
     },
     {
       "gr",
-      Utils.telescope("lsp_references", "wide_preview", { reuse_win = true }),
-      desc = "Goto References",
-      has = "references",
-    },
-    {
-      "gI",
-      Utils.telescope("lsp_implementations", "wide_preview", { reuse_win = true }),
-      desc = "Goto Implementation",
+      function()
+        Snacks.picker.lsp_references()
+      end,
+      nowait = true,
+      desc = "References",
     },
     {
       "gT",
       function()
-        require("telescope.builtin").lsp_type_definitions({ reuse_win = true })
+        Snacks.picker.lsp_implementations()
       end,
-      desc = "Goto Type Definition",
+      desc = "Goto Implementation",
+    },
+    {
+      "gy",
+      function()
+        Snacks.picker.lsp_type_definitions()
+      end,
+      desc = "Goto T[y]pe Definition",
+    },
+    {
+      "<leader>cs",
+      function()
+        Snacks.picker.lsp_symbols({
+          layout = { preset = "code", preview = "main" },
+          on_show = function()
+            vim.cmd("stopinsert")
+          end,
+        })
+      end,
+      desc = "Lsp Symbols",
+      has = "documentSymbol",
+    },
+    {
+      "<leader>sS",
+      function()
+        Snacks.picker.lsp_workspace_symbols({ filter = Utils.lsp.kind_filter })
+      end,
+      desc = "LSP Workspace Symbols",
+      has = "workspace/symbols",
     },
 
     -- { "gd", vim.lsp.buf.definition, desc = "Goto Definition", has = "definition" },
