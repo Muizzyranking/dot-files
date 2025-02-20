@@ -121,8 +121,6 @@ return {
       winbar = {},
       inactive_winbar = {},
       extensions = {
-        Utils.telescope.lualine,
-        Utils.terminal.lualine,
         "oil",
         "neo-tree",
         "lazy",

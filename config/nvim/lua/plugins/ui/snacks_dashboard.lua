@@ -17,40 +17,41 @@ return {
             icon = " ",
             key = "f",
             desc = "Find File",
-            action = Utils.telescope("find_files", "wide_preview"),
+            action = function()
+              Snacks.picker.files({ cwd = Utils.root() })
+            end,
           },
           {
             icon = " ",
             key = "g",
             desc = "Find Text",
-            action = Utils.telescope("multi_grep", "wide_preview", {}),
+            action = function()
+              Snacks.picker.grep()
+            end,
           },
           {
             icon = " ",
             key = "r",
-            desc = "Recent Files(cwd)",
-            action = Utils.telescope("oldfiles", "wide_preview", {
-              prompt_title = "Recent Files (cwd)",
-              cwd_only = true,
-            }),
+            desc = "Recent Files",
+            action = function()
+              Snacks.picker.recent()
+            end,
           },
           {
             icon = " ",
             key = "R",
-            desc = "Recent Files",
-            action = Utils.telescope("oldfiles", "wide_preview", {
-              prompt_title = "Recent Files",
-              root = false,
-            }),
+            desc = "Recent Files (cwd)",
+            action = function()
+              Snacks.picker.recent({ filter = { cwd = true } })
+            end,
           },
           {
             icon = " ",
             key = "c",
             desc = "Config",
-            action = Utils.telescope("find_files", "wide_preview", {
-              cwd = vim.fn.stdpath("config"),
-              prompt_title = "Config Files",
-            }),
+            action = function()
+              Snacks.picker.files({ cwd = vim.fn.stdpath("config"), title = "Find Config Files" })
+            end,
           },
           {
             icon = " ",
@@ -85,7 +86,6 @@ return {
             padding = 1,
           }
         end,
-        { section = "startup" },
       },
     }
     vim.api.nvim_create_autocmd("User", {

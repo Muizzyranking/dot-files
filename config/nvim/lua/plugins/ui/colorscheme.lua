@@ -20,7 +20,6 @@ return {
       },
       highlight_groups = {
         Keyword = { fg = "#f7768e", italic = true },
-        -- Keyword = { fg = "#ea696f", italic = true },
         String = { fg = "#9ece6a", italic = true },
         ["@string.documentation"] = { fg = "#ff9e64" },
         Operator = { fg = "#7aa2f7" },
@@ -30,11 +29,6 @@ return {
         ["@type.builtin"] = { fg = "#db4b4b" },
         ["@type"] = { fg = "#db4b4b" },
         Type = { fg = "#db4b4b" },
-        TelescopeTitle = { fg = "base", bg = "love" },
-        TelescopePromptTitle = { fg = "base", bg = "pine" },
-        TelescopePreviewTitle = { fg = "base", bg = "iris" },
-        -- CursorLineNr = { bg = "" },
-        -- CursorLine = { fg = "base", bg = "pine" },
       },
     },
     config = function(_, opts)
@@ -86,7 +80,6 @@ return {
   --       notify = true,
   --       neotree = true,
   --       semantic_tokens = true,
-  --       telescope = true,
   --       treesitter = true,
   --       which_key = true,
   --     },
