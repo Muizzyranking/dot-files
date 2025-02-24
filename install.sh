@@ -29,24 +29,25 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
+bash "$script_dir/scripts/setup.sh"
 for group in "$@"; do
     case $group in
-        all)
-            bash "$script_dir/scripts/dev.sh"
-            bash "$script_dir/scripts/hypr.sh"
-            bash "$script_dir/link.sh" all
-            ;;
-        hypr)
-            bash "$script_dir/scripts/hypr.sh"
-            bash "$script_dir/link.sh" hypr Kvantum fastfetch rofi swaync waybar wlogout zsh
-            ;;
-        dev)
-            bash "$script_dir/scripts/dev.sh"
-            bash "$script_dir/link.sh" kitty nvim bat lazyvim lazygit zsh tmux
-            ;;
-        *)
-            print_message error "Unknown group: $group"
-            ;;
+    all)
+        bash "$script_dir/scripts/dev.sh"
+        bash "$script_dir/scripts/hypr.sh"
+        bash "$script_dir/link.sh" all
+        ;;
+    hypr)
+        bash "$script_dir/scripts/hypr.sh"
+        bash "$script_dir/link.sh" hypr Kvantum fastfetch rofi swaync waybar wlogout zsh
+        ;;
+    dev)
+        bash "$script_dir/scripts/dev.sh"
+        bash "$script_dir/link.sh" kitty nvim bat lazyvim lazygit zsh tmux
+        ;;
+    *)
+        print_message error "Unknown group: $group"
+        ;;
     esac
 done
 
