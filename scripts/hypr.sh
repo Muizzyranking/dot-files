@@ -6,7 +6,7 @@ source "$script_dir/utils.sh"
 print_message info "Installing Hyprland and related packages..."
 
 print_message info "Enabling COPR repositories..."
-sudo dnf copr enable solopasha/hyprland
+sudo dnf copr enable solopasha/hyprland -y
 sudo dnf copr enable -y erikreider/SwayNotificationCenter
 
 packages=(

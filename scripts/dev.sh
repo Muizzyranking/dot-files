@@ -18,10 +18,10 @@ packages=(
     "tmux"
     "git"
     "nodejs"
-    "npm"
+    "nodejs-npm"
     "python3"
     "gcc"
-    "g++"
+    # "g++"
     "ripgrep"
     "fd-find"
     "fzf"
@@ -38,8 +38,7 @@ for package in "${packages[@]}"; do
 done
 
 print_message info "Enabling COPR repository for Lazygit..."
-sudo dnf copr-enable atim/lazygit -y
-if sudo dnf copr-enable atim/lazygit -y; then
+if sudo dnf copr enable atim/lazygit -y; then
     install_package "lazygit"
 else
     print_message error "Failed to enable COPR repository for Lazygit."
