@@ -1,31 +1,40 @@
 * {
   font-family: "JetBrainsMono Nerd Font", sans-serif;
-  font-size: 12px;
-  min-height: 24px;
+  font-size: 11px;
+  min-height: 20px;
   font-weight: bold;
+  transition: all 0.1s ease;
 }
 
 window#waybar {
+  /* background: rgba(30, 30, 46, 0.5); */
   background: transparent;
   color: #cdd6f4;
+  border-radius: 8px;
+  margin: 2px 4px 6px 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 tooltip {
-  background: transparent;
-  border: 2px solid #1e1e2e;
+  background: #1e1e2e;
+  border: 1px solid #89b4fa;
   border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 tooltip label {
   color: #cdd6f4;
+  padding: 2px;
 }
 
+/* Modules styling */
 #custom-spotify {
-  background: #1db954;
+  background: linear-gradient(45deg, #1db954, #24d95e);
   color: #1e1e2e;
   padding: 0 8px;
-  margin: 2px 4px;
+  margin: 3px;
   border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 #wlr-taskbar,
@@ -35,7 +44,6 @@ tooltip label {
 #tray,
 #window,
 #workspaces,
-#tray,
 #custom-os,
 #clock,
 #custom-swaync,
@@ -43,16 +51,21 @@ tooltip label {
 #custom-power,
 #custom-lock {
   background: #1e1e2e;
-  padding: 0 8px;
-  margin: 2px 4px;
+  padding: 0 6px;
+  margin: 3px;
   border-radius: 6px;
   color: #89b4fa;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  border: 1px solid #313244;
 }
 
 #tray {
-  padding: 0 14px;
+  padding: 0 8px;
+  background: #1e1e2e;
+  border: 1px solid #313244;
 }
 
+/* Grouped modules */
 #memory,
 #cpu,
 #battery,
@@ -60,8 +73,9 @@ tooltip label {
 #bluetooth,
 #pulseaudio {
   background: #1e1e2e;
-  padding: 0 8px;
+  padding: 0 6px;
   color: #89b4fa;
+  border: 1px solid #313244;
 }
 
 #memory,
@@ -69,8 +83,8 @@ tooltip label {
 #bluetooth {
   border-top-left-radius: 6px;
   border-bottom-left-radius: 6px;
-  border-right: 0.25px solid #89b4fa;
-  margin: 2px 0 2px 4px;
+  border-right: none;
+  margin: 3px 0 3px 3px;
 }
 
 #cpu,
@@ -78,29 +92,79 @@ tooltip label {
 #pulseaudio {
   border-top-right-radius: 6px;
   border-bottom-right-radius: 6px;
-  border-left: 0.25px solid #89b4fa;
-  margin: 2px 4px 2px 0;
+  border-left: none;
+  margin: 3px 3px 3px 0;
+}
+
+/* Special modules styling */
+#workspaces {
+  padding: 1px 8px;
+  background: #1e1e2e;
+  border-radius: 6px;
 }
 
 #workspaces button {
-  padding: 0 4px;
+  padding: 0 6px;
+  margin: 2px;
   color: #6c7086;
-  transition: all 0.3s ease;
-  background: transparent;
+  background: #313244;
+  border-radius: 4px;
+  min-width: 20px;
+  transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #workspaces button.active {
-  color: #89b4fa;
+  color: #1e1e2e;
+  padding: 0 6px;
+  margin: 2px;
+  background: #89b4fa;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  font-weight: bold;
+  min-width: 30px;
 }
 
-#workspaces,
+#workspaces button:hover {
+  background: #cba6f7;
+  color: #1e1e2e;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
 #custom-os {
-  padding: 0 16px;
-  color: #89b4fa;
+  font-size: 13px;
+  background: #cba6f7;
+  color: #1e1e2e;
+  border-radius: 6px;
+  margin: 3px;
+  border: none;
+  padding: 0 10px;
 }
 
 #clock {
   color: #f9e2af;
+  background: #1e1e2e;
+  border-radius: 6px;
+  font-weight: bold;
+  padding: 0 8px;
+}
+
+#custom-swaync {
+  background: #1e1e2e;
+  border-radius: 6px;
+  padding: 0 6px;
+  font-size: 12px;
+}
+
+/* Network styling */
+#network {
+  background: #1e1e2e;
+  color: #a6e3a1;
+  border-radius: 6px;
+}
+
+/* Battery states */
+#battery {
+  color: #a6e3a1;
 }
 
 #battery.warning {
@@ -111,7 +175,46 @@ tooltip label {
   color: #f38ba8;
 }
 
-#workspaces button:hover {
-  background: rgba(30, 30, 46, 0.8);
+#battery.critical:not(.charging) {
+  background: linear-gradient(45deg, #f38ba8, #f53c3c);
+  color: #1e1e2e;
+  animation-name: blink;
+  animation-duration: 0.7s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
   border-radius: 6px;
+  border: none;
+}
+
+@keyframes blink {
+  to {
+    background: #1e1e2e;
+    color: #f38ba8;
+  }
+}
+
+/* Additional styling for specific modules */
+#pulseaudio {
+  color: #fab387;
+}
+
+#bluetooth {
+  color: #89b4fa;
+}
+
+#disk {
+  color: #cba6f7;
+}
+
+#cpu {
+  color: #f38ba8;
+}
+
+#memory {
+  color: #a6e3a1;
+}
+
+#power-profiles-daemon {
+  color: #f9e2af;
 }

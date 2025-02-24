@@ -208,13 +208,12 @@
     "max-length": 30
   },
   "battery": {
-    "interval": 5,
+    "interval": 1,
     "align": 0,
     "rotate": 0,
     "full-at": 100,
     "design-capacity": false,
     "states": {
-      "good": 95,
       "warning": 30,
       "critical": 15
     },
