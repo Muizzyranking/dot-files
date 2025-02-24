@@ -1,10 +1,10 @@
 configuration {
     modi: "drun,run,window,filebrowser";
     show-icons: true;
-    display-drun: "Apps";
-    display-run: "Run";
-    display-filebrowser: "Files";
-    display-window: "Windows";
+    display-drun: " Apps";
+    display-run: " Run";
+    display-filebrowser: " Files";
+    display-window: " Windows";
     drun-display-format: "{name}";
     hover-select: true;
     me-select-entry: "MouseSecondary";
@@ -15,125 +15,39 @@ configuration {
 
 @theme "~/.config/rofi/theme/catppuccin.rasi"
 
-* {
-    bg-col: #1e1e2e;
-    bg-col-light: #1e1e2e;
-    border-col: #1e1e2e;
-    selected-col: #1e1e2e;
-    blue: #89b4fa;
-    fg-col: #cdd6f4;
-    fg-col2: #f38ba8;
-    grey: #6c7086;
-    width: 600;
-    font: "JetBrainsMono Nerd Font 11";
-
-    background: @bg-col;
-    background-alt: @bg-col-light;
-    foreground: @fg-col;
-    border-color: @border-col;
-    separatorcolor: @border-col;
-    scrollbar-handle: @border-col;
-
-    normal-background: @bg-col;
-    normal-foreground: @fg-col;
-    alternate-normal-background: @bg-col-light;
-    alternate-normal-foreground: @fg-col;
-    selected-normal-background: @selected-col;
-    selected-normal-foreground: @fg-col2;
-
-    active-background: @bg-col;
-    active-foreground: @blue;
-    alternate-active-background: @bg-col-light;
-    alternate-active-foreground: @blue;
-    selected-active-background: @selected-col;
-    selected-active-foreground: @blue;
-
-    urgent-background: @bg-col;
-    urgent-foreground: @fg-col2;
-    alternate-urgent-background: @bg-col-light;
-    alternate-urgent-foreground: @fg-col2;
-    selected-urgent-background: @selected-col;
-    selected-urgent-foreground: @fg-col2;
-}
 
 window {
-    width: 50%;
-    height: 60%;
-    border: 3px;
+    width: 45%;
+    height: 55%;
+    border: 2px;
     border-color: @border-col;
     background-color: @bg-col;
-    border-radius: 30px;
+    border-radius: 12px;
+    padding: 6px;
 }
 
 mainbox {
-    background-color: @bg-col;
+    background-color: transparent;
     orientation: vertical;
     children: [ "inputbar", "mode-switcher", "listview" ];
+    spacing: 10px;
+    padding: 10px;
 }
 
 mode-switcher {
     spacing: 10px;
-    background-color: @bg-col-light;
-    border-radius: 5px;
-    margin: 10px;
+    background-color: transparent;
+    margin: 0 10px;
 }
-
-
-inputbar {
-    children: [prompt, entry];
-    background-color: @bg-col;
-    border-radius: 5px;
-    padding: 2px;
-}
-
-prompt {
-    background-color: @blue;
-    padding: 6px;
-    text-color: @bg-col;
-    border-radius: 3px;
-    margin: 20px 0px 0px 20px;
-}
-
-entry {
-    padding: 6px;
-    margin: 20px 0px 0px 10px;
-    text-color: @fg-col;
-    background-color: @bg-col;
-}
-
-listview {
-    border: 0px;
-    padding: 6px;
-    margin: 10px;
-    columns: 2;
-    lines: 8;
-    background-color: @bg-col;
-    scrollbar: true;
-}
-
-element {
-    padding: 5px;
-    background-color: @bg-col;
-    text-color: @fg-col;
-}
-
-element-icon {
-    size: 25px;
-}
-
-element selected {
-    background-color: @selected-col;
-    text-color: @fg-col2;
-}
-
 
 button {
-    padding: 10px;
+    padding: 10px 16px;
     background-color: @bg-col-light;
     text-color: @grey;
     vertical-align: 0.5;
     horizontal-align: 0.5;
-    border-radius: 5px;
+    border-radius: 8px;
+    font-weight: bold;
 }
 
 button selected {
@@ -141,16 +55,90 @@ button selected {
     text-color: @blue;
 }
 
+inputbar {
+    children: [prompt, entry];
+    background-color: transparent;
+    border-radius: 12px;
+    padding: 4px;
+    margin: 0 0 10px 0;
+}
+
+prompt {
+    background-color: @blue;
+    padding: 10px 16px;
+    text-color: @bg-col;
+    border-radius: 8px;
+    margin: 0 0 0 0;
+    font-weight: bold;
+}
+
+entry {
+    padding: 10px;
+    margin: 0 0 0 10px;
+    text-color: @fg-col;
+    background-color: @bg-col-light;
+    border-radius: 8px;
+    placeholder: "Search...";
+}
+
+listview {
+    border: 0px;
+    padding: 0;
+    margin: 0;
+    columns: 2;
+    lines: 7;
+    background-color: transparent;
+    scrollbar: false;
+    spacing: 5px;
+    border-radius: 8px;
+}
+
+scrollbar {
+    width: 4px;
+    border: 0;
+    handle-width: 4px;
+    handle-color: @blue;
+    padding: 5px;
+    margin: 0 5px;
+    border-radius: 5px;
+    background-color: @bg-col-light;
+}
+
+element {
+    padding: 10px;
+    background-color: @bg-col-light;
+    text-color: @fg-col;
+    border-radius: 8px;
+    spacing: 10px;
+    margin: 2px 0;
+}
+
+element-icon {
+    size: 28px;
+    vertical-align: 0.5;
+    horizontal-align: 0.5;
+    margin: 0 8px 0 0;
+}
+
+element-text {
+    vertical-align: 0.5;
+}
+
+element selected {
+    background-color: @selected-col;
+    text-color: @blue;
+}
+
 message {
     background-color: @bg-col-light;
     margin: 2px;
-    padding: 2px;
-    border-radius: 5px;
+    padding: 8px;
+    border-radius: 8px;
 }
 
 textbox {
-    padding: 6px;
-    margin: 20px 0px 0px 20px;
+    padding: 10px;
     text-color: @blue;
     background-color: @bg-col-light;
+    border-radius: 8px;
 }

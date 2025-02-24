@@ -1,7 +1,7 @@
 @import "~/.config/rofi/config.rasi" 
 entry {
   width: 37%;
-  placeholder: "📋 Search Clipboard **note** 👀 CTRL Del - Cliphist del or Alt Del - cliphist wipe";
+  placeholder: "📋 Search Clipboard ** CTRL Del - del or Alt Del - wipe";
 }
 
 listview {

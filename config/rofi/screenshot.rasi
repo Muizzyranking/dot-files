@@ -6,7 +6,7 @@ configuration {
 }
 
 window {
-    width: 30%;
+    width: 20%;
     height: 40%;
     border-radius: 30px;
     location: center;
@@ -28,7 +28,6 @@ entry {
 
 listview {
     lines: 5;
-    scrollbar: true;
 }
 
 element-text {
