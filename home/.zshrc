@@ -1,3 +1,6 @@
+if [[ -z "$TMUX" ]]; then
+  tmux a || tmux
+fi
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
@@ -32,13 +35,15 @@ source $ZSH/oh-my-zsh.sh
 # You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 config_dir="$HOME/.config/zsh"
+
+
 # ZSH ALIASES
 # Stored in $ALIASES 
 if [ -f "$config_dir/.zsh_alaises" ]; then
    source "$config_dir/.zsh_alaises"
 fi
 
-#ZSH ENV for easy navigation
+#ZSH ENV
 if [ -f "$config_dir/.zshenv" ]; then
    source "$config_dir/.zshenv"
 
@@ -55,6 +60,7 @@ compinit
 eval "$(thefuck --alias)"
 eval "$(zoxide init zsh)"
 source <(fzf --zsh)
+
 # pnpm
 export PNPM_HOME="/home/muizzyranking/.local/share/pnpm"
 case ":$PATH:" in
@@ -62,14 +68,7 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
-f() {
-  local dir=$(
-    zoxide query --list --score |
-    fzf --height 40% --layout reverse --info inline \
-        --nth 2.. --tac --no-sort --query "$*" \
-        --bind 'enter:become:echo {2..}'
-  ) && cd "$dir"
-}
+
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
