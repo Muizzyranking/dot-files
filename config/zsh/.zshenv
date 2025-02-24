@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 export PATH=~/.local/bin:$PATH
 export PATH=/snap/bin:$PATH
 

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 alias v='nv'
 alias cl='clear'
 alias lv='NVIM_APPNAME=lazyvim nvim'
@@ -59,4 +60,14 @@ venv-create() {
     else
         python3 -m venv venv --prompt="$1" && source ./venv/bin/activate
     fi
+}
+
+f() {
+    local dir
+    dir=$(
+        zoxide query --list --score |
+            fzf --height 40% --layout reverse --info inline \
+                --nth 2.. --tac --no-sort --query "$*" \
+                --bind 'enter:become:echo {2..}'
+    ) && cd "$dir" || return
 }
