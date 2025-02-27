@@ -1,12 +1,11 @@
 ---@class utils.ts
 local M = {}
 
-------------------------------------------------
--- from https://github.com/Bekaboo/dot/blob/master/.config/nvim/lua/utils/ts.lua
+-------------------------------------------------
 ---Returns whether treesitter is active in `buf`
 ---@param buf integer? default: current buffer
 ---@return boolean
-------------------------------------------------
+-------------------------------------------------
 function M.is_active(buf)
   if not buf or buf == 0 then
     buf = vim.api.nvim_get_current_buf()
@@ -20,7 +19,29 @@ function M.is_active(buf)
     return true
   end
 
+  -- File is big or cannot get parser for buf
   return false
+end
+
+-------------------------------------------------
+---Wrapper of `vim.treesitter.get_node()` that fixes the cursor pos in
+---insert mode
+---@param opts vim.treesitter.get_node.Opts?
+-------------------------------------------------
+function M.get_node(opts)
+  opts = opts or {}
+  if opts.pos or opts.bufnr and opts.bufnr ~= 0 and opts.bufnr ~= vim.api.nvim_get_current_buf() then
+    return vim.treesitter.get_node(opts)
+  end
+  opts.pos = (function()
+    local cursor = opts and opts.pos or vim.api.nvim_win_get_cursor(0)
+    return {
+      cursor[1] - 1,
+      cursor[2] - (cursor[2] >= 1 and vim.startswith(vim.fn.mode(), "i") and 1 or 0),
+    }
+  end)()
+
+  return vim.treesitter.get_node(opts)
 end
 
 ------------------------------------------------

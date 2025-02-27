@@ -7,7 +7,7 @@ local M = setmetatable({}, {
 })
 
 -- Default root patterns
-M.root_patterns = { ".git", "lua" }
+M.root_patterns = { ".git" }
 
 -- Get the real path of a file/directory
 function M.get_real_path(path)
