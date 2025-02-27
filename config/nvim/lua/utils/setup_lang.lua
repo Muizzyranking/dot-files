@@ -49,21 +49,54 @@ end
 
 -----------------------------------------------------------------
 ---@param config setup_lang.add_ft
----@return vim.filetype.add.filetypes
+---@param create_autocmd function
 -----------------------------------------------------------------
-local function setup_detection(config)
+function M.add_filetype(config, create_autocmd)
+  local ft_configs = config.add_ft
+  if not ft_configs then
+    return
+  end
   local filetype_config = {}
-
-  -- Simply copy over the detection configurations
   for _, detect_type in ipairs({ "extension", "filename", "pattern" }) do
-    if config[detect_type] then
-      filetype_config[detect_type] = config[detect_type]
+    if ft_configs[detect_type] then
+      filetype_config[detect_type] = ft_configs[detect_type]
     end
   end
-  vim.filetype.add(filetype_config)
-
-  return filetype_config
+  schedule(function()
+    vim.filetype.add(filetype_config)
+  end)
+  if ft_configs.filetype then
+    for orig, target in pairs(ft_configs.filetype) do
+      create_autocmd("FileType", orig, function(event)
+        vim.api.nvim_buf_set_option(event.buf, "filetype", target)
+      end)
+    end
+  end
 end
+
+---@param config setup_lang.config
+---@param autocmd_create function
+function M.autocmds(config, autocmd_create)
+  local autocmds = config.autocmds
+  if not autocmds then
+    return
+  end
+  if type(autocmds) ~= "table" or type(autocmds[1]) ~= "table" then
+    Utils.notify.error("autocmds must be a table")
+    return
+  end
+  for _, autocmd in ipairs(autocmds) do
+    local callback = autocmd.callback or function()
+      vim.cmd(autocmd.command)
+    end
+    local opts = autocmd.opts or {}
+    local events = autocmd.events or "FileType"
+    local create_autocmd = autocmd.group and create_autocmd_group(autocmd.group) or autocmd_create
+    local pattern = autocmd.pattern or config.ft
+    create_autocmd(events, pattern, callback, opts)
+  end
+end
+
 -----------------------------------------------------------------
 -- Setup a language configuration.
 ---@param config setup_lang.config
@@ -72,36 +105,19 @@ end
 function M.setup_language(config)
   -- Set defaults
   assert(config.name, "LanguageConfig must have a 'name'")
-  config.ft = ensure_list(config.ft or config.name) ---@type string[]
+  config.ft = ensure_list(config.ft or config.name) --[[@as string]]
 
   local plugins = {}
   local create_autocmd = create_autocmd_group(config.name)
 
   -- Setup filetype detection
   if config.add_ft then
-    schedule(function()
-      vim.filetype.add(setup_detection(config.add_ft))
-    end)
-
-    if config.add_ft.filetype then
-      for orig, target in pairs(config.add_ft.filetype) do
-        create_autocmd("FileType", orig, function(event)
-          vim.api.nvim_buf_set_option(event.buf, "filetype", target)
-        end)
-      end
-    end
+    M.add_filetype(config, create_autocmd)
   end
 
   -- Setup custom autocmds
   if config.autocmds then
-    for _, autocmd in ipairs(config.autocmds) do
-      local callback = autocmd.callback or function()
-        vim.cmd(autocmd.command)
-      end
-      local opts = autocmd.opts or {}
-      local augroup = autocmd.group and create_autocmd_group(autocmd.group) or create_autocmd
-      augroup(autocmd.events or "FileType", autocmd.pattern or config.ft or {}, callback, opts)
-    end
+    M.autocmds(config, create_autocmd)
   end
 
   -- LSP Configuration
@@ -128,33 +144,30 @@ function M.setup_language(config)
       "nvim-neotest/neotest",
       optional = true,
       dependencies = config.test.dependencies or {},
-      opts = {
-        adapters = config.test.adapters or {},
-      },
+      opts = { adapters = config.test.adapters or {} },
     })
   end
 
   -- Formatting Configuration
   if config.formatting then
-    local conform_opts = {
-      formatters = config.formatting.formatters or {},
-      formatters_by_ft = config.formatting.formatters_by_ft or {},
+    local fmt = config.formatting
+    local fmt_opts = {
+      formatters = fmt.formatters or {},
+      formatters_by_ft = fmt.formatters_by_ft or {},
     }
-
-    if config.formatting.use_prettier_biome then
-      if type(config.formatting.use_prettier_biome) == "boolean" and config.formatting.use_prettier_biome == true then
-        conform_opts.use_prettier_biome = config.ft
+    if fmt.use_prettier_biome then
+      if fmt.use_prettier_biome == true then
+        fmt_opts.use_prettier_biome = ensure_list(config.ft)
       else
-        conform_opts.use_prettier_biome = config.formatting.use_prettier_biome
+        fmt_opts.use_prettier_biome = fmt.use_prettier_biome
       end
     end
-
     table.insert(plugins, {
       "stevearc/conform.nvim",
-      opts = conform_opts,
+      optional = true,
+      opts = fmt_opts,
     })
-
-    if config.formatting.format_on_save and config.formatting.format_on_save ~= false then
+    if fmt.format_on_save == true then
       create_autocmd("FileType", config.ft, function(event)
         vim.b[event.buf].autoformat = true
       end)
@@ -171,70 +184,65 @@ function M.setup_language(config)
 
   -- Treesitter Configuration
   if config.highlighting then
-    local base_parsers = config.highlighting.parsers or {}
-    local treesitter_opts
-
-    if config.highlighting.custom_parsers then
-      treesitter_opts = function(_, opts)
-        opts.ensure_installed = opts.ensure_installed or {}
-        for _, parser in ipairs(base_parsers) do
-          table.insert(opts.ensure_installed, parser)
-        end
-
-        local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
-        for name, parser_info in pairs(config.highlighting.custom_parsers) do
-          parser_config[name] = parser_info
-          vim.treesitter.language.register(name, name)
-          if not vim.tbl_contains(base_parsers, name) then
-            table.insert(opts.ensure_installed, name)
-          end
-        end
-      end
-    else
-      treesitter_opts = {
-        ensure_installed = base_parsers,
-      }
-    end
+    local hl = config.highlighting
+    local parsers = hl.parsers or {}
     table.insert(plugins, {
       "nvim-treesitter/nvim-treesitter",
-      opts = treesitter_opts,
+      opts = function(_, opts)
+        opts.ensure_installed = opts.ensure_installed or {}
+        for _, parser in ipairs(parsers) do
+          table.insert(opts.ensure_installed, parser)
+        end
+        if hl.custom_parsers then
+          local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+          for name, info in pairs(hl.custom_parsers) do
+            parser_config[name] = info
+            local ft = info.filetype or { name }
+            vim.treesitter.language.register(name, ft)
+            if not vim.tbl_contains(parsers, name) then
+              table.insert(opts.ensure_installed, name)
+            end
+          end
+        end
+      end,
     })
   end
 
   -- Icons Configuration
   if config.icons then
-    local icons = {}
-    for _, icon_type in ipairs({ "default", "directory", "extension", "file", "filetype", "lsp", "os" }) do
-      if config.icons[icon_type] then
-        icons[icon_type] = config.icons[icon_type]
-      end
-    end
+    local icons = config.icons
+    local available = { "default", "directory", "extension", "file", "filetype", "lsp", "os" }
     table.insert(plugins, {
       "echasnovski/mini.icons",
-      opts = icons,
+      opts = function(_, opts)
+        for _, type in ipairs(available) do
+          if icons[type] then
+            opts[type] = icons[type]
+          end
+        end
+      end,
     })
   end
 
   -- commentstring Configuration
   if config.commentstring then
-    local opts = {}
-    if type(config.commentstring) == "string" then
-      ---@diagnostic disable-next-line: param-type-mismatch
-      for _, ft in ipairs(config.ft) do
-        opts[ft] = config.commentstring
-      end
-    elseif type(config.commentstring) == "table" then
-      ---@diagnostic disable-next-line: param-type-mismatch
-      for ft, commentstring in pairs(config.commentstring) do
-        opts[ft] = commentstring
-      end
-    end
+    local commentstring = config.commentstring
     table.insert(plugins, {
       "folke/ts-comments.nvim",
       optional = true,
-      opts = {
-        lang = opts,
-      },
+      opts = function(_, opts)
+        opts = opts or {}
+        opts.lang = opts.lang or {}
+        if type(commentstring) == "string" then
+          for _, ft in ipairs(config.ft) do
+            opts.lang[ft] = commentstring
+          end
+        elseif type(commentstring) == "table" then
+          for ft, cs in pairs(commentstring) do
+            opts.lang[ft] = cs
+          end
+        end
+      end,
     })
   end
 
@@ -281,27 +289,18 @@ M._registered = {}
 ---@return table[]
 -----------------------------------------------------------------
 function M.add_lang(langs)
-  if not langs then
-    langs = "lua"
-  end
-  if type(langs) == "string" then
-    langs = { langs }
-  end
+  langs = (type(langs) == "table" and langs or { langs }) or { "lua" }
   local results = {}
   for _, lang in ipairs(langs) do
-    if M._registered[lang] then
-      goto continue
+    if not M._registered[lang] then
+      local ok, lang_config = pcall(require, "plugins.lang." .. lang)
+      if ok then
+        M._registered[lang] = true
+        local lang_setup = M.setup_language(lang_config)
+        table.insert(results, lang_setup)
+      end
     end
-    local ok, lang_config = pcall(require, "plugins.lang." .. lang)
-    if not ok then
-      vim.notify(string.format("Error loading language %s: %s", lang, lang_config), vim.log.levels.ERROR)
-      goto continue
-    end
-    M._registered[lang] = true
-    local lang_setup = M.setup_language(lang_config)
-    table.insert(results, lang_setup)
   end
-  ::continue::
   return results
 end
 

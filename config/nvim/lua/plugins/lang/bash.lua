@@ -1,8 +1,13 @@
 return {
   name = "bash",
-  ft = { "sh", "bash" },
+  ft = { "sh", "bash", "zsh" },
   add_ft = {
-    extension = { rasi = "rasi", rofi = "rasi", wofi = "rasi" },
+    extension = {
+      rasi = "rasi",
+      rofi = "rasi",
+      wofi = "rasi",
+      sh = "sh",
+    },
     filename = { ["vifmrc"] = "vim" },
     pattern = {
       [".*/waybar/config"] = "jsonc",
@@ -10,7 +15,7 @@ return {
       [".*/hypr/.+%.conf"] = "hyprlang",
       ["%.env%.[%w_.-]+"] = "sh",
     },
-    filetype = { zsh = "bash" },
+    filetype = { zsh = "sh" },
   },
   lsp = {
     servers = {
@@ -34,7 +39,7 @@ return {
     parsers = { "bash", "hyprlang", "rasi" },
   },
   commentstring = {
-    hyprlang = "### %s",
+    hyprlang = "# %s",
   },
   keys = {
     {

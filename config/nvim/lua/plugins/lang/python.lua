@@ -121,9 +121,16 @@ return {
       pattern = "python",
       callback = function(event)
         local buf = event.buf
-        local opts = { buffer = buf }
+        local opts = {
+          buffer = buf,
+          condition = function()
+            return Utils.ts.is_active() and not Utils.ts.find_node({ "comment", "string" })
+          end,
+        }
         Utils.create_abbrev("true", "True", opts)
+        Utils.create_abbrev("ture", "True", opts)
         Utils.create_abbrev("false", "False", opts)
+        Utils.create_abbrev("flase", "False", opts)
       end,
     },
   },
