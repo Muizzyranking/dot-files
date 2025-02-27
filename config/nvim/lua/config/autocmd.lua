@@ -225,6 +225,29 @@ create_autocmd({ "InsertEnter", "CmdlineEnter" }, {
 })
 
 -----------------------------------------------------------
+-- set buffer big file detection
+-----------------------------------------------------------
+create_autocmd({ "BufReadPre" }, {
+  desc = "Detect big files.",
+  callback = function(event)
+    vim.g.bigfile = vim.g.bigfile or 1.5 * 1024 * 1024
+    vim.g.bigfile_max_lines = vim.g.bigfile_max_lines or 32768
+    local buf = event.buf
+    if vim.b[buf].bigfile then
+      return
+    end
+    local stat = vim.uv.fs_stat(event.match)
+    if stat and stat.size > vim.g.bigfile then
+      vim.b[buf].bigfile = true
+      return
+    end
+    if vim.api.nvim_buf_line_count(buf) > vim.g.bigfile_max_lines then
+      vim.b[buf].bigfile = true
+    end
+  end,
+})
+
+-----------------------------------------------------------
 -- restore tmux bar if hidden
 -----------------------------------------------------------
 create_autocmd("User", {
