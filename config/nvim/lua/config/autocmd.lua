@@ -8,7 +8,7 @@ local reload_group = augroup("Reload Config")
 -----------------------------------------------------------
 -- Kitty config
 -----------------------------------------------------------
-vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
+create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
   group = reload_group,
   pattern = "*/kitty/kitty.conf",
   callback = function(event)
@@ -23,7 +23,7 @@ vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
 -----------------------------------------------------------
 -- Tmux config
 -----------------------------------------------------------
-vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
+create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
   group = reload_group,
   pattern = "*/tmux/tmux.conf",
   callback = function(event)
@@ -39,7 +39,7 @@ vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
 -----------------------------------------------------------
 -- Waybar config
 -----------------------------------------------------------
-vim.api.nvim_create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
+create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
   group = reload_group,
   pattern = { "*/waybar/config", "*/waybar/style.css" },
   callback = function(event)
@@ -244,6 +244,14 @@ create_autocmd({ "BufReadPre" }, {
     if vim.api.nvim_buf_line_count(buf) > vim.g.bigfile_max_lines then
       vim.b[buf].bigfile = true
     end
+  end,
+})
+
+create_autocmd({ "FileType", "BufEnter", "BufWinEnter" }, {
+  pattern = "help",
+  callback = function()
+    vim.cmd("wincmd J")
+    vim.cmd("horizontal resize 15")
   end,
 })
 
