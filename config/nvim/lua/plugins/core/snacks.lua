@@ -18,7 +18,7 @@ return {
     input = {},
     bigfile = {
       enabled = true,
-      size = vim.g.big_file,
+      size = vim.g.bigfile,
     },
     notifier = { enabled = true },
     quickfile = { enabled = true },

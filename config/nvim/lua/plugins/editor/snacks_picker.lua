@@ -30,12 +30,6 @@ return {
           frecency = true,
           history_bonus = true,
         },
-        previewers = {
-          file = {
-            max_size = vim.g.big_file,
-            max_line_length = vim.g.max_lines,
-          },
-        },
         jump = {
           reuse_win = true,
           match = false,
@@ -80,10 +74,6 @@ return {
         win = {
           input = {
             keys = {
-              ["<a-c>"] = {
-                "toggle_cwd",
-                mode = { "n", "i" },
-              },
               ["/"] = "toggle_focus",
               ["<C-bs>"] = { "<c-s-w>", mode = { "i" }, expr = true, desc = "delete word" },
               ["<C-h>"] = { "<c-s-w>", mode = { "i" }, expr = true, desc = "delete word" },
@@ -95,15 +85,7 @@ return {
             },
           },
         },
-        actions = {
-          toggle_cwd = function(p)
-            local root = Utils.root({ buf = p.input.filter.current_buf })
-            local cwd = vim.fs.normalize((vim.uv or vim.loop).cwd() or ".")
-            local current = p:cwd()
-            p:set_cwd(current == root and cwd or root)
-            p:find()
-          end,
-        },
+        actions = {},
       },
     },
     keys = {
@@ -122,13 +104,6 @@ return {
         desc = "Buffers",
       },
       {
-        "<leader>fB",
-        function()
-          Snacks.picker.buffers({ hidden = true, nofile = true })
-        end,
-        desc = "Buffers (all)",
-      },
-      {
         "<leader>:",
         function()
           Snacks.picker.command_history({ layout = { preset = "code" } })
@@ -143,7 +118,7 @@ return {
         desc = "Find Config File",
       },
       {
-        "<leader>ff",
+        "<leader>fF",
         function()
           Snacks.picker.files({
             cwd = Utils.root(),
@@ -152,7 +127,7 @@ return {
         desc = "Find Files (Root Dir)",
       },
       {
-        "<leader>fF",
+        "<leader>ff",
         function()
           Snacks.picker.files()
         end,
@@ -195,16 +170,9 @@ return {
         desc = "Projects",
       },
       {
-        "<leader>fW",
+        "<leader>fG",
         function()
           Snacks.picker.grep_buffers()
-        end,
-        desc = "Grep in Open Buffers",
-      },
-      {
-        "<leader>fw",
-        function()
-          Snacks.picker.lines({ layout = { preset = "drop" } })
         end,
         desc = "Grep in Open Buffers",
       },
@@ -230,13 +198,6 @@ return {
         desc = "Help Pages",
       },
       {
-        "<leader>sH",
-        function()
-          Snacks.picker.highlights()
-        end,
-        desc = "Highlights",
-      },
-      {
         "<leader>si",
         function()
           Snacks.picker.icons()
@@ -246,7 +207,7 @@ return {
       {
         "<leader>sk",
         function()
-          Snacks.picker.keymaps({ layout = { preset = "dropdown", preview = false } })
+          Snacks.picker.keymaps({ layout = { preset = "drop", preview = false } })
         end,
         desc = "Keymaps",
       },
