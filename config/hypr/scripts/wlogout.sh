@@ -1,2 +1,2 @@
 #!/bin/bash
-wlogout -b 6
+wlogout
