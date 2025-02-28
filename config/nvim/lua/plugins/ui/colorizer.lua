@@ -11,7 +11,30 @@ return {
     },
     user_default_options = {
       names = false,
-      hooks = {},
+      hooks = {
+        disable_line_highlight = function(line, _, bufnr)
+          local function is_comment(left_comment, right_comment)
+            if line:match("^%s*//") then
+              return true
+            end
+            if line:match("{%s*/%*") and line:match("%*/%s*}") then
+              return true
+            end
+            local trimmed_line = vim.trim(line)
+            if right_comment then
+              return trimmed_line:sub(1, #left_comment) == left_comment
+                or trimmed_line:sub(-#right_comment) == right_comment
+            else
+              return trimmed_line:sub(1, #left_comment) == left_comment
+            end
+          end
+          local comment_string = vim.api.nvim_buf_get_option(bufnr, "commentstring")
+          local left_comment, right_comment = comment_string:match("^(.-)%s*%%s%s*(.-)%s*$")
+          left_comment = vim.trim(left_comment or comment_string)
+          right_comment = vim.trim(right_comment or "")
+          return is_comment(left_comment, right_comment)
+        end,
+      },
       names_custom = {},
       RGB = true,
       RRGGBB = true,
@@ -44,37 +67,8 @@ return {
       end,
       name = "Color highlight",
     })
-    local function is_comment(line, left_comment, right_comment)
-      -- First check standard line comments
-      if line:match("^%s*//") then
-        return true
-      end
-
-      -- Then check JSX-style block comments
-      if line:match("{%s*/%*") and line:match("%*/%s*}") then
-        return true
-      end
-      local trimmed_line = vim.trim(line)
-      if right_comment then
-        -- Check for block comments (e.g., /* ... */)
-        return trimmed_line:sub(1, #left_comment) == left_comment or trimmed_line:sub(-#right_comment) == right_comment
-      else
-        -- Check for single-line comments (e.g., //, #, --)
-        return trimmed_line:sub(1, #left_comment) == left_comment
-      end
-    end
     opts = opts or {}
-    opts.filetypes = opts.filetypes or {}
-    opts.user_default_options.hooks = opts.user_default_options.hooks or {}
-    opts.user_default_options.hooks.disable_line_highlight = function(line, _, bufnr)
-      local comment_string = vim.api.nvim_buf_get_option(bufnr, "commentstring")
-
-      local left_comment, right_comment = comment_string:match("^(.-)%s*%%s%s*(.-)%s*$")
-      left_comment = vim.trim(left_comment or comment_string)
-      right_comment = vim.trim(right_comment or "")
-      return is_comment(line, left_comment, right_comment)
-    end
-    for _, ft in ipairs({ "css", "html", "javascript", "javascriptreact" }) do
+    for _, ft in ipairs({ "css", "html", "javascript", "javascriptreact", "jsx" }) do
       opts.filetypes[ft] = vim.tbl_extend("keep", {}, opts.filetypes[ft] or {}, {
         names = true,
         names_opts = {

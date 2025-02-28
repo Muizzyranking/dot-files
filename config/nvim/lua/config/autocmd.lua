@@ -41,13 +41,32 @@ create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
 -----------------------------------------------------------
 create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
   group = reload_group,
-  pattern = { "*/waybar/config", "*/waybar/style.css" },
+  pattern = { "*/waybar/*" },
   callback = function(event)
     Utils.reload_config({
-      cmd = "if pgrep -x waybar > /dev/null; then killall waybar; fi; waybar &",
+      cmd = "waybar",
+      restart = true,
       title = "Waybar",
       buffer = event.buf,
     })
+  end,
+})
+
+-----------------------------------------------------------
+-- swaync config
+-----------------------------------------------------------
+create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
+  group = reload_group,
+  pattern = { "*/swaync/*" },
+  callback = function(event)
+    Utils.reload_config({
+      cmd = "swaync",
+      restart = true,
+      title = "Swaync",
+      buffer = event.buf,
+    })
+    -- disable diagnoistics because of noise
+    vim.diagnostic.enable(false, { buf = event.buf })
   end,
 })
 
@@ -79,7 +98,7 @@ create_autocmd({ "BufRead", "BufNewFile" }, {
 create_autocmd("TextYankPost", {
   group = augroup("highlight_yank"),
   callback = function()
-    vim.highlight.on_yank()
+    vim.hl.on_yank()
   end,
 })
 

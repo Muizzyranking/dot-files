@@ -74,15 +74,12 @@ return {
         win = {
           input = {
             keys = {
-              ["/"] = "toggle_focus",
               ["<C-bs>"] = { "<c-s-w>", mode = { "i" }, expr = true, desc = "delete word" },
               ["<C-h>"] = { "<c-s-w>", mode = { "i" }, expr = true, desc = "delete word" },
             },
           },
           list = {
-            keys = {
-              ["/"] = "toggle_focus",
-            },
+            keys = {},
           },
         },
         actions = {},
@@ -120,9 +117,7 @@ return {
       {
         "<leader>fF",
         function()
-          Snacks.picker.files({
-            cwd = Utils.root(),
-          })
+          Snacks.picker.files({ cwd = Utils.root() })
         end,
         desc = "Find Files (Root Dir)",
       },

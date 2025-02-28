@@ -168,6 +168,9 @@ end
 ---@param opts table
 -----------------------------------
 function M.reload_config(opts)
+  opts = opts or {}
+  opts.buffer = opts.buffer or vim.api.nvim_get_current_buf()
+  opts.title = opts.title or "Config"
   if opts.cond ~= nil and not opts.cond then
     return
   end
@@ -175,9 +178,16 @@ function M.reload_config(opts)
     M.notify.error("No command provided to reload config")
     return
   end
+  -- Determine the command to execute
+  local cmd
+  if opts.restart then
+    cmd = string.format("pkill -x '%s' || true; nohup %s > /dev/null 2>&1 & disown", opts.cmd, opts.cmd)
+  else
+    cmd = string.format("nohup %s > /dev/null 2>&1 & disown", opts.cmd)
+  end
   local function reload_conf()
-    local output = vim.fn.system(opts.cmd)
-    local notify_opts = { title = opts.title or "Config" }
+    local output = vim.fn.system(cmd)
+    local notify_opts = { title = opts.title }
     local error = vim.v.shell_error ~= 0
     local mgs = ("%s %s %s"):format(
       error and "Error reloading" or "Reloaded",

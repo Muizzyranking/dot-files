@@ -36,8 +36,11 @@ return {
       signature = { enabled = false },
       sources = {
         default = { "lsp", "path", "snippets", "buffer" },
-        -- i don't like command line completions
-        cmdline = {},
+      },
+      -- i don't like command line completions
+      cmdline = {
+        enabled = false,
+        sources = {},
       },
       completion = {
         list = { selection = { preselect = true, auto_insert = false } },
@@ -55,19 +58,7 @@ return {
           draw = {
             treesitter = { "lsp" },
             columns = { { "kind_icon" }, { "label", "label_description" }, { "kind", gap = 1 } },
-            components = {
-              kind = {
-                ellipsis = false,
-                width = { fill = true },
-                text = function(ctx)
-                  return ("(%s)"):format(ctx.kind)
-                end,
-                highlight = function(ctx)
-                  return (require("blink.cmp.completion.windows.render.tailwind").get_hl(ctx) or "BlinkCmpKind")
-                    .. ctx.kind
-                end,
-              },
-            },
+            components = {},
           },
         },
         documentation = {
