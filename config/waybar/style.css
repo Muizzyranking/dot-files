@@ -1,6 +1,6 @@
 * {
   font-family: "JetBrainsMono Nerd Font", sans-serif;
-  font-size: 11px;
+  font-size: 12px;
   min-height: 20px;
   font-weight: bold;
   transition: all 0.1s ease;
@@ -137,7 +137,7 @@ tooltip label {
   border-radius: 6px;
   margin: 3px;
   border: none;
-  padding: 0 10px;
+  padding: 0 16px;
 }
 
 #clock {

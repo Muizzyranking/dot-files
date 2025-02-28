@@ -1,38 +1,45 @@
-@import "colors.css";
-
 * {
   font-family: "JetBrainsMono Nerd Font";
+  font-size: 23px;
+  font-weight: bold;
   box-shadow: none;
 }
 
 window {
-  /*opacity: 0.7;*/
+  background-color: rgba(30, 30, 46, 0.98);
   color: #cdd6f4;
-  background-color: #1e1e2e;
+  border: 1px solid #89b4fa;
+  border-radius: 12px;
+  padding: 6px;
 }
 
 button {
   background-repeat: no-repeat;
   background-position: center;
   background-size: 20%;
-  background-color: rgba(200, 220, 255, 0);
-  font-size: 23px;
-  margin: 120px 0px;
-  opacity: 0.8;
+  background-color: #313244;
+  color: #cdd6f4;
+  opacity: 0.9;
+  margin: 8px;
   border: none;
-  border-radius: 0px;
-  transition: 0.15s ease-in-out all;
+  border-radius: 8px;
+  padding: 10px;
+  transition: 0.2s ease-in-out all;
 }
 
 button:focus {
-  border-radius: 10%;
-  box-shadow: 0 0 50px #fab387;
+  background-color: #313244;
+  color: #89b4fa;
+  border-radius: 8px;
+  box-shadow: 0 0 15px #89b4fa;
 }
 
 button:hover {
-  background-size: 25%;
-  border-radius: 10%;
-  box-shadow: 0 0 50px #fab387;
+  background-size: 24%;
+  background-color: #313244;
+  color: #89b4fa;
+  border-radius: 8px;
+  box-shadow: 0 0 15px #89b4fa;
 }
 
 /* 
@@ -40,13 +47,8 @@ button:hover {
 Buttons
 ----------------------------------------------------- 
 */
-
 #lock {
-  border-radius: 50px 0px 0px 50px;
   background-image: image(url("icons/lock.png"));
-}
-#lock:hover {
-  border-radius: 50px;
 }
 
 #shutdown {
@@ -66,10 +68,5 @@ Buttons
 }
 
 #hibernate {
-  border-radius: 0px 50px 50px 0px;
-  background-image: image(url("icons/hibernate.png"));
-}
-#hibernate:hover {
-  border-radius: 50px;
   background-image: image(url("icons/hibernate.png"));
 }
