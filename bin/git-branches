@@ -1,0 +1,28 @@
+#!/bin/bash
+if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+  echo "Error: Not inside a git repository"
+  exit 1
+fi
+
+if ! command -v fzf > /dev/null 2>&1; then
+  echo "Error: fzf is not installed. Please install it first."
+  exit 1
+fi
+git_branches=$(git branch | sed 's/^[ *]*//' | sort -u)
+
+if [ -n "$TMUX" ]; then
+  selected_branch=$(echo "$git_branches" | fzf --tmux --height 40% --reverse --border --prompt="Select branch: ")
+else
+  selected_branch=$(echo "$git_branches" | fzf --height 40% --reverse --border --prompt="Select branch: ")
+fi
+
+if [ -z "$selected_branch" ]; then
+  echo "No branch selected"
+  exit 0
+fi
+
+# Simply check out the selected branch
+echo "Switching to '$selected_branch'"
+git checkout "$selected_branch"
+
+echo "Successfully checked out branch: $selected_branch"
