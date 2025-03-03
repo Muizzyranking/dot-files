@@ -354,9 +354,6 @@ function M.available_code_actions()
       print(action.raw)
       print("--------------------")
     end
-
-    -- Also return the actions table in case you want to use it programmatically
-    return actions
   end)
 end
 

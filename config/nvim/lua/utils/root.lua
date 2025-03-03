@@ -66,17 +66,19 @@ end
 function M.find_lsp_root(buf)
   local clients = Utils.lsp.get_clients({ bufnr = buf })
 
-  for _, client in pairs(clients) do
-    if client.config.workspace_folders then
-      for _, ws in pairs(client.config.workspace_folders) do
-        local path = vim.uri_to_fname(ws.uri)
-        if path then
-          return M.get_real_path(path)
+  if not vim.tbl_contains(clients, "copilot") then
+    for _, client in pairs(clients) do
+      if client.config.workspace_folders then
+        for _, ws in pairs(client.config.workspace_folders) do
+          local path = vim.uri_to_fname(ws.uri)
+          if path then
+            return M.get_real_path(path)
+          end
         end
       end
-    end
-    if client.config.root_dir then
-      return M.get_real_path(client.config.root_dir)
+      if client.config.root_dir then
+        return M.get_real_path(client.config.root_dir)
+      end
     end
   end
 

@@ -220,8 +220,8 @@ function M.create_abbrev(word, new_word, opts)
   local condition = opts.condition
   opts.condition = nil
   local mode = opts.mode or "ia"
+  opts.mode = nil
   opts = vim.tbl_extend("force", opts or {}, {
-    mode = nil,
     expr = true,
   })
   vim.keymap.set(mode, word, function()

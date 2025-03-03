@@ -14,7 +14,7 @@ function M.get_hl_color(name, ground)
   ground = ground or "fg"
   local hl = vim.api.nvim_get_hl and vim.api.nvim_get_hl(0, { name = name, link = false })
     or vim.api.nvim_get_hl_by_name(name, true)
-  local color = hl and (ground == "fg" and (hl.fg or hl.foreground) or (hl.fg or hl.foreground))
+  local color = hl and (ground == "fg" and (hl.fg or hl.foreground) or (hl.bg or hl.background))
   local ret = ("#%06x"):format(color)
   return color and ret or " "
 end

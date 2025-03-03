@@ -103,7 +103,7 @@ function M.set_keymap(mapping)
   end
 end
 
----@param mappings map.KeymapOpts[] Keymap options
+---@param mappings map.KeymapOpts[] # Keymap options
 function M.set_keymaps(mappings)
   if type(mappings) ~= "table" then
     return
@@ -179,7 +179,7 @@ end
 ---------------------------------------------------------------
 ---Create multiple toggle mappings
 ---@param mappings map.ToggleOpts[]
----@return table[]|nil success or mapping tables
+---@return table[]|nil # success or mapping tables
 ---------------------------------------------------------------
 function M.toggle_maps(mappings)
   local results = {}
