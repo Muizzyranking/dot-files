@@ -86,6 +86,7 @@ return {
             padding = 1,
           }
         end,
+        { section = "startup" },
       },
     }
     vim.api.nvim_create_autocmd("User", {
