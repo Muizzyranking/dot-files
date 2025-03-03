@@ -1,6 +1,6 @@
 * {
     /* Import color variables from Catppuccin palette */
-    bg-col: #1e1e2e;
+    bg-col: #10111a;
     bg-col-light: #313244;
     border-col: #89b4fa;
     selected-col: #313244;
