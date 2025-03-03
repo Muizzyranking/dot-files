@@ -175,7 +175,8 @@ tooltip label {
   color: #f38ba8;
 }
 
-#battery.critical:not(.charging) {
+#battery.critical:not(.charging),
+#battery.critical:not(.charging) + #power-profiles-daemon {
   background: linear-gradient(45deg, #f38ba8, #f53c3c);
   color: #1e1e2e;
   animation-name: blink;
@@ -185,6 +186,16 @@ tooltip label {
   animation-direction: alternate;
   border-radius: 6px;
   border: none;
+}
+
+#battery.critical:not(.charging) + #power-profiles-daemon {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+#battery.critical:not(.charging) {
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
 }
 
 @keyframes blink {
