@@ -2,6 +2,36 @@
 local M = {}
 local window_width_limit = 100
 
+local function truncate_or_hide(str, max_width)
+  local win_width = vim.api.nvim_win_get_width(0)
+  if win_width < 60 then
+    return ""
+  end -- Hide if window is too narrow
+
+  max_width = max_width or math.floor(win_width / 4)
+  if #str > max_width then
+    return str:sub(1, max_width - 1) .. "…"
+  end
+  return str
+end
+
+local function truncate_lsp_name(name)
+  -- If the name contains "_", take the first part before "_"
+  if name:find("_") then
+    name = name:match("([^_]+)")
+  elseif name:find("language") or name:find("ls") then
+    -- Extract the word before "language" or "ls"
+    name = name:match("(%S+)%-?language") or name:match("(%S+)%-?ls") or name
+  end
+
+  -- Fallback truncation if still too long
+  if #name > 10 then
+    name = name:sub(1, 10) .. "…"
+  end
+
+  return name
+end
+
 --------------------------------------------------------------------------------------
 -- Define a mapping between vim modes and their corresponding icons
 --------------------------------------------------------------------------------------
@@ -75,6 +105,9 @@ M.file = {
     local hl_group = is_exec and "DiagnosticOk" or "Constant"
     return { fg = Utils.ui.get_hl_color(hl_group), gui = "italic,bold" }
   end,
+  fmt = function(str)
+    return truncate_or_hide(str, 25)
+  end,
 }
 
 ------------------------------------------------------------------------------
@@ -96,7 +129,7 @@ M.lsp = {
     local client_names = {}
     for _, client in pairs(buf_clients) do
       if client.name ~= "conform" and client.name ~= "copilot" then
-        client_names[#client_names + 1] = client.name
+        table.insert(client_names, truncate_lsp_name(client.name))
       end
     end
     if #client_names == 0 then
@@ -172,7 +205,10 @@ function M.root_dir()
     cond = function()
       return get() ~= nil
     end,
-    color = { fg = Utils.ui.get_hl_color("Special") },
+    color = M.fg("Special"),
+    fmt = function(str)
+      return truncate_or_hide(str, 25)
+    end,
   }
 end
 
