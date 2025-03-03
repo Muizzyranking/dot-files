@@ -14,6 +14,8 @@
 
 ![image](https://muizzyranking.github.io/images/dot_images/rofi_shot.png)
 
+![image](https://muizzyranking.github.io/images/dot_images/sddm.png)
+
 ## Used software
 
 ### Base
