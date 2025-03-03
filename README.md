@@ -6,10 +6,13 @@
 
 ## Showcase
 
-![image](https://muizzyranking.github.io/images/Assets/nvim-show.png)
-![image](https://muizzyranking.github.io/images/Assets/spotiy.png)
-![image](https://muizzyranking.github.io/images/Assets/home.png)
-![image](https://muizzyranking.github.io/images/Assets/rofi.png)
+![image](https://muizzyranking.github.io/images/dot_images/nvim_shot.png)
+
+![image](https://muizzyranking.github.io/images/dot_images/spotify.png)
+
+![image](https://muizzyranking.github.io/images/dot_images/home_shot.png)
+
+![image](https://muizzyranking.github.io/images/dot_images/rofi_shot.png)
 
 ## Used software
 
