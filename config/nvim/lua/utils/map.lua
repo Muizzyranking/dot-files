@@ -189,6 +189,56 @@ function M.toggle_maps(mappings)
   return #results > 0 and results or nil
 end
 
+-----------------------------------
+-- create abbreviations
+---@param word string
+---@param new_word string
+---@param opts table
+-----------------------------------
+function M.create_abbrev(word, new_word, opts)
+  if not word or not new_word then
+    return
+  end
+  opts = opts or {}
+  local condition = opts.condition
+  opts.condition = nil
+  local mode = opts.mode or "ia"
+  opts.mode = nil
+  opts = vim.tbl_extend("force", opts or {}, {
+    expr = true,
+  })
+  vim.keymap.set(mode, word, function()
+    local cond = not condition or (type(condition) == "function" and condition())
+    if cond then
+      return new_word
+    end
+    return word
+  end, opts)
+end
+
+---------------------------------------------------------------
+---Create multiple abbreviations with shared options
+---@param abbrevs table[] # List of abbreviation pairs {word, new_word} or {word, new_word, opts}
+---@param opts? table # Shared options for all abbreviations
+---------------------------------------------------------------
+function M.create_abbrevs(abbrevs, opts)
+  if type(abbrevs) ~= "table" then
+    return
+  end
+
+  opts = opts or {}
+
+  for _, abbrev in ipairs(abbrevs) do
+    local word = abbrev[1]
+    local new_word = abbrev[2]
+    local abbrev_opts = abbrev[3] or {}
+
+    local merged_opts = vim.tbl_deep_extend("force", {}, opts, abbrev_opts)
+
+    M.create_abbrev(word, new_word, merged_opts)
+  end
+end
+
 ---------------------------------------------------------------
 ---Add mappings to which-key without setting them
 ---@param mappings table|table[] Which-key mapping definitions

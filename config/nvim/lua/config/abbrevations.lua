@@ -1,8 +1,10 @@
-Utils.map.create_abbrev("dont", "don't")
-Utils.map.create_abbrev("Dont", "Don't")
-Utils.map.create_abbrev("lcaol", "local")
-Utils.map.create_abbrev("lcoal", "local")
-Utils.map.create_abbrev("locla", "local")
-Utils.map.create_abbrev("sahre", "share")
-Utils.map.create_abbrev("saher", "share")
-Utils.map.create_abbrev("balme", "blame")
+Utils.map.create_abbrevs({
+  { "dont", "don't" },
+  { "Dont", "Don't" },
+  { "lcaol", "local" },
+  { "lcoal", "local" },
+  { "locla", "local" },
+  { "sahre", "share" },
+  { "saher", "share" },
+  { "balme", "blame" },
+}, {})
