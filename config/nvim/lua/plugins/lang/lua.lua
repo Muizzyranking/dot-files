@@ -40,6 +40,7 @@ return {
     shiftwidth = 2,
     tabstop = 2,
   },
+  root_patterns = { "lua", "init.lua" },
   keys = {
     {
       "<leader>sh",

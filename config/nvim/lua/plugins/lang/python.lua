@@ -100,6 +100,7 @@ return {
       "htmldjango",
     },
   },
+  root_patterns = { "manage.py", "main.py" },
   autocmds = {
     {
       pattern = "html",
@@ -120,17 +121,17 @@ return {
     {
       pattern = "python",
       callback = function(event)
-        local buf = event.buf
-        local opts = {
-          buffer = buf,
+        Utils.map.create_abbrevs({
+          { "true", "True" },
+          { "ture", "True" },
+          { "false", "False" },
+          { "flase", "False" },
+        }, {
+          buffer = event.buf,
           condition = function()
             return Utils.ts.is_active() and not Utils.ts.find_node({ "comment", "string" })
           end,
-        }
-        Utils.create_abbrev("true", "True", opts)
-        Utils.create_abbrev("ture", "True", opts)
-        Utils.create_abbrev("false", "False", opts)
-        Utils.create_abbrev("flase", "False", opts)
+        })
       end,
     },
   },

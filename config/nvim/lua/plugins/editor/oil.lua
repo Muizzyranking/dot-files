@@ -19,8 +19,16 @@ return {
       },
     },
     opts = function()
-      -- disable cmp in oil buffer
       local detail = false
+      local oil_autocmd = vim.api.nvim_create_augroup("OilSetup", {})
+      vim.api.nvim_create_autocmd("BufEnter", {
+        desc = "Ensure that oil buffers are not listed.",
+        group = oil_autocmd,
+        pattern = "oil://*",
+        callback = function(info)
+          vim.bo[info.buf].buflisted = false
+        end,
+      })
       return {
         default_file_explorer = true,
         delete_to_trash = true,

@@ -209,60 +209,26 @@ return {
       function()
         vim.api.nvim_feedkeys("t", "n", true) -- pass through the trigger char
         local col = vim.api.nvim_win_get_cursor(0)[2]
-        local textBeforeCursor = vim.api.nvim_get_current_line():sub(col - 3, col)
-        if textBeforeCursor ~= "awai" then
-          return
-        end
-        -----------------------------------------------------------------------------
-        local funcNode
-        local functionNodes = { "arrow_function", "function_declaration", "function" }
-        local safety_counter = 0
-        local max_iterations = 100 -- Prevent infinite loops
-
-        -- Get initial node
-        local current_node = vim.treesitter.get_node()
-        if not current_node then
-          print("No treesitter node found at cursor")
+        local text_before_cursor = vim.api.nvim_get_current_line():sub(col - 3, col)
+        if text_before_cursor ~= "awai" then
           return
         end
 
-        repeat
-          safety_counter = safety_counter + 1
-          funcNode = current_node
-          current_node = current_node:parent()
-
-          -- Safety checks
-          if safety_counter >= max_iterations then
-            print("Exceeded maximum number of parent node checks")
-            return
-          end
-
-          if not current_node then
-            print("Reached root without finding function node")
-            return
-          end
-
-          funcNode = current_node
-        until vim.tbl_contains(functionNodes, funcNode:type())
-
-        -- Additional validation before modification
-        if not funcNode or not funcNode:type() then
-          print("Invalid function node")
+        local func_node = Utils.ts.find_node({ "arrow_function", "function_declaration", "function" })
+        if not func_node then
+          return
+        end
+        local func_text = vim.treesitter.get_node_text(func_node, 0)
+        if not func_text then
           return
         end
 
-        local functionText = vim.treesitter.get_node_text(funcNode, 0)
-        if not functionText then
-          print("Could not get function text")
-          return
-        end
-
-        if vim.startswith(functionText, "async") then
+        if vim.startswith(func_text, "async") then
           return
         end -- already async
 
-        local startRow, startCol = funcNode:start()
-        vim.api.nvim_buf_set_text(0, startRow, startCol, startRow, startCol, { "async " })
+        local start_row, start_col = func_node:start()
+        vim.api.nvim_buf_set_text(0, start_row, start_col, start_row, start_col, { "async " })
       end,
       mode = "i",
       desc = "Auto add async",

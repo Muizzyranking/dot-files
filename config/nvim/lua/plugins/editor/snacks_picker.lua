@@ -4,6 +4,7 @@ return {
     opts = {
       picker = {
         prompt = " ",
+        ui_select = true,
         sources = {
           files = {
             exclude = { ".git", ".cache" },

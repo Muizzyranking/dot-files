@@ -2,6 +2,19 @@
 local M = {}
 
 -------------------------------------------------
+---Only checks whether treesitter highlighting is active in `buf`
+---Should be faster than `utils.ts.is_active()`
+---@param buf integer? default: current buffer
+---@return boolean
+-------------------------------------------------
+function M.hl_is_active(buf)
+  if not buf or buf == 0 then
+    buf = vim.api.nvim_get_current_buf()
+  end
+  return vim.treesitter.highlighter.active[buf] ~= nil
+end
+
+-------------------------------------------------
 ---Returns whether treesitter is active in `buf`
 ---@param buf integer? default: current buffer
 ---@return boolean
