@@ -51,7 +51,7 @@ return {
       if not api.nvim_buf_is_valid(buffer) then
         return
       end
-      require("plugins.lsp.lspconfig.keymaps").on_attach(client, buffer)
+      require("plugins.lsp.lspconfig.keymaps").on_attach(client, buffer, opts)
       Utils.lsp.on_support_methods("textDocument/documentHighlight", function()
         if client.server_capabilities.documentHighlightProvider then
           if not api.nvim_buf_is_valid(buffer) then
@@ -80,7 +80,9 @@ return {
       end)
     end)
     Utils.lsp.setup()
-    Utils.lsp.on_dynamic_capability(require("plugins.lsp.lspconfig.keymaps").on_attach)
+    Utils.lsp.on_dynamic_capability(function(client, buffer)
+      require("plugins.lsp.lspconfig.keymaps").on_attach(client, buffer, opts)
+    end)
 
     local has_blink, blink = pcall(require, "blink.cmp")
     local capabilities = vim.tbl_deep_extend(

@@ -173,10 +173,9 @@ function M.get()
 end
 
 local all_keys = {}
-function M.on_attach(_, buffer)
+function M.on_attach(_, buffer, opts)
   local clients = Utils.lsp.get_clients({ bufnr = buffer })
   local keys = vim.tbl_extend("force", {}, M.get())
-  local opts = Utils.get_opts("nvim-lspconfig")
   for _, client in ipairs(clients) do
     local maps = opts.servers[client.name] and opts.servers[client.name].keys or {}
     vim.list_extend(keys, maps)
