@@ -51,7 +51,6 @@ return {
               end
             end,
             desc = "Next Hunk",
-            buffer = buffer,
             icon = { icon = "󰊢 " },
           },
           {
@@ -64,14 +63,12 @@ return {
               end
             end,
             desc = "Prev Hunk",
-            buffer = buffer,
             icon = { icon = "󰊢 " },
           },
           {
             "<leader>ghs",
             "<cmd>Gitsigns stage_hunk<CR>",
             desc = "Stage Hunk",
-            buffer = buffer,
             icon = { icon = "󰊢 " },
             mode = { "n", "v" },
           },
@@ -79,7 +76,6 @@ return {
             "<leader>ghr",
             "<cmd>Gitsigns reset_hunk<CR>",
             desc = "Reset Hunk",
-            buffer = buffer,
             icon = { icon = "󰜉 " },
             mode = { "n", "v" },
           },
@@ -87,28 +83,24 @@ return {
             "<leader>ghp",
             gs.preview_hunk_inline,
             desc = "Preview Hunk Inline",
-            buffer = buffer,
             icon = { icon = " " },
           },
           {
             "<leader>ghu",
             gs.undo_stage_hunk,
             desc = "Undo Stage Hunk",
-            buffer = buffer,
             icon = { icon = " " },
           },
           {
             "<leader>gs",
             gs.stage_buffer,
             desc = "Stage Buffer",
-            buffer = buffer,
             icon = { icon = " ", color = "green" },
           },
           {
             "<leader>gr",
             gs.reset_buffer,
             desc = "Reset Buffer",
-            buffer = buffer,
             icon = { icon = " " },
           },
           {
@@ -117,14 +109,12 @@ return {
               gs.blame_line({ full = true })
             end,
             desc = "Blame Line",
-            buffer = buffer,
             icon = { icon = " " },
           },
           {
             "<leader>gd",
             gs.diffthis,
             desc = "Diff this",
-            buffer = buffer,
             icon = { icon = " " },
           },
           {
@@ -133,10 +123,9 @@ return {
               gs.diffthis("~")
             end,
             desc = "Diff this ~",
-            buffer = buffer,
             icon = { icon = " " },
           },
-        })
+        }, { buffer = buffer })
       end,
     },
   },

@@ -225,7 +225,7 @@ if Utils.is_in_git_repo() then
   end
 end
 
-Utils.map.set_keymaps(maps)
+Utils.map.set_keymaps(maps, { silent = true })
 
 ------------------------------------
 -- toggle keymaps

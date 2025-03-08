@@ -103,16 +103,21 @@ function M.set_keymap(mapping)
   end
 end
 
+---------------------------------------------------------------
 ---@param mappings map.KeymapOpts[] # Keymap options
-function M.set_keymaps(mappings)
+---@param opts? table #  Shared options for all mappings
+---------------------------------------------------------------
+function M.set_keymaps(mappings, opts)
   if type(mappings) ~= "table" then
     return
   end
   if type(mappings[1]) ~= "table" then
     mappings = { mappings }
   end
+  opts = opts or {}
   for _, map in ipairs(mappings) do
-    M.set_keymap(map)
+    local new_map = vim.tbl_deep_extend("force", {}, opts, map)
+    M.set_keymap(new_map)
   end
 end
 
