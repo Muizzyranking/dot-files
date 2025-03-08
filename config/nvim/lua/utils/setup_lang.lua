@@ -256,10 +256,7 @@ function M.setup_language(config)
   -- Setup filetype-specific keymaps
   if config.keys then
     create_autocmd("Filetype", config.ft, function(event)
-      for _, mapping in ipairs(config.keys) do
-        mapping.buffer = event.buf
-      end
-      Utils.map.set_keymaps(config.keys)
+      Utils.map.set_keymaps(config.keys, { buffer = event.buf })
     end)
   end
 
@@ -277,6 +274,10 @@ function M.setup_language(config)
         end
       end
     end)
+  end
+
+  if config.root_patterns then
+    Utils.root.add_patterns(config.root_patterns)
   end
 
   return plugins
