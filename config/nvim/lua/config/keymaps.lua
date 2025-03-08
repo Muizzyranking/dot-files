@@ -66,7 +66,9 @@ set("n", "<Esc>", "<cmd>nohlsearch<CR>") -- Clear search highlight on pressing <
 ------------------------
 set("i", ("<c-%s>"):format(
   Utils.is_in_tmux() and "o" or "cr"
-), "<esc>o", { desc = "Go to next line", remap = true }) -- go to next line in insert
+), function()
+  vim.cmd.normal({ "o", bang = true })
+end, { desc = "Go to next line", remap = true }) -- go to next line in insert
 
 set("i", "<C-b>", "<esc>I", { desc = "Go to beginning of line" }) -- Go to beginning of line in insert
 set({ "n", "v" }, "B", "^", { desc = "Go to beginning of line" }) -- go to beginning of line in normal
@@ -329,7 +331,7 @@ if Utils.is_in_tmux() then
           vim.api.nvim_exec_autocmds("User", { pattern = "TmuxBarToggle" })
           is_executed = true
         end
-        os.execute(string.format("tmux set-option -g status %s", state and "off" or "on"))
+        vim.system({ "tmux", "set-option", "-g", "status", ("%s"):format(state and "off" or "on") })
         Utils.notify(("%s Tmux Bar"):format(state and "Hide" or "Show"), { title = "Tmux" })
       end,
       desc = function(state)
