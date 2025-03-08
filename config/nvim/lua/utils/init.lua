@@ -206,33 +206,6 @@ function M.reload_config(opts)
   })
 end
 
------------------------------------
--- create abbreviations
----@param word string
----@param new_word string
----@param opts table
------------------------------------
-function M.create_abbrev(word, new_word, opts)
-  if not word or not new_word then
-    return
-  end
-  opts = opts or {}
-  local condition = opts.condition
-  opts.condition = nil
-  local mode = opts.mode or "ia"
-  opts.mode = nil
-  opts = vim.tbl_extend("force", opts or {}, {
-    expr = true,
-  })
-  vim.keymap.set(mode, word, function()
-    local cond = not condition or (type(condition) == "function" and condition())
-    if cond then
-      return new_word
-    end
-    return word
-  end, opts)
-end
-
 -----------------------------
 -- shows nvim version
 ---@return string

@@ -123,32 +123,32 @@ end
 
 ---------------------------------------------------------------
 ---Create a toggle mapping
----@param opts map.ToggleOpts
+---@param mapping map.ToggleOpts
 ---------------------------------------------------------------
-function M.toggle_map(opts)
-  local ok = is_toggle_opts(opts)
+function M.toggle_map(mapping)
+  local ok = is_toggle_opts(mapping)
   if not ok then
     return
   end
-  local mapping = {
-    opts[1],
-    opts.toggle_fn or function()
-      opts.change_state(opts.get_state())
-      if opts.notify ~= false then
-        Utils.notify[opts.get_state() and "info" or "warn"](
-          ("%s %s"):format(opts.get_state() and "Enabled" or "Disabled", opts.name),
-          { title = opts.name }
+  local map = {
+    mapping[1],
+    mapping.toggle_fn or function()
+      mapping.change_state(mapping.get_state())
+      if mapping.notify ~= false then
+        Utils.notify[mapping.get_state() and "info" or "warn"](
+          ("%s %s"):format(mapping.get_state() and "Enabled" or "Disabled", mapping.name),
+          { title = mapping.name }
         )
       end
     end,
-    mode = opts.mode or "n",
-    desc = type(opts.desc) == "function" and function()
-      return opts.desc(opts.get_state())
-    end or opts.desc or ("Toggle %s"):format(opts.name),
+    mode = mapping.mode or "n",
+    desc = type(mapping.desc) == "function" and function()
+      return mapping.desc(mapping.get_state())
+    end or mapping.desc or ("Toggle %s"):format(mapping.name),
     icon = function()
-      local state = opts.get_state()
-      local icon = opts.icon or {}
-      local color = opts.color or {}
+      local state = mapping.get_state()
+      local icon = mapping.icon or {}
+      local color = mapping.color or {}
       return {
         icon = state and (icon.enabled or "  ") or (icon.disabled or " "),
         color = state and (color.enabled or "green") or (color.disabled or "yellow"),
@@ -156,9 +156,9 @@ function M.toggle_map(opts)
     end,
   }
 
-  for k, v in pairs(opts) do
-    if mapping[k] == nil then
-      mapping[k] = v
+  for k, v in pairs(mapping) do
+    if map[k] == nil then
+      map[k] = v
     end
   end
 
@@ -171,14 +171,14 @@ function M.toggle_map(opts)
     "notify",
     "set_key",
   }) do
-    mapping[field] = nil
+    map[field] = nil
   end
 
-  if opts.set_key ~= false then
-    M.set_keymap(mapping)
+  if mapping.set_key ~= false then
+    M.set_keymap(map)
   end
 
-  return mapping
+  return map
 end
 
 ---------------------------------------------------------------
@@ -186,10 +186,18 @@ end
 ---@param mappings map.ToggleOpts[]
 ---@return table[]|nil # success or mapping tables
 ---------------------------------------------------------------
-function M.toggle_maps(mappings)
+function M.toggle_maps(mappings, opts)
+  if type(mappings) ~= "table" then
+    return nil
+  end
   local results = {}
+  opts = opts or {}
   for _, map in ipairs(mappings) do
-    table.insert(results, M.toggle_map(map))
+    local merged_opts = vim.tbl_deep_extend("force", {}, opts, map)
+    local result = M.toggle_map(merged_opts)
+    if result then
+      table.insert(results, result)
+    end
   end
   return #results > 0 and results or nil
 end
