@@ -17,7 +17,6 @@ export TMUXRC=$dotfile_dir/config/tmux/tmux.conf
 export PATH=$HOME/.npm-global/bin:$PATH
 export PATH=$dotfile_dir/bin:$PATH
 export PATH=~/bin/lua_ls/bin:$PATH
-export PATH=$HOME/go/bin:$PATH
 export PATH=$HOME/.local/bin:$PATH
 
 # export PATH=~/nvim-linux64/bin:$PATH
