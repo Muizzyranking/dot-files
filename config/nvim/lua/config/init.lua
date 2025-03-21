@@ -54,6 +54,8 @@ vim.api.nvim_create_autocmd("User", {
     end
     load_module("keymaps")
     load_module("abbrevations")
+    require("tracker").setup()
+    require("utils.root").setup()
   end,
 })
 
