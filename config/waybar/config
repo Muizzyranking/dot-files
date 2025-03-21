@@ -14,6 +14,7 @@
   ],
   "modules-right": [
     "custom/spotify",
+    "custom/color_picker",
     "tray",
     "network",
     "bluetooth",
@@ -269,5 +270,10 @@
     "on-click": "playerctl -p spotify play-pause",
     "on-scroll-up": "playerctl -p spotify previous",
     "on-scroll-down": "playerctl -p spotify next"
+  },
+  "custom/color_picker": {
+    "format": "🧷",
+    "tooltip": false,
+    "on-click": "hyprpicker -a / –autocopy"
   }
 }
