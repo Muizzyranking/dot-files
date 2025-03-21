@@ -16,15 +16,16 @@ local function truncate_or_hide(str, max_width)
 end
 
 local function truncate_lsp_name(name)
-  -- If the name contains "_", take the first part before "_"
+  if #name < 10 then
+    return name
+  end
+
   if name:find("_") then
     name = name:match("([^_]+)")
   elseif name:find("language") or name:find("ls") then
-    -- Extract the word before "language" or "ls"
     name = name:match("(%S+)%-?language") or name:match("(%S+)%-?ls") or name
   end
 
-  -- Fallback truncation if still too long
   if #name > 10 then
     name = name:sub(1, 10) .. "…"
   end
