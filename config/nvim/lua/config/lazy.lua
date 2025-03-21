@@ -52,6 +52,8 @@ require("lazy").setup({
         "tohtml",
         "tutor",
         "zipPlugin",
+        "osc52",
+        "rplugin",
       },
     },
   },
