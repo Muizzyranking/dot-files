@@ -198,6 +198,9 @@ create_autocmd({ "BufLeave", "FocusLost", "InsertEnter", "WinLeave" }, {
   group = toggle_relnu,
   desc = "togger line number",
   callback = function()
+    if vim.b.bigfile then
+      return
+    end
     if vim.wo.number then
       vim.wo.relativenumber = false
     end
@@ -244,102 +247,8 @@ create_autocmd({ "InsertEnter", "CmdlineEnter" }, {
 })
 
 -----------------------------------------------------------
--- set buffer big file detection
+-- put help page at the bottom
 -----------------------------------------------------------
-create_autocmd({ "BufReadPre" }, {
-  desc = "Detect big files.",
-  callback = function(event)
-    vim.g.bigfile = vim.g.bigfile or 1.5 * 1024 * 1024
-    vim.g.bigfile_max_lines = vim.g.bigfile_max_lines or 32768
-    local buf = event.buf
-    if vim.b[buf].bigfile then
-      return
-    end
-    if event.match then
-      local stat = vim.uv.fs_stat(event.match)
-      if stat and stat.size > vim.g.bigfile then
-        vim.b[buf].bigfile = true
-        return
-      end
-    end
-    if vim.api.nvim_buf_line_count(buf) > vim.g.bigfile_max_lines then
-      vim.b[buf].bigfile = true
-    end
-  end,
-})
-
-create_autocmd({ "FileType" }, {
-  once = true,
-  desc = "Prevent treesitter and LSP from attaching to big files.",
-  callback = function(event)
-    vim.api.nvim_del_autocmd(event.id)
-
-    local ts_get_parser = vim.treesitter.get_parser
-    local ts_foldexpr = vim.treesitter.foldexpr
-    local lsp_start = vim.lsp.start
-
-    ---@diagnostic disable-next-line: duplicate-set-field
-    function vim.treesitter.get_parser(buf, ...)
-      if buf == nil or buf == 0 then
-        buf = vim.api.nvim_get_current_buf()
-      end
-      -- HACK: Getting parser for a big buffer can freeze nvim, so return a
-      -- fake parser on an empty buffer if current buffer is big
-      if vim.api.nvim_buf_is_valid(buf) and vim.b[buf].bigfile then
-        return vim.treesitter._create_parser(
-          vim.api.nvim_create_buf(false, true),
-          vim.treesitter.language.get_lang(vim.bo.ft) or vim.bo.ft
-        )
-      end
-      return ts_get_parser(buf, ...)
-    end
-
-    ---@diagnostic disable-next-line: duplicate-set-field
-    function vim.treesitter.foldexpr(...)
-      if vim.b.bigfile then
-        return
-      end
-      return ts_foldexpr(...)
-    end
-
-    ---@diagnostic disable-next-line: duplicate-set-field
-    function vim.lsp.start(...)
-      if vim.b.bigfile then
-        return
-      end
-      return lsp_start(...)
-    end
-  end,
-})
-
-create_autocmd("BufReadPre", {
-  desc = "Disable options in big files.",
-  callback = function(event)
-    local buf = event.buf
-    if not vim.b[buf].bigfile then
-      return
-    end
-    vim.api.nvim_buf_call(buf, function()
-      vim.opt_local.spell = false
-      vim.opt_local.swapfile = false
-      vim.opt_local.undofile = false
-      vim.opt_local.breakindent = false
-      vim.opt_local.foldmethod = "manual"
-    end)
-  end,
-})
-
-create_autocmd({ "BufEnter", "TextChanged", "FileType" }, {
-  desc = "Stop treesitter in big files.",
-  callback = function(event)
-    local buf = event.buf
-    if vim.b[buf].bigfile and Utils.ts.hl_is_active(buf) then
-      vim.treesitter.stop(buf)
-      vim.bo[buf].syntax = vim.filetype.match({ buf = buf }) or vim.bo[buf].bt
-    end
-  end,
-})
-
 create_autocmd({ "FileType", "BufEnter", "BufWinEnter" }, {
   pattern = "help",
   callback = function()
@@ -376,7 +285,7 @@ create_autocmd({ "BufEnter", "BufWritePost", "TextChanged", "FileType" }, {
     local buf = event.buf or vim.api.nvim_get_current_buf()
     local ft = vim.bo[buf].filetype
     local is_empty = vim.fn.getline(1) == "" and vim.fn.line("$") == 1
-    local excluded_filetypes = { "text", "txt", "" }
+    local excluded_filetypes = { "text", "txt", "", "bigfile" }
 
     if not vim.api.nvim_buf_is_valid(buf) then
       vim.cmd("TSBufDisable incremental_selection")
@@ -390,3 +299,5 @@ create_autocmd({ "BufEnter", "BufWritePost", "TextChanged", "FileType" }, {
     vim.cmd("TSBufEnable incremental_selection")
   end,
 })
+
+require("utils.bigfile").setup()
