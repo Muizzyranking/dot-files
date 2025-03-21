@@ -1,14 +1,15 @@
 ---@class utils.root
 local M = setmetatable({}, {
-  ---@param opts? {patterns?: string|string[], buf?: number}
-  __call = function(m, opts)
-    return m.get(opts)
+  ---@param buf? number
+  __call = function(m, buf)
+    return m.get(buf)
   end,
 })
 
 -- Default root patterns
 M.root_patterns = { ".git" }
 M.ignore_lsp = { "copilot" }
+M.filetype_patterns = {}
 
 -- Cache for root directories by buffer
 ---@type table<number, string>
@@ -72,11 +73,12 @@ function M.find_lsp_root(buf)
   end
 
   local roots = {} ---@type string[]
-  local clients = Utils.lsp.get_clients({ bufnr = buf })
-
-  clients = vim.tbl_filter(function(client)
-    return not vim.tbl_contains(M.ignore_lsp, client.name)
-  end, clients)
+  local clients = Utils.lsp.get_clients({
+    bufnr = buf,
+    filter = function(client)
+      return not vim.tbl_contains(M.ignore_lsp, client.name)
+    end,
+  })
 
   for _, client in pairs(clients) do
     if client.config.workspace_folders then
@@ -100,24 +102,47 @@ end
 
 ---------------------------------------------------------------
 -- Add patterns to the root patterns
----@param patterns string|string[] patterns to add
+---@param patterns string|string[] # patterns to add
+---@param filetype? string
 ---------------------------------------------------------------
-function M.add_patterns(patterns)
+function M.add_patterns(patterns, filetype)
   patterns = type(patterns) == "string" and { patterns } or patterns
-  for _, pattern in ipairs(patterns) do
-    if not vim.tbl_contains(M.root_patterns, pattern) then
-      table.insert(M.root_patterns, pattern)
+  if filetype and filetype ~= "*" then
+    M.filetype_patterns[filetype] = M.filetype_patterns[filetype] or {}
+    for _, pattern in ipairs(patterns) do
+      if not vim.tbl_contains(M.filetype_patterns[filetype], pattern) then
+        table.insert(M.filetype_patterns[filetype], pattern)
+      end
+    end
+  else
+    for _, pattern in ipairs(patterns) do
+      if not vim.tbl_contains(M.root_patterns, pattern) then
+        table.insert(M.root_patterns, pattern)
+      end
     end
   end
 end
 
+---@param filetype string
+---@return string[] # combined pattern
+function M.get_ft_pattern(filetype)
+  local pattern = vim.deepcopy(M.root_patterns)
+  if filetype and M.filetype_patterns[filetype] then
+    for _, p in ipairs(M.filetype_patterns[filetype]) do
+      if not vim.tbl_contains(pattern, p) then
+        table.insert(pattern, p)
+      end
+    end
+  end
+  return pattern
+end
+
 ---------------------------------------------------------------
 -- Get the project root directory
----@param opts? {patterns?: string|string[], buf?: number}
+---@param buf? number
 ---------------------------------------------------------------
-function M.get(opts)
-  opts = opts or {}
-  local buf = opts.buf or vim.api.nvim_get_current_buf()
+function M.get(buf)
+  buf = (buf == nil or buf == 0) and vim.api.nvim_get_current_buf() or buf
 
   if M.cache[buf] then
     return M.cache[buf]
@@ -130,8 +155,8 @@ function M.get(opts)
     return root
   end
 
-  -- Then try pattern matching
-  local patterns = opts.patterns or M.root_patterns
+  local filetype = vim.api.nvim_buf_get_option(buf, "filetype")
+  local patterns = M.get_ft_pattern(filetype)
   root = M.find_pattern_root(buf, patterns)
   if root then
     M.cache[buf] = root
@@ -147,11 +172,13 @@ end
 ---------------------------------------------------------------
 -- Setup autocmds to clear root cache
 ---------------------------------------------------------------
-vim.api.nvim_create_autocmd({ "LspAttach", "BufWritePost", "DirChanged", "BufEnter" }, {
-  group = vim.api.nvim_create_augroup("utils_root_cache", { clear = true }),
-  callback = function(event)
-    M.cache[event.buf] = nil
-  end,
-})
+function M.setup()
+  vim.api.nvim_create_autocmd({ "LspAttach", "BufWritePost", "DirChanged", "BufEnter" }, {
+    group = vim.api.nvim_create_augroup("utils_root_cache", { clear = true }),
+    callback = function(event)
+      M.cache[event.buf] = nil
+    end,
+  })
+end
 
 return M
