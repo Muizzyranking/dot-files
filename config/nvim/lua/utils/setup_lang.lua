@@ -277,9 +277,7 @@ function M.setup_language(config)
   end
 
   if config.root_patterns then
-    for _, ft in ipairs(config.ft) do
-      Utils.root.add_patterns(config.root_patterns, ft)
-    end
+    Utils.root.add_patterns(config.root_patterns)
   end
 
   return plugins
