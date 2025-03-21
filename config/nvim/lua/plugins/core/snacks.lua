@@ -4,10 +4,7 @@ return {
   priority = 1000,
   opts = {
     input = {},
-    bigfile = {
-      enabled = true,
-      size = vim.g.bigfile,
-    },
+    bigfile = { enabled = false },
     notifier = { enabled = true },
     quickfile = { enabled = true },
     statuscolumn = { enabled = false },
