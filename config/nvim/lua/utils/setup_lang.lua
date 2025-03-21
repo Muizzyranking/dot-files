@@ -277,7 +277,9 @@ function M.setup_language(config)
   end
 
   if config.root_patterns then
-    Utils.root.add_patterns(config.root_patterns)
+    for _, ft in ipairs(config.ft) do
+      Utils.root.add_patterns(config.root_patterns, ft)
+    end
   end
 
   return plugins
@@ -293,11 +295,13 @@ function M.add_lang(langs)
   langs = (type(langs) == "table" and langs or { langs }) or { "lua" }
   local results = {}
   for _, lang in ipairs(langs) do
-    if not M._registered[lang] then
+    if M._registered[lang] then
+      table.insert(results, M._registered[lang])
+    else
       local ok, lang_config = pcall(require, "plugins.lang." .. lang)
       if ok then
-        M._registered[lang] = true
         local lang_setup = M.setup_language(lang_config)
+        M._registered[lang] = lang_setup
         table.insert(results, lang_setup)
       end
     end
