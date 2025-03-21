@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+remote_url=$(git remote get-url origin)
+
+# Convert SSH URLs to HTTPS
+if [[ $remote_url == git@* ]]; then
+    remote_url=$(echo "$remote_url" | sed 's/git@\(.*\):\(.*\)\.git/https:\/\/\1\/\2/')
+fi
+
+# Remove .git
+remote_url=${remote_url%.git}
+
+# Open in default browser
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    xdg-open "$remote_url"
+else
+    echo "Unsupported operating system"
+    return 1
+fi
