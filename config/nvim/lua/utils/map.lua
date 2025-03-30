@@ -202,6 +202,13 @@ function M.toggle_maps(mappings, opts)
   return #results > 0 and results or nil
 end
 
+local DEFAULT_ABBREV_CONDS = {
+  -- disable abbreviations in comments and strings
+  lsp_keyword = function()
+    return Utils.ts.is_active() and not Utils.ts.find_node({ "comment", "string" })
+  end,
+}
+
 -----------------------------------
 -- create abbreviations
 ---@param word string
@@ -214,18 +221,28 @@ function M.create_abbrev(word, new_word, opts)
   end
   opts = opts or {}
   local condition = opts.condition
-  opts.condition = nil
   local mode = opts.mode or "ia"
+  local builtin = opts.builtin
+  opts.builtin = nil
+  opts.condition = nil
   opts.mode = nil
   opts = vim.tbl_extend("force", opts or {}, {
     expr = true,
   })
   vim.keymap.set(mode, word, function()
-    local cond = not condition or (type(condition) == "function" and condition())
-    if cond then
-      return new_word
+    local cond = true
+    if builtin then
+      local built_in_fn = DEFAULT_ABBREV_CONDS[builtin]
+      if built_in_fn then
+        cond = built_in_fn()
+      end
     end
-    return word
+
+    -- Combine with custom condition
+    if condition then
+      cond = cond and condition()
+    end
+    return cond and new_word or word
   end, opts)
 end
 
@@ -331,18 +348,20 @@ function M._apply_which_key()
   end
 end
 
-api.nvim_create_autocmd("User", {
-  pattern = "KeymapSet",
-  callback = function(event)
-    if event.data.has_icon then
-      M._apply_which_key()
-    end
-  end,
-})
+M.setup = function()
+  Utils.on_load("which-key.nvim", function()
+    M._apply_which_key()
+    M._is_setup = true
 
-Utils.on_load("which-key.nvim", function()
-  M._apply_which_key()
-  M._is_setup = true
-end)
+    api.nvim_create_autocmd("User", {
+      pattern = "KeymapSet",
+      callback = function(event)
+        if event.data.has_icon then
+          M._apply_which_key()
+        end
+      end,
+    })
+  end)
+end
 
 return M

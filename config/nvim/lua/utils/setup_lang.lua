@@ -5,7 +5,9 @@ local api = vim.api
 local schedule = vim.schedule
 local create_augroup = api.nvim_create_augroup
 local nvim_create_autocmd = api.nvim_create_autocmd
-local set_buf_option = api.nvim_buf_set_option
+local function set_buf_option(buf, option, value)
+  vim.bo[buf][option] = value
+end
 
 -----------------------------------------------------------------
 --- Normalize a value to ensure it’s always a list.
@@ -68,7 +70,7 @@ function M.add_filetype(config, create_autocmd)
   if ft_configs.filetype then
     for orig, target in pairs(ft_configs.filetype) do
       create_autocmd("FileType", orig, function(event)
-        vim.api.nvim_buf_set_option(event.buf, "filetype", target)
+        set_buf_option(event.buf, "filetype", target)
       end)
     end
   end
@@ -178,6 +180,7 @@ function M.setup_language(config)
   if config.linting then
     table.insert(plugins, {
       "mfussenegger/nvim-lint",
+      optional = true,
       opts = config.linting,
     })
   end
