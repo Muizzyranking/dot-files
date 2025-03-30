@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 alias v='nv'
 alias cl='clear'
-alias lv='NVIM_APPNAME=lazyvim nvim'
+alias lv='NVIM_APPNAME=lazyvim nv'
 alias mvim='NVIM_APPNAME=my_nvim nvim'
 alias mnvimn='NVIM_APPNAME=my_nvim nv'
 alias cat='bat'
