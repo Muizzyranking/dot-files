@@ -33,7 +33,9 @@ return {
         nerd_font_variant = "mono",
         kind_icons = Utils.icons.kinds,
       },
-      signature = { enabled = false },
+      signature = {
+        enabled = true,
+      },
       sources = {
         default = { "lsp", "path", "snippets", "buffer" },
       },
@@ -78,7 +80,9 @@ return {
       local disabled_filetypes = opts.disable_ft or {}
       opts.enabled = function()
         -- will use to disable completions on certain filetypes
-        return not vim.tbl_contains(disabled_filetypes, vim.bo.filetype) and vim.b.completion ~= false
+        return not vim.tbl_contains(disabled_filetypes, vim.bo.filetype)
+          and vim.b.completion ~= false
+          and not vim.b.bigfile
       end
       opts.sources.compat = nil
       opts.disable_ft = nil
