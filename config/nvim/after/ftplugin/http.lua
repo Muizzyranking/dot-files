@@ -6,5 +6,5 @@ Utils.map.create_abbrevs({
   { "put", "PUT" },
 }, {
   buffer = buf,
-  builtin = "no_comment_str",
+  builtin = "lsp_keyword",
 })
