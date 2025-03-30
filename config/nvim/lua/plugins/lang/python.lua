@@ -114,13 +114,14 @@ return {
           "templates/",
         })
         if root ~= nil then
-          vim.api.nvim_buf_set_option(event.buf, "filetype", "htmldjango")
+          vim.bo[event.buf].filetype = "htmldjango"
         end
       end,
     },
     {
       pattern = "python",
       callback = function(event)
+        Utils.map.add_to_wk()
         Utils.map.create_abbrevs({
           { "true", "True" },
           { "ture", "True" },
@@ -128,9 +129,7 @@ return {
           { "flase", "False" },
         }, {
           buffer = event.buf,
-          condition = function()
-            return Utils.ts.is_active() and not Utils.ts.find_node({ "comment", "string" })
-          end,
+          builtin = "lsp_keyword",
         })
       end,
     },
