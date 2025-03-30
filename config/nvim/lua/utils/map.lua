@@ -276,6 +276,49 @@ function M.add_to_wk(mappings)
   end
 end
 
+-----------------------------------
+-- reloads configs e.g kitty
+---@param opts table
+-----------------------------------
+function M.reload_config(opts)
+  opts = opts or {}
+  opts.buffer = opts.buffer or vim.api.nvim_get_current_buf()
+  opts.title = opts.title or "Config"
+  if opts.cond ~= nil and not opts.cond then
+    return
+  end
+  if not opts.cmd then
+    M.notify.error("No command provided to reload config")
+    return
+  end
+  -- Determine the command to execute
+  local cmd
+  if opts.restart then
+    cmd = string.format("pkill -x '%s' || true; nohup %s > /dev/null 2>&1 & disown", opts.cmd, opts.cmd)
+  else
+    cmd = string.format("nohup %s > /dev/null 2>&1 & disown", opts.cmd)
+  end
+  local function reload_conf()
+    local output = vim.fn.system(cmd)
+    local notify_opts = { title = opts.title }
+    local error = vim.v.shell_error ~= 0
+    local mgs = ("%s %s %s"):format(
+      error and "Error reloading" or "Reloaded",
+      opts.title,
+      error and ": " .. output or ""
+    )
+    M.notify[error and "error" or "info"](mgs, notify_opts)
+  end
+  M.set_keymap({
+    "<leader>rr",
+    reload_conf,
+    desc = "Reload Config",
+    silent = true,
+    buffer = opts.buffer,
+    icon = { icon = "󰑓 ", color = "orange" },
+  })
+end
+
 ---------------------------------------------------------------
 ---Apply which-key mappings if available
 ---------------------------------------------------------------

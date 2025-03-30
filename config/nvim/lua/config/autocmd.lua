@@ -12,7 +12,7 @@ create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
   group = reload_group,
   pattern = "*/kitty/kitty.conf",
   callback = function(event)
-    Utils.reload_config({
+    Utils.map.reload_config({
       cmd = "kill -SIGUSR1 $(pgrep kitty)",
       title = "Kitty",
       buffer = event.buf,
@@ -27,7 +27,7 @@ create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
   group = reload_group,
   pattern = "*/tmux/tmux.conf",
   callback = function(event)
-    Utils.reload_config({
+    Utils.map.reload_config({
       cmd = "tmux source-file ~/.config/tmux/tmux.conf",
       title = "Tmux",
       buffer = event.buf,
@@ -43,7 +43,7 @@ create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
   group = reload_group,
   pattern = { "*/waybar/*" },
   callback = function(event)
-    Utils.reload_config({
+    Utils.map.reload_config({
       cmd = "waybar",
       restart = true,
       title = "Waybar",
@@ -59,7 +59,7 @@ create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
   group = reload_group,
   pattern = { "*/swaync/*" },
   callback = function(event)
-    Utils.reload_config({
+    Utils.map.reload_config({
       cmd = "swaync",
       restart = true,
       title = "Swaync",
