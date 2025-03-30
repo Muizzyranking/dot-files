@@ -70,7 +70,10 @@ set("i", ("<c-%s>"):format(
   vim.cmd.normal({ "o", bang = true })
 end, { desc = "Go to next line", remap = true }) -- go to next line in insert
 
-set("i", "<C-b>", "<esc>I", { desc = "Go to beginning of line" }) -- Go to beginning of line in insert
+-- set("i", "<C-b>", "<esc>I", { desc = "Go to beginning of line" }) -- Go to beginning of line in insert
+set("i", "<C-b>", function()
+  vim.cmd.normal({ "I", bang = true })
+end, { desc = "Go to beginning of line" }) -- Go to beginning of line in insert
 set({ "n", "v" }, "B", "^", { desc = "Go to beginning of line" }) -- go to beginning of line in normal
 set("i", "<C-e>", "<esc>A", { desc = "Go to end of line" }) -- go to end of line in insert
 set({ "n", "v" }, "E", "$", { desc = "Go to end of line" }) -- go to end of line in normal
@@ -181,6 +184,18 @@ local maps = {
     Utils.actions.change_var_case,
     desc = "Change variable case",
     icon = { icon = "󰯍 ", color = "red" },
+  },
+  {
+    "go",
+    function()
+      if Utils.is_executable("open-repo") then
+        vim.fn.system({ "open-repo" })
+      else
+        Utils.notify.warn("Command to open repo not available")
+      end
+    end,
+    desc = "Open repo in browser",
+    icon = { icon = "󰌧 ", color = "red" },
   },
 }
 
