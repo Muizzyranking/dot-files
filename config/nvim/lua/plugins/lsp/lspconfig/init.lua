@@ -54,6 +54,9 @@ return {
       require("plugins.lsp.lspconfig.keymaps").on_attach(client, buffer, opts)
       Utils.lsp.on_support_methods("textDocument/documentHighlight", function()
         if client.server_capabilities.documentHighlightProvider then
+          if not opts.document_highlight.enabled then
+            return
+          end
           if not api.nvim_buf_is_valid(buffer) then
             return
           end
@@ -103,7 +106,11 @@ return {
       local config_available, config = pcall(Utils.lsp.get_config, server)
       if not config_available or not config.default_config then
         if not opts.servers[server] or not opts.servers[server].cmd then
-          api.nvim_err_writeln(("Missing configuration for server '%s'"):format(server))
+          Utils.notify.error(("Missing configuration for server '%s'"):format(server))
+          return
+        end
+        if not Utils.is_executable(opts.servers[server].cmd[1]) then
+          Utils.notify.error(("Server '%s' is not found"):format(server))
           return
         end
         local ok, configs = pcall(require, "lspconfig.configs")
