@@ -68,7 +68,7 @@ return {
   {
     "stevearc/conform.nvim",
     config = function(_, opts)
-      opts.use_prettier_biome = opts.use_prettier_biome or {}
+      local use_prettier_biome = opts.use_prettier_biome or {}
       opts.formatters_by_ft = opts.formatters_by_ft or {}
       opts.formatters = opts.formatters or {}
       opts.formatters["biome"] = {
@@ -85,13 +85,14 @@ return {
         end,
       }
 
-      for _, ft in ipairs(opts.use_prettier_biome) do
+      for _, ft in ipairs(use_prettier_biome) do
         opts.formatters_by_ft[ft] = opts.formatters_by_ft[ft] or {}
         table.insert(opts.formatters_by_ft[ft], "prettierd")
         if vim.list_contains(M.biome_supported, ft) then
           table.insert(opts.formatters_by_ft[ft], "biome")
         end
       end
+      opts.use_prettier_biome = nil
       require("conform").setup(opts)
     end,
   },
