@@ -6,5 +6,4 @@ config/gtk-3.0/gtk.css
 config/gtk-4.0/colors.css
 config/gtk-4.0/gtk.css
 config/cava/shaders
-config/nvim/lua/utils/misc
 config/hypr/.initial_startup_done
