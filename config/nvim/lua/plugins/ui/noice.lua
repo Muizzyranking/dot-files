@@ -13,6 +13,7 @@ return {
         ["vim.lsp.util.stylize_markdown"] = true,
         ["cmp.entry.get_documentation"] = true,
       },
+      signature = { enabled = true },
     },
     routes = {
       {
@@ -71,6 +72,22 @@ return {
         filter = {
           event = "notify",
           find = "more line;",
+        },
+        opts = { skip = true },
+      },
+      {
+        filter = {
+          event = "notify",
+          kind = "",
+          find = "fewer lines;",
+        },
+        opts = { skip = true },
+      },
+      {
+        filter = {
+          event = "msg_show",
+          kind = "",
+          find = "fewer lines;",
         },
         opts = { skip = true },
       },

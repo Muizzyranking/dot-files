@@ -1,3 +1,5 @@
+-- stylua: ignore
+if true then return {} end
 return {
   {
     "nvim-neo-tree/neo-tree.nvim",
@@ -5,11 +7,6 @@ return {
       -- "MunifTanjim/nui.nvim",
     },
     keys = {
-      {
-        "<leader>fe",
-        "<cmd>Neotree focus<cr>",
-        desc = "Neotree focus",
-      },
       {
         "<leader>E",
         function()
