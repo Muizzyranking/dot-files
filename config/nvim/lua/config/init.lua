@@ -6,42 +6,17 @@ _G.P = function(...)
   vim.print(vim.inspect(...))
 end
 
-------------------------------
--- Load modules
-------------------------------
--- stylua: ignore start
-local loaded        = 0
-local failed        = {}
-local total_modules = 0
-
 local lazy_load = vim.fn.argc(-1) == 0
--- stylua: ignore end
 
-------------------------------
--- Function to load a module
----@param module string
----@return boolean
-------------------------------
-local function load_module(module)
-  total_modules = total_modules + 1
-  local ok, err = pcall(require, "config." .. module)
-  if ok then
-    loaded = loaded + 1
-  else
-    failed[#failed + 1] = module
-    vim.api.nvim_err_writeln(("Error loading module '%s': %s"):format(module, err))
-  end
-  return ok
+local function r(module)
+  return require("config." .. module)
 end
 
-------------------------------
--- Load Immediate Modules
-------------------------------
-load_module("globals")
-load_module("options")
-load_module("lazy")
+r("globals")
+r("options")
+r("lazy")
 if not lazy_load then
-  load_module("autocmd") -- Load autocmd immediately if a file is opened
+  r("autocmd")
 end
 
 local group = vim.api.nvim_create_augroup("LazyModules", { clear = true })
@@ -50,25 +25,14 @@ vim.api.nvim_create_autocmd("User", {
   pattern = "VeryLazy",
   callback = function()
     if lazy_load then
-      load_module("autocmd")
+      r("autocmd")
     end
-    load_module("keymaps")
-    load_module("abbrevations")
-    require("tracker").setup()
+    r("keymaps")
+    r("abbrevations")
     require("utils.root").setup()
+    require("utils.map").setup()
   end,
 })
-
-------------------------------
--- Report any loading errors
-------------------------------
-if #failed > 0 then
-  vim.notify(
-    string.format("Loaded %d/%d modules. Failed: %s", loaded, total_modules, table.concat(failed, ", ")),
-    vim.log.levels.WARN,
-    { title = "Module Loading Summary" }
-  )
-end
 
 Utils.ui.set_colorscheme("rose-pine")
 Utils.ui.add_highlights({
