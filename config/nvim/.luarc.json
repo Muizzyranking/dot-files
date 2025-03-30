@@ -4,7 +4,6 @@
     "missing-fields",
     "assign-type-mismatch",
     "need-check-nil",
-    "deprecated",
     "undefined-doc-name",
     "missing-parameter",
     "cast-local-type",
