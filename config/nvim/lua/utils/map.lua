@@ -308,6 +308,15 @@ function M.reload_config(opts)
     M.notify.error("No command provided to reload config")
     return
   end
+
+  if opts.restart then
+    local process = opts.title:lower()
+    local is_running = vim.fn.system("pgrep -x " .. process) ~= ""
+    local is_exec = Utils.is_executable(process)
+    if not is_running or not is_exec then
+      return
+    end
+  end
   -- Determine the command to execute
   local cmd
   if opts.restart then
@@ -315,20 +324,20 @@ function M.reload_config(opts)
   else
     cmd = string.format("nohup %s > /dev/null 2>&1 & disown", opts.cmd)
   end
-  local function reload_conf()
-    local output = vim.fn.system(cmd)
-    local notify_opts = { title = opts.title }
-    local error = vim.v.shell_error ~= 0
-    local mgs = ("%s %s %s"):format(
-      error and "Error reloading" or "Reloaded",
-      opts.title,
-      error and ": " .. output or ""
-    )
-    M.notify[error and "error" or "info"](mgs, notify_opts)
-  end
+
   M.set_keymap({
     "<leader>rr",
-    reload_conf,
+    function()
+      local output = vim.fn.system(cmd)
+      local notify_opts = { title = opts.title }
+      local error = vim.v.shell_error ~= 0
+      local mgs = ("%s %s %s"):format(
+        error and "Error reloading" or "Reloaded",
+        opts.title,
+        error and ": " .. output or ""
+      )
+      Utils.notify[error and "error" or "info"](mgs, notify_opts)
+    end,
     desc = "Reload Config",
     silent = true,
     buffer = opts.buffer,

@@ -16,6 +16,7 @@ create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
       cmd = "kill -SIGUSR1 $(pgrep kitty)",
       title = "Kitty",
       buffer = event.buf,
+      cond = os.getenv("KITTY_WINDOW_ID") ~= nil,
     })
   end,
 })
