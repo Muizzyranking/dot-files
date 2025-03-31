@@ -5,9 +5,7 @@ local o = vim.opt
 -- General
 -----------------------------------------------------------
 o.wildignore:append({ "*/colors/*.vim", "*/colors/vim.lua" })
-vim.schedule(function() -- Schedule to decease startup time
-  o.clipboard                  = "unnamedplus" -- use system clipboard
-end)
+o.clipboard                    = "unnamedplus" -- use system clipboard
 o.updatetime                   = 250 -- Decrease update time
 o.timeoutlen                   = 300
 o.errorbells                   = false -- Disable error bells
