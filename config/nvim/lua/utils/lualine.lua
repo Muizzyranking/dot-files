@@ -116,7 +116,7 @@ M.file = {
 ------------------------------------------------------------------------------
 M.mode = {
   function()
-    return ("%s"):format(M.mode_map[vim.api.nvim_get_mode().mode] or "__")
+    return ("%s"):format(M.mode_map[vim.api.nvim_get_mode().mode] or Utils.icons.ui.Target)
   end,
   padding = { left = 2, right = 1 },
 }
