@@ -1,5 +1,3 @@
--- TODO: remove deprecated
-
 -- global variables
 _G.Utils = require("utils")
 _G.P = function(...)
@@ -29,13 +27,11 @@ vim.api.nvim_create_autocmd("User", {
     end
     r("keymaps")
     r("abbrevations")
-    require("utils.root").setup()
-    require("utils.map").setup()
+    Utils.root.setup()
+    Utils.map.setup()
+    Utils.discipline.setup()
   end,
 })
 
 Utils.ui.set_colorscheme("rose-pine")
-Utils.ui.add_highlights({
-  WinBar = {},
-  WinBarNc = {},
-})
+Utils.hl.setup()
