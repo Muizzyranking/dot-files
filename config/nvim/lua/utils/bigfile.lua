@@ -1,3 +1,4 @@
+---@class utils.bigfile
 local M = {}
 
 local create_autocmd = vim.api.nvim_create_autocmd

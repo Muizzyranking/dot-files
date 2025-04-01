@@ -44,7 +44,7 @@ M.mode_map = Utils.icons.modes
 ---@return table?
 ------------------------------------------------------------------------------
 function M.fg(name)
-  local fg = Utils.ui.get_hl_color(name)
+  local fg = Utils.hl.get_hl_color(name)
   return fg and { fg = fg } or nil
 end
 
@@ -104,7 +104,7 @@ M.file = {
     local file_path = vim.api.nvim_buf_get_name(M.stbufnr())
     local is_exec = file_path ~= "" and Utils.is_executable(file_path)
     local hl_group = is_exec and "DiagnosticOk" or "Constant"
-    return { fg = Utils.ui.get_hl_color(hl_group), gui = "italic,bold" }
+    return { fg = Utils.hl.get_hl_color(hl_group), gui = "italic,bold" }
   end,
   fmt = function(str)
     return truncate_or_hide(str, 25)
@@ -143,7 +143,7 @@ M.lsp = {
   end,
   cond = M.conditions.hide_in_width,
   color = function()
-    return { fg = Utils.ui.get_hl_color("DiagnosticOk"), gui = "italic,bold" }
+    return { fg = Utils.hl.get_hl_color("DiagnosticOk"), gui = "italic,bold" }
   end,
 }
 
@@ -173,7 +173,7 @@ M.formatters = {
     return table.concat(formatters, ", ")
   end,
   color = function()
-    return { fg = Utils.ui.get_hl_color("Constant"), gui = "italic,bold" }
+    return { fg = Utils.hl.get_hl_color("Constant"), gui = "italic,bold" }
   end,
   cond = M.conditions.hide_in_width,
 }
