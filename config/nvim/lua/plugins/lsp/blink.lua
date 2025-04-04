@@ -34,7 +34,7 @@ return {
         kind_icons = Utils.icons.kinds,
       },
       signature = {
-        enabled = true,
+        enabled = false,
       },
       sources = {
         default = { "lsp", "path", "snippets", "buffer" },

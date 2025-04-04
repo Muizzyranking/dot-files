@@ -38,13 +38,6 @@ function M.get()
       end,
       desc = "Goto Implementation",
     },
-    -- {
-    --   "gy",
-    --   function()
-    --     Snacks.picker.lsp_type_definitions()
-    --   end,
-    --   desc = "Goto T[y]pe Definition",
-    -- },
     {
       "<leader>cs",
       function()
