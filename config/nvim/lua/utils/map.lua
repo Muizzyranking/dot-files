@@ -176,6 +176,7 @@ function M.toggle_map(mapping)
 
   if mapping.set_key ~= false then
     M.set_keymap(map)
+    return
   end
 
   return map

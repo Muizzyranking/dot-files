@@ -10,6 +10,7 @@ M._highlights = {}
 ------------------------------------------------------------------------------
 function M.get_hl_color(name, ground)
   ground = ground or "fg"
+  assert(ground == "fg" or ground == "bg", "ground must be 'fg' or 'bg'")
   local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
   local color = hl and (ground == "fg" and (hl.fg or hl.foreground) or (hl.bg or hl.background))
   return color and ("#%06x"):format(color) or nil
