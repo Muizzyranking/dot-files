@@ -87,9 +87,11 @@ create_autocmd("BufWinEnter", {
 create_autocmd({ "BufRead", "BufNewFile" }, {
   group = augroup("spell_check"),
   pattern = { "*.txt", "*.md", "markdown", "*.tex", "*.org" },
-  callback = function()
-    vim.opt.spell = true
-    vim.opt.spelllang = "en"
+  callback = function(event)
+    if vim.bo[event.buf].filetype ~= "requirements" then
+      vim.opt.spell = true
+      vim.opt.spelllang = "en"
+    end
   end,
 })
 
