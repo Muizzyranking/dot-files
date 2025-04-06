@@ -213,4 +213,61 @@ function M.root_dir()
   }
 end
 
+function M.snacks_lualine()
+  local function get_statusline()
+    local filetype = vim.bo.filetype
+    local title = filetype
+    local meta = ""
+
+    local picker = nil
+    if filetype == "snacks_picker_list" or filetype == "snacks_picker_input" then
+      picker = Snacks.picker.get()[1]
+    end
+
+    if filetype == "snacks_picker_list" then
+      title = "🍿 Explorer"
+      if picker then
+        meta = vim.fn.fnamemodify(picker:dir(), ":~")
+      else
+        meta = vim.fn.fnamemodify(vim.fn.getcwd(), ":~")
+      end
+    elseif filetype == "snacks_picker_input" then
+      if picker then
+        local input = picker.input and picker.input:get() or ""
+        local count = #picker:items()
+        local picker_title = picker.title or ""
+        title = ("🍿 Picker (%s)"):format(picker_title)
+        meta = input ~= "" and (" " .. input .. ": " .. count .. " results") or (count .. " results")
+      else
+        title = "🍿 Picker"
+        meta = ""
+      end
+    end
+
+    return title, meta
+  end
+
+  local lualine_custom = {
+    sections = {
+      lualine_a = {
+        function()
+          local title, _ = get_statusline()
+          return title
+        end,
+      },
+      lualine_b = {
+        function()
+          local _, meta = get_statusline()
+          return meta
+        end,
+      },
+    },
+    filetypes = {
+      "snacks_picker_input",
+      "snacks_picker_list",
+    },
+  }
+  return lualine_custom
+end
+
 return M
