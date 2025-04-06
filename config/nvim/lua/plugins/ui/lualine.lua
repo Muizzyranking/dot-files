@@ -143,6 +143,7 @@ return {
           },
           filetypes = { "lazygit" },
         },
+        Utils.lualine.snacks_lualine(),
       },
     }
   end,
