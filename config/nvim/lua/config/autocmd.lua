@@ -67,7 +67,15 @@ create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
       buffer = event.buf,
     })
     -- disable diagnoistics because of noise
-    vim.diagnostic.enable(false, { buf = event.buf })
+    vim.diagnostic.enable(false, { bufnr = event.buf })
+  end,
+})
+
+create_autocmd("BufEnter", {
+  pattern = { ".env", ".env.*" },
+  callback = function(event)
+    -- disable diagnoistics because of noise
+    vim.diagnostic.enable(false, { bufnr = event.buf })
   end,
 })
 

@@ -55,7 +55,6 @@ function M.find_pattern_root(buf, patterns)
   end, {
     path = path,
     upward = true,
-    type = "directory",
     stop = vim.uv.os_homedir(),
   })[1]
   return pattern and vim.fs.dirname(pattern) or nil
