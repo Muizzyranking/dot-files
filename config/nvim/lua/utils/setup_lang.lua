@@ -92,7 +92,7 @@ function M.autocmds(config, autocmd_create)
       vim.cmd(autocmd.command)
     end
     local opts = autocmd.opts or {}
-    local events = autocmd.events or "FileType"
+    local events = autocmd.event or "FileType"
     local create_autocmd = autocmd.group and create_autocmd_group(autocmd.group) or autocmd_create
     local pattern = autocmd.pattern or config.ft
     create_autocmd(events, pattern, callback, opts)
