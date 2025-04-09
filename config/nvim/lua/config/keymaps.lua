@@ -66,9 +66,7 @@ set("n", "<Esc>", "<cmd>nohlsearch<CR>") -- Clear search highlight on pressing <
 ------------------------
 set("i", ("<c-%s>"):format(
   Utils.is_in_tmux() and "o" or "cr"
-), function()
-  vim.cmd.normal({ "o", bang = true })
-end, { desc = "Go to next line", remap = true }) -- go to next line in insert
+), "<esc>o", { desc = "Go to next line", remap = true }) -- go to next line in insert
 
 -- set("i", "<C-b>", "<esc>I", { desc = "Go to beginning of line" }) -- Go to beginning of line in insert
 set("i", "<C-b>", function()

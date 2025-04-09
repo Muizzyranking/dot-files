@@ -72,7 +72,7 @@ create_autocmd({ "BufEnter", "WinEnter", "BufNewFile" }, {
 })
 
 create_autocmd("BufEnter", {
-  pattern = { ".env", ".env.*" },
+  pattern = { ".env", ".env.*", "*.zsh", "*.zsh.*" },
   callback = function(event)
     -- disable diagnoistics because of noise
     vim.diagnostic.enable(false, { bufnr = event.buf })
