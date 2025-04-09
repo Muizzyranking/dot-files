@@ -48,6 +48,46 @@ return {
           end
         end, "ruff")
       end,
+      basedpyright = function(server, _)
+        Utils.lsp.on_attach(function(client, bufnr)
+          if os.getenv("VIRTUAL_ENV") then
+            return
+          end
+
+          local root = Utils.root(bufnr)
+          if not root then
+            return
+          end
+          local venv_names = { "venv", ".venv", "env", ".env" }
+
+          for _, venv in ipairs(venv_names) do
+            local venv_path = root .. "/" .. venv
+            local activate_path = venv_path .. "/bin/activate"
+            local python_path = venv_path .. "/bin/python"
+
+            if vim.fn.filereadable(activate_path) == 1 and vim.fn.isdirectory(venv_path) == 1 then
+              -- Set environment variables
+              vim.env.VIRTUAL_ENV = venv_path
+              if not vim.env.PATH:find(venv_path .. "/bin", 1, true) then
+                vim.env.PATH = venv_path .. "/bin:" .. vim.env.PATH
+              end
+              vim.g.python3_host_prog = python_path
+              vim.b.python_venv = venv_path
+
+              if client.settings then
+                client.settings =
+                  vim.tbl_deep_extend("force", client.settings, { python = { pythonPath = python_path } })
+              elseif client.config.settings then
+                client.config.settings =
+                  vim.tbl_deep_extend("force", client.config.settings, { python = { pythonPath = python_path } })
+              end
+
+              client.notify("workspace/didChangeConfiguration", { settings = nil })
+              break
+            end
+          end
+        end, server)
+      end,
       ruff_lsp = function()
         return true
       end,
@@ -121,16 +161,36 @@ return {
     {
       pattern = "python",
       callback = function(event)
-        Utils.map.add_to_wk()
         Utils.map.create_abbrevs({
           { "true", "True" },
           { "ture", "True" },
           { "false", "False" },
           { "flase", "False" },
+          { "Class", "class" },
+          { "calss", "class" },
         }, {
           buffer = event.buf,
           builtin = "lsp_keyword",
         })
+      end,
+    },
+    {
+      event = "BufWritePost",
+      pattern = { "*pyrightconfig.json" },
+      callback = function()
+        local basedpyright = Utils.lsp.get_clients({ name = "basedpyright" })[1]
+        local pyright = Utils.lsp.get_clients({ name = "pyright" })[1]
+
+        if basedpyright then
+          vim.cmd("LspStop basedpyright")
+          vim.cmd("LspStart basedpyright")
+        elseif pyright then
+          vim.cmd("LspStop pyright")
+          vim.cmd("LspStart pyright")
+        end
+
+        vim.cmd("stopinsert")
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
       end,
     },
   },
