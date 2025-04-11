@@ -135,6 +135,8 @@ create_autocmd("FileType", {
     "neotest-summary",
     "neotest-output-panel",
     "grug-far",
+    "grug-far-history",
+    "grug-far-help",
     "AvanteInput",
   },
   callback = function(event)

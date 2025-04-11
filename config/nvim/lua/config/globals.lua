@@ -1,6 +1,6 @@
 -- stylua: ignore start
 vim.g.mapleader                          = " "
-vim.g.maplocalleader                     = "\\"
+vim.g.maplocalleader                     = ","
 vim.g.bigfile                            = 1.5 * 1024 * 1024 -- 1.5MB
 vim.g.bigfile_max_lines                  = 32768
 vim.g.netrw_browsex_viewer               = os.getenv("BROWSER")
