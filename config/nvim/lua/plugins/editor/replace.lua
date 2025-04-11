@@ -1,7 +1,11 @@
 return {
   {
     "MagicDuck/grug-far.nvim",
-    opts = { headerMaxWidth = 80 },
+    opts = {
+      headerMaxWidth = 80,
+      transient = true,
+      visualSelectionUsage = "operate-winthin-range",
+    },
     cmd = "GrugFar",
     keys = {
       {
@@ -10,7 +14,6 @@ return {
           local grug = require("grug-far")
           local ext = vim.bo.buftype == "" and vim.fn.expand("%:e")
           grug.open({
-            transient = true,
             prefills = {
               filesFilter = ext and ext ~= "" and "*." .. ext or nil,
             },
@@ -24,7 +27,6 @@ return {
         function()
           local grug = require("grug-far")
           grug.open({
-            transient = true,
             prefills = { search = vim.fn.expand("<cword>") },
           })
         end,
@@ -35,11 +37,19 @@ return {
         function()
           local grug = require("grug-far")
           grug.open({
-            transient = true,
             prefills = { paths = vim.fn.expand("%p") },
           })
         end,
         desc = "Search and Replace (in current file)",
+      },
+      {
+        "<leader>sR",
+        function()
+          local grug = require("grug-far")
+          grug.open({ visualSelectionUsage = "operate-winthin-range" })
+        end,
+        mode = { "n", "v" },
+        desc = "Search within range",
       },
     },
   },
@@ -48,6 +58,14 @@ return {
     cmd = "IncRename",
     opts = {
       show_message = true,
+    },
+  },
+  -- disable completion in grug-far buffers
+  {
+    "saghen/blink.cmp",
+    optional = true,
+    opts = {
+      disable_ft = { "grug-far", "grug-far-help", "grug-far-history" },
     },
   },
 }
