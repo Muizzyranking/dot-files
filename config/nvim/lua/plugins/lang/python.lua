@@ -96,15 +96,10 @@ return {
   formatting = {
     formatters = {
       djlint = {
-        command = "djlint",
-        args = function()
-          return {
-            "--reformat",
-            "-",
-            "--indent",
-            "2",
-          }
-        end,
+        append_args = {
+          "--indent",
+          "2",
+        },
       },
       black = {
         append_args = { "--line-length", "79" },

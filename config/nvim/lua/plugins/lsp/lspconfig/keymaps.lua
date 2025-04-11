@@ -114,6 +114,7 @@ function M.get()
       "gy",
       Utils.lsp.copy_diagnostics,
       desc = "Yank diagnostic message on current line",
+      icon = { icon = "󰆏 ", color = "blue" },
       mode = { "n", "x" },
     },
     {
