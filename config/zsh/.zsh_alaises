@@ -8,6 +8,7 @@ alias cat='bat'
 alias tree='eza --tree'
 alias ls='eza --color=always --icons=always'
 alias cd='z'
+alias django-run='django-runner.py'
 
 # find directory and cd into it
 # alias fdir='find_dir.sh'
