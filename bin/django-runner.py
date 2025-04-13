@@ -48,6 +48,7 @@ def signal_handler(sig, frame):
 
 # Register signal handler for clean termination
 signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
 
 
 def find_git_root():
@@ -129,7 +130,7 @@ def activate_venv(venv_path):
 
     if not os.path.exists(python_path):
         print_error(
-            f"Python interpreter not found in virtual environment: {python_path}"
+            f"Python interpreter not found in virtual env: {python_path}"
         )
         return None, None
 
