@@ -163,6 +163,8 @@ return {
           { "flase", "False" },
           { "Class", "class" },
           { "calss", "class" },
+          { "none", "None" },
+          { "NONE", "None" },
         }, {
           buffer = event.buf,
           builtin = "lsp_keyword",

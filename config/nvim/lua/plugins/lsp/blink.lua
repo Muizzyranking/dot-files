@@ -4,12 +4,11 @@ return {
     dependencies = {
       "rafamadriz/friendly-snippets",
     },
-    version = "v0.*",
+    version = "*",
     event = "InsertEnter",
-    -- build = 'cargo build --release',
+    build = "cargo build --release",
     opts_extend = {
       "sources.default",
-      "sources.completion.enabled_providers",
       "disable_ft",
     },
     opts = {
@@ -44,6 +43,7 @@ return {
         enabled = false,
         sources = {},
       },
+      fuzzy = { implementation = "prefer_rust" },
       completion = {
         list = { selection = { preselect = true, auto_insert = false } },
         accept = {
@@ -84,7 +84,6 @@ return {
           and vim.b.completion ~= false
           and not vim.b.bigfile
       end
-      opts.sources.compat = nil
       opts.disable_ft = nil
 
       for _, provider in pairs(opts.sources.providers or {}) do
