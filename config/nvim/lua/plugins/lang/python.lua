@@ -48,7 +48,7 @@ return {
           end
         end, "ruff")
       end,
-      basedpyright = function(server, _)
+      basedpyright = function()
         Utils.lsp.on_attach(function(client, bufnr)
           if os.getenv("VIRTUAL_ENV") then
             return
@@ -86,7 +86,7 @@ return {
               break
             end
           end
-        end, server)
+        end, "basedpyright")
       end,
       ruff_lsp = function()
         return true
@@ -135,7 +135,15 @@ return {
       "htmldjango",
     },
   },
-  root_patterns = { "manage.py", "main.py" },
+  root_patterns = {
+    "manage.py",
+    "pyproject.toml",
+    "setup.py",
+    "setup.cfg",
+    "requirements.txt",
+    "Pipfile",
+    "pyrightconfig.json",
+  },
   autocmds = {
     {
       pattern = "html",

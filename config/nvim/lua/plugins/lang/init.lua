@@ -4,6 +4,7 @@ return {
     "c",
     "clarity",
     "eslintbiome",
+    "go",
     "html-css",
     "json",
     "lua",

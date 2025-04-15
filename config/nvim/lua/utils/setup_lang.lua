@@ -15,7 +15,10 @@ end
 ---@return table # Listified value
 -----------------------------------------------------------------
 local function ensure_list(value)
-  return type(value) == "table" and value or { value }
+  if type(value) == "function" then
+    value = value()
+  end
+  return type(value) == "string" and { value } or value
 end
 
 -----------------------------------------------------------------
@@ -188,14 +191,16 @@ function M.setup_language(config)
   -- Treesitter Configuration
   if config.highlighting then
     local hl = config.highlighting
-    local parsers = hl.parsers or {}
+    local parsers = hl.parsers or vim.islist(hl) and hl or {}
+    parsers = ensure_list(parsers)
     table.insert(plugins, {
       "nvim-treesitter/nvim-treesitter",
       opts = function(_, opts)
         opts.ensure_installed = opts.ensure_installed or {}
-        for _, parser in ipairs(parsers) do
-          table.insert(opts.ensure_installed, parser)
-        end
+        vim.list_extend(opts.ensure_installed, parsers)
+        -- for _, parser in ipairs(parsers) do
+        --   table.insert(opts.ensure_installed, parser)
+        -- end
         if hl.custom_parsers then
           local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
           for name, info in pairs(hl.custom_parsers) do
