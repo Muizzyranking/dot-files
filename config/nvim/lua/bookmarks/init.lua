@@ -111,7 +111,7 @@ function M.setup_keymaps()
   end, { desc = "Delete mark on current line" })
 
   vim.keymap.set("n", "<leader>mk", function()
-    marks.show_picker()
+    picker.show_marks()
   end, { desc = "Show marks in current buffer" })
 end
 

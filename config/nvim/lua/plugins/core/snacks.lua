@@ -7,7 +7,9 @@ return {
     bigfile = { enabled = false },
     notifier = { enabled = true },
     quickfile = { enabled = true },
-    statuscolumn = { enabled = false },
+    statuscolumn = {
+      left = { "sign" },
+    },
     words = { enabled = true },
     scroll = { enabled = true },
     lazygit = {

@@ -26,8 +26,9 @@ function M.show_marks()
             for _, mark in ipairs(selected) do
               vim.api.nvim_buf_del_mark(mark.buf, mark.label)
             end
-            M.show_picker()
+            -- TODO: find way to refresh
             picker:close()
+            M.show_marks()
           end
         end,
       },
