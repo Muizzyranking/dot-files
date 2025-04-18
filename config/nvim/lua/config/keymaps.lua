@@ -60,13 +60,12 @@ set("n", "N", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Prev Search R
 set("x", "N", "'nN'[v:searchforward]",      { expr = true, desc = "Prev Search Result" })
 set("o", "N", "'nN'[v:searchforward]",      { expr = true, desc = "Prev Search Result" })
 set("n", "<Esc>", "<cmd>nohlsearch<CR>") -- Clear search highlight on pressing <Esc> in normal mode
+-- stylua: ignore end
 
 ------------------------
 -- editing
 ------------------------
-set("i", ("<c-%s>"):format(
-  Utils.is_in_tmux() and "o" or "cr"
-), "<esc>o", { desc = "Go to next line", remap = true }) -- go to next line in insert
+set("i", ("<c-%s>"):format(Utils.is_in_tmux() and "o" or "cr"), "<esc>o", { desc = "Go to next line", remap = true }) -- go to next line in insert
 
 -- set("i", "<C-b>", "<esc>I", { desc = "Go to beginning of line" }) -- Go to beginning of line in insert
 set("i", "<C-b>", function()
@@ -79,27 +78,32 @@ set({ "n", "v" }, "E", "$", { desc = "Go to end of line" }) -- go to end of line
 set("n", "<BS>", '"_ciw', { desc = "Change inner word" }) -- change word
 
 -- NOTE: this is the way to make <c-bs> work in tmux for some reasons
-set(
-  { "i", "c" },
-  ("<C-%s>"):format(Utils.is_in_tmux() and "h" or "BS"),
-  "<c-w>",
-  { desc = "Delete word" }
-) -- delete word with <c-bs>
+set({ "i", "c" }, ("<C-%s>"):format(Utils.is_in_tmux() and "h" or "BS"), "<c-w>", { desc = "Delete word" }) -- delete word with <c-bs>
 
-set({ "n" }, "D", '"_D',      { desc = "Delete without yanking" }) -- delete line without yanking
+set({ "n" }, "D", '"_D', { desc = "Delete without yanking" }) -- delete line without yanking
 set("n", "<C-a>", "gg<S-v>G", { desc = "Select all", noremap = true, silent = true }) -- select all
-set("v", "<S-Tab>", "<gv",    { noremap = false, silent = true })
-set("v", "<Tab>", ">gv",      { noremap = false, silent = true })
+set("v", "<S-Tab>", "<gv", { noremap = false, silent = true })
+set("v", "<Tab>", ">gv", { noremap = false, silent = true })
 -- paste over currently selected text without yanking it
-set({ "v", "x" }, "p", '"_dp')
-set({ "v", "x" }, "P", '"_dp')
-set({ "n", "v", "x" }, "c", '"_c')
+set({ "v", "x" }, "p", function()
+  return Utils.cmp.in_snippet_session() and "p" or '"_dp'
+end, { expr = true })
+
+set({ "v", "x" }, "P", function()
+  return Utils.cmp.in_snippet_session() and "P" or '"_dp'
+end, { expr = true })
+
+set({ "n", "v", "x" }, "c", function()
+  return Utils.cmp.in_snippet_session() and "c" or '"_c'
+end, { expr = true })
+
 set({ "n" }, "ciw", '"_ciw')
 set({ "n" }, "C", '"_C')
 set({ "i" }, "<c-v>", "<c-r>+", { desc = "Paste in insert mode", silent = false })
-set({ "n", "v", "x" }, "x", '"_x') -- delete text without yanking
 
--- stylua: ignore end
+set({ "n", "v", "x" }, "x", function()
+  return Utils.cmp.in_snippet_session() and "x" or '"_x'
+end, { expr = true })
 
 -- disable arrow key in normal mode
 set("n", "<UP>", function()

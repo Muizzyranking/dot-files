@@ -23,7 +23,7 @@ o.confirm                      = true -- Confirm before quitting unsaved buffers
 -----------------------------------------------------------
 o.showmode                     = false
 o.statuscolumn                 = [[%!v:lua.require'snacks.statuscolumn'.get()]]
-o.background               = "dark"
+o.background                   = "dark"
 o.winminwidth                  = 5 -- Minimum window width
 o.signcolumn                   = "yes" -- Always show the signcolumn, otherwise it would shift the text each time
 o.termguicolors                = true -- Enable true color support
