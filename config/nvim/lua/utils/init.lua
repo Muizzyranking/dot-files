@@ -191,4 +191,40 @@ function M.plugin_stats()
   }
 end
 
+local function remove_trailing_slash(path)
+  return path:gsub("/+$", "")
+end
+
+local function split_path(path)
+  local parts = {}
+  for part in path:gmatch("[^/]+") do
+    table.insert(parts, part)
+  end
+  return parts
+end
+
+function M.is_subdir(parent, child)
+  -- Normalize paths by removing trailing slashes
+  parent = remove_trailing_slash(parent)
+  child = remove_trailing_slash(child)
+
+  -- Split paths into components
+  local parent_parts = split_path(parent)
+  local child_parts = split_path(child)
+
+  -- A subdirectory must have more components than its parent
+  if #child_parts <= #parent_parts then
+    return false
+  end
+
+  -- Compare each component of the parent with the child's corresponding component
+  for i = 1, #parent_parts do
+    if parent_parts[i] ~= child_parts[i] then
+      return false
+    end
+  end
+
+  return true
+end
+
 return M

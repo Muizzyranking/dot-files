@@ -1,6 +1,10 @@
 ---@class utils.cmp
 local M = {}
 
+function M.in_snippet_session()
+  return vim.snippet and vim.snippet.active()
+end
+
 --------------------------------------------------
 ---Previews a snippet by parsing it with vim.lsp grammar
 ---@param snippet string The snippet text to preview
