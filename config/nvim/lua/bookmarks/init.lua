@@ -90,9 +90,14 @@ function M.setup_keymaps()
     picker.show_bookmarks()
   end, "Show all bookmarks")
 
-  map(lhs("clear_bookmarks"), function()
-    files.clear_bookmarks()
-  end, "Clear all bookmarks")
+  Utils.map.set_keymap({
+    lhs("clear_bookmarks"),
+    function()
+      files.clear_bookmarks()
+    end,
+    desc = "Clear all bookmarks",
+    icon = { icon = " ", color = "red" },
+  })
 
   vim.keymap.set("n", "]k", function()
     marks.jump_mark(nil, { direction = 1, global = false })

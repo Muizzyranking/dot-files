@@ -8,6 +8,7 @@ local M = {}
 local config = {}
 local bookmarks = {}
 local data_file = nil
+local bookmark_keymaps = {}
 
 function M.setup(opts)
   config = opts
@@ -248,6 +249,7 @@ function M.clear_bookmarks(path)
     bookmarks[path] = nil
   end
   M.save_bookmarks()
+  vim.api.nvim_exec_autocmds("User", { pattern = "BookmarksChanged" })
   Utils.notify.warn("All bookmarks cleared")
 end
 
@@ -395,6 +397,11 @@ end
 
 function M.update_keymaps()
   -- Get current project bookmarks
+  for _, keymap_data in ipairs(bookmark_keymaps) do
+    pcall(vim.keymap.del, "n", keymap_data[1])
+  end
+  bookmark_keymaps = {}
+
   local project_bookmarks = M.get_bookmarks()
 
   -- Sort bookmarks by index to ensure consistency
@@ -411,8 +418,9 @@ function M.update_keymaps()
       prefix = config.keymaps.prefix
     end
     local keymap = prefix .. bookmark.index
-    Utils.map.set_keymap({
+    table.insert(bookmark_keymaps, {
       keymap,
+      bookmark = bookmark,
       function()
         if vim.fn.filereadable(bookmark.path) == 1 then
           vim.cmd("edit " .. vim.fn.fnameescape(bookmark.path))
@@ -422,9 +430,8 @@ function M.update_keymaps()
         end
       end,
       desc = "Go to bookmark: " .. bookmark.display,
-      silent = true,
-      icon = config.icons.bookmark,
     })
+    Utils.map.set_keymaps(bookmark_keymaps, { icon = config.icons.bookmark, silent = true })
   end
 end
 

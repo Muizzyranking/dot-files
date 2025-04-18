@@ -25,7 +25,7 @@ M.lualine_component = function()
       if not bookmark_index then
         return ""
       end
-      return config.icons.bookmark .. bookmark_index
+      return config.icons.bookmark.icon .. bookmark_index
     end,
     color = Utils.lualine.fg("DiagnosticOk"),
   }

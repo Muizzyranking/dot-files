@@ -38,37 +38,30 @@ function M.show_marks()
 end
 
 function M.show_bookmarks()
-  local files = require("bookmarks.files")
-  local bookmarks = files.get_bookmarks()
-
-  if #bookmarks == 0 then
-    Utils.notify.warn("No bookmarks found", { title = "Bookmarks" })
-    return
-  end
-
-  -- Sort bookmarks by index
-  table.sort(bookmarks, function(a, b)
-    return a.index < b.index
-  end)
-
-  local items = {}
-  for _, bookmark in ipairs(bookmarks) do
-    table.insert(items, {
-      idx = bookmark.index,
-      score = bookmark.index,
-      text = bookmark.display,
-      path = bookmark.path,
-      file = bookmark.path,
-      icon = config.icons.bookmark.icon,
-    })
-  end
-
   local picker = Snacks.picker({
     title = "Bookmarked Files",
-    items = items,
     layout = {
       preset = "default",
     },
+    finder = function()
+      local files = require("bookmarks.files")
+      local bookmarks = files.get_bookmarks()
+      table.sort(bookmarks, function(a, b)
+        return a.index < b.index
+      end)
+      local items = {}
+      for _, bookmark in ipairs(bookmarks) do
+        table.insert(items, {
+          idx = bookmark.index,
+          score = bookmark.index,
+          text = bookmark.display,
+          path = bookmark.path,
+          file = bookmark.path,
+          icon = config.icons.bookmark.icon,
+        })
+      end
+      return items
+    end,
     format = function(item, picker)
       local ret = {}
       ret[#ret + 1] = { string.format("#%d ", item.idx), "SnacksPickerLabel" }
@@ -107,12 +100,23 @@ function M.show_bookmarks()
         desc = "Remove bookmark",
         action = function(picker, _)
           local selected = picker:selected({ fallback = true })
+          local cur_idx
           for _, item in ipairs(selected) do
+            cur_idx = item.idx
             require("bookmarks.files").remove_bookmark(item.path)
           end
-          -- HACK: to refresh the picker
-          M.show_bookmarks()
-          picker:close()
+          picker:find({
+            on_done = function()
+              if picker:count() == 0 then
+                picker:close()
+              else
+                local nr_items = #picker:items()
+                ---@diagnostic disable-next-line: param-type-mismatch
+                picker.list:view(math.min(cur_idx, nr_items))
+              end
+            end,
+            refresh = true,
+          })
         end,
       },
       open_vsplit = {
