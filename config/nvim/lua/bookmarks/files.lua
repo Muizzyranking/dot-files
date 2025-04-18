@@ -242,6 +242,15 @@ function M.remove_bookmark(buf_or_path)
   return false
 end
 
+function M.clear_bookmarks(path)
+  path = path or M.get_project_root()
+  if bookmarks[path] then
+    bookmarks[path] = nil
+  end
+  M.save_bookmarks()
+  Utils.notify.warn("All bookmarks cleared")
+end
+
 ---@param buf_or_path number|string # Buffer number or file path
 ---@return boolean # Success of operation
 function M.toggle_bookmark(buf_or_path)
@@ -296,7 +305,7 @@ function M.check_deleted_file(buf_or_path)
     for i, bookmark in ipairs(project_bookmarks) do
       if bookmark.path == path then
         table.remove(project_bookmarks, i)
-        Utils.notify.warn("Removed bookmark for deleted file: " .. bookmark.display)
+        Utils.notify.warn("Removed bookmark for ydeleted file: " .. bookmark.display)
 
         -- Save bookmarks to disk
         M.save_bookmarks()

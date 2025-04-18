@@ -8,9 +8,10 @@ local config = {
     prefix = "<leader>m",
     set_bookmark = "b", -- <leader>mb
     list_bookmarks = "l", -- <leader>ml
+    clear_bookmarks = "c",
     set_mark = "m", -- <leader>mm
     list_marks = "k", -- <leader>mk
-    goto_bookmark = "", -- <leader>m1..9
+    -- goto_bookmark = "", -- <leader>m1..9
     remove_bookmark = "d", -- <leader>md (in normal mode)
     toggle_bookmark = "t", -- <leader>mt
   },
@@ -89,6 +90,10 @@ function M.setup_keymaps()
     picker.show_bookmarks()
   end, "Show all bookmarks")
 
+  map(lhs("clear_bookmarks"), function()
+    files.clear_bookmarks()
+  end, "Clear all bookmarks")
+
   vim.keymap.set("n", "]k", function()
     marks.jump_mark(nil, { direction = 1, global = false })
   end, { desc = "Jump to next local mark" })
@@ -113,9 +118,7 @@ end
 function M.setup_autocmds()
   local group = vim.api.nvim_create_augroup("Bookmarks", { clear = true })
 
-  Utils.on_very_lazy(function()
-    files.update_keymaps()
-  end)
+  files.update_keymaps()
   vim.api.nvim_create_autocmd("User", {
     group = group,
     pattern = "BookmarksChanged",
