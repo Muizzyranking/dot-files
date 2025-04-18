@@ -35,6 +35,7 @@ return {
       require("rose-pine").setup(opts)
     end,
   },
+  -- Using lazy.nvim
   -- {
   --   "catppuccin/nvim",
   --   name = "catppuccin",
