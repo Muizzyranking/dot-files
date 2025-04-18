@@ -5,6 +5,11 @@ end
 local create_autocmd = vim.api.nvim_create_autocmd
 local reload_group = augroup("Reload Config")
 
+create_autocmd("InsertLeave", {
+  command = "set nopaste",
+  pattern = "*",
+})
+
 -----------------------------------------------------------
 -- Kitty config
 -----------------------------------------------------------
@@ -110,6 +115,21 @@ create_autocmd("TextYankPost", {
   group = augroup("highlight_yank"),
   callback = function()
     vim.hl.on_yank()
+  end,
+})
+
+create_autocmd({ "BufWinLeave" }, {
+  pattern = "?*",
+  group = augroup("remember_folds"),
+  callback = function()
+    vim.cmd([[silent! mkview 1]])
+  end,
+})
+create_autocmd({ "BufWinEnter" }, {
+  pattern = "?*",
+  group = augroup("remember_folds"),
+  callback = function()
+    vim.cmd([[silent! loadview 1]])
   end,
 })
 
