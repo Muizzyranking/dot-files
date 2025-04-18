@@ -26,8 +26,11 @@ return {
             file = { filename_only = true },
             severity = { pos = "right" },
           },
+          -- add icon to bookmarked files in explorer
+          format = require("bookmarks.picker").explorer_format,
           matcher = { sort_empty = false, fuzzy = true },
           actions = {
+            bookmark = require("bookmarks.picker").actions.bookmark_file,
             trash = {
               desc = "Move to trash",
               action = function(picker)
@@ -61,6 +64,7 @@ return {
           win = {
             list = {
               keys = {
+                ["b"] = "bookmark",
                 ["<c-c>"] = "",
                 ["T"] = "trash",
                 ["s"] = "edit_vsplit",

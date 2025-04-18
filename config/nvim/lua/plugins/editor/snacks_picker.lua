@@ -83,7 +83,6 @@ return {
             keys = {},
           },
         },
-        actions = {},
       },
     },
     keys = {
