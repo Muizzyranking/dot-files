@@ -3,7 +3,14 @@ local M = setmetatable({}, {
   ---@param msg string|table
   ---@param opts? table
   __call = function(m, msg, opts)
-    return m.info(msg, opts)
+    return m.notify(msg, opts)
+  end,
+  __index = function(m, key)
+    return function(msg, opts)
+      opts = opts or {}
+      opts.level = vim.log.levels[key:upper()]
+      return m.notify(msg, opts)
+    end
   end,
 })
 
@@ -48,39 +55,6 @@ function M.notify(msg, opts)
     end,
     title = opts.title or "NVIM",
   })
-end
-
--------------------------------
--- Display an informational message
----@param msg string|table
----@param opts? table
--------------------------------
-function M.info(msg, opts)
-  opts = opts or {}
-  opts.level = vim.log.levels.INFO
-  M.notify(msg, opts)
-end
-
------------------------------
--- Display a warning message
----@param msg string|table
----@param opts? table
------------------------------
-function M.warn(msg, opts)
-  opts = opts or {}
-  opts.level = vim.log.levels.WARN
-  M.notify(msg, opts)
-end
-
------------------------------
--- Display a warning message
----@param msg string|table
----@param opts? table
------------------------------
-function M.error(msg, opts)
-  opts = opts or {}
-  opts.level = vim.log.levels.ERROR
-  M.notify(msg, opts)
 end
 
 return M
