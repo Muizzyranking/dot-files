@@ -64,6 +64,24 @@ function M.safe_keymap_set(mode, lhs, rhs, opts)
   return ok
 end
 
+-- Function to handle conditional mappings based on snippet session
+---@param modes table|string
+---@param lhs string
+---@param rhs string
+---@param opts table
+function M.snippet_aware_map(modes, lhs, rhs, opts)
+  opts = opts or {}
+  opts.expr = true
+
+  M.safe_keymap_set(modes, lhs, function()
+    if Utils.cmp.in_snippet_session() then
+      return lhs
+    else
+      return rhs
+    end
+  end, opts)
+end
+
 ---------------------------------------------------------------
 ---Set a single keymap with extended functionality
 ---@param mapping map.KeymapOpts
