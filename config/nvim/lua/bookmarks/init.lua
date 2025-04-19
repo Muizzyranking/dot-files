@@ -55,6 +55,15 @@ end
 
 function M.setup_keymaps()
   local prefix = M.config.keymaps.prefix
+
+  Utils.map.add_to_wk({
+    {
+      lhs = prefix,
+      mode = "n",
+      icon = M.config.icons.bookmark,
+      desc = "bookmarks",
+    },
+  })
   local map = function(lhs, rhs, desc)
     Utils.map.set_keymap({
       lhs,
