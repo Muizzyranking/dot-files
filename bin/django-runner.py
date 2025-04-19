@@ -163,6 +163,31 @@ def install_django_if_needed(pip_path, project_dir):
         print_error(f"Failed to install Django: {e}")
 
 
+def install_requirements(pip_path, project_dir):
+    """Install requirements from requirements.txt"""
+    requirements_path = os.path.join(project_dir, "requirements.txt")
+
+    if not os.path.isfile(requirements_path):
+        print_warning("requirements.txt not found")
+        return False
+
+    print_header("Installing Requirements")
+    print_info("Found requirements.txt in project directory")
+
+    try:
+        print_info("Installing requirements...")
+        subprocess.run(
+            [pip_path, "install", "-r", requirements_path],
+            check=True,
+            cwd=project_dir,
+        )
+        print_success("Requirements installed successfully")
+        return True
+    except subprocess.CalledProcessError as e:
+        print_error(f"Failed to install requirements: {e}")
+        return False
+
+
 def run_migrations(python_path, manage_py_path):
     """Run Django migrations"""
     project_dir = os.path.dirname(manage_py_path)
@@ -218,8 +243,15 @@ def main():
     parser = argparse.ArgumentParser(description="Django Server Runner")
     parser.add_argument(
         "--migrate",
+        "-m",
         action="store_true",
         help="Run migrations before starting the server",
+    )
+    parser.add_argument(
+        "--requirements",
+        "-r",
+        action="store_true",
+        help="Install requirements from requirements.txt",
     )
     parser.add_argument(
         "extra_args",
@@ -278,6 +310,10 @@ def main():
 
     # Make sure Django is installed
     install_django_if_needed(pip_path, project_dir)
+
+    # Install requirements if requested
+    if args.requirements:
+        install_requirements(pip_path, project_dir)
 
     # Run migrations if requested
     if args.migrate:
