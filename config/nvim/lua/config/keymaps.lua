@@ -230,7 +230,7 @@ if Utils.is_in_git_repo() then
   end
 end
 
-Utils.map.set_keymaps(maps, { silent = true })
+set.set_keymaps(maps, { silent = true })
 
 ------------------------------------
 -- toggle keymaps
@@ -347,4 +347,4 @@ if Utils.is_in_tmux() then
   })
 end
 
-Utils.map.toggle_maps(toggle_maps)
+set.toggle_maps(toggle_maps)
