@@ -1,0 +1,13 @@
+{
+  "Django Model Class": {
+    "prefix": "cm",
+    "body": [
+      "class ${1:ModelName}(models.Model):",
+      "    \"\"\"",
+      "     ${2:Model description}",
+      "    \"\"\"",
+      "    ${0}"
+    ],
+    "description": "Create a new Django Model class"
+  }
+}
