@@ -1,19 +1,50 @@
 #!/usr/bin/env bash
 
-remote_url=$(git remote get-url origin)
+is_git_repo() {
+    if ! git -C "$1" rev-parse --is-inside-work-tree &>/dev/null; then
+        echo -e "\033[0;31mError: Not a git repository\033[0m"
+        exit 1
+    fi
+}
 
-# Convert SSH URLs to HTTPS
+get_remote_url() {
+    local url
+
+    if ! url=$(git -C "$1" remote get-url origin 2>/dev/null) || [ -z "$url" ]; then
+        echo -e "\033[0;31mError: No remote 'origin' found in repository\033[0m"
+        exit 1
+    fi
+
+    echo "$url"
+}
+
+if [ -z "$1" ]; then
+    target_dir="$(pwd)"
+else
+    if [[ "$1" = /* ]]; then
+        target_dir="$1"
+    else
+        target_dir="$(pwd)/$1"
+    fi
+    if [ ! -d "$target_dir" ]; then
+        echo "Error: Directory does not exist: $target_dir"
+        exit 1
+    fi
+fi
+
+is_git_repo "$target_dir"
+
+remote_url=$(get_remote_url "$target_dir")
+
 if [[ $remote_url == git@* ]]; then
     remote_url=$(echo "$remote_url" | sed 's/git@\(.*\):\(.*\)\.git/https:\/\/\1\/\2/')
 fi
 
-# Remove .git
 remote_url=${remote_url%.git}
 
-# Open in default browser
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     xdg-open "$remote_url"
 else
     echo "Unsupported operating system"
-    return 1
+    exit 1
 fi
