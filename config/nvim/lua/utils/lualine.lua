@@ -226,11 +226,7 @@ function M.snacks_lualine()
 
     if filetype == "snacks_picker_list" then
       title = "🍿 Explorer"
-      if picker then
-        meta = vim.fn.fnamemodify(picker:dir(), ":~")
-      else
-        meta = vim.fn.fnamemodify(vim.fn.getcwd(), ":~")
-      end
+      meta = vim.fn.fnamemodify(vim.fn.getcwd(), ":~")
     elseif filetype == "snacks_picker_input" then
       if picker then
         local input = picker.input and picker.input:get() or ""
@@ -247,7 +243,7 @@ function M.snacks_lualine()
     return title, meta
   end
 
-  local lualine_custom = {
+  return {
     sections = {
       lualine_a = {
         function()
@@ -267,7 +263,6 @@ function M.snacks_lualine()
       "snacks_picker_list",
     },
   }
-  return lualine_custom
 end
 
 return M
