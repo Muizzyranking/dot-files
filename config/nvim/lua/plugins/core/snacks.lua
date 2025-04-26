@@ -17,6 +17,10 @@ return {
         bo = {
           filetype = "lazygit",
         },
+        keys = {
+          ["<C-bs>"] = { "<c-s-w>", mode = { "i", "t" }, expr = true, desc = "delete word" },
+          ["<C-h>"] = { "<c-s-w>", mode = { "i", "t" }, expr = true, desc = "delete word" },
+        },
       },
       config = {
         git = { overrideGpg = true },
