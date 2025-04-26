@@ -27,10 +27,10 @@ return {
             severity = { pos = "right" },
           },
           -- add icon to bookmarked files in explorer
-          format = require("bookmarks.picker").explorer_format,
+          format = require("plugins.editor.grapple.snacks").explorer.format,
           matcher = { sort_empty = false, fuzzy = true },
           actions = {
-            bookmark = require("bookmarks.picker").actions.bookmark_file,
+            bookmark = require("plugins.editor.grapple.snacks").explorer.actions.bookmark,
             trash = {
               desc = "Move to trash",
               action = function(picker)
