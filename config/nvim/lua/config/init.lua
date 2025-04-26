@@ -30,7 +30,6 @@ vim.api.nvim_create_autocmd("User", {
     Utils.root.setup()
     Utils.map.setup()
     Utils.discipline.setup()
-    require("bookmarks").setup()
   end,
 })
 
