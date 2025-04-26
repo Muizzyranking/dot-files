@@ -68,9 +68,7 @@ return {
             },
           },
         },
-        lualine_c = {
-          require("bookmarks.ui").lualine_component(),
-        },
+        lualine_c = {},
         lualine_x = {
           {
             function()
