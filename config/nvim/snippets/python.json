@@ -9,5 +9,20 @@
       "    ${0}"
     ],
     "description": "Create a new Django Model class"
+  },
+  "Django REST Framework API View": {
+    "prefix": [
+      "apiview",
+      "drf_view"
+    ],
+    "body": [
+      "@api_view([\"${1:method}\"])",
+      "def ${2:view_name}(request, ${3:params}):",
+      "    \"\"\"",
+      "    ${4:View Description}",
+      "    \"\"\"",
+      "    $0"
+    ],
+    "description": "Creates a Django REST Framework API view function"
   }
 }
