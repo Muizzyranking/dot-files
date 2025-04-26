@@ -101,9 +101,6 @@ return {
           "2",
         },
       },
-      black = {
-        append_args = { "--line-length", "79" },
-      },
     },
     formatters_by_ft = {
       python = { "black" },
@@ -112,6 +109,20 @@ return {
     format_on_save = true,
   },
   linting = {
+    linters = {
+      flake8 = {
+        args = {
+          "--ignore=E501",
+          "--format=%(path)s:%(row)d:%(col)d:%(code)s:%(text)s",
+          "--no-show-source",
+          "--stdin-display-name",
+          function()
+            return vim.api.nvim_buf_get_name(0)
+          end,
+          "-",
+        },
+      },
+    },
     linters_by_ft = {
       python = { "flake8" },
       htmldjango = { "djlint" },
@@ -183,15 +194,15 @@ return {
       event = "BufWritePost",
       pattern = { "*pyrightconfig.json" },
       callback = function()
-        local basedpyright = Utils.lsp.get_clients({ name = "basedpyright" })[1]
-        local pyright = Utils.lsp.get_clients({ name = "pyright" })[1]
+        local basedpyright = Utils.lsp.get_clients({ name = "basedpyright" })
 
-        if basedpyright then
+        if basedpyright and #basedpyright > 0 then
           vim.cmd("LspStop basedpyright")
+          vim.defer_fn(function()
+            vim.cmd("LspStart basedpyright")
+          end, 200)
+        else
           vim.cmd("LspStart basedpyright")
-        elseif pyright then
-          vim.cmd("LspStop pyright")
-          vim.cmd("LspStart pyright")
         end
 
         vim.cmd("stopinsert")
