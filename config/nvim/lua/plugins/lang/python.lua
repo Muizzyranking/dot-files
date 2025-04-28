@@ -95,6 +95,9 @@ return {
   },
   formatting = {
     formatters = {
+      black = {
+        append_args = { "--line-length", "100" },
+      },
       djlint = {
         append_args = {
           "--indent",
