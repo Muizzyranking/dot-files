@@ -111,7 +111,7 @@ function M.set_keymap(mapping)
   if mapping.icon then
     M.add_to_wk({
       {
-        lhs = lhs,
+        lhs,
         mode = mode,
         icon = mapping.icon,
         desc = mapping.desc or "",
