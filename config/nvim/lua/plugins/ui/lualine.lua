@@ -68,7 +68,11 @@ return {
             },
           },
         },
-        lualine_c = {},
+        lualine_c = {
+          {
+            "grapple",
+          },
+        },
         lualine_x = {
           {
             function()
