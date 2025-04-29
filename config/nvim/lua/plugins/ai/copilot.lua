@@ -11,7 +11,7 @@ return {
         markdown = true,
         help = true,
         sh = function()
-          local filename = vim.fs.basename(vim.api.nvim_buf_get_name(0))
+          local filename = vim.fs.basename(Utils.get_filename())
           if
             string.match(filename, "^%.env")
             or string.match(filename, "^%.secret.*")

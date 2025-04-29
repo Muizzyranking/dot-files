@@ -191,40 +191,40 @@ function M.plugin_stats()
   }
 end
 
-local function remove_trailing_slash(path)
-  return path:gsub("/+$", "")
+-----------------------------------------------------------------
+--- Normalize a value to ensure it’s always a list.
+---@param value any # Input value
+---@return string[]|table|nil # Listified value
+-----------------------------------------------------------------
+function M.ensure_list(value)
+  if not value then
+    return nil
+  end
+  if type(value) == "function" then
+    value = value()
+  end
+  return type(value) == "string" and { value } or value
 end
 
-local function split_path(path)
-  local parts = {}
-  for part in path:gmatch("[^/]+") do
-    table.insert(parts, part)
+-----------------------------------------------------------------
+--- Ensures a valid buffer number, defaulting to current buffer if none provided
+---@param buf? number|nil # The buffer number to validate
+---@return number # The validated buffer number
+-----------------------------------------------------------------
+function M.ensure_buf(buf)
+  if not buf or buf == 0 then
+    buf = vim.api.nvim_get_current_buf()
   end
-  return parts
+  return buf
 end
 
-function M.is_subdir(parent, child)
-  -- Normalize paths by removing trailing slashes
-  parent = remove_trailing_slash(parent)
-  child = remove_trailing_slash(child)
-
-  -- Split paths into components
-  local parent_parts = split_path(parent)
-  local child_parts = split_path(child)
-
-  -- A subdirectory must have more components than its parent
-  if #child_parts <= #parent_parts then
-    return false
-  end
-
-  -- Compare each component of the parent with the child's corresponding component
-  for i = 1, #parent_parts do
-    if parent_parts[i] ~= child_parts[i] then
-      return false
-    end
-  end
-
-  return true
+-----------------------------------------------------------------
+---@param buf? number # default: current buf
+---@return string # filename
+-----------------------------------------------------------------
+function M.get_filename(buf)
+  buf = M.ensure_buf(buf)
+  return vim.api.nvim_buf_get_name(buf)
 end
 
 return M

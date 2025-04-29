@@ -5,8 +5,8 @@ local api = vim.api
 -----------------------------------------------------------
 -- Make the current file executable
 -----------------------------------------------------------
-function M.toggle_file_executable(state)
-  local filename = vim.fn.expand("%:p")
+function M.toggle_file_executable(state, filename)
+  filename = filename or Utils.get_filename()
   local cmd = ("chmod %s %s"):format(state and "-x" or "+x", filename)
   local success_message = ("File made %s"):format(state and "unexecutable" or "executable")
   local error_message = ("Error making file %s"):format(state and "unexecutable" or "executable")

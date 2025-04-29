@@ -84,7 +84,7 @@ end
 M.file = {
   function()
     local icon = Utils.icons.ui.File
-    local path = vim.api.nvim_buf_get_name(M.stbufnr())
+    local path = Utils.get_filename(M.stbufnr())
     local name = (path == "" and "Empty ") or path:match("([^/\\]+)[/\\]*$")
 
     if name ~= "Empty " then
@@ -101,7 +101,7 @@ M.file = {
   end,
 
   color = function()
-    local file_path = vim.api.nvim_buf_get_name(M.stbufnr())
+    local file_path = Utils.get_filename(M.stbufnr())
     local is_exec = file_path ~= "" and Utils.is_executable(file_path)
     local hl_group = is_exec and "DiagnosticOk" or "Constant"
     return { fg = Utils.hl.get_hl_color(hl_group), gui = "italic,bold" }
@@ -130,11 +130,18 @@ M.lsp = {
     local client_names = {}
     for _, client in pairs(buf_clients) do
       if client.name ~= "conform" and client.name ~= "copilot" then
-        table.insert(client_names, truncate_lsp_name(client.name))
+        -- table.insert(client_names, truncate_lsp_name(client.name))
+        table.insert(client_names, client.name)
       end
     end
     if #client_names == 0 then
       return ""
+    end
+
+    if #client_names > 2 then
+      for i, client in ipairs(client_names) do
+        client_names[i] = truncate_lsp_name(client)
+      end
     end
 
     local unique_client_names = table.concat(client_names, ", ")

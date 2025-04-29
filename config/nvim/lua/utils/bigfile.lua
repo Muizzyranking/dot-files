@@ -7,7 +7,7 @@ local bigfile_group = vim.api.nvim_create_augroup("Bigfile", { clear = true })
 ---@param buf number
 ---@param is_big boolean
 function M.notify(buf, is_big)
-  local path = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ":p:~:.")
+  local path = vim.fn.fnamemodify(Utils.get_filename(buf), ":p:~:.")
   local message = is_big and "Big file detected `%s`. Some features disabled."
     or "File `%s` no longer treated as big file."
   Utils.notify[is_big and "warn" or "info"](message:format(path), { title = "Big file", timeout = 5000 })
@@ -35,7 +35,7 @@ end
 function M.is_big_file(buf)
   vim.g.bigfile = vim.g.bigfile or 1.5 * 1024 * 1024
   vim.g.bigfile_max_lines = vim.g.bigfile_max_lines or 32768
-  local path = vim.api.nvim_buf_get_name(buf)
+  local path = Utils.get_filename(buf)
   if path and path ~= "" then
     local stat = vim.uv.fs_stat(path)
     if stat and stat.size > vim.g.bigfile then

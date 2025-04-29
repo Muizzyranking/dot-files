@@ -120,7 +120,7 @@ return {
           "--no-show-source",
           "--stdin-display-name",
           function()
-            return vim.api.nvim_buf_get_name(0)
+            return Utils.get_filename()
           end,
           "-",
         },
