@@ -144,7 +144,7 @@ end
 local function notify(state, name)
   local msg = string.format("%s %s", state and "Disabled" or "Enabled", name)
   local level = state and "warn" or "info"
-  require("utils").notify[level](msg, { title = name })
+  Utils.notify[level](msg, { title = name })
 end
 
 ---@param mapping map.ToggleOpts
