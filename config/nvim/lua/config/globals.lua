@@ -6,4 +6,3 @@ vim.g.bigfile_max_lines                  = 32768
 vim.g.netrw_browsex_viewer               = os.getenv("BROWSER")
 vim.hl.priorities.semantic_tokens = 95
 vim.g.autoformat                         = false
-vim.lsp.get_active_clients = vim.lsp.get_clients
