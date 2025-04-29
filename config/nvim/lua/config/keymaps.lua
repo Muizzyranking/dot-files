@@ -59,7 +59,6 @@ set("o", "n", "'Nn'[v:searchforward]",      { expr = true, desc = "Next Search R
 set("n", "N", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Prev Search Result" })
 set("x", "N", "'nN'[v:searchforward]",      { expr = true, desc = "Prev Search Result" })
 set("o", "N", "'nN'[v:searchforward]",      { expr = true, desc = "Prev Search Result" })
-set("n", "<Esc>", "<cmd>nohlsearch<CR>") -- Clear search highlight on pressing <Esc> in normal mode
 -- stylua: ignore end
 
 ------------------------
@@ -67,11 +66,18 @@ set("n", "<Esc>", "<cmd>nohlsearch<CR>") -- Clear search highlight on pressing <
 ------------------------
 set("i", ("<c-%s>"):format(Utils.is_in_tmux() and "o" or "cr"), "<esc>o", { desc = "Go to next line", remap = true }) -- go to next line in insert
 
--- set("i", "<C-b>", "<esc>I", { desc = "Go to beginning of line" }) -- Go to beginning of line in insert
 set("i", "<C-b>", function()
-  vim.cmd.normal({ "I", bang = true })
+  vim.cmd.normal({ "^", bang = true })
+  vim.cmd("startinsert!")
 end, { desc = "Go to beginning of line" }) -- Go to beginning of line in insert
+
+set("i", "<C-e>", function()
+  vim.cmd.normal({ "$", bang = true })
+  vim.cmd("startinsert!")
+end, { desc = "Go to end of line" }) -- Go to end of line in insert
+
 set({ "n", "v" }, "B", "^", { desc = "Go to beginning of line" }) -- go to beginning of line in normal
+set({ "n", "v" }, "E", "$", { desc = "Go to end of line" }) -- go to end of line in normal
 
 set.snippet_aware_map({ "v", "x" }, "B", "^", {})
 set.snippet_aware_map({ "v", "x" }, "p", '"_dp', {})
@@ -81,8 +87,14 @@ set.snippet_aware_map({ "n" }, "C", '"_C', {})
 set.snippet_aware_map({ "n" }, "D", '"_D', {})
 set.snippet_aware_map({ "n", "v", "x" }, "x", '"_x', {})
 
-set("i", "<C-e>", "<esc>A", { desc = "Go to end of line" }) -- go to end of line in insert
-set({ "n", "v" }, "E", "$", { desc = "Go to end of line" }) -- go to end of line in normal
+set({ "n", "v", "x" }, "<esc>", function()
+  if Utils.cmp.in_snippet_session() then
+    vim.snippet.stop()
+  end
+  vim.cmd("nohlsearch")
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<esc>", true, false, true), "n", false)
+end, { desc = "Stop snippet and escape" })
+
 -- set("i", "jj", "<Esc>",     { desc = "Go to normal mode" }) -- esc with jj
 set("n", "<BS>", '"_ciw', { desc = "Change inner word" }) -- change word
 -- NOTE: this is the way to make <c-bs> work in tmux for some reasons
@@ -94,18 +106,13 @@ set({ "n" }, "ciw", '"_ciw')
 set({ "i" }, "<c-v>", "<c-r>+", { desc = "Paste in insert mode", silent = false })
 
 -- disable arrow key in normal mode
-set("n", "<UP>", function()
-  Utils.notify.warn("Use k", { title = "options" })
-end)
-set("n", "<DOWN>", function()
-  Utils.notify.warn("Use j", { title = "options" })
-end)
-set("n", "<LEFT>", function()
-  Utils.notify.warn("Use h", { title = "options" })
-end)
-set("n", "<RIGHT>", function()
-  Utils.notify.warn("Use l", { title = "options" })
-end)
+local arrow_mappings = { "<UP>", "<DOWN>", "<LEFT>", "<RIGHT>" }
+
+for _, key in pairs(arrow_mappings) do
+  set("n", key, function()
+    Utils.notify.warn("Use hjkl", { title = "options" })
+  end, { desc = "Disable " .. key })
+end
 
 ------------------------------------
 -- keymaps with icons
@@ -238,8 +245,8 @@ set.set_keymaps(maps, { silent = true })
 local toggle_maps = {
   {
     "<leader>uT",
-    get_state = function()
-      return vim.b.ts_highlight
+    get_state = function(buf)
+      return Utils.ts.hl_is_active(buf)
     end,
     change_state = function(state)
       vim.treesitter[state and "stop" or "start"]()
@@ -248,11 +255,11 @@ local toggle_maps = {
   },
   {
     "<leader>uF",
-    get_state = function()
-      return Utils.format.enabled(vim.api.nvim_get_current_buf())
+    get_state = function(buf)
+      return Utils.format.enabled(buf)
     end,
-    change_state = function(state)
-      Utils.format.toggle(vim.api.nvim_get_current_buf(), not state)
+    change_state = function(state, buf)
+      Utils.format.toggle(buf, not state)
     end,
     name = "Autoformat (Buffer)",
   },
@@ -261,7 +268,6 @@ local toggle_maps = {
     get_state = function()
       return vim.g.autoformat
     end,
-    -- toggle_fn = Utils.format.toggle,
     change_state = function(state)
       Utils.format.toggle(nil, not state)
     end,
@@ -279,13 +285,23 @@ local toggle_maps = {
   },
   {
     "<leader>ud",
+    get_state = function(buf)
+      return vim.diagnostic.is_enabled({ bufnr = buf })
+    end,
+    change_state = function(state, buf)
+      vim.diagnostic.enable(not state, { bufnr = buf })
+    end,
+    name = "diagnostic (buffer)",
+  },
+  {
+    "<leader>uD",
     get_state = function()
       return vim.diagnostic.is_enabled()
     end,
     change_state = function(state)
       vim.diagnostic.enable(not state)
     end,
-    name = "diagnostic",
+    name = "diagnostic (global)",
   },
   {
     "<leader>uw",
@@ -299,11 +315,13 @@ local toggle_maps = {
   },
   {
     "<leader>cx",
-    get_state = function()
-      return Utils.is_executable(vim.fn.expand("%:p"))
+    get_state = function(buf)
+      local filename = Utils.get_filename(buf)
+      return Utils.is_executable(filename)
     end,
-    change_state = function(state)
-      Utils.actions.toggle_file_executable(state)
+    change_state = function(state, buf)
+      local filename = Utils.get_filename(buf)
+      Utils.actions.toggle_file_executable(state, filename)
     end,
     desc = function(state)
       return ("Make file %s"):format(state and "unexecutable" or "executable")
