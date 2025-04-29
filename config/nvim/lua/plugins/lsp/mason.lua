@@ -28,9 +28,7 @@ return {
     -- Add tools to a consolidated list, avoiding duplicates
     ---@param entries string[]|string List of tools to add
     local function add_tools(entries)
-      if type(entries) == "string" then
-        entries = { entries }
-      end
+      entries = Utils.ensure_list(entries)
       for _, tool in ipairs(entries) do
         if not installed_tools_set[tool] then
           all_tools[#all_tools + 1] = tool
