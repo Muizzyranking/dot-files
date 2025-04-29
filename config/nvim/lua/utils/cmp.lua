@@ -2,7 +2,7 @@
 local M = {}
 
 function M.in_snippet_session()
-  return vim.snippet and vim.snippet.active()
+  return vim.snippet ~= nil and vim.snippet.active()
 end
 
 --------------------------------------------------
