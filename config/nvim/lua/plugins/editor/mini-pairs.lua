@@ -2,24 +2,13 @@ return {
   "echasnovski/mini.pairs",
   event = "VeryLazy",
   opts = {
-    -- Specify which modes mini.pairs should be active in
     modes = { insert = true, command = true, terminal = false },
-
-    -- Skip autopair when the next character is one of these:
     skip_next = [=[[%w%%%'%[%"%.%`%$]]=],
-
-    -- Skip autopair when inside these treesitter nodes (e.g., "string" nodes)
     skip_ts = { "string" },
-
-    -- Skip autopair if there are more closing pairs than opening pairs
     skip_unbalanced = true,
-
-    -- Special handling for markdown code blocks
     markdown = true,
   },
-
   config = function(_, opts)
-    -- Define the pairs setup and a toggle to enable/disable it with <leader>up
     Utils.map.toggle_map({
       "<leader>up",
       get_state = function()
@@ -30,37 +19,30 @@ return {
       end,
       name = "Mini Pairs",
     })
-    -- Load the mini.pairs plugin with the given options
     local pairs = require("mini.pairs")
     pairs.setup(opts)
-
-    -- Cache the original pairs.open function for later use
     local open = pairs.open
-
-    -- Override the pairs.open function to add custom logic
     ---@diagnostic disable-next-line: duplicate-set-field
     pairs.open = function(pair, neigh_pattern)
-      -- If in command-line mode (e.g., typing a command), use default behavior
       if vim.fn.getcmdline() ~= "" then
         return open(pair, neigh_pattern)
       end
-
-      -- Extract the opening and closing characters of the pair
       local o, c = pair:sub(1, 1), pair:sub(2, 2)
-
-      -- Get the current line and cursor position
       local line = vim.api.nvim_get_current_line()
       local cursor = vim.api.nvim_win_get_cursor(0)
-
-      -- Get the next character after the cursor
       local next = line:sub(cursor[2] + 1, cursor[2] + 1)
-
-      -- Get the part of the line before the cursor
       local before = line:sub(1, cursor[2])
+      local prev = cursor[2] > 0 and line:sub(cursor[2], cursor[2]) or ""
+      local at_end_of_word = prev:match("%w")
+
+      -- Special handling for identical pairs (quotes, backticks) at end of word
+      if at_end_of_word and o == c then
+        return o -- Only insert the opening character for identical pairs at word end
+      end
 
       -- Special handling for markdown code blocks
-      if opts.markdown and o == "" and vim.bo.filetype == "markdown" and before:match("^%s*``") then
-        return "\n```" .. vim.api.nvim_replace_termcodes("<up>", true, true, true)
+      if opts.markdown and o == "`" and vim.bo.filetype == "markdown" and before:match("^%s*``") then
+        return "\n```" .. vim.api.nvim_replace_termcodes("<CR>", true, true, true)
       end
 
       -- Skip autopair if the next character matches the skip_next pattern

@@ -149,13 +149,13 @@ return {
           {
             event = "file_moved",
             handler = function(data)
-              Utils.lsp.on_rename_file(data.source, data.destination)
+              -- use snacks
             end,
           },
           {
             event = "file_renamed",
             handler = function(data)
-              Utils.lsp.on_rename_file(data.source, data.destination)
+              -- use snacks
             end,
           },
         },

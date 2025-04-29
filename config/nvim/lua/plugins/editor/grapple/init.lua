@@ -3,6 +3,46 @@ return {
   event = "VeryLazy",
   opts = {
     scope = "lsp",
+    ---@type grapple.scope_definition[]
+    scopes = {},
+    ---@type boolean
+    icons = true,
+    ---@type table<string, grapple.scope_definition | boolean>
+    default_scopes = {
+      lsp = {
+        name = "lsp",
+        desc = "LSP root directory",
+        fallback = "git",
+        cache = {
+          event = { "LspAttach", "LspDetach" },
+          debounce = 250, -- ms
+        },
+        resolver = function()
+          -- TODO: Don't use vim.lsp.get_clients, it's a nvim-0.10 feature
+          local clients = Utils.lsp.get_clients({ bufnr = 0 })
+          if #clients == 0 then
+            return
+          end
+
+          local path = clients[1].root_dir
+
+          return path, path
+        end,
+      },
+    },
+    ---Values for which a buffer should be excluded from being tagged
+    exclusions = {
+      buftype = { "nofile" },
+      filetype = { "grapple" },
+      name = { "" },
+    },
+
+    statusline = {
+      icon = "",
+      inactive = " %s ",
+      active = "[%s]",
+      include_icon = true,
+    },
   },
   config = function(_, opts)
     require("grapple").setup(opts)
