@@ -118,6 +118,7 @@ end
 ---------------------------------------------------------------
 function M.get(buf)
   buf = (buf == nil or buf == 0) and vim.api.nvim_get_current_buf() or buf
+  buf = Utils.ensure_buf(buf)
 
   if M.cache[buf] then
     return M.cache[buf]

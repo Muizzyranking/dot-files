@@ -8,9 +8,7 @@ local M = {}
 ---@return boolean
 -------------------------------------------------
 function M.hl_is_active(buf)
-  if not buf or buf == 0 then
-    buf = vim.api.nvim_get_current_buf()
-  end
+  buf = Utils.ensure_list(buf)
   return vim.treesitter.highlighter.active[buf] ~= nil
 end
 
@@ -20,9 +18,7 @@ end
 ---@return boolean
 -------------------------------------------------
 function M.is_active(buf)
-  if not buf or buf == 0 then
-    buf = vim.api.nvim_get_current_buf()
-  end
+  buf = Utils.ensure_buf(buf)
   if vim.treesitter.highlighter.active[buf] then
     return true
   end

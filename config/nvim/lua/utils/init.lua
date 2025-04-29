@@ -212,7 +212,7 @@ end
 ---@return number # The validated buffer number
 -----------------------------------------------------------------
 function M.ensure_buf(buf)
-  if not buf or buf == 0 then
+  if not buf or buf == nil or buf == 0 then
     buf = vim.api.nvim_get_current_buf()
   end
   return buf

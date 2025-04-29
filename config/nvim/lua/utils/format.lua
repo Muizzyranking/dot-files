@@ -12,7 +12,7 @@ local api = vim.api
 ---@return boolean Whether autoformat is enabled for the buffer.
 ----------------------------------------------------
 function M.enabled(buf)
-  buf = (buf == nil or buf == 0) and api.nvim_get_current_buf() or buf
+  buf = Utils.ensure_buf(buf)
   local gaf = vim.g.autoformat
   local baf = vim.b[buf].autoformat
 

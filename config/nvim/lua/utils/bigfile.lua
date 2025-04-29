@@ -123,9 +123,7 @@ function M.setup()
 
       ---@diagnostic disable-next-line: duplicate-set-field
       function vim.treesitter.get_parser(buf, ...)
-        if buf == nil or buf == 0 then
-          buf = vim.api.nvim_get_current_buf()
-        end
+        buf = Utils.ensure_buf(buf)
         -- HACK: Getting parser for a big buffer can freeze nvim, so return a
         -- fake parser on an empty buffer if current buffer is big
         if vim.api.nvim_buf_is_valid(buf) and vim.b[buf].bigfile then
