@@ -151,11 +151,11 @@ function M.get()
     },
     Utils.map.toggle_map({
       "<leader>ui",
-      get_state = function()
-        return vim.lsp.inlay_hint.is_enabled({ bufnr = 0 })
+      get_state = function(buf)
+        return vim.lsp.inlay_hint.is_enabled({ bufnr = buf })
       end,
-      change_state = function(state)
-        vim.lsp.inlay_hint.enable(not state)
+      change_state = function(state, buf)
+        vim.lsp.inlay_hint.enable(not state, { bufnr = buf })
       end,
       name = "Inlay hint",
       has = "inlayHint",
@@ -168,6 +168,10 @@ end
 
 local all_keys = {}
 function M.on_attach(_, buffer, opts)
+  pcall(vim.keymap.del, "n", "gra")
+  pcall(vim.keymap.del, "n", "grn")
+  pcall(vim.keymap.del, "n", "grr")
+  pcall(vim.keymap.del, "n", "gri")
   local clients = Utils.lsp.get_clients({ bufnr = buffer })
   local keys = vim.tbl_extend("force", {}, M.get())
   for _, client in ipairs(clients) do
