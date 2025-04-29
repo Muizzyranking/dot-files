@@ -28,7 +28,7 @@ return {
               return trimmed_line:sub(1, #left_comment) == left_comment
             end
           end
-          local comment_string = vim.api.nvim_buf_get_option(bufnr, "commentstring")
+          local comment_string = vim.api.nvim_get_option_value("commentstring", { buf = bufnr })
           local left_comment, right_comment = comment_string:match("^(.-)%s*%%s%s*(.-)%s*$")
           left_comment = vim.trim(left_comment or comment_string)
           right_comment = vim.trim(right_comment or "")
@@ -56,13 +56,12 @@ return {
     lazy_load = false,
   },
   config = function(_, opts)
-    local buf = vim.api.nvim_get_current_buf()
     Utils.map.toggle_map({
       "<leader>uh",
-      get_state = function()
+      get_state = function(buf)
         return require("colorizer").is_buffer_attached(buf)
       end,
-      change_state = function(state)
+      change_state = function(state, buf)
         require("colorizer")[state and "detach_from_buffer" or "attach_to_buffer"](buf)
       end,
       name = "Color highlight",
