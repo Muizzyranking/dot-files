@@ -50,7 +50,7 @@ end
 ---------------------------------------------------------------
 function M.safe_keymap_set(mode, lhs, rhs, opts)
   local keys = require("lazy.core.handler").handlers.keys
-  local modes = type(mode) == "string" and { mode } or mode
+  local modes = Utils.ensure_list(mode)
 
   for _, m in ipairs(modes) do
     if keys.have and keys:have(lhs, m) then
@@ -93,7 +93,7 @@ function M.set_keymap(mapping)
   end
 
   local lhs, rhs = mapping[1], mapping[2]
-  local mode = (type(mapping.mode) == "string" and { mapping.mode } or mapping.mode) or { "n" }
+  local mode = (mapping.mode and Utils.ensure_list(mapping.mode)) or { "n" }
 
   local opts = {
     desc = type(mapping.desc) == "function" and mapping.desc() or (mapping.desc or ""),
@@ -139,57 +139,75 @@ function M.set_keymaps(mappings, opts)
   end
 end
 
+---@param state boolean
+---@param name string
+local function notify(state, name)
+  local msg = string.format("%s %s", state and "Disabled" or "Enabled", name)
+  local level = state and "warn" or "info"
+  require("utils").notify[level](msg, { title = name })
+end
+
+---@param mapping map.ToggleOpts
+local function create_toggle_fn(mapping)
+  return function()
+    local buf = vim.api.nvim_get_current_buf()
+    local state = mapping.get_state(buf)
+    mapping.change_state(state, buf)
+    if mapping.notify ~= false then
+      notify(state, mapping.name)
+    end
+  end
+end
+
+---@param mapping map.ToggleOpts
+local function create_desc(mapping)
+  if type(mapping.desc) == "function" then
+    return function()
+      local buf = vim.api.nvim_get_current_buf()
+      return mapping.desc(mapping.get_state(buf))
+    end
+  end
+  return mapping.desc or string.format("Toggle %s", mapping.name)
+end
+
+---@param mapping map.ToggleOpts
+local function create_icon(mapping)
+  return function()
+    local buf = vim.api.nvim_get_current_buf()
+    local state = mapping.get_state(buf)
+    local icon = mapping.icon or {}
+    local color = mapping.color or {}
+    return {
+      icon = state and (icon.enabled or "  ") or (icon.disabled or "  "),
+      color = state and (color.enabled or "green") or (color.disabled or "yellow"),
+    }
+  end
+end
+
 ---------------------------------------------------------------
 ---Create a toggle mapping
 ---@param mapping map.ToggleOpts
+---@return map.KeymapOpts|nil
 ---------------------------------------------------------------
 function M.toggle_map(mapping)
-  local ok = is_toggle_opts(mapping)
-  if not ok then
+  if not is_toggle_opts(mapping) then
     return
   end
+
   local map = {
     mapping[1],
-    mapping.toggle_fn or function()
-      mapping.change_state(mapping.get_state())
-      if mapping.notify ~= false then
-        Utils.notify[mapping.get_state() and "info" or "warn"](
-          ("%s %s"):format(mapping.get_state() and "Enabled" or "Disabled", mapping.name),
-          { title = mapping.name }
-        )
-      end
-    end,
+    create_toggle_fn(mapping),
     mode = mapping.mode or "n",
-    desc = type(mapping.desc) == "function" and function()
-      return mapping.desc(mapping.get_state())
-    end or mapping.desc or ("Toggle %s"):format(mapping.name),
-    icon = function()
-      local state = mapping.get_state()
-      local icon = mapping.icon or {}
-      local color = mapping.color or {}
-      return {
-        icon = state and (icon.enabled or "  ") or (icon.disabled or " "),
-        color = state and (color.enabled or "green") or (color.disabled or "yellow"),
-      }
-    end,
+    desc = create_desc(mapping),
+    icon = create_icon(mapping),
   }
 
+  local excluded = { "name", "get_state", "toggle_fn", "change_state", "color", "notify", "set_key" }
+
   for k, v in pairs(mapping) do
-    if map[k] == nil then
+    if map[k] == nil and not vim.tbl_contains(excluded, k) then
       map[k] = v
     end
-  end
-
-  for _, field in ipairs({
-    "name",
-    "get_state",
-    "toggle_fn",
-    "change_state",
-    "color",
-    "notify",
-    "set_key",
-  }) do
-    map[field] = nil
   end
 
   if mapping.set_key ~= false then
@@ -324,7 +342,7 @@ function M.reload_config(opts)
     return
   end
   if not opts.cmd then
-    M.notify.error("No command provided to reload config")
+    Utils.notify.error("No command provided to reload config")
     return
   end
 

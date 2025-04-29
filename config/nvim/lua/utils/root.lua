@@ -33,7 +33,7 @@ end
 ---@param buf number the buffer number
 ---------------------------------------------------------------
 function M.get_buffer_path(buf)
-  local path = vim.api.nvim_buf_get_name(assert(buf))
+  local path = Utils.get_filename(assert(buf))
   return path ~= "" and M.get_real_path(path) or nil
 end
 
@@ -43,7 +43,7 @@ end
 ---@param patterns string[]|string patterns to search for
 ---------------------------------------------------------------
 function M.find_pattern_root(buf, patterns)
-  patterns = type(patterns) == "string" and { patterns } or patterns ---@type string[]
+  patterns = Utils.ensure_list(patterns) ---@type string[]
   local path = M.get_buffer_path(buf) or vim.uv.cwd()
   local pattern = vim.fs.find(function(name)
     for _, p in ipairs(patterns) do
@@ -104,8 +104,7 @@ end
 ---@param patterns string|string[] # patterns to add
 ---------------------------------------------------------------
 function M.add_patterns(patterns)
-  patterns = type(patterns) == "string" and { patterns } or patterns
-
+  patterns = Utils.ensure_list(patterns) ---@type string[]
   for _, pattern in ipairs(patterns) do
     if not vim.tbl_contains(M.root_patterns, pattern) then
       table.insert(M.root_patterns, pattern)

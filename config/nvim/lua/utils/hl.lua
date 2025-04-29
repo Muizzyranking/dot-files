@@ -52,30 +52,33 @@ function M.lighten_color(hex, amount)
   return string.format("#%02x%02x%02x", r, g, b)
 end
 
-local diagnostic_types = {
-  "Warn",
-  "Error",
-  "Hint",
-  "Info",
-}
-
-for _, type in ipairs(diagnostic_types) do
-  local highlight_name = "InlineDiagnostic" .. type
-  M._highlights[highlight_name] = {
-    fg = M.get_hl_color("Diagnostic" .. type, "fg"),
-    bg = M.get_hl_color("Diagnostic" .. type, "bg"),
-    italic = true,
-  }
-end
-
-M._highlights.WinBar = {}
-M._highlights.WinBarNc = {}
-
 -----------------------------------------------
 -- apply the highlights
 -----------------------------------------------
 function M.setup()
-  M.add_highlights(M._highlights)
+  local diagnostic_types = {
+    "Warn",
+    "Error",
+    "Hint",
+    "Info",
+  }
+
+  for _, type in ipairs(diagnostic_types) do
+    local highlight_name = "InlineDiagnostic" .. type
+    M.add_highlights({
+      [highlight_name] = {
+        fg = M.get_hl_color("Diagnostic" .. type, "fg"),
+        bg = M.get_hl_color("Diagnostic" .. type, "bg"),
+        italic = true,
+      },
+    })
+  end
+
+  M.add_highlights({
+    WinBar = {},
+    WinBarNc = {},
+  })
+
   vim.api.nvim_create_autocmd({ "ColorScheme", "UiEnter" }, {
     group = vim.api.nvim_create_augroup("WinBar Hl", { clear = true }),
     callback = function()

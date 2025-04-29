@@ -4,7 +4,7 @@ local M = {}
 -------------------------------------------------
 ---Only checks whether treesitter highlighting is active in `buf`
 ---Should be faster than `utils.ts.is_active()`
----@param buf integer? default: current buffer
+---@param buf number? # default: current buffer
 ---@return boolean
 -------------------------------------------------
 function M.hl_is_active(buf)
@@ -16,7 +16,7 @@ end
 
 -------------------------------------------------
 ---Returns whether treesitter is active in `buf`
----@param buf integer? default: current buffer
+---@param buf number? default: current buffer
 ---@return boolean
 -------------------------------------------------
 function M.is_active(buf)
@@ -59,7 +59,7 @@ end
 
 ------------------------------------------------
 ---Returns whether cursor is in a specific type of treesitter node
----@param types string|string[]|fun(types: string|string[]): boolean type of node, or function to check node type
+---@param types string|string[]|fun(types: string|string[]): boolean # type of node, or function to check node type
 ---@param opts vim.treesitter.get_node.Opts?
 ---@return TSNode?
 ------------------------------------------------
@@ -73,9 +73,7 @@ function M.find_node(types, opts)
   local check_type_match = vim.is_callable(types) and function(nt)
     return types(nt)
   end or function(nt)
-    if type(types) == "string" then
-      types = { types }
-    end
+    types = Utils.ensure_list(types)
     return vim.iter(types):any(function(t)
       return nt:match(t)
     end)

@@ -10,18 +10,6 @@ local function set_buf_option(buf, option, value)
 end
 
 -----------------------------------------------------------------
---- Normalize a value to ensure it’s always a list.
----@param value any # Input value
----@return table # Listified value
------------------------------------------------------------------
-local function ensure_list(value)
-  if type(value) == "function" then
-    value = value()
-  end
-  return type(value) == "string" and { value } or value
-end
-
------------------------------------------------------------------
 -- Create an augroup for language-specific autocommands
 ---@param config_name string # Name of the language configuration
 ---@return function # create_grouped_autocmd Function to create autocmds in this group
@@ -110,7 +98,7 @@ end
 function M.setup_language(config)
   -- Set defaults
   assert(config.name, "LanguageConfig must have a 'name'")
-  config.ft = ensure_list(config.ft or config.name) --[[@as string]]
+  config.ft = Utils.ensure_list(config.ft or config.name) --[[@as string]]
 
   local plugins = {}
   local create_autocmd = create_autocmd_group(config.name)
@@ -139,7 +127,7 @@ function M.setup_language(config)
       "williamboman/mason.nvim",
       optional = true,
       opts = {
-        ensure_installed = ensure_list(config.tools),
+        ensure_installed = Utils.ensure_list(config.tools),
       },
     })
   end
@@ -162,7 +150,7 @@ function M.setup_language(config)
     }
     if fmt.use_prettier_biome then
       if fmt.use_prettier_biome == true then
-        fmt_opts.use_prettier_biome = ensure_list(config.ft)
+        fmt_opts.use_prettier_biome = Utils.ensure_list(config.ft)
       else
         fmt_opts.use_prettier_biome = fmt.use_prettier_biome
       end
@@ -192,7 +180,7 @@ function M.setup_language(config)
   if config.highlighting then
     local hl = config.highlighting
     local parsers = hl.parsers or vim.islist(hl) and hl or {}
-    parsers = ensure_list(parsers)
+    parsers = Utils.ensure_list(parsers)
     table.insert(plugins, {
       "nvim-treesitter/nvim-treesitter",
       opts = function(_, opts)
@@ -257,7 +245,7 @@ function M.setup_language(config)
   -- Add custom plugins
   if config.plugins then
     for _, plugin in ipairs(config.plugins) do
-      table.insert(plugins, ensure_list(plugin))
+      table.insert(plugins, Utils.ensure_list(plugin))
     end
   end
 
@@ -298,7 +286,7 @@ M._registered = {}
 ---@return table[]
 -----------------------------------------------------------------
 function M.add_lang(langs)
-  langs = (type(langs) == "table" and langs or { langs }) or { "lua" }
+  langs = (langs and Utils.ensure_list(langs)) or { "lua" }
   local results = {}
   for _, lang in ipairs(langs) do
     if M._registered[lang] then

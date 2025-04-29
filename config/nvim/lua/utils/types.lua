@@ -16,7 +16,7 @@
 ---@field custom_servers? table # Additional LSP options
 
 ---@class setup_lang.formatting
----@field formatters? table<string, conform.FormatterConfigOverride|fun(bufnr: integer): nil|conform.FormatterConfigOverride> # Custom formatters and overrides for built-in formatters.
+---@field formatters? table<string, conform.FormatterConfigOverride|fun(bufnr: number): nil|conform.FormatterConfigOverride> # Custom formatters and overrides for built-in formatters.
 ---@field formatters_by_ft? table<string, conform.FiletypeFormatter> # Map of filetype to formatters
 ---@field format_on_save? boolean # Whether to format on save
 ---@field use_prettier_biome? boolean|string[] # Whether to use prettier for this filetypes or use prettier for specific filetypes
@@ -78,6 +78,10 @@
 ---| '"t"' # Terminal mode
 ---| '"c"' # Command mode
 
+---@class map.ToggleOpts.IconConf
+---@field enabled? string Icon to display when feature is enabled
+---@field disabled? string Icon to display when feature is disabled
+
 ---@class map.KeymapOpts
 ---@field [1] string # The left-hand side of the mapping
 ---@field [2] string|function # The right-hand side of the mapping
@@ -93,12 +97,12 @@
 ---@class map.ToggleOpts
 ---@field [1] string # The left-hand side of the mapping
 ---@field name string # Name of the toggle
----@field get_state function # Function that returns the current state
----@field change_state? function # Function to change the state
----@field toggle_fn? function # Custom toggle function
+---@field get_state fun(buf?: number):  boolean # returns the current state
+---@field change_state? fun(state: boolean, buf?: number) # Function to change the state
 ---@field mode? KeymapMode|KeymapMode[] # Vim mode(s) for the mapping
----@field desc? string|function # Description of the mapping
----@field icon? table # Icon configuration
----@field color? table # Color configuration
+---@field desc? string|fun(state: boolean): string # Description of the mapping
+---@field icon? map.ToggleOpts.IconConf # Icon configuration
+---@field color? map.ToggleOpts.IconConf # Color configuration
 ---@field notify? boolean # Whether to show notifications
 ---@field set_key? boolean # Whether to set the keymap immediately
+---@field [string] any # Additional fields to pass to the keymap
