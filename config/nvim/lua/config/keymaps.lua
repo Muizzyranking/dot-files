@@ -64,7 +64,7 @@ set("o", "N", "'nN'[v:searchforward]",      { expr = true, desc = "Prev Search R
 ------------------------
 -- editing
 ------------------------
-set("i", ("<c-%s>"):format(Utils.is_in_tmux() and "o" or "cr"), "<esc>o", { desc = "Go to next line", remap = true }) -- go to next line in insert
+set("i", "<c-cr>", "<esc>o", { desc = "Go to next line", remap = true }) -- go to next line in insert
 
 set("i", "<C-b>", function()
   vim.cmd.normal({ "^", bang = true })
@@ -97,14 +97,11 @@ end, { desc = "Stop snippet and escape" })
 
 -- set("i", "jj", "<Esc>",     { desc = "Go to normal mode" }) -- esc with jj
 set("n", "<BS>", '"_ciw', { desc = "Change inner word" }) -- change word
--- NOTE: this is the way to make <c-bs> work in tmux for some reasons
-set({ "i", "c" }, ("<C-%s>"):format(Utils.is_in_tmux() and "h" or "BS"), "<c-w>", { desc = "Delete word" })
+set({ "i", "c" }, "<c-bs>", "<c-w>", { desc = "Delete word" })
 set("n", "<C-a>", "gg<S-v>G", { desc = "Select all", noremap = true, silent = true }) -- select all
 set("v", "<S-Tab>", "<gv", { noremap = false, silent = true })
 set("v", "<Tab>", ">gv", { noremap = false, silent = true })
 set({ "n" }, "ciw", '"_ciw')
-set({ "i" }, "<c-v>", "<c-r>+", { desc = "Paste in insert mode", silent = false })
-
 -- disable arrow key in normal mode
 local arrow_mappings = { "<UP>", "<DOWN>", "<LEFT>", "<RIGHT>" }
 

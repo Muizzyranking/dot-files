@@ -18,8 +18,7 @@ return {
           debounce = 250, -- ms
         },
         resolver = function()
-          -- TODO: Don't use vim.lsp.get_clients, it's a nvim-0.10 feature
-          local clients = Utils.lsp.get_clients({ bufnr = 0 })
+          local clients = Utils.lsp.get_clients({ bufnr = Utils.ensure_buf(0) })
           if #clients == 0 then
             return
           end
