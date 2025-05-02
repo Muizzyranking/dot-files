@@ -333,4 +333,13 @@ create_autocmd({ "BufEnter", "BufWritePost", "TextChanged", "FileType" }, {
   end,
 })
 
+vim.api.nvim_create_autocmd("User", {
+  pattern = "VeryLazy",
+  group = augroup("vim enter"),
+  callback = function()
+    vim.g.vim_enter = true
+  end,
+  once = true,
+})
+
 require("utils.bigfile").setup()
