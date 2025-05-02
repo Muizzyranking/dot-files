@@ -16,12 +16,10 @@ function M.picker.show_bookmarks()
       local items = {}
       for _, bookmark in ipairs(bookmarks) do
         table.insert(items, {
-          idx = bookmark.index,
-          score = bookmark.index,
-          text = bookmark.display,
           path = bookmark.path,
           file = bookmark.path,
           icon = " ",
+          pos = bookmark.cursor and { bookmark.cursor[1], bookmark.cursor[2] } or nil,
         })
       end
       return items
@@ -55,6 +53,7 @@ function M.picker.show_bookmarks()
             for i, item in ipairs(selected) do
               if i == 1 then
                 vim.cmd("edit " .. vim.fn.fnameescape(item.path))
+                vim.cmd("normal! zz")
               else
                 vim.cmd("badd " .. vim.fn.fnameescape(item.path))
               end

@@ -3,11 +3,6 @@ return {
   event = "VeryLazy",
   opts = {
     scope = "lsp",
-    ---@type grapple.scope_definition[]
-    scopes = {},
-    ---@type boolean
-    icons = true,
-    ---@type table<string, grapple.scope_definition | boolean>
     default_scopes = {
       lsp = {
         name = "lsp",
@@ -33,7 +28,7 @@ return {
     exclusions = {
       buftype = { "nofile" },
       filetype = { "grapple" },
-      name = { "" },
+      name = { ".env" },
     },
 
     statusline = {
