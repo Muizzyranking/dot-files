@@ -64,11 +64,12 @@ set("o", "N", "'nN'[v:searchforward]",      { expr = true, desc = "Prev Search R
 ------------------------
 -- editing
 ------------------------
-set("i", "<c-cr>", "<esc>o", { desc = "Go to next line", remap = true }) -- go to next line in insert
+vim.keymap.set("i", "<C-Enter>", function()
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>o", true, false, true), "n", true)
+end, { silent = true })
 
 set("i", "<C-b>", function()
-  vim.cmd.normal({ "^", bang = true })
-  vim.cmd("startinsert!")
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>I", true, false, true), "n", true)
 end, { desc = "Go to beginning of line" }) -- Go to beginning of line in insert
 
 set("i", "<C-e>", function()
@@ -76,10 +77,9 @@ set("i", "<C-e>", function()
   vim.cmd("startinsert!")
 end, { desc = "Go to end of line" }) -- Go to end of line in insert
 
-set({ "n", "v" }, "B", "^", { desc = "Go to beginning of line" }) -- go to beginning of line in normal
-set({ "n", "v" }, "E", "$", { desc = "Go to end of line" }) -- go to end of line in normal
 
-set.snippet_aware_map({ "v", "x" }, "B", "^", {})
+set.snippet_aware_map({ "n", "v", "x" }, "B", "^", { desc = "Go to beginning of line" })
+set.snippet_aware_map({ "n", "v", "x" }, "E", "$", { desc = "Go to end of line" })
 set.snippet_aware_map({ "v", "x" }, "p", '"_dp', {})
 set.snippet_aware_map({ "v", "x" }, "P", '"_dP', {})
 set.snippet_aware_map({ "n", "v", "x" }, "c", '"_c', {})
@@ -97,7 +97,7 @@ end, { desc = "Stop snippet and escape" })
 
 -- set("i", "jj", "<Esc>",     { desc = "Go to normal mode" }) -- esc with jj
 set("n", "<BS>", '"_ciw', { desc = "Change inner word" }) -- change word
-set({ "i", "c" }, "<c-bs>", "<c-w>", { desc = "Delete word" })
+set({ "i", "c" }, "<c-h>", "<c-w>", { desc = "Delete word" })
 set("n", "<C-a>", "gg<S-v>G", { desc = "Select all", noremap = true, silent = true }) -- select all
 set("v", "<S-Tab>", "<gv", { noremap = false, silent = true })
 set("v", "<Tab>", ">gv", { noremap = false, silent = true })
