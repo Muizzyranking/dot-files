@@ -23,6 +23,15 @@ return {
         end,
       },
     },
+    config = function(_, opts)
+      if vim.g.has_internet == false then
+        vim.g.copilot_enabled = false
+        return
+      end
+      require("copilot").setup(opts)
+      vim.g.copilot_enabled = true
+      require("utils.copilot").setup()
+    end,
   },
   {
     "saghen/blink.cmp",
@@ -56,7 +65,7 @@ return {
       table.insert(opts.sections.lualine_y, 1, {
         function()
           local icon = Utils.icons.kinds.Copilot
-          local status = require("copilot.api").status.data
+          local status = require("copilot.status").data
           return icon .. (status.message or "")
         end,
         cond = function()
@@ -73,7 +82,7 @@ return {
           if not package.loaded["copilot"] then
             return
           end
-          local status = require("copilot.api").status.data
+          local status = require("copilot.status").data
           return colors[status.status] or colors[""]
         end,
       })
