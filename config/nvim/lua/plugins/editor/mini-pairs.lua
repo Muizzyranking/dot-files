@@ -41,8 +41,39 @@ return {
       end
 
       -- Special handling for markdown code blocks
-      if opts.markdown and o == "`" and vim.bo.filetype == "markdown" and before:match("^%s*``") then
-        return "\n```" .. vim.api.nvim_replace_termcodes("<CR>", true, true, true)
+      if opts.markdown and o == "`" and vim.bo.filetype == "markdown" then
+        -- If we already have exactly 2 backticks and typing a third one
+        if before:match("^%s*``$") or before:match("%s``$") then
+          -- Insert the third backtick and schedule cursor positioning
+          vim.defer_fn(function()
+            -- Get current position
+            local cur_pos = vim.api.nvim_win_get_cursor(0)
+            -- Add closing backticks on the next lines
+            local line_num = cur_pos[1]
+            vim.api.nvim_buf_set_lines(0, line_num, line_num, false, { "", "```" })
+            -- Return cursor to just after the opening backticks
+            vim.api.nvim_win_set_cursor(0, { line_num, cur_pos[2] })
+          end, 0)
+          return "`"
+        end
+        -- If we are at the beginning of a new line with 3 backticks already (closing a block)
+        if before:match("^%s*```$") or before:match("%s```$") then
+          -- Just add a backtick without pairing
+          return "`"
+        end
+      end
+
+      if opts.markdown and o == "`" and vim.bo.filetype == "markdown" then
+        -- If we already have exactly 2 backticks and typing a third one
+        if before:match("^%s*``$") or before:match("%s``$") then
+          -- Insert closing triple backticks with an empty line in between
+          return "`\n\n```"
+        end
+        -- If we are at the beginning of a new line with 3 backticks already (closing a block)
+        if before:match("^%s*```$") or before:match("%s```$") then
+          -- Just add a backtick without pairing
+          return "`"
+        end
       end
 
       -- Skip autopair if the next character matches the skip_next pattern
