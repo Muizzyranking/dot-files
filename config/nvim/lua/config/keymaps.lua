@@ -77,7 +77,6 @@ set("i", "<C-e>", function()
   vim.cmd("startinsert!")
 end, { desc = "Go to end of line" }) -- Go to end of line in insert
 
-
 set.snippet_aware_map({ "n", "v", "x" }, "B", "^", { desc = "Go to beginning of line" })
 set.snippet_aware_map({ "n", "v", "x" }, "E", "$", { desc = "Go to end of line" })
 set.snippet_aware_map({ "v", "x" }, "p", '"_dp', {})
@@ -87,13 +86,11 @@ set.snippet_aware_map({ "n" }, "C", '"_C', {})
 set.snippet_aware_map({ "n" }, "D", '"_D', {})
 set.snippet_aware_map({ "n", "v", "x" }, "x", '"_x', {})
 
-set({ "n", "v", "x" }, "<esc>", function()
-  if Utils.cmp.in_snippet_session() then
-    vim.snippet.stop()
-  end
+set({ "n", "v", "x", "i" }, "<esc>", function()
+  Utils.cmp.snippet_stop()
   vim.cmd("nohlsearch")
-  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<esc>", true, false, true), "n", false)
-end, { desc = "Stop snippet and escape" })
+  return "<esc>"
+end, { expr = true, desc = "Stop snippet and escape" })
 
 -- set("i", "jj", "<Esc>",     { desc = "Go to normal mode" }) -- esc with jj
 set("n", "<BS>", '"_ciw', { desc = "Change inner word" }) -- change word
@@ -115,6 +112,11 @@ end
 -- keymaps with icons
 ------------------------------------
 local maps = {
+  {
+    "<leader>l",
+    "<cmd>Lazy<cr>",
+    desc = "Lazy",
+  },
   {
     "<leader>bd",
     Snacks.bufdelete.delete,

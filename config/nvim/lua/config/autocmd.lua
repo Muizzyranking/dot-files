@@ -102,8 +102,8 @@ create_autocmd({ "BufRead", "BufNewFile" }, {
   pattern = { "*.txt", "*.md", "markdown", "*.tex", "*.org" },
   callback = function(event)
     if vim.bo[event.buf].filetype ~= "requirements" then
-      vim.opt.spell = true
-      vim.opt.spelllang = "en"
+      vim.opt_local.spell = true
+      vim.opt_local.spelllang = "en"
     end
   end,
 })
@@ -331,15 +331,6 @@ create_autocmd({ "BufEnter", "BufWritePost", "TextChanged", "FileType" }, {
     end
     vim.cmd("TSBufEnable incremental_selection")
   end,
-})
-
-vim.api.nvim_create_autocmd("User", {
-  pattern = "VeryLazy",
-  group = augroup("vim enter"),
-  callback = function()
-    vim.g.vim_enter = true
-  end,
-  once = true,
 })
 
 require("utils.bigfile").setup()

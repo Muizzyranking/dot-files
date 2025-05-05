@@ -1,8 +1,15 @@
+-- Set up vim_enter flag (needed early by other modules)
+
+vim.api.nvim_create_autocmd("VimEnter", {
+  -- stylua: ignore
+  callback = function() vim.g.vim_enter = true end,
+  once = true,
+})
+
 -- global variables
 _G.Utils = require("utils")
-_G.P = function(...)
-  vim.print(vim.inspect(...))
-end
+-- stylua: ignore
+_G.P = function(...) vim.print(vim.inspect(...)) end
 
 local lazy_load = vim.fn.argc(-1) == 0
 
@@ -10,6 +17,7 @@ local function r(module)
   return require("config." .. module)
 end
 
+Utils.hl.setup()
 r("globals")
 r("options")
 r("lazy")
@@ -34,4 +42,3 @@ vim.api.nvim_create_autocmd("User", {
 })
 
 Utils.ui.set_colorscheme("rose-pine")
-Utils.hl.setup()

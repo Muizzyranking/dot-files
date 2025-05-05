@@ -4,7 +4,7 @@ local o = vim.opt
 -----------------------------------------------------------
 -- General
 -----------------------------------------------------------
-o.wildignore:append({ "*/colors/*.vim", "*/colors/vim.lua" })
+-- o.wildignore:append({ "*/colors/*.vim", "*/colors/vim.lua" })
 o.clipboard                    = "unnamedplus" -- use system clipboard
 o.updatetime                   = 250 -- Decrease update time
 o.timeoutlen                   = 300
