@@ -5,6 +5,12 @@ function M.in_snippet_session()
   return vim.snippet ~= nil and vim.snippet.active()
 end
 
+function M.snippet_stop()
+  if M.in_snippet_session() then
+    vim.snippet.stop()
+  end
+end
+
 --------------------------------------------------
 ---Previews a snippet by parsing it with vim.lsp grammar
 ---@param snippet string The snippet text to preview

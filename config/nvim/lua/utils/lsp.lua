@@ -213,7 +213,7 @@ end
 ----------------------------------------------------
 function M.diagnostic_goto(next, severity)
   local count = next and 1 or -1
-  severity = severity and vim.diagnostic.severity[severity] or nil
+  severity = severity and vim.diagnostic.severity[severity:upper()] or nil
 
   return function()
     vim.diagnostic.jump({
