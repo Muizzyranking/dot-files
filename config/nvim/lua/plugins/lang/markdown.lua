@@ -32,7 +32,8 @@ return {
   plugins = {
     {
       "OXY2DEV/markview.nvim",
-      ft = { "markdown", "norg", "rmd", "org" },
+      -- ft = { "markdown", "norg", "rmd", "org" },
+      cmd = { "Markview" },
       opts = function()
         return {
           checkboxes = {

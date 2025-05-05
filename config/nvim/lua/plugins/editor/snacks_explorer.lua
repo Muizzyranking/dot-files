@@ -1,6 +1,11 @@
 return {
   "folke/snacks.nvim",
   opts = {
+    explorer = {
+      on_show = function()
+        Snacks.notifier.hide()
+      end,
+    },
     picker = {
       sources = {
         explorer = {
