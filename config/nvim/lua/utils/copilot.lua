@@ -199,6 +199,7 @@ function M.setup()
   })
 
   M.init()
+  vim.api.nvim_create_user_command("CopilotCheckNow", M.check_now, {})
 end
 
 function M.check_now()
