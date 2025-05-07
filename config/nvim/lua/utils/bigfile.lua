@@ -13,21 +13,25 @@ function M.notify(buf, is_big)
   Utils.notify[is_big and "warn" or "info"](message:format(path), { title = "Big file", timeout = 5000 })
 end
 
+---@param buf number
 ---@param is_big boolean
-function M.set_bigfile_options(is_big)
+function M.set_bigfile_options(buf, is_big)
   pcall(function()
-    vim.opt_local.spell = is_big and false or nil
-    vim.opt_local.undofile = not is_big
-    vim.opt_local.breakindent = not is_big
-    vim.opt_local.foldmethod = is_big and "manual" or nil
-    vim.opt_local.statuscolumn = is_big and "" or nil
-    vim.opt_local.conceallevel = is_big and 0 or nil
+    vim.api.nvim_buf_call(buf, function()
+      vim.opt_local.spell = is_big and false or nil
+      vim.opt_local.undofile = not is_big
+      vim.opt_local.breakindent = not is_big
+      vim.opt_local.foldmethod = is_big and "manual" or nil
+      vim.opt_local.statuscolumn = is_big and "" or nil
+      vim.opt_local.conceallevel = is_big and 0 or nil
 
-    if vim.fn.exists(is_big and ":NoMatchParen" or ":DoMatchParen") ~= 0 then
-      vim.cmd(is_big and "NoMatchParen" or "DoMatchParen")
-    end
+      vim.b[buf].copilot_enabled = not is_big
+      vim.b[buf].snacks_scroll = not is_big
 
-    vim.b.minianimate_disable = is_big
+      if vim.fn.exists(is_big and ":NoMatchParen" or ":DoMatchParen") ~= 0 then
+        vim.cmd(is_big and "NoMatchParen" or "DoMatchParen")
+      end
+    end)
   end)
 end
 
@@ -81,20 +85,25 @@ function M.apply_big_file_settings(buf, is_big)
       vim.b[buf].bigfile_notified = false
     end
 
-    vim.api.nvim_buf_call(buf, function()
-      M.set_bigfile_options(is_big)
+    M.set_bigfile_options(buf, is_big)
+    if is_big then
+      pcall(vim.cmd, "Copilot disable")
+      vim.cmd("TSBufDisable highlight")
+      vim.cmd("TSBufDisable incremental_selection")
 
-      if is_big then
-        local ft = vim.bo[buf].filetype
-        if ft and ft ~= "" then
-          vim.schedule(function()
-            if vim.api.nvim_buf_is_valid(buf) then
-              vim.bo[buf].syntax = ft
-            end
-          end)
-        end
+      -- Handle filetype-specific syntax
+      local ft = vim.bo[buf].filetype
+      if ft and ft ~= "" then
+        vim.schedule(function()
+          if vim.api.nvim_buf_is_valid(buf) then
+            vim.bo[buf].syntax = ft
+          end
+        end)
       end
-    end)
+    else
+      pcall(vim.cmd, "Copilot enable")
+      pcall(vim.cmd, "TSBufEnable incremental_selection")
+    end
   end
 end
 
@@ -107,6 +116,25 @@ function M.setup()
       local buf = event.buf
       local big = M.is_big_file(buf)
       M.apply_big_file_settings(buf, big)
+    end,
+  })
+
+  create_autocmd({ "TextChanged", "TextChangedI" }, {
+    desc = "Re-detect big files on text change.",
+    group = bigfile_group,
+    callback = function(event)
+      -- Throttle this to avoid constant checking
+      if vim.b[event.buf].bigfile_check_timer then
+        vim.fn.timer_stop(vim.b[event.buf].bigfile_check_timer)
+      end
+
+      vim.b[event.buf].bigfile_check_timer = vim.fn.timer_start(1000, function()
+        local buf = event.buf
+        if vim.api.nvim_buf_is_valid(buf) then
+          local big = M.is_big_file(buf)
+          M.apply_big_file_settings(buf, big)
+        end
+      end)
     end,
   })
 
