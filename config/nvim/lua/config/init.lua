@@ -1,11 +1,3 @@
--- Set up vim_enter flag (needed early by other modules)
-
-vim.api.nvim_create_autocmd("VimEnter", {
-  -- stylua: ignore
-  callback = function() vim.g.vim_enter = true end,
-  once = true,
-})
-
 -- global variables
 _G.Utils = require("utils")
 -- stylua: ignore

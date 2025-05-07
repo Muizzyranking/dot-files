@@ -23,15 +23,6 @@ return {
         end,
       },
     },
-    config = function(_, opts)
-      if vim.g.has_internet == false then
-        vim.g.copilot_enabled = false
-        return
-      end
-      require("copilot").setup(opts)
-      vim.g.copilot_enabled = true
-      require("utils.copilot").setup()
-    end,
   },
   {
     "saghen/blink.cmp",
