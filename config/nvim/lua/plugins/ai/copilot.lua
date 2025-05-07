@@ -5,6 +5,13 @@ return {
     build = ":Copilot auth",
     event = "BufReadPost",
     opts = {
+      should_attach = function()
+        if vim.b.bigfile then
+          return false
+        end
+
+        return true
+      end,
       suggestion = { enabled = false },
       panel = { enabled = false },
       filetypes = {
