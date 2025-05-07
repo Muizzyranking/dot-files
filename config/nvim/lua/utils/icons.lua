@@ -22,6 +22,7 @@ return {
     ["sql-formatter"] = "󰆼",
     stylua = "",
     fallback = "󰉼",
+    black = "",
   },
   dap = {
     Stopped = { "󰁕 ", "DiagnosticWarn", "DapStoppedLine" },

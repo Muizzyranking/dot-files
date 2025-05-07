@@ -336,7 +336,7 @@ end
 -----------------------------------
 function M.reload_config(opts)
   opts = opts or {}
-  opts.buffer = opts.buffer or vim.api.nvim_get_current_buf()
+  opts.buffer = Utils.ensure_list(opts.buffer)
   opts.title = opts.title or "Config"
   if opts.cond ~= nil and not opts.cond then
     return
