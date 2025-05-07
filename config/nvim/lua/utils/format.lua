@@ -31,7 +31,7 @@ end
 --- @param enable? boolean Explicitly enable or disable (optional)
 ----------------------------------------------------
 function M.toggle(buf, enable)
-  local current_buf = buf or api.nvim_get_current_buf()
+  local current_buf = Utils.ensure_buf(buf)
   local gaf = vim.g.autoformat == nil or vim.g.autoformat
   local baf = vim.b[current_buf].autoformat
 
