@@ -85,6 +85,7 @@ set.snippet_aware_map({ "n", "v", "x" }, "c", '"_c', {})
 set.snippet_aware_map({ "n" }, "C", '"_C', {})
 set.snippet_aware_map({ "n" }, "D", '"_D', {})
 set.snippet_aware_map({ "n", "v", "x" }, "x", '"_x', {})
+set.snippet_aware_map({ "n", "v", "x" }, "X", '"_X', {})
 
 set({ "n", "v", "x", "i" }, "<esc>", function()
   Utils.cmp.snippet_stop()
@@ -175,28 +176,22 @@ local maps = {
     desc = "Delete without yanking",
     icon = { icon = "󰛌 ", color = "red" },
   },
-  {
-    "<leader>ut",
-    Utils.actions.change_var_case,
-    desc = "Change variable case",
-    icon = { icon = "󰯍 ", color = "red" },
-  },
-  {
-    "go",
-    function()
-      if Utils.is_executable("open-repo") then
-        vim.fn.system({ "open-repo" })
-      else
-        Utils.notify.warn("Command to open repo not available")
-      end
-    end,
-    desc = "Open repo in browser",
-    icon = { icon = "󰌧 ", color = "red" },
-  },
 }
 
 if Utils.is_in_git_repo() then
   vim.list_extend(maps, {
+    {
+      "<leader>go",
+      function()
+        if Utils.is_executable("open-repo") then
+          vim.fn.system({ "open-repo" })
+        else
+          Utils.notify.warn("Command to open repo not available")
+        end
+      end,
+      desc = "Open repo in browser",
+      icon = { icon = "󰌧 ", color = "red" },
+    },
     {
       "<leader>gb",
       function()
@@ -243,7 +238,7 @@ set.set_keymaps(maps, { silent = true })
 ------------------------------------
 local toggle_maps = {
   {
-    "<leader>uT",
+    "<leader>ut",
     get_state = function(buf)
       return Utils.ts.hl_is_active(buf)
     end,

@@ -315,7 +315,7 @@ create_autocmd("User", {
 -----------------------------------------------------------
 create_autocmd({ "BufEnter", "BufWritePost", "TextChanged", "FileType" }, {
   callback = function(event)
-    local buf = event.buf or vim.api.nvim_get_current_buf()
+    local buf = Utils.ensure_buf(event.buf)
     local ft = vim.bo[buf].filetype
     local is_empty = vim.fn.getline(1) == "" and vim.fn.line("$") == 1
     local excluded_filetypes = { "text", "txt", "", "bigfile" }
