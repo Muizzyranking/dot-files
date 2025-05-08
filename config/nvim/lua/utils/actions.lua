@@ -44,3 +44,5 @@ function M.duplicate_selection()
   api.nvim_feedkeys(api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
   api.nvim_win_set_cursor(0, { new_cursor_line, 0 })
 end
+
+return M
