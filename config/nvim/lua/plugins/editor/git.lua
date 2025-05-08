@@ -40,6 +40,12 @@ return {
         end, { expr = true, silent = true })
 
         local gs = package.loaded.gitsigns
+
+        local function gs_visual(op)
+          return function()
+            return gs[op]({ vim.fn.line("."), vim.fn.line("v") })
+          end
+        end
         Utils.map.set_keymaps({
           {
             "]h",
@@ -67,17 +73,29 @@ return {
           },
           {
             "<leader>ghs",
-            "<cmd>Gitsigns stage_hunk<CR>",
+            gs.stage_hunk,
             desc = "Stage Hunk",
             icon = { icon = "󰊢 " },
-            mode = { "n", "v" },
+          },
+          {
+            "<leader>ghs",
+            gs_visual("stage_hunk"),
+            desc = "Stage Hunk",
+            icon = { icon = "󰊢 " },
+            mode = { "v" },
           },
           {
             "<leader>ghr",
-            "<cmd>Gitsigns reset_hunk<CR>",
+            gs.reset_hunk,
             desc = "Reset Hunk",
             icon = { icon = "󰜉 " },
-            mode = { "n", "v" },
+          },
+          {
+            "<leader>ghr",
+            gs_visual("reset_hunk"),
+            desc = "Reset Hunk",
+            icon = { icon = "󰜉 " },
+            mode = { "v" },
           },
           {
             "<leader>ghp",
@@ -90,6 +108,13 @@ return {
             gs.undo_stage_hunk,
             desc = "Undo Stage Hunk",
             icon = { icon = " " },
+          },
+          {
+            "<leader>ghu",
+            gs_visual("undo_stage_hunk"),
+            desc = "Undo Stage Hunk",
+            icon = { icon = " " },
+            mode = { "v" },
           },
           {
             "<leader>gs",

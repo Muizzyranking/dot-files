@@ -24,5 +24,14 @@
       "    $0"
     ],
     "description": "Creates a Django REST Framework API view function"
+  },
+  "Docstring": {
+    "prefix": "doc",
+    "body": [
+      "\"\"\"",
+      "$0",
+      "\"\"\""
+    ],
+    "description": "Insert a docstring"
   }
 }
