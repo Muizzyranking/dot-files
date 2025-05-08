@@ -75,17 +75,7 @@ return {
     shiftwidth = 2,
     tabstop = 2,
   },
-  keys = {
-    {
-      "<leader>cc",
-      function()
-        Utils.color_converter()
-      end,
-      desc = "Convert color",
-      icon = { icon = "󰸌 ", color = "green" },
-      mode = { "n", "v" },
-    },
-  },
+  keys = {},
   plugins = {
     {
       "brianhuster/live-preview.nvim",

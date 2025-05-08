@@ -196,15 +196,6 @@ return {
   },
   keys = {
     {
-      "<leader>cc",
-      function()
-        Utils.color_converter()
-      end,
-      desc = "Convert color",
-      icon = { icon = "󰸌 ", color = "green" },
-      mode = { "n", "v" },
-    },
-    {
       "t",
       function()
         vim.api.nvim_feedkeys("t", "n", true) -- pass through the trigger char
