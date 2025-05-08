@@ -66,11 +66,13 @@ function M.get()
     -- { "gT", vim.lsp.buf.type_definition, desc = "Goto Type Definition" },
     -- { "g;", vim.lsp.buf.declaration, desc = "Goto Declaration", has = "declaration" },
     {
-      "K",
+      "<c-k>",
       function()
-        return vim.lsp.buf.hover()
+        return vim.lsp.buf.signature_help()
       end,
-      desc = "Hover",
+      desc = "Signature Help",
+      has = "signatureHelp",
+      mode = "i",
     },
     {
       "K",
@@ -116,15 +118,6 @@ function M.get()
       desc = "Yank diagnostic message on current line",
       icon = { icon = "󰆏 ", color = "blue" },
       mode = { "n", "x" },
-    },
-    {
-      "<leader>cf",
-      function()
-        Utils.format({ force = true })
-      end,
-      desc = "Format buffer",
-      icon = { icon = " ", color = "green" },
-      mode = { "n", "v" },
     },
     {
       "<leader>cl",
