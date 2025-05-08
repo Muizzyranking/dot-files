@@ -87,7 +87,7 @@ set.snippet_aware_map({ "n" }, "D", '"_D', {})
 set.snippet_aware_map({ "n", "v", "x" }, "x", '"_x', {})
 set.snippet_aware_map({ "n", "v", "x" }, "X", '"_X', {})
 
-set({ "n", "v", "x", "i" }, "<esc>", function()
+set({ "n", "v", "x" }, "<esc>", function()
   Utils.cmp.snippet_stop()
   vim.cmd("nohlsearch")
   return "<esc>"
@@ -100,10 +100,9 @@ set("n", "<C-a>", "gg<S-v>G", { desc = "Select all", noremap = true, silent = tr
 set("v", "<S-Tab>", "<gv", { noremap = false, silent = true })
 set("v", "<Tab>", ">gv", { noremap = false, silent = true })
 set({ "n" }, "ciw", '"_ciw')
--- disable arrow key in normal mode
-local arrow_mappings = { "<UP>", "<DOWN>", "<LEFT>", "<RIGHT>" }
 
-for _, key in pairs(arrow_mappings) do
+-- disable arrow key in normal mode
+for _, key in pairs({ "<UP>", "<DOWN>", "<LEFT>", "<RIGHT>" }) do
   set("n", key, function()
     Utils.notify.warn("Use hjkl", { title = "options" })
   end, { desc = "Disable " .. key })
@@ -175,6 +174,15 @@ local maps = {
     '"_dd',
     desc = "Delete without yanking",
     icon = { icon = "󰛌 ", color = "red" },
+  },
+  {
+    "<leader>cf",
+    function()
+      Utils.format({ force = true })
+    end,
+    desc = "Format buffer",
+    icon = { icon = " ", color = "green" },
+    mode = { "n", "v" },
   },
 }
 
