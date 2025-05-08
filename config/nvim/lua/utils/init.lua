@@ -2,7 +2,6 @@
 ---@field actions utils.actions
 ---@field bigfile utils.bigfile
 ---@field cmp utils.cmp
----@field color_converter utils.color_converter
 ---@field discipline utils.discipline
 ---@field format utils.format
 ---@field hl utils.hl
