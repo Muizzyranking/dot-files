@@ -1,4 +1,3 @@
----@diagnostic disable: param-type-mismatch
 return {
   name = "typescript",
   ft = { "typescript", "typescriptreact", "javascript", "javascriptreact", "jsx", "tsx" },
@@ -11,25 +10,6 @@ return {
             enableMoveToFileCodeAction = true,
           },
           typescript = {
-            updateImportsOnFileMove = { enabled = "always" },
-            experimental = {
-              completion = {
-                enableServerSideFuzzyMatch = true,
-              },
-            },
-            suggest = {
-              completeFunctionCalls = true,
-            },
-            inlayHints = {
-              enumMemberValues = { enabled = true },
-              functionLikeReturnTypes = { enabled = true },
-              parameterNames = { enabled = "literals" },
-              parameterTypes = { enabled = true },
-              propertyDeclarationTypes = { enabled = true },
-              variableTypes = { enabled = false },
-            },
-          },
-          javascript = {
             updateImportsOnFileMove = { enabled = "always" },
             experimental = {
               completion = {
@@ -112,7 +92,7 @@ return {
       ts_ls = function()
         return true
       end,
-      vtsls = function()
+      vtsls = function(_, opts)
         Utils.lsp.on_attach(function(client, _)
           client.commands["_typescript.moveToFileRefactoring"] = function(command, _)
             ---@type string, string, lsp.Range
@@ -164,6 +144,9 @@ return {
             end)
           end
         end, "vtsls")
+
+        opts.settings.javascript =
+          vim.tbl_deep_extend("force", {}, opts.settings.typescript, opts.settings.javascript or {})
       end,
     },
   },
