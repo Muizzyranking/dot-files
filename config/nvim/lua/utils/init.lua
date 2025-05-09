@@ -226,20 +226,4 @@ function M.get_filename(buf)
   return vim.api.nvim_buf_get_name(buf)
 end
 
------------------------------------------------------------------
--- checks if the system has internet access
------------------------------------------------------------------
-function M.has_internet_async()
-  vim.fn.jobstart("ping -c 1 -W 1 github.com", {
-    on_exit = function(job_id, exit_code, event)
-      vim.g.has_internet = exit_code == 0
-      if exit_code ~= 0 then
-        vim.schedule(function()
-          Utils.notify.warn("Internet connectivity check failed - some plugins may be disabled")
-        end)
-      end
-    end,
-  })
-end
-
 return M
