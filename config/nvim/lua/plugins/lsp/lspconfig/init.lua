@@ -8,9 +8,6 @@ return {
   opts = {
     servers = {},
     setup = {},
-    document_highlight = {
-      enabled = true,
-    },
     capabilities = {
       workspace = {
         fileOperations = {
@@ -48,39 +45,39 @@ return {
     diagnostic.config(vim.deepcopy(opts.diagnostics))
     Utils.format.setup()
     Utils.lsp.on_attach(function(client, buffer)
+      buffer = Utils.ensure_buf(buffer)
       if not api.nvim_buf_is_valid(buffer) then
         return
       end
       require("plugins.lsp.lspconfig.keymaps").on_attach(client, buffer, opts)
-      Utils.lsp.on_support_methods("textDocument/documentHighlight", function()
-        if client.server_capabilities.documentHighlightProvider then
-          if not opts.document_highlight.enabled then
-            return
+      local ft = vim.api.nvim_get_option_value("filetype", { buf = buffer })
+      Utils.lsp.on_support_methods("textDocument/inlayHint", function()
+        if Utils.lsp.has(buffer, "inlayHint") then
+          if opts.inlay_hint[ft] then
+            vim.b[buffer].inlay_hint = true
+            vim.lsp.inlay_hint.enable(true, { bufnr = buffer })
           end
-          if not api.nvim_buf_is_valid(buffer) then
-            return
-          end
-          local highlight_augroup = api.nvim_create_augroup("lsp-highlight", { clear = true })
-          api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-            buffer = buffer,
-            group = highlight_augroup,
-            callback = lsp.buf.document_highlight,
-          })
-          api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
-            buffer = buffer,
-            group = highlight_augroup,
-            callback = lsp.buf.clear_references,
-          })
-          api.nvim_create_autocmd("LspDetach", {
-            group = api.nvim_create_augroup("lsp-detach", { clear = true }),
-            buffer = buffer,
-            callback = function()
-              lsp.buf.clear_references()
-              api.nvim_clear_autocmds({ group = highlight_augroup })
-            end,
-          })
         end
       end)
+      local inlay_hint_augroup = api.nvim_create_augroup("lsp-inlay-hint", { clear = true })
+      api.nvim_create_autocmd("InsertEnter", {
+        group = inlay_hint_augroup,
+        buffer = buffer,
+        callback = function()
+          if vim.b[buffer].inlay_hint then
+            vim.lsp.inlay_hint.enable(false, { bufnr = buffer })
+          end
+        end,
+      })
+      api.nvim_create_autocmd("InsertLeave", {
+        group = inlay_hint_augroup,
+        buffer = buffer,
+        callback = function()
+          if vim.b[buffer].inlay_hint then
+            vim.lsp.inlay_hint.enable(true, { bufnr = buffer })
+          end
+        end,
+      })
     end)
     Utils.lsp.setup()
     Utils.lsp.on_dynamic_capability(function(client, buffer)
