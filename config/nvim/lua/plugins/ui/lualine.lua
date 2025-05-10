@@ -37,7 +37,13 @@ return {
       sections = {
         lualine_a = { Utils.lualine.mode },
         lualine_b = {
-          { "branch", color = { gui = "italic" } },
+          {
+            "branch",
+            fmt = function(str)
+              Utils.lualine.truncate_or_hide(str, 20)
+            end,
+            color = { gui = "italic" },
+          },
           Utils.lualine.root_dir(),
           {
             "diff",

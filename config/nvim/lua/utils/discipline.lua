@@ -28,7 +28,13 @@ function M.setup()
         timer:start(2000, 0, function()
           count = 0
         end)
-        return map
+        if key == "j" then
+          return vim.v.count == 0 and "gj" or "j"
+        elseif key == "k" then
+          return vim.v.count == 0 and "gk" or "k"
+        else
+          return key
+        end
       end
     end, { expr = true, silent = true })
   end

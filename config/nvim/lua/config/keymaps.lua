@@ -14,8 +14,8 @@ set("v", "<A-k>", ":m '<-2<cr>gv=gv",        { desc = "Move Up" })
 ------------------------
 -- navigation
 ------------------------
-set({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
-set({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+set({ "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+set({ "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 set({ "n" }, "<C-h>", "<C-w>h",                     { desc = "Go to left window", remap = true })
 set({ "n" }, "<C-j>", "<C-w>j",                     { desc = "Go to lower window", remap = true })
 set({ "n" }, "<C-k>", "<C-w>k",                     { desc = "Go to upper window", remap = true })
@@ -112,6 +112,24 @@ end
 -- keymaps with icons
 ------------------------------------
 local maps = {
+  {
+    "i",
+    function()
+      local cond = #vim.fn.getline(".") == 0
+      return cond and '"_cc' or "i"
+    end,
+    desc = "Auto indent when going to insert mode",
+    expr = true,
+  },
+  {
+    "dd",
+    function()
+      local cond = vim.api.nvim_get_current_line():match("^%s*$")
+      return cond and '"_dd' or "dd"
+    end,
+    desc = "Delete empty lines without yanking",
+    expr = true,
+  },
   {
     "<leader>l",
     "<cmd>Lazy<cr>",

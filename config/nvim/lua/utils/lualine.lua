@@ -2,7 +2,7 @@
 local M = {}
 local window_width_limit = 100
 
-local function truncate_or_hide(str, max_width)
+function M.truncate_or_hide(str, max_width)
   local win_width = vim.api.nvim_win_get_width(0)
   if win_width < 60 then
     return ""
@@ -107,7 +107,7 @@ M.file = {
     return { fg = Utils.hl.get_hl_color(hl_group), gui = "italic,bold" }
   end,
   fmt = function(str)
-    return truncate_or_hide(str, 25)
+    return M.truncate_or_hide(str, 20)
   end,
 }
 
@@ -215,7 +215,7 @@ function M.root_dir()
     end,
     color = M.fg("Special"),
     fmt = function(str)
-      return truncate_or_hide(str, 25)
+      return M.truncate_or_hide(str, 20)
     end,
   }
 end
