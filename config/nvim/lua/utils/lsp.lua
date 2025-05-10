@@ -187,6 +187,12 @@ end
 --- @return boolean Whether the method(s) is supported
 ----------------------------------------------------
 function M.has(buffer, method)
+  -- Return false early for invalid inputs
+  if not buffer or not method then
+    return false
+  end
+
+  -- Handle case where method is a table (array) of methods
   if type(method) == "table" then
     for _, m in ipairs(method) do
       if M.has(buffer, m) then
@@ -195,13 +201,33 @@ function M.has(buffer, method)
     end
     return false
   end
-  method = method:find("/") and method or "textDocument/" .. method
+
+  -- Ensure method is a string
+  if type(method) ~= "string" then
+    return false
+  end
+
+  -- Get clients for the buffer
   local clients = M.get_clients({ bufnr = buffer })
+  if not clients or #clients == 0 then
+    return false
+  end
+
+  -- Derive capability name directly by appending "Provider"
+  local capability_name = method .. "Provider"
+
+  -- Check if any client has the capability
   for _, client in ipairs(clients) do
-    if client.supports_method(method) then
-      return true
+    if client and client.server_capabilities then
+      local capability = client.server_capabilities[capability_name]
+
+      -- A capability might be boolean, or an object with configuration
+      if capability ~= nil and capability ~= false then
+        return true
+      end
     end
   end
+
   return false
 end
 

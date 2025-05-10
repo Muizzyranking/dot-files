@@ -9,10 +9,11 @@ local function set_buf_option(buf, option, value)
   vim.bo[buf][option] = value
 end
 
+---@alias create_autocmd fun(event: string|string[], pattern: string|string[], callback: fun(event: table), opts?: table): nil
 -----------------------------------------------------------------
 -- Create an augroup for language-specific autocommands
 ---@param config_name string # Name of the language configuration
----@return function # create_grouped_autocmd Function to create autocmds in this group
+---@return create_autocmd # create_grouped_autocmd Function to create autocmds in this group
 -----------------------------------------------------------------
 local function create_autocmd_group(config_name)
   local group_name = string.format("language_setup_%s", config_name)
@@ -115,6 +116,16 @@ function M.setup_language(config)
 
   -- LSP Configuration
   if config.lsp then
+    if config.lsp.inlay_hint then
+      local inlay_hint = config.lsp.inlay_hint
+      if type(config.lsp.inlay_hint) == "function" then
+        inlay_hint = inlay_hint(Utils.ensure_buf(0))
+      end
+      config.lsp.inlay_hint = {}
+      for _, ft in ipairs(config.ft) do
+        config.lsp.inlay_hint[ft] = true
+      end
+    end
     table.insert(plugins, {
       "neovim/nvim-lspconfig",
       opts = config.lsp,

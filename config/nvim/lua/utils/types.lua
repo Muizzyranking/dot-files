@@ -13,6 +13,7 @@
 ---@class setup_lang.lspconfig
 ---@field servers lspconfig.options # Server configurations
 ---@field setup? table<string, fun(server:string, opts:_.lspconfig.options):boolean?> # Setup functions
+---@field inlay_hint? boolean|fun(buf?:number):boolean
 ---@field custom_servers? table # Additional LSP options
 
 ---@class setup_lang.formatting
