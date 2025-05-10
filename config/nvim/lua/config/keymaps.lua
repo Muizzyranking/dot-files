@@ -202,6 +202,11 @@ local maps = {
     icon = { icon = " ", color = "green" },
     mode = { "n", "v" },
   },
+  {
+    "<leader>z",
+    Utils.actions.toggle_zoom,
+    desc = "Toggle zoom",
+  },
 }
 
 if Utils.is_in_git_repo() then

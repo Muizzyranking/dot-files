@@ -1,4 +1,5 @@
 -- stylua: ignore start
+vim.hl = vim.hl or vim.highlight
 vim.g.mapleader                          = " "
 vim.g.maplocalleader                     = ","
 vim.g.bigfile                            = 1.5 * 1024 * 1024 -- 1.5MB
