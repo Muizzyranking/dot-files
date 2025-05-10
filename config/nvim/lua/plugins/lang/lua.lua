@@ -1,6 +1,7 @@
 return {
   name = "lua",
   lsp = {
+    inlay_hint = true,
     servers = {
       lua_ls = {
         settings = {

@@ -1,6 +1,7 @@
 return {
   name = "python",
   lsp = {
+    inlay_hint = true,
     servers = {
       basedpyright = {
         settings = {
