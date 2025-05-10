@@ -50,34 +50,6 @@ return {
         return
       end
       require("plugins.lsp.lspconfig.keymaps").on_attach(client, buffer, opts)
-      local ft = vim.api.nvim_get_option_value("filetype", { buf = buffer })
-      Utils.lsp.on_support_methods("textDocument/inlayHint", function()
-        if Utils.lsp.has(buffer, "inlayHint") then
-          if opts.inlay_hint[ft] then
-            vim.b[buffer].inlay_hint = true
-            vim.lsp.inlay_hint.enable(true, { bufnr = buffer })
-          end
-        end
-      end)
-      local inlay_hint_augroup = api.nvim_create_augroup("lsp-inlay-hint", { clear = true })
-      api.nvim_create_autocmd("InsertEnter", {
-        group = inlay_hint_augroup,
-        buffer = buffer,
-        callback = function()
-          if vim.b[buffer].inlay_hint then
-            vim.lsp.inlay_hint.enable(false, { bufnr = buffer })
-          end
-        end,
-      })
-      api.nvim_create_autocmd("InsertLeave", {
-        group = inlay_hint_augroup,
-        buffer = buffer,
-        callback = function()
-          if vim.b[buffer].inlay_hint then
-            vim.lsp.inlay_hint.enable(true, { bufnr = buffer })
-          end
-        end,
-      })
     end)
     Utils.lsp.setup()
     Utils.lsp.on_dynamic_capability(function(client, buffer)

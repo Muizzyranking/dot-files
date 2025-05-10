@@ -149,7 +149,6 @@ function M.get()
       end,
       change_state = function(state, buf)
         vim.lsp.inlay_hint.enable(not state, { bufnr = buf })
-        vim.b[buf].inlay_hint = not state
       end,
       name = "Inlay hint",
       has = "inlayHint",

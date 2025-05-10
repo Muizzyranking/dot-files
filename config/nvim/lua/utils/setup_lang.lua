@@ -116,16 +116,6 @@ function M.setup_language(config)
 
   -- LSP Configuration
   if config.lsp then
-    if config.lsp.inlay_hint then
-      local inlay_hint = config.lsp.inlay_hint
-      if type(config.lsp.inlay_hint) == "function" then
-        inlay_hint = inlay_hint(Utils.ensure_buf(0))
-      end
-      config.lsp.inlay_hint = {}
-      for _, ft in ipairs(config.ft) do
-        config.lsp.inlay_hint[ft] = true
-      end
-    end
     table.insert(plugins, {
       "neovim/nvim-lspconfig",
       opts = config.lsp,
