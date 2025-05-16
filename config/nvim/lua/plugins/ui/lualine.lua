@@ -39,12 +39,9 @@ return {
         lualine_b = {
           {
             "branch",
-            fmt = function(str)
-              Utils.lualine.truncate_or_hide(str, 20)
-            end,
             color = { gui = "italic" },
           },
-          Utils.lualine.root_dir(),
+          -- Utils.lualine.root_dir(),
           {
             "diff",
             symbols = {

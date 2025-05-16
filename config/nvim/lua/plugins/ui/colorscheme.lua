@@ -5,10 +5,32 @@ local transparency = function()
   return true
 end
 
-return {
+local M = {
+  {
+    "olimorris/onedarkpro.nvim",
+    priority = 1000,
+    opts = {
+      options = {
+        transparency = true,
+        lualine_transparency = true,
+      },
+      styles = {
+        types = "bold,italic",
+        methods = "bold,italic",
+        strings = "italic",
+        comments = "italic",
+        keywords = "italic",
+        constants = "NONE",
+        functions = "bold,italic",
+        variables = "italic",
+        parameters = "italic",
+        virtual_text = "italic",
+      },
+    },
+  },
+
   {
     "rose-pine/neovim",
-    lazy = true,
     as = "rose-pine",
     opts = {
       dark_variant = "moon", -- main, moon, or dawn
@@ -103,3 +125,9 @@ return {
     },
   },
 }
+for _, item in ipairs(M) do
+  item.lazy = false
+  item.priority = 1000
+end
+
+return M
