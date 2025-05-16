@@ -29,7 +29,7 @@ require("lazy").setup({
   },
   custom_keys = {},
   install = {
-    colorscheme = { "rose-pine" },
+    colorscheme = { Utils.ui.colorscheme },
   },
   ui = {
     size = { width = 0.9, height = 0.9 },
@@ -58,4 +58,7 @@ require("lazy").setup({
   change_detection = {
     notify = false,
   },
+})
+vim.api.nvim_exec_autocmds("User", {
+  pattern = "LazyVimLoaded",
 })

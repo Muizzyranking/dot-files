@@ -1,3 +1,7 @@
+if not vim.g.vscode then
+  return
+end
+
 Utils.map.create_abbrevs({
   { "dont", "don't" },
   { "Dont", "Don't" },

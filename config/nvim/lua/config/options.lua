@@ -59,7 +59,7 @@ o.undofile                     = true
 o.foldlevel                    = 99
 o.foldmethod                   = "expr"
 o.foldexpr                     = "v:lua.require'utils.ui'.foldexpr()"
-o.foldtext                     = ""
+o.foldtext                     = "v:lua.require'utils.ui'.foldtext()"
 vim.g.markdown_folding         = 1 -- Enable markdown folding
 
 -----------------------------------------------------------

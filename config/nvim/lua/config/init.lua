@@ -9,6 +9,7 @@ local function r(module)
   return require("config." .. module)
 end
 
+Utils.ui.set_colorscheme("onedark")
 Utils.hl.setup()
 r("globals")
 r("options")
@@ -32,5 +33,3 @@ vim.api.nvim_create_autocmd("User", {
     Utils.discipline.setup()
   end,
 })
-
-Utils.ui.set_colorscheme("rose-pine")

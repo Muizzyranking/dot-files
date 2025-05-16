@@ -96,7 +96,6 @@ end, { expr = true, desc = "Stop snippet and escape" })
 -- set("i", "jj", "<Esc>",     { desc = "Go to normal mode" }) -- esc with jj
 set("n", "<BS>", '"_ciw', { desc = "Change inner word" }) -- change word
 set({ "i", "c" }, "<c-h>", "<c-w>", { desc = "Delete word" })
-set("n", "<C-a>", "gg<S-v>G", { desc = "Select all", noremap = true, silent = true }) -- select all
 set("v", "<S-Tab>", "<gv", { noremap = false, silent = true })
 set("v", "<Tab>", ">gv", { noremap = false, silent = true })
 set({ "n" }, "ciw", '"_ciw')
