@@ -49,7 +49,6 @@ end
 ---@param highlights table<string, table>
 -----------------------------------------------
 function M.add_highlights(highlights)
-  local new_hls = {}
   for group, opts in pairs(highlights) do
     local hl_name = opts.name or group
     opts.name = nil
@@ -58,13 +57,6 @@ function M.add_highlights(highlights)
 
     local processed_opts = M.process_hl(opts)
     M._highlights[hl_name] = vim.tbl_extend("force", M._highlights[hl_name] or {}, processed_opts)
-    new_hls[hl_name] = M._highlights[hl_name]
-  end
-  if M._is_setup then
-    vim.api.nvim_exec_autocmds("User", {
-      pattern = "HighlightsAdded",
-      data = { hls = new_hls },
-    })
   end
 end
 
