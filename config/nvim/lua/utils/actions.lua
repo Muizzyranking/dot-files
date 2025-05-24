@@ -45,25 +45,4 @@ function M.duplicate_selection()
   api.nvim_win_set_cursor(0, { new_cursor_line, 0 })
 end
 
-local zoomed = false
-function M.toggle_zoom()
-  local ignore_ft = { "toggleterm", "help", "neotree" }
-  if vim.tbl_contains(ignore_ft, vim.bo.filetype) then
-    return
-  end
-
-  if vim.fn.winnr("$") < 2 then
-    zoomed = false
-    return
-  end
-  if zoomed then
-    vim.cmd.wincmd("=")
-    zoomed = false
-  else
-    vim.cmd.wincmd("_")
-    vim.cmd.wincmd("|")
-    zoomed = true
-  end
-end
-
 return M
