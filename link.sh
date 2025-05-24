@@ -125,7 +125,7 @@ link_git_files() {
 }
 
 # Available config files
-configs=("bat" "cava" "git" "hypr" "kitty" "Kvantum" "lazygit" "lazyvim" "fastfetch" "nvim" "rofi" "swaync" "tmux" "waybar" "wlogout" "zsh")
+configs=("bat" "git" "hypr" "kitty" "lazygit" "lazyvim" "nvim" "rofi" "swaync" "tmux" "waybar" "wlogout" "zsh")
 
 # If no arguments provided, show usage
 if [ $# -eq 0 ]; then

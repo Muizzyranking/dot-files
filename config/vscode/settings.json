@@ -1,0 +1,121 @@
+{
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true
+  },
+  "files.autoSave": "onFocusChange",
+  "extensions.experimental.affinity": {
+    "asvetliakov.vscode-neovim": 1
+  },
+  "editor.fontFamily": "JetBrainsMono Nerd Font",
+  "editor.fontLigatures": true,
+  "github.copilot.editor.enableAutoCompletions": true,
+  "workbench.colorTheme": "One Dark Pro",
+  "vscode-neovim.NVIM_APPNAME": "nvim",
+  "editor.codeLensFontFamily": "JetBrainsMono Nerd Font",
+  "keyboard.dispatch": "keyCode",
+  "security.workspace.trust.untrustedFiles": "open",
+  "workbench.editor.enablePreview": false,
+  "workbench.colorCustomizations": {
+    "editor.background": "#10111a",
+    "sideBar.background": "#10111a",
+    "activityBar.background": "#10111a",
+    "titleBar.activeBackground": "#10111a",
+    "titleBar.inactiveBackground": "#10111a",
+    "statusBar.background": "#10111a",
+    "statusBar.noFolderBackground": "#10111a",
+    "panel.background": "#10111a",
+    "tab.activeBackground": "#10111a",
+    "tab.inactiveBackground": "#10111a",
+    "tab.activeForeground": "#ffffff",
+    "tab.inactiveForeground": "#888888",
+    "tab.border": "#10111a",
+    "editorGroup.emptyBackground": "#10111a"
+  },
+  "black-formatter.args": [
+    " --line-length",
+    "100"
+  ],
+  "editor.glyphMargin": true,
+  "editor.minimap.enabled": false,
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "scope": "keyword",
+        "settings": {
+          "foreground": "#f7768e",
+          "fontStyle": "italic"
+        }
+      },
+      {
+        "scope": "string",
+        "settings": {
+          "foreground": "#9ece6a",
+          "fontStyle": "italic"
+        }
+      },
+      {
+        "scope": "keyword.control.return",
+        "settings": {
+          "foreground": "#f7768e"
+        }
+      },
+      {
+        "scope": "keyword.control.conditional",
+        "settings": {
+          "foreground": "#db4b4b"
+        }
+      },
+      {
+        "scope": "keyword.control.import",
+        "settings": {
+          "foreground": "#f7768e"
+        }
+      },
+      {
+        "scope": "support.type.builtin",
+        "settings": {
+          "foreground": "#db4b4b"
+        }
+      },
+      {
+        "scope": "storage.type",
+        "settings": {
+          "foreground": "#db4b4b"
+        }
+      },
+      {
+        "scope": "string.quoted.docstring",
+        "settings": {
+          "foreground": "#ff9e64"
+        }
+      },
+      {
+        "scope": "keyword.operator",
+        "settings": {
+          "foreground": "#7aa2f7"
+        }
+      }
+    ]
+  },
+  "vscode-neovim.neovimExecutablePaths.linux": "/home/muizzyranking/.local/bin/nv",
+  "zenMode.centerLayout": false,
+  "zenMode.hideLineNumbers": false,
+  "vscode-neovim.compositeKeys": {
+    "jk": {
+      "command": "vscode-neovim.lua",
+      "args": [
+        [
+          "local code = require('vscode')",
+          "code.action('vscode-neovim.escape')",
+          "code.action('workbench.action.files.save')"
+        ]
+      ]
+    }
+  },
+  "workbench.sideBar.location": "right",
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "javascript.inlayHints.functionLikeReturnTypes.enabled": true
+}

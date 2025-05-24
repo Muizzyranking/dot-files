@@ -87,6 +87,19 @@ set.snippet_aware_map({ "n" }, "D", '"_D', {})
 set.snippet_aware_map({ "n", "v", "x" }, "x", '"_x', {})
 set.snippet_aware_map({ "n", "v", "x" }, "X", '"_X', {})
 
+-- search for word and stay there
+set("n", "*", function()
+  local save_cursor = vim.fn.getpos(".")
+  vim.cmd("normal! *")
+  vim.fn.setpos(".", save_cursor)
+end, { noremap = true })
+
+set("n", "#", function()
+  local save_cursor = vim.fn.getpos(".")
+  vim.cmd("normal! #")
+  vim.fn.setpos(".", save_cursor)
+end, { noremap = true })
+
 set("n", "i", function()
   local cond = #vim.fn.getline(".") == 0
   return cond and '"_cc' or "i"
