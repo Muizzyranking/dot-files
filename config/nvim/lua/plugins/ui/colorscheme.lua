@@ -8,7 +8,6 @@ end
 local M = {
   {
     "olimorris/onedarkpro.nvim",
-    priority = 1000,
     opts = {
       options = {
         transparency = true,

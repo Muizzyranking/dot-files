@@ -6,13 +6,6 @@ return {
     opts = {
       preset = "modern",
       transparent_bg = false,
-      hi = {
-        error = "InlineDiagnosticError",
-        warn = "InlineDiagnosticWarn",
-        info = "InlineDiagnosticInfo",
-        hint = "InlineDiagnosticHint",
-      },
-
       options = {
         use_icons_from_diagnostic = true,
         show_all_diags_on_cursorline = false,
