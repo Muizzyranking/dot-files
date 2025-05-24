@@ -2,8 +2,8 @@ return {
   "neovim/nvim-lspconfig",
   event = "LazyFile",
   dependencies = {
-    "mason.nvim",
-    "williamboman/mason-lspconfig.nvim",
+    "mason-org/mason.nvim",
+    "mason-org/mason-lspconfig.nvim",
   },
   opts = {
     servers = {},
@@ -70,6 +70,11 @@ return {
         capabilities = vim.deepcopy(capabilities),
       }, opts.servers[server] or {})
 
+      if opts.setup[server] then
+        if opts.setup[server](server, server_opts) then
+          return
+        end
+      end
       -- try to get the server config if exists
       -- if not found, then it is a custom server and it is added to lspconfig
       local config_available, config = pcall(Utils.lsp.get_config, server)
@@ -93,19 +98,13 @@ return {
         }
       end
 
-      if opts.setup[server] then
-        if opts.setup[server](server, server_opts) then
-          return
-        end
-      end
-
       require("lspconfig")[server].setup(server_opts)
     end
     -- get all the servers that are available through mason-lspconfig
     local mason_ok, mason_lspconfig = pcall(require, "mason-lspconfig")
     local all_servers = {}
     if mason_ok then
-      all_servers = vim.tbl_keys(require("mason-lspconfig.mappings.server").lspconfig_to_package)
+      all_servers = vim.tbl_keys(require("mason-lspconfig").get_mappings().lspconfig_to_package)
     end
 
     local ensure_installed = {} ---@type string[]

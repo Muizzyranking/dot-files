@@ -40,27 +40,11 @@ return {
     -- Combines tools from various conform and nvim-lint
     ---@param ... table[] List of tool definitions from plugins
     local function populate_ensure_installed(...)
-      --- Flattens a table, ensuring no nested tables remain
-      ---@param t table The table to flatten
-      ---@return table The flattened table
-      local function flatten(t)
-        local flat = {}
-        for _, v in ipairs(t) do
-          if type(v) == "table" then
-            for _, nested in ipairs(flatten(v)) do
-              table.insert(flat, nested)
-            end
-          else
-            table.insert(flat, v)
-          end
-        end
-        return flat
-      end
-
       ---@param entries table A collection of tools grouped by filetype
       local function process_entries(entries)
         for _, group in pairs(entries) do
-          local flat_group = flatten(group)
+          -- local flat_group = vim.tbl_flatten(group)
+          local flat_group = vim.iter(group):flatten():totable()
           for _, tool in ipairs(flat_group) do
             -- stylua: ignore
             if pcall(function() return mr.get_package(tool) end) then
@@ -106,7 +90,7 @@ return {
 
       if mason_lspconfig_ok then
         installed_lsp_servers = mason_lspconfig.get_installed_servers() or {}
-        lsp_to_package_map = require("mason-lspconfig.mappings.server").lspconfig_to_package
+        lsp_to_package_map = require("mason-lspconfig").get_mappings().lspconfig_to_package
       end
 
       local valid_tools_set = {}
@@ -125,15 +109,23 @@ return {
       end
     end
 
-    -- Trigger installation of tools, refreshing the registry if needed
-    if mr.refresh then
-      mr.refresh(function()
-        ensure_installed()
+    Utils.map.set_keymap({
+      "<leader>cM",
+      remove_unused_tools,
+      desc = "Mason: Remove unused tools",
+      icon = { icon = " ", color = "red" },
+    })
+
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "LazyUpdate",
+      callback = function()
         remove_unused_tools()
-      end)
-    else
+      end,
+    })
+
+    -- Trigger installation of tools, refreshing the registry if needed
+    mr.refresh(function()
       ensure_installed()
-      remove_unused_tools()
-    end
+    end)
   end,
 }
