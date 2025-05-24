@@ -24,7 +24,7 @@ function M.set_colorscheme(colorscheme)
 
   -- Create an autocmd that will apply the colorscheme when LazyVim is loaded
   vim.api.nvim_create_autocmd("User", {
-    pattern = "LazyVimLoaded",
+    pattern = "LazyDone",
     callback = function()
       -- Skip if in VSCode
       if vim.g.vscode then
