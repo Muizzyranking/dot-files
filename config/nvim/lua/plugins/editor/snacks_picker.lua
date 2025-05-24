@@ -93,6 +93,10 @@ return {
             keys = {
               ["<C-h>"] = { "<c-s-w>", mode = { "i" }, expr = true, desc = "delete word" },
             },
+
+            b = {
+              completion = false,
+            },
           },
           list = {
             keys = {},
@@ -288,13 +292,6 @@ return {
           },
         })
       end,
-    },
-  },
-  {
-    "saghen/blink.cmp",
-    optional = true,
-    opts = {
-      disable_ft = { "snacks_picker_input" },
     },
   },
 }

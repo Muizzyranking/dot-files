@@ -23,6 +23,13 @@ return {
         git = { overrideGpg = true },
       },
     },
+    styles = {
+      input = {
+        keys = {
+          i_c_h = { "<c-h>", "<c-s-w>", mode = "i", expr = true },
+        },
+      },
+    },
   },
   keys = {
     {
