@@ -118,7 +118,7 @@ return {
       },
     },
     linters_by_ft = {
-      python = { "flake8" },
+      -- python = { "flake8" },
       htmldjango = { "djlint" },
     },
   },

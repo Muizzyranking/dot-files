@@ -16,6 +16,7 @@ return {
           client.server_capabilities =
             vim.tbl_deep_extend("force", client.server_capabilities or {}, opts.capabilities or {})
         end, "kulala")
+        -- don't setup with nvim-lspconfig
         return true
       end,
     },

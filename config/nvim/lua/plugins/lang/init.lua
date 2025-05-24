@@ -2,10 +2,10 @@ return {
   Utils.setup_lang.add_lang({
     "bash",
     "c",
-    -- "clarity",
     "eslintbiome",
     "go",
     "html-css",
+    "http",
     "json",
     "lua",
     "markdown",

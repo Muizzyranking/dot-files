@@ -98,40 +98,12 @@ return {
         table.insert(opts.sorting.comparators, 1, require("clangd_extensions.cmp_scores"))
       end,
     },
-    -- {
-    --   "dense-analysis/ale",
-    --   ft = { "c", "h" },
-    --   cond = Utils.is_executable("betty"),
-    --   dependencies = {
-    --     {
-    --       "JuanDAC/betty-ale-vim",
-    --     },
-    --   },
-    --   config = function()
-    --     local g = vim.g
-    --     g.ale_linters = {
-    --       c = { "betty-style", "betty-doc" },
-    --     }
-    --     g.ale_echo_msg_error_str = ""
-    --     g.ale_echo_msg_warning_str = ""
-    --     g.ale_echo_msg_format = ""
-    --     g.ale_sign_column_always = 0
-    --     g.ale_detail_to_floating_preview = 0
-    --     g.ale_echo_cursor = 0
-    --   end,
-    -- },
   },
 
   formatting = {
     format_on_save = true,
   },
-  keys = {
-    {
-      "<leader>ch",
-      "<cmd>ClangdSwitchSourceHeader<cr>",
-      desc = "Switch Source/Header",
-    },
-  },
+  keys = {},
   options = {
     shiftwidth = 8,
     tabstop = 8,
