@@ -9,22 +9,55 @@ is_git_repo() {
 
 get_remote_url() {
     local url
-
     if ! url=$(git -C "$1" remote get-url origin 2>/dev/null) || [ -z "$url" ]; then
         echo -e "\033[0;31mError: No remote 'origin' found in repository\033[0m"
         exit 1
     fi
-
     echo "$url"
 }
 
-if [ -z "$1" ]; then
+get_current_branch() {
+    local branch
+    branch=$(git -C "$1" symbolic-ref --short HEAD 2>/dev/null)
+    if [ $? -ne 0 ]; then
+        echo -e "\033[0;33mWarning: Could not determine current branch, using default branch\033[0m"
+        return 1
+    fi
+    echo "$branch"
+}
+
+# Process command line arguments
+show_branch=false
+target_dir=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -b|--branch)
+            show_branch=true
+            shift
+            ;;
+        *)
+            if [ -z "$target_dir" ]; then
+                target_dir="$1"
+            else
+                echo "Error: Unexpected argument: $1"
+                exit 1
+            fi
+            shift
+            ;;
+    esac
+done
+
+# If no directory specified, use current directory
+if [ -z "$target_dir" ]; then
     target_dir="$(pwd)"
 else
-    if [[ "$1" = /* ]]; then
-        target_dir="$1"
+    if [[ "$target_dir" = /* ]]; then
+        # Absolute path
+        :
     else
-        target_dir="$(pwd)/$1"
+        # Relative path
+        target_dir="$(pwd)/$target_dir"
     fi
     if [ ! -d "$target_dir" ]; then
         echo "Error: Directory does not exist: $target_dir"
@@ -32,19 +65,48 @@ else
     fi
 fi
 
+# Verify it's a git repo
 is_git_repo "$target_dir"
 
+# Get the remote URL
 remote_url=$(get_remote_url "$target_dir")
 
+# Convert SSH URL to HTTPS format
 if [[ $remote_url == git@* ]]; then
     remote_url=$(echo "$remote_url" | sed 's/git@\(.*\):\(.*\)\.git/https:\/\/\1\/\2/')
 fi
 
+# Remove .git suffix if present
 remote_url=${remote_url%.git}
 
+# Add branch information if requested
+if [ "$show_branch" = true ]; then
+    branch=$(get_current_branch "$target_dir")
+    if [ $? -eq 0 ]; then
+        # Different hosting services have different URL patterns
+        if [[ $remote_url == *"github.com"* ]]; then
+            remote_url="${remote_url}/tree/${branch}"
+        elif [[ $remote_url == *"gitlab.com"* ]]; then
+            remote_url="${remote_url}/-/tree/${branch}"
+        elif [[ $remote_url == *"bitbucket.org"* ]]; then
+            remote_url="${remote_url}/src/${branch}"
+        else
+            # Generic approach for other git hosts
+            remote_url="${remote_url}/tree/${branch}"
+            echo -e "\033[0;33mWarning: Unknown git hosting service, using generic branch URL format\033[0m"
+        fi
+    fi
+fi
+
+# Open the URL in the default browser
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     xdg-open "$remote_url"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    open "$remote_url"
+elif [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "cygwin"* || "$OSTYPE" == "win32" ]]; then
+    start "$remote_url"
 else
-    echo "Unsupported operating system"
+    echo "Unsupported operating system: $OSTYPE"
+    echo "URL: $remote_url"
     exit 1
 fi
