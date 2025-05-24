@@ -21,7 +21,6 @@ require("lazy").setup({
     { import = "plugins.ui" },
     { import = "plugins.ai.copilot" },
     { import = "plugins.extras.neotest" },
-    { import = "plugins.extras.http" },
     { import = "plugins" },
   },
   defaults = {
@@ -58,7 +57,4 @@ require("lazy").setup({
   change_detection = {
     notify = false,
   },
-})
-vim.api.nvim_exec_autocmds("User", {
-  pattern = "LazyVimLoaded",
 })

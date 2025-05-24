@@ -87,6 +87,16 @@ set.snippet_aware_map({ "n" }, "D", '"_D', {})
 set.snippet_aware_map({ "n", "v", "x" }, "x", '"_x', {})
 set.snippet_aware_map({ "n", "v", "x" }, "X", '"_X', {})
 
+set("n", "i", function()
+  local cond = #vim.fn.getline(".") == 0
+  return cond and '"_cc' or "i"
+end, { desc = "Auto indent when going to insert mode", expr = true })
+
+set("n", "dd", function()
+  local cond = vim.api.nvim_get_current_line():match("^%s*$")
+  return cond and '"_dd' or "dd"
+end, { desc = "Delete empty lines without yanking", expr = true })
+
 set({ "n", "v", "x" }, "<esc>", function()
   Utils.cmp.snippet_stop()
   vim.cmd("nohlsearch")
@@ -111,24 +121,6 @@ end
 -- keymaps with icons
 ------------------------------------
 local maps = {
-  {
-    "i",
-    function()
-      local cond = #vim.fn.getline(".") == 0
-      return cond and '"_cc' or "i"
-    end,
-    desc = "Auto indent when going to insert mode",
-    expr = true,
-  },
-  {
-    "dd",
-    function()
-      local cond = vim.api.nvim_get_current_line():match("^%s*$")
-      return cond and '"_dd' or "dd"
-    end,
-    desc = "Delete empty lines without yanking",
-    expr = true,
-  },
   {
     "<leader>l",
     "<cmd>Lazy<cr>",
@@ -201,11 +193,6 @@ local maps = {
     icon = { icon = " ", color = "green" },
     mode = { "n", "v" },
   },
-  {
-    "<leader>z",
-    Utils.actions.toggle_zoom,
-    desc = "Toggle zoom",
-  },
 }
 
 if Utils.is_in_git_repo() then
@@ -214,7 +201,7 @@ if Utils.is_in_git_repo() then
       "<leader>go",
       function()
         if Utils.is_executable("open-repo") then
-          vim.fn.system({ "open-repo" })
+          vim.fn.system({ "open-repo", "-b" })
         else
           Utils.notify.warn("Command to open repo not available")
         end
@@ -267,6 +254,16 @@ set.set_keymaps(maps, { silent = true })
 -- toggle keymaps
 ------------------------------------
 local toggle_maps = {
+  {
+    "<leader>z",
+    get_state = function()
+      return Snacks.zen.win ~= nil
+    end,
+    change_state = function()
+      Snacks.zen.zoom()
+    end,
+    name = "zoom",
+  },
   {
     "<leader>ut",
     get_state = function(buf)
