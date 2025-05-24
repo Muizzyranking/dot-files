@@ -87,6 +87,10 @@ end
 ---@param mapping map.KeymapOpts
 ---------------------------------------------------------------
 function M.set_keymap(mapping)
+  if vim.g.vscode then
+    return
+  end
+
   local ok = validate_keymap(mapping)
   if not ok then
     return
