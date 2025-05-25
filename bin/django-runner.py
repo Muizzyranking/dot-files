@@ -105,14 +105,12 @@ def get_project_name(manage_py_path):
 
 def create_venv(project_dir, project_name):
     """Create a virtual environment"""
-    venv_path = os.path.join(project_dir, "venv")
+    venv_path = os.path.join(project_dir, ".venv")
     print_info(f"Creating virtual environment '{venv_path}'...")
 
     try:
         subprocess.run([sys.executable, "-m", "venv", venv_path], check=True)
-        print_success(
-            f"Virtual environment created for project {project_name}"
-        )
+        print_success(f"Virtual environment created for project {project_name}")
         return venv_path
     except subprocess.CalledProcessError as e:
         print_error(f"Failed to create virtual environment: {e}")
@@ -129,9 +127,7 @@ def activate_venv(venv_path):
         pip_path = os.path.join(venv_path, "bin", "pip")
 
     if not os.path.exists(python_path):
-        print_error(
-            f"Python interpreter not found in virtual env: {python_path}"
-        )
+        print_error(f"Python interpreter not found in virtual env: {python_path}")
         return None, None
 
     print_success(f"Using Python from: {python_path}")
@@ -150,12 +146,8 @@ def install_django_if_needed(pip_path, project_dir):
         )
 
         if "django==" not in result.stdout.lower():
-            print_info(
-                "Django not found in virtual environment. Installing Django..."
-            )
-            subprocess.run(
-                [pip_path, "install", "django"], check=True, cwd=project_dir
-            )
+            print_info("Django not found in virtual environment. Installing Django...")
+            subprocess.run([pip_path, "install", "django"], check=True, cwd=project_dir)
             print_success("Django installed successfully")
         else:
             print_info("Django is already installed")
@@ -285,15 +277,11 @@ def main():
         pip_path = os.path.join(os.path.dirname(python_path), "pip")
     else:
         # Look for venv in project directory
-        venv_path = os.path.join(project_dir, "venv")
+        venv_path = os.path.join(project_dir, ".venv")
         if not os.path.isdir(venv_path):
             print_warning("Virtual environment not found in project directory")
             response = (
-                input(
-                    "Would you like to create a virtual environment? (y/n): "
-                )
-                .strip()
-                .lower()
+                input("Would you like to create a virtual environment? (y/n): ").strip().lower()
             )
             if response == "y":
                 venv_path = create_venv(project_dir, project_name)
@@ -319,9 +307,7 @@ def main():
     if args.migrate:
         success = run_migrations(python_path, manage_py_path)
         if not success:
-            print_warning(
-                "Migrations failed, but continuing with server startup"
-            )
+            print_warning("Migrations failed, but continuing with server startup")
 
     # Run the Django server
     run_django_server(python_path, manage_py_path, args.extra_args)
