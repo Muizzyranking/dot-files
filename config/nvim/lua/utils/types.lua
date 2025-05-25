@@ -77,9 +77,9 @@
 
 ---@class map.ToggleOpts
 ---@field [1] string # The left-hand side of the mapping
----@field name string # Name of the toggle
+---@field name? string # Name of the toggle
 ---@field get_state fun(buf?: number):  boolean # returns the current state
----@field change_state? fun(state: boolean, buf?: number) # Function to change the state
+---@field change_state fun(state: boolean, buf?: number) # Function to change the state
 ---@field mode? KeymapMode|KeymapMode[] # Vim mode(s) for the mapping
 ---@field desc? string|fun(state: boolean): string # Description of the mapping
 ---@field icon? map.ToggleOpts.IconConf # Icon configuration

@@ -7,30 +7,15 @@ M.colorscheme = "habamax"
 ---@param colorscheme? string
 ------------------------------------------------------------
 function M.set_colorscheme(colorscheme)
-  -- if vim.g.vscode then
-  --   return
-  -- end
-  -- local ok = pcall(function()
-  --   vim.cmd("colorscheme " .. colorscheme)
-  -- end)
-  --
-  -- if ok then
-  --   M.colorsheme = colorscheme
-  -- else
-  --   vim.notify("Failed to load colorscheme: " .. colorscheme, vim.log.levels.ERROR)
-  --   vim.cmd("colorscheme " .. M.colorsheme)
-  -- end
+  if vim.g.vscode then
+    return
+  end
   M.colorscheme = colorscheme or M.colorscheme
 
   -- Create an autocmd that will apply the colorscheme when LazyVim is loaded
   vim.api.nvim_create_autocmd("User", {
     pattern = "LazyDone",
     callback = function()
-      -- Skip if in VSCode
-      if vim.g.vscode then
-        return
-      end
-
       -- Apply the stored colorscheme
       local ok = pcall(function()
         vim.cmd("colorscheme " .. M.colorscheme)
@@ -70,7 +55,7 @@ function M.foldtext_add(foldtext, highlight_add, highlight_sep)
   end
 
   local folded_line_count = vim.v.foldend - vim.v.foldstart + 1
-  local sep = vim.fn["repeat"]("-", vim.fn.winwidth(0) - foldtext_as_string:len() - 31)
+  local sep = " "
   local text = "  (length " .. folded_line_count .. ")"
   local ret = {
     { "  ", highlight_sep or "Folded" },
@@ -166,7 +151,7 @@ function M.foldtext()
     end
   end
 
-  local add = M.foldtext_add(result, "@keyword")
+  local add = M.foldtext_add(result, "@keyword", "@comment")
   for _, v in ipairs(add) do
     table.insert(result, v)
   end

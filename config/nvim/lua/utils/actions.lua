@@ -13,10 +13,14 @@ function M.toggle_file_executable(state, filename)
 
   local output = vim.fn.system(cmd)
   local err = vim.v.shell_error == 0
-  Utils.notify[err and "info" or "warn"](
-    err and success_message or error_message .. ": " .. output,
-    { title = "Options" }
-  )
+
+  local level = "info"
+  if err then
+    level = state and "warn" or "info"
+  else
+    level = "warn"
+  end
+  Utils.notify[level](err and success_message or error_message .. ": " .. output, { title = "Options" })
 end
 
 -------------------------------------
