@@ -29,17 +29,6 @@ local function validate_keymap(mappings)
 end
 
 ---------------------------------------------------------------
----@param opts map.ToggleOpts
----@return boolean success
----------------------------------------------------------------
-local function is_toggle_opts(opts)
-  if type(opts) ~= "table" or not opts.get_state or (not opts.change_state and not opts.toggle_fn) then
-    return false
-  end
-  return true
-end
-
----------------------------------------------------------------
 -- copied from lazyvim
 ---Set a keymap safely, checking for lazy key handler conflicts
 ---@param mode KeymapMode|KeymapMode[] Mode or modes for the mapping
@@ -64,11 +53,13 @@ function M.safe_keymap_set(mode, lhs, rhs, opts)
   return ok
 end
 
+---------------------------------------------------------------
 -- Function to handle conditional mappings based on snippet session
 ---@param modes table|string
 ---@param lhs string
 ---@param rhs string
 ---@param opts table
+---------------------------------------------------------------
 function M.snippet_aware_map(modes, lhs, rhs, opts)
   opts = opts or {}
   opts.expr = true
@@ -83,6 +74,25 @@ function M.snippet_aware_map(modes, lhs, rhs, opts)
 end
 
 ---------------------------------------------------------------
+-- auto indent
+---@param keys string[]|string
+---@param opts? table
+---------------------------------------------------------------
+function M.auto_indent(keys, opts)
+  keys = keys and Utils.ensure_list(keys) or Utils.ensure_list({ "i" })
+  opts = opts or {}
+  opts.expr = true
+  opts.desc = opts.desc or "Auto-indent on insert enter"
+  for _, key in ipairs(keys) do
+    if type(key) == "string" then
+      M.safe_keymap_set("n", key, function()
+        return not vim.api.nvim_get_current_line():match("%g") and '"_cc' or key
+      end, opts)
+    end
+  end
+end
+
+---------------------------------------------------------------
 ---Set a single keymap with extended functionality
 ---@param mapping map.KeymapOpts
 ---------------------------------------------------------------
@@ -91,8 +101,7 @@ function M.set_keymap(mapping)
     return
   end
 
-  local ok = validate_keymap(mapping)
-  if not ok then
+  if not validate_keymap(mapping) then
     return
   end
 
@@ -143,44 +152,77 @@ function M.set_keymaps(mappings, opts)
   end
 end
 
----@param state boolean
----@param name string
-local function notify(state, name)
-  local msg = string.format("%s %s", state and "Disabled" or "Enabled", name)
-  local level = state and "warn" or "info"
-  Utils.notify[level](msg, { title = name })
-end
+----------------------------------------------------------------------
+---@class Toggle
+---@field mapping map.ToggleOpts
+---@field buf number
+---@field state boolean
+----------------------------------------------------------------------
+local Toggle = {}
+Toggle.__index = Toggle
 
 ---@param mapping map.ToggleOpts
-local function create_toggle_fn(mapping)
-  return function()
-    local buf = vim.api.nvim_get_current_buf()
-    local state = mapping.get_state(buf)
-    mapping.change_state(state, buf)
-    if mapping.notify ~= false then
-      notify(state, mapping.name)
-    end
+---@return Toggle
+function Toggle:new(mapping)
+  self = setmetatable({}, Toggle)
+  self.mapping = mapping
+  self:refresh()
+  return self
+end
+
+function Toggle:is_toggle_opts()
+  local mapping = self.mapping
+  return type(mapping) == "table"
+    and type(mapping[1]) == "string"
+    and vim.is_callable(mapping.get_state)
+    and vim.is_callable(mapping.change_state)
+    and (mapping.notify == false or type(mapping.name) == "string")
+end
+
+---Refresh current buffer and state
+function Toggle:refresh()
+  self.buf = Utils.ensure_buf(0)
+  self.state = self.mapping.get_state(self.buf)
+end
+
+-- notify
+function Toggle:notify()
+  if self.mapping.notify ~= false then
+    local state, name = not self.state, self.mapping.name
+    local msg = string.format("%s %s", state and "Disabled" or "Enabled", name)
+    local level = state and "warn" or "info"
+    Utils.notify[level](msg, { title = name })
   end
 end
 
----@param mapping map.ToggleOpts
-local function create_desc(mapping)
-  if type(mapping.desc) == "function" then
+-- toggle
+function Toggle:toggle()
+  self:refresh()
+  self.mapping.change_state(self.state, self.buf)
+  self:refresh()
+  self:notify()
+end
+
+---Get description for the mapping
+---@return string|function
+function Toggle:get_desc()
+  if type(self.mapping.desc) == "function" then
     return function()
-      local buf = vim.api.nvim_get_current_buf()
-      return mapping.desc(mapping.get_state(buf))
+      self:refresh()
+      return self.mapping.desc(self.state)
     end
   end
-  return mapping.desc or string.format("Toggle %s", mapping.name)
+  return self.mapping.desc or string.format("Toggle %s", self.mapping.name)
 end
 
----@param mapping map.ToggleOpts
-local function create_icon(mapping)
+---Get icon
+---@return function
+function Toggle:get_icon()
   return function()
-    local buf = vim.api.nvim_get_current_buf()
-    local state = mapping.get_state(buf)
-    local icon = mapping.icon or {}
-    local color = mapping.color or {}
+    self:refresh()
+    local icon = self.mapping.icon or {}
+    local color = self.mapping.color or {}
+    local state = self.state
     return {
       icon = state and (icon.enabled or "  ") or (icon.disabled or "  "),
       color = state and (color.enabled or "green") or (color.disabled or "yellow"),
@@ -194,20 +236,22 @@ end
 ---@return map.KeymapOpts|nil
 ---------------------------------------------------------------
 function M.toggle_map(mapping)
-  if not is_toggle_opts(mapping) then
+  local toggle = Toggle:new(mapping)
+  if not toggle:is_toggle_opts() then
     return
   end
 
   local map = {
     mapping[1],
-    create_toggle_fn(mapping),
+    function()
+      toggle:toggle()
+    end,
     mode = mapping.mode or "n",
-    desc = create_desc(mapping),
-    icon = create_icon(mapping),
+    desc = toggle:get_desc(),
+    icon = toggle:get_icon(),
   }
 
   local excluded = { "name", "get_state", "toggle_fn", "change_state", "color", "notify", "set_key" }
-
   for k, v in pairs(mapping) do
     if map[k] == nil and not vim.tbl_contains(excluded, k) then
       map[k] = v
@@ -218,7 +262,6 @@ function M.toggle_map(mapping)
     M.set_keymap(map)
     return
   end
-
   return map
 end
 
