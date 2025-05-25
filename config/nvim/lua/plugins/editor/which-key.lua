@@ -36,12 +36,6 @@ return {
         },
         -- better descriptions
         { "gx", desc = "Open with system app" },
-        {
-          "<leader>up",
-          icon = function()
-            return vim.g.minipairs_disable and { icon = " ", color = "yellow" } or { icon = " ", color = "green" }
-          end,
-        },
       },
     },
   },
