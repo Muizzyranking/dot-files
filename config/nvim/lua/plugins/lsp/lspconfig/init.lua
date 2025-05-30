@@ -113,11 +113,10 @@ return {
         server_opts = server_opts == true and {} or server_opts
 
         if server_opts.enabled ~= false then
-          if not vim.tbl_contains(all_servers, server) then
-            setup(server)
-          else
+          if vim.tbl_contains(all_servers, server) then
             ensure_installed[#ensure_installed + 1] = server
           end
+          setup(server)
         end
       end
     end
@@ -125,7 +124,6 @@ return {
     if mason_ok then
       mason_lspconfig.setup({
         ensure_installed = vim.tbl_deep_extend("force", ensure_installed, {}),
-        handlers = { setup },
       })
     end
   end,

@@ -188,7 +188,7 @@ end
 -- notify
 function Toggle:notify()
   if self.mapping.notify ~= false then
-    local state, name = not self.state, self.mapping.name
+    local state, name = self.state, self.mapping.name
     local msg = string.format("%s %s", state and "Disabled" or "Enabled", name)
     local level = state and "warn" or "info"
     Utils.notify[level](msg, { title = name })
@@ -199,7 +199,6 @@ end
 function Toggle:toggle()
   self:refresh()
   self.mapping.change_state(self.state, self.buf)
-  self:refresh()
   self:notify()
 end
 
@@ -383,7 +382,7 @@ end
 -----------------------------------
 function M.reload_config(opts)
   opts = opts or {}
-  opts.buffer = Utils.ensure_list(opts.buffer)
+  opts.buffer = Utils.ensure_buf(opts.buffer)
   opts.title = opts.title or "Config"
   if opts.cond ~= nil and not opts.cond then
     return

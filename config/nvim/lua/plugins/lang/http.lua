@@ -56,6 +56,7 @@ return {
       keys = {
         { "<leader>R", "", desc = "+Rest", ft = "http" },
         { "<leader>Rb", "<cmd>lua require('kulala').scratchpad()<cr>", desc = "Open scratchpad", ft = "http" },
+        { "<leader>Re", "<cmd>lua require('kulala').set_selected_env()<cr>", desc = "Select Env", ft = "http" },
         { "<leader>Rc", "<cmd>lua require('kulala').copy()<cr>", desc = "Copy as cURL", ft = "http" },
         { "<leader>RC", "<cmd>lua require('kulala').from_curl()<cr>", desc = "Paste from curl", ft = "http" },
         { "<leader>Ri", "<cmd>lua require('kulala').inspect()<cr>", desc = "Inspect current request", ft = "http" },
