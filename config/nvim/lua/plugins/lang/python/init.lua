@@ -178,6 +178,8 @@ return {
           { "calss", "class" },
           { "none", "None" },
           { "NONE", "None" },
+          { "nil", "None" },
+          { "Nil", "None" },
         }, {
           buffer = event.buf,
           builtin = "lsp_keyword",

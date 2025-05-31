@@ -1,7 +1,7 @@
 -- stylua: ignore
 if true then return {} end
 
---- example language set up using setup_lan
+--- example language set up using setup_lang
 return {
   -- Name of the language configuration
   -- This is a required field and is often used as a default for other options
@@ -54,7 +54,7 @@ return {
     -- Servers can be configured with additional options
     servers = {
       -- Each key is the server name, contains configuration
-      -- check lspconfig for avaliable options and servers
+      -- check lspconfig for available options and servers
       tsserver = {
         settings = {
           typescript = {
@@ -71,7 +71,7 @@ return {
             desc = "Description",
             mode = "n", -- optional, default is "n"
             -- this is for wk, i like icons for visual representation
-            icon = "", -- optional, no icon by default
+            icon = "", -- optional, no icon by default
             -- other options that vim.keymap.set supports
           },
         },
@@ -89,6 +89,28 @@ return {
         -- do some setup
         return true
       end,
+    },
+  },
+
+  -- Tools to install via Mason
+  -- Automatically ensures these tools are installed
+  tools = {
+    "typescript-language-server",
+    "eslint_d",
+    "prettier",
+    -- Can also be a single string: tools = "typescript-language-server"
+  },
+
+  -- Testing Configuration
+  -- Configure test adapters for neotest
+  test = {
+    -- Dependencies for the test configuration
+    dependencies = {
+      "marilari88/neotest-vitest",
+    },
+    -- Test adapters to use
+    adapters = {
+      "neotest-vitest",
     },
   },
 
@@ -187,13 +209,45 @@ return {
   -- Comment String Configuration
   -- Specify how comments should be formatted for this filetype(s)
   -- Can be a string or a table
-  -- if string, it will be set for filetype sepcified
+  -- if string, it will be set for filetype specified
   commentstring = "// %s",
   -- Alternative:
   -- commentstring = {
   --   typescript = "// %s",
   --   typescriptreact = "{/* %s */}"
   -- }
+
+  -- Custom Autocommands
+  -- Define custom autocommands for this language
+  autocmds = {
+    {
+      -- Event(s) to trigger on (defaults to "FileType" if not specified)
+      event = "BufWritePre",
+      -- Pattern to match (defaults to config.ft if not specified)
+      pattern = { "*.ts", "*.tsx" },
+      -- Either callback function or command string
+      callback = function(event)
+        -- Custom logic here
+        vim.lsp.buf.format({ async = false })
+      end,
+      -- Alternative: use command instead of callback
+      -- command = "lua vim.lsp.buf.format({ async = false })",
+      -- Optional: specify custom group name
+      group = "typescript_format",
+      -- Additional options
+      opts = {
+        desc = "Format TypeScript files on save",
+      },
+    },
+    {
+      -- Simple example with just a command
+      event = "FileType",
+      command = "setlocal conceallevel=0",
+      opts = {
+        desc = "Disable concealing for TypeScript files",
+      },
+    },
+  },
 
   -- Filetype-specific Keymaps
   -- Define keymaps that only work for this specific filetype
@@ -221,6 +275,14 @@ return {
     shiftwidth = 2,
     tabstop = 2,
     expandtab = true,
+  },
+
+  -- Root Patterns for Project Detection
+  -- Patterns to identify project roots for this language
+  root_patterns = {
+    "package.json",
+    "tsconfig.json",
+    ".git",
   },
 
   -- Custom Plugins
