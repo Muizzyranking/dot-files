@@ -199,6 +199,7 @@ end
 function Toggle:toggle()
   self:refresh()
   self.mapping.change_state(self.state, self.buf)
+  self:notify()
 end
 
 ---Get description for the mapping
