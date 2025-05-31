@@ -193,11 +193,11 @@ end
 -----------------------------------------------------------------
 --- Normalize a value to ensure it’s always a list.
 ---@param value any # Input value
----@return string[]|table|nil # Listified value
+---@return string[]|table # Listified value
 -----------------------------------------------------------------
 function M.ensure_list(value)
   if not value then
-    return nil
+    return {}
   end
   if type(value) == "function" then
     value = value()
@@ -211,7 +211,7 @@ end
 ---@return number # The validated buffer number
 -----------------------------------------------------------------
 function M.ensure_buf(buf)
-  if not buf or buf == nil or buf == 0 then
+  if not buf or buf == nil or buf == 0 or not vim.api.nvim_buf_is_valid(buf) then
     buf = vim.api.nvim_get_current_buf()
   end
   return buf

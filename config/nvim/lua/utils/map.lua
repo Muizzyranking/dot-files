@@ -204,7 +204,7 @@ end
 
 ---Get description for the mapping
 ---@return string|function
-function Toggle:get_desc()
+function Toggle:desc()
   if type(self.mapping.desc) == "function" then
     return function()
       self:refresh()
@@ -216,7 +216,7 @@ end
 
 ---Get icon
 ---@return function
-function Toggle:get_icon()
+function Toggle:icon()
   return function()
     self:refresh()
     local icon = self.mapping.icon or {}
@@ -246,8 +246,8 @@ function M.toggle_map(mapping)
       toggle:toggle()
     end,
     mode = mapping.mode or "n",
-    desc = toggle:get_desc(),
-    icon = toggle:get_icon(),
+    desc = toggle:desc(),
+    icon = toggle:icon(),
   }
 
   local excluded = { "name", "get_state", "toggle_fn", "change_state", "color", "notify", "set_key" }
@@ -322,7 +322,7 @@ function M.create_abbrev(word, new_word, opts)
     end
 
     -- Combine with custom condition
-    if condition then
+    if condition and type(condition) == "function" then
       cond = cond and condition()
     end
     return cond and new_word or word

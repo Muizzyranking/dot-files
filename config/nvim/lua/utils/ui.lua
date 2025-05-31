@@ -16,15 +16,14 @@ function M.set_colorscheme(colorscheme)
   vim.api.nvim_create_autocmd("User", {
     pattern = "LazyDone",
     callback = function()
-      -- Apply the stored colorscheme
       local ok = pcall(function()
-        vim.cmd("colorscheme " .. M.colorscheme)
+        vim.cmd.colorscheme(M.colorscheme)
       end)
-      -- Handle failure
       if not ok then
-        vim.notify("Failed to load colorscheme: " .. M.colorscheme, vim.log.levels.ERROR)
+        Utils.notify.error("Failed to load colorscheme: " .. M.colorscheme)
+        M.colorscheme = "habamax"
         pcall(function()
-          vim.cmd("colorscheme habamax")
+          vim.cmd.colorscheme(M.colorscheme)
         end)
       end
     end,

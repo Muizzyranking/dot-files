@@ -207,6 +207,19 @@ create_autocmd("TermOpen", {
 })
 
 -----------------------------------------------------------
+-- Refresh buffers when terminal closes
+-----------------------------------------------------------
+vim.api.nvim_create_autocmd("TermClose", {
+  callback = function()
+    vim.schedule(function()
+      vim.api.nvim_exec_autocmds("BufEnter", {})
+      vim.api.nvim_exec_autocmds("WinEnter", {})
+      vim.cmd("redraw!")
+    end)
+  end,
+})
+
+-----------------------------------------------------------
 -- show cursor line and relativenumber only in active window
 -- modified - https://github.com/jdhao/nvim-config/blob/main/lua/custom-autocmd.lua
 -----------------------------------------------------------
