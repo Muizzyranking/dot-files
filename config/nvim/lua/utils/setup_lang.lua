@@ -150,11 +150,13 @@ function M.setup_language(config)
       formatters_by_ft = fmt.formatters_by_ft or {},
     }
     if fmt.use_prettier_biome then
-      if fmt.use_prettier_biome == true then
-        fmt_opts.use_prettier_biome = Utils.ensure_list(config.ft)
-      else
-        fmt_opts.use_prettier_biome = fmt.use_prettier_biome
-      end
+      local pb = fmt.use_prettier_biome
+      fmt_opts.use_prettier_biome = pb == true and Utils.ensure_list(config.ft) or Utils.ensure_list(pb)
+      -- if fmt.use_prettier_biome == true then
+      --   fmt_opts.use_prettier_biome = Utils.ensure_list(config.ft)
+      -- else
+      --   fmt_opts.use_prettier_biome = Utils.ensure_list(fmt.use_prettier_biome)
+      -- end
     end
     table.insert(plugins, {
       "stevearc/conform.nvim",
