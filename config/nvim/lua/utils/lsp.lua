@@ -293,4 +293,44 @@ function M.copy_diagnostics()
   )
 end
 
+function M.server_is_valid(name)
+  if vim.lsp.config[name] == nil then
+    Utils.notify.warn(string.format("[LSP] server '%s' is not valid", name))
+    return false
+  end
+  return true
+end
+
+function M.stop(name)
+  if M.server_is_valid(name) then
+    if vim.cmd.LspStop(name) then
+      return true
+    end
+  end
+  return false
+end
+
+function M.start(name)
+  if M.server_is_valid(name) then
+    if vim.cmd.LspStart(name) then
+      return true
+    end
+  end
+  return false
+end
+
+function M.restart(name)
+  if M.server_is_valid(name) then
+    M.stop(name)
+    local timer = assert(vim.uv.new_timer())
+    timer:start(500, 0, function()
+      vim.schedule_wrap(function()
+        M.start(name)
+      end)()
+    end)
+    return true
+  end
+  return false
+end
+
 return M
