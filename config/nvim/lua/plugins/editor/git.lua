@@ -12,6 +12,12 @@ return {
         changedelete = { text = "▎" },
       },
       on_attach = function(buffer)
+        vim.api.nvim_create_autocmd("User", {
+          pattern = "GitSignUpdate",
+          callback = vim.schedule_wrap(function()
+            vim.cmd.redrawtabline()
+          end),
+        })
         -- easly close diffview with q
         vim.keymap.set("n", "q", function()
           local has_diff = vim.wo.diff
