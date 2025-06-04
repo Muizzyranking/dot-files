@@ -295,11 +295,13 @@ create_autocmd({ "InsertEnter", "CmdlineEnter" }, {
 -----------------------------------------------------------
 -- put help page at the bottom
 -----------------------------------------------------------
-create_autocmd({ "FileType", "BufEnter", "BufWinEnter" }, {
+create_autocmd({ "FileType", "BufEnter", "BufWinEnter", "WinEnter" }, {
   pattern = "help",
   callback = function()
-    vim.cmd("wincmd J")
-    vim.cmd("horizontal resize 15")
+    vim.schedule(function()
+      vim.cmd("wincmd J")
+      vim.cmd("horizontal resize 15")
+    end)
   end,
 })
 

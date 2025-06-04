@@ -137,6 +137,18 @@ local maps = {
     desc = "Lazy",
   },
   {
+    "<leader>ux",
+    Utils.ui.close_floats,
+    desc = "Close all floating windows",
+  },
+  {
+    "<leader>ur",
+    Utils.ui.refresh,
+    Utils.ui.close_floats,
+    desc = "Refresh UI",
+    icon = { icon = " ", color = "blue" },
+  },
+  {
     "<leader>bd",
     Snacks.bufdelete.delete,
     desc = "Delete buffer",
