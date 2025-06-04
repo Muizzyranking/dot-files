@@ -201,16 +201,11 @@ return {
       event = "BufWritePost",
       pattern = { "*pyrightconfig.json" },
       callback = function()
-        local basedpyright = Utils.lsp.get_clients({ name = "basedpyright" })
+        Utils.lsp.stop("basedpyright")
 
-        if basedpyright and #basedpyright > 0 then
-          vim.cmd("LspStop basedpyright")
-          vim.defer_fn(function()
-            vim.cmd("LspStart basedpyright")
-          end, 200)
-        else
-          vim.cmd("LspStart basedpyright")
-        end
+        vim.defer_fn(function()
+          Utils.lsp.start("basedpyright")
+        end, 100)
 
         vim.cmd("stopinsert")
         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)

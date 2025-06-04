@@ -20,7 +20,13 @@ return {
           workingDirectories = { mode = "auto" },
         },
       },
-      biome = {},
+      biome = {
+        root_dir = function(fname)
+          local root_files = { "biome.json", "biome.jsonc" }
+          root_files = require("lspconfig.util").insert_package_json(root_files, "biome", fname)
+          return vim.fs.dirname(vim.fs.find(root_files, { path = fname, upward = true })[1])
+        end,
+      },
     },
     setup = {
       eslint = function()

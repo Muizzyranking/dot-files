@@ -124,6 +124,7 @@ return {
     if mason_ok then
       mason_lspconfig.setup({
         ensure_installed = vim.tbl_deep_extend("force", ensure_installed, {}),
+        automatic_enable = false,
       })
     end
   end,
