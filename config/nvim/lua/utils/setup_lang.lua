@@ -261,10 +261,8 @@ function M.setup_language(config)
       for option, value in pairs(config.options) do
         local ok, err = pcall(set_buf_option, buf, option, value)
         if not ok then
-          vim.notify(
-            string.format("Error setting option %s = %s: %s", option, vim.inspect(value), err),
-            vim.log.levels.ERROR
-          )
+          local msg = string.format("Error setting option %s = %s: %s", option, vim.inspect(value), err)
+          Utils.notify.error(msg)
         end
       end
     end)

@@ -158,6 +158,25 @@ function M.foldtext()
   return result
 end
 
+-- close floating windows
+function M.close_floats()
+  vim
+    .iter(vim.api.nvim_list_wins())
+    :filter(function(win)
+      return vim.api.nvim_win_get_config(win).relative ~= ""
+    end)
+    :each(function(win)
+      vim.api.nvim_win_close(win, true)
+    end)
+end
+
+function M.refresh()
+  M.close_floats()
+  pcall(vim.cmd, "nohlsearch")
+  pcall(vim.cmd, "diffupdate")
+  pcall(vim.cmd, "normal! \\<C-L>")
+end
+
 M.logo = {}
 M.logo.one = [[
 ┈╭━━━━━━━━━━━╮┈

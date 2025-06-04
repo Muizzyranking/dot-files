@@ -13,7 +13,7 @@ function M.setup()
         count = 0
       end
       if count >= 10 and vim.bo.buftype ~= "nofile" then
-        ok = pcall(vim.notify, "Stop Spamming!", vim.log.levels.WARN, {
+        ok = pcall(Utils.notify.warn, "Stop Spamming!", {
           icon = "💀",
           id = "cowboy",
           keep = function()
