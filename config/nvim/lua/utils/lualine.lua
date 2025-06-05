@@ -2,19 +2,6 @@
 local M = {}
 local window_width_limit = 100
 
-function M.truncate_or_hide(str, max_width)
-  local win_width = vim.api.nvim_win_get_width(0)
-  if win_width < 60 then
-    return ""
-  end -- Hide if window is too narrow
-
-  max_width = max_width or math.floor(win_width / 4)
-  if #str > max_width then
-    return str:sub(1, max_width - 1) .. "…"
-  end
-  return str
-end
-
 local function truncate_lsp_name(name)
   if #name < 10 then
     return name
@@ -44,7 +31,7 @@ M.mode_map = Utils.icons.modes
 ---@return table?
 ------------------------------------------------------------------------------
 function M.fg(name)
-  local fg = Utils.hl.get_hl_color(name)
+  local fg = Utils.hl.get_hl_color(name, "fg")
   return fg and { fg = fg } or nil
 end
 
@@ -105,9 +92,6 @@ M.file = {
     local is_exec = file_path ~= "" and Utils.is_executable(file_path)
     local hl_group = is_exec and "DiagnosticOk" or "Constant"
     return { fg = Utils.hl.get_hl_color(hl_group), gui = "italic,bold" }
-  end,
-  fmt = function(str)
-    return M.truncate_or_hide(str, 20)
   end,
 }
 
@@ -214,9 +198,6 @@ function M.root_dir()
       return get() ~= nil
     end,
     color = M.fg("Special"),
-    fmt = function(str)
-      return M.truncate_or_hide(str, 20)
-    end,
   }
 end
 
