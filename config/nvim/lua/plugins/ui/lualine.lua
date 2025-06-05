@@ -41,35 +41,27 @@ return {
             "branch",
             color = { gui = "italic" },
           },
-          -- Utils.lualine.root_dir(),
-          {
-            "diff",
-            symbols = {
-              added = Utils.icons.git.added,
-              modified = Utils.icons.git.modified,
-              removed = Utils.icons.git.removed,
-            },
-            source = function()
-              local gitsigns = vim.b.gitsigns_status_dict
-              if gitsigns then
-                return {
-                  added = gitsigns.added,
-                  modified = gitsigns.changed,
-                  removed = gitsigns.removed,
-                }
-              end
-            end,
-          },
+          Utils.lualine.root_dir(),
+          -- i do not need to see git changes in the statusline, no?
+          -- {
+          --   "diff",
+          --   symbols = {
+          --     added = Utils.icons.git.added,
+          --     modified = Utils.icons.git.modified,
+          --     removed = Utils.icons.git.removed,
+          --   },
+          --   source = function()
+          --     local gitsigns = vim.b.gitsigns_status_dict
+          --     if gitsigns then
+          --       return {
+          --         added = gitsigns.added,
+          --         modified = gitsigns.changed,
+          --         removed = gitsigns.removed,
+          --       }
+          --     end
+          --   end,
+          -- },
           Utils.lualine.file,
-          {
-            "diagnostics",
-            symbols = {
-              error = Utils.icons.diagnostics.Error,
-              warn = Utils.icons.diagnostics.Warn,
-              info = Utils.icons.diagnostics.Info,
-              hint = Utils.icons.diagnostics.Info,
-            },
-          },
         },
         lualine_c = {
           {
