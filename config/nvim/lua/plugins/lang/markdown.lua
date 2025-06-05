@@ -20,7 +20,7 @@ return {
     format_on_save = false,
   },
   linting = {
-    linters_by_ft = { markdown = { "markdownlint-cli2" } },
+    -- linters_by_ft = { markdown = { "markdownlint-cli2" } },
   },
   highlighting = {
     parsers = { "markdown", "markdown_inline" },
@@ -157,9 +157,18 @@ return {
     {
       "iamcco/markdown-preview.nvim",
       cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
-      build = function()
-        vim.fn["mkdp#util#install"]()
+      build = function(plugin)
+        if Utils.is_executable("npx") then
+          vim.cmd("!cd " .. plugin.dir .. " && cd app && npx --yes yarn install")
+        else
+          vim.cmd([[Lazy load markdown-preview.nvim]])
+          vim.fn["mkdp#util#install"]()
+        end
       end,
+      init = function()
+        vim.g.mkdp_filetypes = { "markdown" }
+      end,
+      ft = { "markdown" },
       keys = {
         {
           "<leader>cp",
