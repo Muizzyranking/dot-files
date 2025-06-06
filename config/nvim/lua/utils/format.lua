@@ -35,6 +35,10 @@ end
 ----------------------------------------------------
 function M.toggle(buf, enable)
   local current_buf = Utils.ensure_buf(buf)
+  if vim.b[current_buf].bigfile then
+    return false
+  end
+
   local gaf = vim.g.autoformat == nil or vim.g.autoformat
   local baf = vim.b[current_buf].autoformat
 
