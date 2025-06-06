@@ -13,6 +13,9 @@ local api = vim.api
 ----------------------------------------------------
 function M.enabled(buf)
   buf = Utils.ensure_buf(buf)
+  if vim.b[buf].bigfile then
+    return false
+  end
   local gaf = vim.g.autoformat
   local baf = vim.b[buf].autoformat
 

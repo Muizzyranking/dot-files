@@ -73,37 +73,39 @@ end
 ---@param buf number
 ---@param is_big boolean
 function M.apply_big_file_settings(buf, is_big)
-  if vim.b[buf].bigfile ~= is_big then
-    vim.b[buf].bigfile = is_big
+  buf = Utils.ensure_buf(buf)
+  if vim.b[buf].bigfile == is_big then
+    return
+  end
+  vim.b[buf].bigfile = is_big
 
-    if not vim.b[buf].bigfile_notified then
-      if is_big then
-        M.notify(buf, is_big)
-        vim.b[buf].bigfile_notified = true
-      end
-    elseif not is_big then
-      vim.b[buf].bigfile_notified = false
-    end
-
-    M.set_bigfile_options(buf, is_big)
+  if not vim.b[buf].bigfile_notified then
     if is_big then
-      pcall(vim.cmd, "Copilot disable")
-      vim.cmd("TSBufDisable highlight")
-      vim.cmd("TSBufDisable incremental_selection")
-
-      -- Handle filetype-specific syntax
-      local ft = vim.bo[buf].filetype
-      if ft and ft ~= "" then
-        vim.schedule(function()
-          if vim.api.nvim_buf_is_valid(buf) then
-            vim.bo[buf].syntax = ft
-          end
-        end)
-      end
-    else
-      pcall(vim.cmd, "Copilot enable")
-      pcall(vim.cmd, "TSBufEnable incremental_selection")
+      M.notify(buf, is_big)
+      vim.b[buf].bigfile_notified = true
     end
+  elseif not is_big then
+    vim.b[buf].bigfile_notified = false
+  end
+
+  M.set_bigfile_options(buf, is_big)
+  if is_big then
+    pcall(vim.cmd, "Copilot disable")
+    vim.cmd("TSBufDisable highlight")
+    vim.cmd("TSBufDisable incremental_selection")
+
+    -- Handle filetype-specific syntax
+    local ft = vim.bo[buf].filetype
+    if ft and ft ~= "" then
+      vim.schedule(function()
+        if vim.api.nvim_buf_is_valid(buf) then
+          vim.bo[buf].syntax = ft
+        end
+      end)
+    end
+  else
+    pcall(vim.cmd, "Copilot enable")
+    pcall(vim.cmd, "TSBufEnable incremental_selection")
   end
 end
 
