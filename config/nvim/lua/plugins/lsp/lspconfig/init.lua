@@ -46,9 +46,6 @@ return {
     Utils.format.setup()
     Utils.lsp.on_attach(function(client, buffer)
       buffer = Utils.ensure_buf(buffer)
-      if not api.nvim_buf_is_valid(buffer) then
-        return
-      end
       require("plugins.lsp.lspconfig.keymaps").on_attach(client, buffer, opts)
     end)
     Utils.lsp.setup()

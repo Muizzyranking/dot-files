@@ -65,9 +65,9 @@ return {
         { "<leader>RS", "<cmd>lua require('kulala').show_stats()<cr>", desc = "Show stats", ft = "http" },
         { "<leader>Rt", "<cmd>lua require('kulala').toggle_view()<cr>", desc = "Toggle headers/body", ft = "http" },
         { "<leader>Rp", "<cmd>lua require('kulala').jump_prev()<cr>", desc = "Jump to previous request", ft = "http" },
-        { "<leader>[r", "<cmd>lua require('kulala').jump_prev()<cr>", desc = "Jump to previous request", ft = "http" },
+        { "[r", "<cmd>lua require('kulala').jump_prev()<cr>", desc = "Jump to previous request", ft = "http" },
         { "<leader>Rn", "<cmd>lua require('kulala').jump_next()<cr>", desc = "Jump to next request", ft = "http" },
-        { "<leader>]r", "<cmd>lua require('kulala').jump_next()<cr>", desc = "Jump to next request", ft = "http" },
+        { "]r", "<cmd>lua require('kulala').jump_next()<cr>", desc = "Jump to next request", ft = "http" },
       },
       opts = {
         default_view = "headers_body",
@@ -78,6 +78,14 @@ return {
             done = " ",
             error = " ",
           },
+        },
+      },
+    },
+    {
+      "folke/which-key.nvim",
+      opts = {
+        spec = {
+          { "<leader>R", group = "Rest", icon = { icon = " ", color = "orange" } },
         },
       },
     },

@@ -115,4 +115,12 @@ return {
       show_success_message = true, -- shows a message with information about the refactor on success
     },
   },
+  {
+    "folke/which-key.nvim",
+    opts = {
+      spec = {
+        { "<leader>r", group = "refactor", icon = { icon = " ", color = "red" } },
+      },
+    },
+  },
 }
