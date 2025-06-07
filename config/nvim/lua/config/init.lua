@@ -21,18 +21,13 @@ if not lazy_load then
   r("autocmd")
 end
 
-local group = vim.api.nvim_create_augroup("LazyModules", { clear = true })
-vim.api.nvim_create_autocmd("User", {
-  group = group,
-  pattern = "VeryLazy",
-  callback = function()
-    if lazy_load then
-      r("autocmd")
-    end
-    r("keymaps")
-    r("abbrevations")
-    Utils.root.setup()
-    Utils.map.setup()
-    Utils.discipline.setup()
-  end,
-})
+Utils.autocmd.on_very_lazy(function()
+  if lazy_load then
+    r("autocmd")
+  end
+  r("keymaps")
+  r("abbrevations")
+  Utils.root.setup()
+  Utils.map.setup()
+  Utils.discipline.setup()
+end, "LazyModules")

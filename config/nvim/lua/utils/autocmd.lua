@@ -5,15 +5,17 @@ local M = setmetatable({}, {
   end,
 })
 
----@class autocmd
+---@class utils.autocmd.autocmd
 ---@field events? string|string[]
 ---@field pattern string|string[]
 ---@field group string|integer
 ---@field callback fun(event: table)
 ---@field desc? string
 
+-----------------------------------------------------------------------------
 ---@param name string
 ---@param opts? table
+-----------------------------------------------------------------------------
 function M.augroup(name, opts)
   opts = opts or {}
   name = "Neovim_" .. name
@@ -21,9 +23,11 @@ function M.augroup(name, opts)
   return vim.api.nvim_create_augroup(name, opts)
 end
 
+--------------------------------------------------------------------------
 ---@param name string
----@param autocmds autocmd[]
+---@param autocmds utils.autocmd.autocmd[]
 ---@param events string|string[]
+--------------------------------------------------------------------------
 function M.autocmd_augroup(name, autocmds, events)
   local group = M.augroup(name)
   for _, au in ipairs(autocmds) do
@@ -40,10 +44,23 @@ function M.autocmd_augroup(name, autocmds, events)
   end
 end
 
+---@class utils.autocmd.create
+---@field callback? fun(event: table)
+---@field cmd? string
+---@field pattern? string|string[]
+---@field group? string|integer
+---@field once? boolean
+---@field desc? string
+
+--------------------------------------------------------------------------
+-- create an autocmd
+---@param event string|string[]
+--- @param opts? utils.autocmd.create
+--------------------------------------------------------------------------
 function M.create(event, opts)
   opts = opts or {}
   event = Utils.ensure_list(event)
-  local group = opts.group and M.augroup(opts.group, {})
+  local group = opts.group and (type(opts.group) == "string" and M.augroup(opts.group) or opts.group) or nil
   local once = opts.once
   local desc = opts.desc
   local pattern = opts.pattern
@@ -60,8 +77,11 @@ function M.create(event, opts)
   })
 end
 
+--------------------------------------------------------------------------
+-- Trigger a user event
 ---@param pattern string|string[]
 ---@param opts? table
+--------------------------------------------------------------------------
 function M.exec_user_event(pattern, opts)
   opts = opts or {}
   local args = {}
@@ -78,13 +98,34 @@ function M.exec_user_event(pattern, opts)
   vim.api.nvim_exec_autocmds("User", args)
 end
 
-function M.on_user_event(pattern, opts)
-  pattern = Utils.ensure_list(pattern)
-  return M.create("User", {
-    pattern = pattern,
-    callback = opts.callback,
-    desc = opts and opts.desc or "User event handler",
+--------------------------------------------------------------------------
+-- Execute a user-defined event
+---@param patterns string|string[]
+---@param fn fun(event: table)
+---@param group? string|integer
+---@return number # autocmd ID
+--------------------------------------------------------------------------
+function M.on_user_event(patterns, fn, group)
+  if group and type(group) ~= "number" then
+    group = M.augroup(group)
+  end
+  patterns = Utils.ensure_list(patterns)
+  return vim.api.nvim_create_autocmd("User", {
+    pattern = patterns,
+    group = group or nil,
+    callback = function(event)
+      fn(event)
+    end,
   })
+end
+
+--------------------------------------------------------------------------
+-- lazily execute a function
+---@param fn function
+---@param group? string|integer
+--------------------------------------------------------------------------
+function M.on_very_lazy(fn, group)
+  M.on_user_event("VeryLazy", fn, group)
 end
 
 return M

@@ -36,7 +36,7 @@ local function create_autocmd_group(config_name)
     if not lazy_load then
       autocmd()
     else
-      Utils.on_very_lazy(autocmd)
+      Utils.autocmd.on_very_lazy(autocmd)
     end
   end
 end

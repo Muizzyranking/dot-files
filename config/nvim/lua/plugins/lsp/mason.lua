@@ -116,11 +116,7 @@ return {
       icon = { icon = " ", color = "red" },
     })
 
-    Utils.autocmd.on_user_event("LazyUpdate", {
-      callback = function()
-        remove_unused_tools()
-      end,
-    })
+    Utils.autocmd.on_user_event("LazyUpdate", remove_unused_tools)
 
     -- Trigger installation of tools, refreshing the registry if needed
     mr.refresh(function()

@@ -37,15 +37,13 @@ end
 function M.on_support_methods(method, fn)
   M._supports_method[method] = M._supports_method[method] or setmetatable({}, { __mode = "k" })
 
-  return Utils.autocmd.on_user_event("LspSupportsMethod", {
-    callback = function(args)
-      local client = vim.lsp.get_client_by_id(args.data.client_id)
-      local buffer = args.data.buffer ---@type number
-      if client and method == args.data.method then
-        return fn(client, buffer)
-      end
-    end,
-  })
+  return Utils.autocmd.on_user_event("LspSupportsMethod", function(args)
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    local buffer = args.data.buffer ---@type number
+    if client and method == args.data.method then
+      return fn(client, buffer)
+    end
+  end)
 end
 
 ----------------------------------------------------
@@ -55,17 +53,14 @@ end
 --- @return number Autocmd ID
 ----------------------------------------------------
 function M.on_dynamic_capability(fn, opts)
-  return Utils.autocmd.on_user_event("LspDynamicCapability", {
-    pattern = "LspDynamicCapability",
-    group = opts and opts.group or nil,
-    callback = function(args)
-      local client = vim.lsp.get_client_by_id(args.data.client_id)
-      local buffer = args.data.buffer ---@type number
-      if client then
-        return fn(client, buffer)
-      end
-    end,
-  })
+  opts = opts or {}
+  return Utils.autocmd.on_user_event("LspDynamicCapability", function(args)
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    local buffer = args.data.buffer ---@type number
+    if client then
+      return fn(client, buffer)
+    end
+  end, opts.group)
 end
 
 ----------------------------------------------------

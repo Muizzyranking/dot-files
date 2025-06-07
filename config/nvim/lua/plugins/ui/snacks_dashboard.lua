@@ -89,12 +89,10 @@ return {
         -- { section = "startup" },
       },
     }
-    Utils.autocmd.on_user_event({ "LazyCheck", "LazyUpdate" }, {
-      callback = function(event)
-        if event.buf == "snacks_dashboard" then
-          Snacks.dashboard.update()
-        end
-      end,
-    })
+    Utils.autocmd.on_user_event({ "LazyCheck", "LazyUpdate" }, function(event)
+      if event.buf == "snacks_dashboard" then
+        Snacks.dashboard.update()
+      end
+    end)
   end,
 }

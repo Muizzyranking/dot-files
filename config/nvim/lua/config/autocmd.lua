@@ -1,11 +1,6 @@
 -- local create_autocmd = Utils.autocmd.create
 local autocmd = Utils.autocmd
 
-autocmd("InsertEnter", {
-  command = "set paste",
-  pattern = "*",
-})
-
 ------------------------------------------------------------
 -- Reload config keymap for different tools
 -------------------------------------------------------------
@@ -183,7 +178,7 @@ autocmd({ "BufWritePre" }, {
 -----------------------------------------------------------
 -- Don't auto comment new line
 -----------------------------------------------------------
-autocmd("BufEnter", { command = [[set formatoptions-=cro]] })
+autocmd("BufEnter", { cmd = [[set formatoptions-=cro]] })
 
 -----------------------------------------------------------
 -- Make it easier to close man-files when opened inline
@@ -309,21 +304,19 @@ autocmd({ "FileType", "BufEnter", "BufWinEnter", "WinEnter" }, {
 -----------------------------------------------------------
 -- restore tmux bar if hidden
 -----------------------------------------------------------
-autocmd.on_user_event("TmuxBarToggle", {
-  callback = function()
-    autocmd("VimLeave", {
-      callback = function()
-        local handle = io.popen("tmux display-message -p '#{status}'")
-        local status = handle:read("*a")
-        handle:close()
-        local state = status:match("on")
-        if not state then
-          vim.system({ "tmux", "set-option", "-g", "status", "on" })
-        end
-      end,
-    })
-  end,
-})
+autocmd.on_user_event("TmuxBarToggle", function()
+  autocmd("VimLeave", {
+    callback = function()
+      local handle = io.popen("tmux display-message -p '#{status}'")
+      local status = handle:read("*a")
+      handle:close()
+      local state = status:match("on")
+      if not state then
+        vim.system({ "tmux", "set-option", "-g", "status", "on" })
+      end
+    end,
+  })
+end)
 
 -----------------------------------------------------------
 -- disable incremental selection when not needed

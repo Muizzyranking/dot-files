@@ -442,9 +442,7 @@ M.setup = function()
     M._apply_which_key()
     M._is_setup = true
 
-    Utils.autocmd.on_user_event("KeymapSet", {
-      callback = M._apply_which_key,
-    })
+    Utils.autocmd.on_user_event("KeymapSet", M._apply_which_key)
   end)
 end
 
