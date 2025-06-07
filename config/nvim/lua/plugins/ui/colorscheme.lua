@@ -8,7 +8,7 @@ end
 local M = {
   {
     "olimorris/onedarkpro.nvim",
-    name = "onedark",
+    set = "onedark",
     opts = {
       options = {
         transparency = true,
@@ -31,7 +31,7 @@ local M = {
 
   {
     "rose-pine/neovim",
-    name = "rose-pine",
+    set = "rose-pine",
     as = "rose-pine",
     opts = {
       dark_variant = "moon", -- main, moon, or dawn
@@ -62,6 +62,7 @@ local M = {
   {
     "catppuccin/nvim",
     name = "catppuccin",
+    set = "catppuccin",
     enabled = false,
     opts = {
       flavour = "mocha",
@@ -129,17 +130,13 @@ local M = {
 
 -- allows one colorscheme to be installed at a time depending on the active colorscheme
 for _, item in ipairs(M) do
-  local name = Utils.ensure_list(item.name)
+  local name = Utils.ensure_list(item.set)
   for _, n in ipairs(name) do
     if n == Utils.ui.colorscheme then
       item.lazy = false
       item.priority = 1000
-      if n ~= "catppuccin" then
-        item.name = nil
-      end
+      item.set = nil
       return item
     end
   end
 end
-
-return M
