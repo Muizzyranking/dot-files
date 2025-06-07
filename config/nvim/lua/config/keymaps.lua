@@ -381,7 +381,6 @@ local toggle_maps = {
   },
 }
 
-local is_executed = false
 if Utils.is_in_tmux() then
   vim.list_extend(toggle_maps, {
     {
@@ -393,12 +392,7 @@ if Utils.is_in_tmux() then
         return status:match("on")
       end,
       change_state = function(state)
-        if not is_executed then
-          vim.api.nvim_exec_autocmds("User", { pattern = "TmuxBarToggle" })
-          is_executed = true
-        end
-        vim.system({ "tmux", "set-option", "-g", "status", ("%s"):format(state and "off" or "on") })
-        Utils.notify(("%s Tmux Bar"):format(state and "Hide" or "Show"), { title = "Tmux" })
+        Utils.actions.toggle_tmux(state)
       end,
       desc = function(state)
         return ("%s Tmux Bar"):format(state and "Hide" or "Show")

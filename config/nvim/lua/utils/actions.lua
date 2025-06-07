@@ -49,4 +49,25 @@ function M.duplicate_selection()
   api.nvim_win_set_cursor(0, { new_cursor_line, 0 })
 end
 
+M.__tmux_executed = false
+function M.toggle_tmux(state)
+  if not M.__tmux_executed then
+    Utils.autocmd.exec_user_event("TmuxBarToggle")
+    M.__tmux_executed = true
+  end
+
+  local status = state and "off" or "on"
+  local cmd = { "tmux", "set-option", "-g", "status", status }
+  local output = vim.fn.system(cmd)
+  local err = vim.v.shell_error == 0
+  local notify_opts = { title = "Tmux" }
+
+  if err then
+    local bar_state = state and "Hide" or "Show"
+    Utils.notify(("%s Tmux Bar"):format(bar_state), notify_opts)
+  else
+    Utils.notify.warn("Error toggling mouse mode: " .. output, notify_opts)
+  end
+end
+
 return M
