@@ -12,8 +12,7 @@ return {
         changedelete = { text = "▎" },
       },
       on_attach = function(buffer)
-        vim.api.nvim_create_autocmd("User", {
-          pattern = "GitSignUpdate",
+        Utils.autocmd.on_user_event("GitSignUpdate", {
           callback = vim.schedule_wrap(function()
             vim.cmd.redrawtabline()
           end),

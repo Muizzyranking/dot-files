@@ -369,10 +369,7 @@ function M.add_to_wk(mappings)
     end
   end
   if M._is_setup then
-    api.nvim_exec_autocmds("User", {
-      pattern = "KeymapSet",
-      data = { has_icon = true },
-    })
+    Utils.autocmd.exec_user_event("KeymapSet")
   end
 end
 
@@ -445,13 +442,8 @@ M.setup = function()
     M._apply_which_key()
     M._is_setup = true
 
-    api.nvim_create_autocmd("User", {
-      pattern = "KeymapSet",
-      callback = function(event)
-        if event.data.has_icon then
-          M._apply_which_key()
-        end
-      end,
+    Utils.autocmd.on_user_event("KeymapSet", {
+      callback = M._apply_which_key,
     })
   end)
 end

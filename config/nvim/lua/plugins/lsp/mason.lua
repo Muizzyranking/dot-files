@@ -116,8 +116,7 @@ return {
       icon = { icon = " ", color = "red" },
     })
 
-    vim.api.nvim_create_autocmd("User", {
-      pattern = "LazyUpdate",
+    Utils.autocmd.on_user_event("LazyUpdate", {
       callback = function()
         remove_unused_tools()
       end,

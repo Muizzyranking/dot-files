@@ -89,8 +89,7 @@ return {
         -- { section = "startup" },
       },
     }
-    vim.api.nvim_create_autocmd("User", {
-      pattern = { "LazyCheck", "LazyUpdate" },
+    Utils.autocmd.on_user_event({ "LazyCheck", "LazyUpdate" }, {
       callback = function(event)
         if event.buf == "snacks_dashboard" then
           Snacks.dashboard.update()
