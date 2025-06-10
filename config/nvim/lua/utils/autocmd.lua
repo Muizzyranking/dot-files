@@ -36,6 +36,7 @@ function M.autocmd_augroup(name, autocmds, events)
   local group = M.augroup(name)
   for _, au in ipairs(autocmds) do
     local autocmd_events = au.events or events
+    au.events = nil
     if not autocmd_events then
       error("No events specified for autocmd in group: " .. name)
     end
