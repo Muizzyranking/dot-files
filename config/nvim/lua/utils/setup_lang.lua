@@ -18,7 +18,6 @@ end
 local function create_autocmd_group(config_name)
   local group_name = string.format("language_setup_%s", config_name)
   local group = create_augroup(group_name, { clear = true })
-  local lazy_load = vim.fn.argc(-1) == 0
 
   ---@param event string|string[]
   ---@param pattern string|string[]
@@ -33,7 +32,7 @@ local function create_autocmd_group(config_name)
     local autocmd = function()
       nvim_create_autocmd(event, opts)
     end
-    if not lazy_load then
+    if not LazyLoad then
       autocmd()
     else
       Utils.autocmd.on_very_lazy(autocmd)
@@ -158,7 +157,7 @@ function M.setup_language(config)
       optional = true,
       opts = fmt_opts,
     })
-    if fmt.format_on_save == true then
+    if Utils.evaluate(fmt.format_on_save) == true then
       create_autocmd("FileType", config.ft, function(event)
         vim.b[event.buf].autoformat = true
       end)

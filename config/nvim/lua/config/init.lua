@@ -3,7 +3,7 @@ _G.Utils = require("utils")
 -- stylua: ignore
 _G.P = function(...) vim.print(vim.inspect(...)) end
 
-local lazy_load = vim.fn.argc(-1) == 0
+_G.LazyLoad = Utils.evaluate(vim.fn.argc(-1), 0)
 
 local function r(module)
   return require("config." .. module)
@@ -17,12 +17,12 @@ Utils.hl.setup()
 r("globals")
 r("options")
 r("lazy")
-if not lazy_load then
+if not LazyLoad then
   r("autocmd")
 end
 
 Utils.autocmd.on_very_lazy(function()
-  if lazy_load then
+  if LazyLoad then
     r("autocmd")
   end
   r("keymaps")
