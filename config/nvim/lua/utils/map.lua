@@ -6,7 +6,6 @@ local M = setmetatable({}, {
 })
 M._wk_maps = {}
 M._is_setup = false
-local api = vim.api
 local deepcopy = vim.deepcopy
 
 ---------------------------------------------------------------
@@ -442,7 +441,9 @@ M.setup = function()
     M._apply_which_key()
     M._is_setup = true
 
-    Utils.autocmd.on_user_event("KeymapSet", M._apply_which_key)
+    Utils.autocmd.on_user_event("KeymapSet", function()
+      M._apply_which_key()
+    end)
   end)
 end
 

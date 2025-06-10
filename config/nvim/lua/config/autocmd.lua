@@ -1,4 +1,3 @@
--- local create_autocmd = Utils.autocmd.create
 local autocmd = Utils.autocmd
 
 ------------------------------------------------------------
