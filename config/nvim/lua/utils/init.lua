@@ -187,10 +187,31 @@ function M.ensure_list(value)
   if not value then
     return {}
   end
-  if type(value) == "function" then
+  if M.type(value, "function") then
     value = value()
   end
-  return type(value) == "string" and { value } or value
+
+  return M.type(value, "table") and value or { value }
+end
+
+----------------------------------------------------------------
+--- Ensure a value is a string, converting if necessary.
+---@param value any # Input value
+---@param default? string # Default value if input is nil or empty
+---@return string # The ensured string value
+-----------------------------------------------------------------
+function M.ensure_string(value, default)
+  if not value or value == "" then
+    return default or ""
+  end
+  if M.type(value, "function") then
+    value = value()
+  end
+
+  if M.type(value, "table") then
+    return table.concat(value, ", ")
+  end
+  return M.type(value, "string") and value or tostring(value)
 end
 
 -----------------------------------------------------------------
@@ -212,6 +233,42 @@ end
 function M.get_filename(buf)
   buf = M.ensure_buf(buf)
   return vim.api.nvim_buf_get_name(buf)
+end
+
+---------------------------------------------------------------
+---@param var any
+---@param expected_type string
+---@return boolean
+---------------------------------------------------------------
+function M.type(var, expected_type)
+  return type(var) == expected_type
+end
+
+---------------------------------------------------------------
+-- Resolve a boolean value from either a boolean or function
+---@param value any # The value to resolve
+---@param expected_value? any # Optional value to compare against the resolved result
+---@return boolean true if the resolved value is truthy (and matches expected_value if provided)
+---------------------------------------------------------------
+function M.evaluate(value, expected_value)
+  if M.type(value, "function") then
+    value = value()
+  end
+
+  if expected_value ~= nil then
+    if M.type(expected_value, "function") then
+      expected_value = expected_value()
+    end
+    return value == expected_value
+  end
+
+  -- Handle empty tables as falsy
+  if M.type(value, "table") then
+    return next(value) ~= nil
+  end
+
+  --  return the truthiness of the resolved value
+  return not not value
 end
 
 return M
