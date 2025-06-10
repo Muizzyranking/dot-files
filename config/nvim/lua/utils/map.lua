@@ -83,7 +83,7 @@ function M.auto_indent(keys, opts)
   opts.expr = true
   opts.desc = opts.desc or "Auto-indent on insert enter"
   for _, key in ipairs(keys) do
-    if type(key) == "string" then
+    if Utils.type(key, "string") then
       M.safe_keymap_set("n", key, function()
         return not vim.api.nvim_get_current_line():match("%g") and '"_cc' or key
       end, opts)
@@ -108,7 +108,7 @@ function M.set_keymap(mapping)
   local mode = (mapping.mode and Utils.ensure_list(mapping.mode)) or { "n" }
 
   local opts = {
-    desc = type(mapping.desc) == "function" and mapping.desc() or (mapping.desc or ""),
+    desc = Utils.ensure_string(mapping.desc, ""),
   }
 
   for _, field in ipairs({ "buffer", "silent", "remap", "expr" }) do
@@ -204,7 +204,7 @@ end
 ---Get description for the mapping
 ---@return string|function
 function Toggle:desc()
-  if type(self.mapping.desc) == "function" then
+  if Utils.type(self.mapping.desc, "function") then
     return function()
       self:refresh()
       return self.mapping.desc(self.state)
@@ -321,7 +321,7 @@ function M.create_abbrev(word, new_word, opts)
     end
 
     -- Combine with custom condition
-    if condition and type(condition) == "function" then
+    if condition and Utils.type(condition, "function") then
       cond = cond and condition()
     end
     return cond and new_word or word

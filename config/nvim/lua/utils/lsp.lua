@@ -187,7 +187,7 @@ function M.has(buffer, method)
   end
 
   -- Handle case where method is a table (array) of methods
-  if type(method) == "table" then
+  if Utils.type(method, "table") then
     for _, m in ipairs(method) do
       if M.has(buffer, m) then
         return true

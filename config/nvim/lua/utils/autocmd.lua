@@ -13,9 +13,9 @@ local M = setmetatable({}, {
 ---@field desc? string
 
 -----------------------------------------------------------------------------
----@param name string|integer
+---@param name string|number
 ---@param opts? table
----@return integer
+---@return number
 -----------------------------------------------------------------------------
 function M.augroup(name, opts)
   if type(name) == "number" then

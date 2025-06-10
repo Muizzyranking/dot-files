@@ -81,7 +81,7 @@ return {
       highlight = {
         enable = true,
         disable = function(_, buf)
-          return vim.b[buf].bigfile or vim.fn.win_gettype() == "command"
+          return vim.b[buf].bigfile or Utils.evaluate(vim.fn.win_gettype(), "command")
         end,
         additional_vim_regex_highlighting = false,
       },

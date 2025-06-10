@@ -41,7 +41,7 @@ return {
               function()
                 local diag = vim.diagnostic.get(bufnr)
                 local ruff_diags = vim.tbl_filter(function(d)
-                  return d.source and d.source:lower() == "ruff"
+                  return d.source and Utils.evaluate(d.source:lower(), "ruff")
                 end, diag)
                 if #ruff_diags > 0 then
                   Utils.lsp.action["source.fixAll.ruff"]()
