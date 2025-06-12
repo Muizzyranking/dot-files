@@ -158,7 +158,8 @@ return {
     -- Can be boolean or a function
     format_on_save = true,
     -- Alternative:
-    -- format_on_save = function(bufnr)
+    -- format_on_save = function()
+    --   local bufnr = vim.api.nvim_get_current_buf()
     --   return vim.api.nvim_buf_get_option(bufnr, "filetype") == "typescript"
     -- end
   },

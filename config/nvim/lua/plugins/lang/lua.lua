@@ -1,7 +1,6 @@
 return {
   name = "lua",
   lsp = {
-    inlay_hint = true,
     servers = {
       lua_ls = {
         settings = {
@@ -50,6 +49,7 @@ return {
         local ok, _ = pcall(vim.cmd, "help " .. word)
         if not ok then
           Utils.notify.warn("No help found for: " .. word)
+          Snacks.picker.help()
         end
       end,
       desc = "Show help",

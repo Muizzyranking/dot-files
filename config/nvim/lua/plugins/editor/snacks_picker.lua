@@ -204,13 +204,13 @@ return {
         end,
         desc = "Diagnostics",
       },
-      {
-        "<leader>sh",
-        function()
-          Snacks.picker.help()
-        end,
-        desc = "Help Pages",
-      },
+      -- {
+      --   "<leader>sh",
+      --   function()
+      --     Snacks.picker.help()
+      --   end,
+      --   desc = "Help Pages",
+      -- },
       {
         "<leader>si",
         function()

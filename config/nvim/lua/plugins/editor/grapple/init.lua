@@ -48,7 +48,7 @@ return {
           Utils.map.add_to_wk({
             {
               "<leader>m" .. i,
-              desc = "removed",
+              hidden = true,
             },
           })
         end)
