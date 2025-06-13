@@ -12,7 +12,7 @@ end
 -- set colorscheme before loading lazy.nvim
 -- the colorscheme will be applied after lazy.nvim is loaded
 -- setting colorsheme here allows to use the colorscheme variable in the lazy.nvim config
-Utils.ui.set_colorscheme("onedark")
+Utils.ui.set_colorscheme("rose-pine")
 Utils.hl.setup()
 r("globals")
 r("options")

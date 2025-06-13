@@ -5,13 +5,6 @@ local M = setmetatable({}, {
   end,
 })
 
----@class utils.autocmd.autocmd
----@field events? string|string[]
----@field pattern string|string[]
----@field group string|integer
----@field callback fun(event: table)
----@field desc? string
-
 -----------------------------------------------------------------------------
 ---@param name string|number
 ---@param opts? table
@@ -29,7 +22,7 @@ end
 
 --------------------------------------------------------------------------
 ---@param name string
----@param autocmds utils.autocmd.autocmd[]
+---@param autocmds autocmd.Create[]
 ---@param events string|string[]
 --------------------------------------------------------------------------
 function M.autocmd_augroup(name, autocmds, events)
@@ -37,37 +30,30 @@ function M.autocmd_augroup(name, autocmds, events)
   for _, au in ipairs(autocmds) do
     local autocmd_events = au.events or events
     au.events = nil
-    if not autocmd_events then
-      error("No events specified for autocmd in group: " .. name)
-    end
-
-    au.callback = au.callback or function()
-      if au.cmd then
-        vim.cmd(au.cmd)
+    if autocmd_events then
+      au.callback = au.callback or function()
+        if au.cmd then
+          vim.cmd(au.cmd)
+        end
       end
+      au.group = group
+      vim.api.nvim_create_autocmd(autocmd_events, au)
+    else
+      Utils.notify.error("No events specified for autocmd in group: " .. name)
     end
-    au.group = group
-    vim.api.nvim_create_autocmd(autocmd_events, au)
   end
 end
-
----@class utils.autocmd.create
----@field callback? fun(event: table)
----@field cmd? string
----@field pattern? string|string[]
----@field group? string|integer
----@field once? boolean
----@field desc? string
 
 --------------------------------------------------------------------------
 -- create an autocmd
 ---@param event string|string[]
----@param opts? utils.autocmd.create
+---@param opts? autocmd.Create
 --------------------------------------------------------------------------
 function M.create(event, opts)
   opts = opts or {}
   if not opts.callback and not opts.cmd then
-    error("Either callback or cmd must be provided")
+    Utils.notify.error("No callback or cmd provided for autocmd")
+    return
   end
   event = Utils.ensure_list(event)
   local group = opts.group and M.augroup(opts.group)

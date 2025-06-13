@@ -82,7 +82,7 @@ return {
         vim.g.rustaceanvim = vim.tbl_deep_extend("keep", vim.g.rustaceanvim or {}, opts or {})
         if vim.fn.executable("rust-analyzer") == 0 then
           Utils.notify.error(
-            "**rust-analyzer** not found in PATH, please install it.\nhttps://rust-analyzer.github.io/",
+            { "**rust-analyzer** not found in PATH, please install it.", "https://rust-analyzer.github.io/" },
             { title = "rustaceanvim" }
           )
         end

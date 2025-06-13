@@ -93,3 +93,12 @@
 ---@field title? string # Title for the notification
 ---@field restart? boolean # Whether to restart the service
 ---@field cond? fun(): boolean # Condition function to check if the command should be run
+
+---@class autocmd.Create
+---@field callback? fun(event: table) # Callback function for the autocmd
+---@field cmd? string # Command to run when the autocmd is triggered
+---@field pattern? string|string[] # Pattern(s) to match for the autocmd
+---@field group? string|integer # Group name or ID for the autocmd
+---@field once? boolean # Whether the autocmd should only run once
+---@field desc? string # Description of the autocmd
+---@field events? string|string[]

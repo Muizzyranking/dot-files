@@ -77,7 +77,7 @@ function M.toggle(buf, enable)
   }
 
   Utils.notify[enabled and "info" or "warn"](
-    table.concat(lines, "\n"),
+    lines,
     { title = "AutoFormat (" .. (enabled and "enabled" or "disabled") .. ")" }
   )
 end

@@ -44,13 +44,23 @@ function M.setup()
     WinBarNc = {},
   })
 
-  vim.api.nvim_create_autocmd("ColorScheme", {
-    group = vim.api.nvim_create_augroup("HL ColorScheme", { clear = true }),
-    callback = function()
-      M.set_hl()
-    end,
+  Utils.autocmd.autocmd_augroup("custom_hl", {
+    {
+      group = "custom_hl",
+      callback = function()
+        M.set_hl()
+      end,
+      events = { "ColorScheme", "UiEnter" },
+    },
+    {
+      group = "custom_hl",
+      callback = function()
+        M.set_hl()
+      end,
+      events = { "User" },
+      pattern = "VeryLazy",
+    },
   })
-  M.set_hl()
 end
 
 return M
