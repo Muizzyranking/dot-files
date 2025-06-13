@@ -72,7 +72,6 @@
 ---@field silent? boolean # Whether the mapping should be silent
 ---@field remap? boolean # Whether the mapping should be remappable
 ---@field expr? boolean # Whether the mapping is an expression
----@field unique? boolean # Whether to error on duplicate mappings
 ---@field icon? string|table # Icon for which-key integration
 
 ---@class map.ToggleOpts
@@ -87,3 +86,10 @@
 ---@field notify? boolean # Whether to show notifications
 ---@field set_key? boolean # Whether to set the keymap immediately
 ---@field [string] any # Additional fields to pass to the keymap
+
+---@class map.ReloadConfig
+---@field cmd string # Command to reload the configuration
+---@field buffer number # Buffer number to reload
+---@field title? string # Title for the notification
+---@field restart? boolean # Whether to restart the service
+---@field cond? fun(): boolean # Condition function to check if the command should be run
