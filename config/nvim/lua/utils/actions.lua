@@ -66,7 +66,7 @@ function M.toggle_tmux(state)
     local bar_state = state and "Hide" or "Show"
     Utils.notify(("%s Tmux Bar"):format(bar_state), notify_opts)
   else
-    Utils.notify.warn("Error toggling mouse mode: " .. output, notify_opts)
+    Utils.notify.warn("Error toggling tmux: " .. output, notify_opts)
   end
 end
 

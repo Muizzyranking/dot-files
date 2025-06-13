@@ -5,10 +5,15 @@ local transparency = function()
   return true
 end
 
+-- custom specs
+-- set: the name of the colorscheme use to set the colorscheme
+--      if the name of the colorscheme matches the applied colorscheme, then it will be installed
+-- install: if true, the colorscheme will be installed regardless of the applied colorscheme
 local M = {
   {
     "olimorris/onedarkpro.nvim",
     set = "onedark",
+    install = true,
     opts = {
       options = {
         transparency = true,
@@ -129,14 +134,24 @@ local M = {
 }
 
 -- allows one colorscheme to be installed at a time depending on the active colorscheme
+local ret = {}
 for _, item in ipairs(M) do
-  local name = Utils.ensure_list(item.set)
-  for _, n in ipairs(name) do
-    if n == Utils.ui.colorscheme then
-      item.lazy = false
-      item.priority = 1000
-      item.set = nil
-      return item
+  if item.install == true then
+    table.insert(ret, item)
+  else
+    local name = Utils.ensure_list(item.set)
+    for _, n in ipairs(name) do
+      if n == Utils.ui.colorscheme then
+        item.lazy = false
+        item.priority = 1000
+        table.insert(ret, item)
+      end
     end
   end
 end
+
+for _, item in ipairs(ret) do
+  item.set = nil
+  item.install = nil
+end
+return ret
