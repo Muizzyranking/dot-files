@@ -135,7 +135,7 @@ end
 
 ---------------------------------------------------------------
 ---@param mappings map.KeymapOpts[] # Keymap options
----@param opts? table #  Shared options for all mappings
+---@param opts? map.KeymapOpts #  Shared options for all mappings
 ---------------------------------------------------------------
 function M.set_keymaps(mappings, opts)
   if type(mappings) ~= "table" then
@@ -214,7 +214,7 @@ function Toggle:desc()
 end
 
 ---Get icon
----@return function
+---@return fun(): table
 function Toggle:icon()
   return function()
     self:refresh()
@@ -231,7 +231,7 @@ end
 ---------------------------------------------------------------
 ---Create a toggle mapping
 ---@param mapping map.ToggleOpts
----@return map.KeymapOpts|nil
+---@return map.KeymapOpts?
 ---------------------------------------------------------------
 function M.toggle_map(mapping)
   local toggle = Toggle:new(mapping)
@@ -266,7 +266,7 @@ end
 ---------------------------------------------------------------
 ---Create multiple toggle mappings
 ---@param mappings map.ToggleOpts[]
----@return table[]|nil # success or mapping tables
+---@return table[]? # success or mapping tables
 ---------------------------------------------------------------
 function M.toggle_maps(mappings, opts)
   if type(mappings) ~= "table" then
@@ -353,7 +353,7 @@ end
 
 ---------------------------------------------------------------
 ---Add mappings to which-key without setting them
----@param mappings table|table[] Which-key mapping definitions
+---@param mappings wk.Spec # Which-key mapping definitions
 ---------------------------------------------------------------
 function M.add_to_wk(mappings)
   if type(mappings) ~= "table" then
@@ -372,9 +372,32 @@ function M.add_to_wk(mappings)
   end
 end
 
+---------------------------------------------------------------
+-- Hide mappings in which-key window
+---@param mappings wk.Spec # Which-key mapping definitions
+---------------------------------------------------------------
+function M.hide_from_wk(mappings)
+  if type(mappings) ~= "table" then
+    return
+  end
+
+  for _, map in ipairs(mappings) do
+    if type(map) == "string" then
+      mappings[_] = {
+        [1] = map,
+        hidden = true,
+      }
+    elseif type(map) == "table" then
+      map.hidden = true
+    end
+  end
+
+  M.add_to_wk(mappings)
+end
+
 -----------------------------------
 -- reloads configs e.g kitty
----@param opts table
+---@param opts map.ReloadConfig
 -----------------------------------
 function M.reload_config(opts)
   opts = opts or {}

@@ -41,22 +41,17 @@ return {
   config = function(_, opts)
     require("grapple").setup(opts)
 
-    local function set_index_keys()
+    local function set_num_keys()
       for i = 1, 5 do
         pcall(function()
           vim.keymap.del("n", "<leader>m" .. i)
-          Utils.map.add_to_wk({
-            {
-              "<leader>m" .. i,
-              hidden = true,
-            },
-          })
+          Utils.map.hide_from_wk({ "<leader>m" .. i })
         end)
       end
-      local numeric_keys = {}
+      local num_keys = {}
       for i = 1, 5 do
         if require("grapple").exists({ index = i }) then
-          table.insert(numeric_keys, {
+          table.insert(num_keys, {
             "<leader>m" .. i,
             function()
               require("grapple").select({ index = i })
@@ -66,8 +61,8 @@ return {
         end
       end
 
-      if #numeric_keys > 0 then
-        Utils.map.set_keymaps(numeric_keys, { icon = "󰓹 ", color = "green" })
+      if #num_keys > 0 then
+        Utils.map.set_keymaps(num_keys, { icon = "󰓹 ", color = "green" })
       end
     end
     local function grapple_update_maps(method, options)
@@ -75,7 +70,7 @@ return {
       method = method or "tag"
       local ok, result = pcall(function()
         require("grapple")[method](options)
-        set_index_keys()
+        set_num_keys()
       end)
       if ok then
         return result
@@ -121,10 +116,10 @@ return {
       },
     }
     Utils.map.set_keymaps(keys, { icon = "󰓹 ", color = "green" })
-    set_index_keys()
-    vim.api.nvim_create_autocmd({ "BufEnter" }, {
+    set_num_keys()
+    Utils.autocmd("BufEnter", {
       callback = function()
-        set_index_keys()
+        set_num_keys()
       end,
     })
   end,
