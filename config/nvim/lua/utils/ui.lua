@@ -177,6 +177,7 @@ function M.refresh(close_floats)
   pcall(vim.cmd, "nohlsearch")
   pcall(vim.cmd, "diffupdate")
   pcall(vim.cmd, "normal! \\<C-L>")
+  vim.cmd("redraw!")
 end
 
 M.logo = {}

@@ -4,7 +4,7 @@ vim.keymap.set("n", "q", function()
     return "q"
   end
 
-  if Utils.has("unufied.nvim") then
+  if Utils.has("unified.nvim") then
     local buffer = Utils.ensure_buf(0)
     local un_diff = require("unified.diff")
     local is_diff_displayed = un_diff.is_diff_displayed(buffer)

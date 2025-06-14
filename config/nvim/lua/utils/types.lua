@@ -73,6 +73,7 @@
 ---@field remap? boolean # Whether the mapping should be remappable
 ---@field expr? boolean # Whether the mapping is an expression
 ---@field icon? string|table # Icon for which-key integration
+---@field conds table<number, function|boolean> # Conditions for the mapping
 
 ---@class map.ToggleOpts
 ---@field [1] string # The left-hand side of the mapping
