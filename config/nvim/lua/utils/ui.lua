@@ -170,8 +170,10 @@ function M.close_floats()
     end)
 end
 
-function M.refresh()
-  M.close_floats()
+function M.refresh(close_floats)
+  if close_floats then
+    M.close_floats()
+  end
   pcall(vim.cmd, "nohlsearch")
   pcall(vim.cmd, "diffupdate")
   pcall(vim.cmd, "normal! \\<C-L>")

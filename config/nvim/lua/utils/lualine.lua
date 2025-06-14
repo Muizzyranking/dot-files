@@ -169,6 +169,13 @@ M.formatters = {
   cond = M.conditions.hide_in_width,
 }
 
+M.diff = {
+  function()
+    local cond = vim.wo.diff
+    return cond and " " or ""
+  end,
+  color = M.fg("DiagnosticOk"),
+}
 ------------------------------------------------------------------------------
 -- Defines the root directory component for the statusline
 ------------------------------------------------------------------------------
