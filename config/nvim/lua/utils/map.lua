@@ -104,7 +104,21 @@ function M.set_keymap(mapping)
     return
   end
 
+  if mapping.conds then
+    local conditions = Utils.ensure_list(mapping.conds)
+    for _, condition in ipairs(conditions) do
+      if not Utils.evaluate(condition) then
+        return
+      end
+    end
+  end
+
   local lhs, rhs = mapping[1], mapping[2]
+  if Utils.type(rhs, "function") then
+    rhs = function()
+      return rhs(Utils.ensure_buf(mapping.buffer or 0))
+    end
+  end
   local mode = (mapping.mode and Utils.ensure_list(mapping.mode)) or { "n" }
 
   local opts = {
@@ -180,7 +194,7 @@ end
 
 ---Refresh current buffer and state
 function Toggle:refresh()
-  self.buf = Utils.ensure_buf(0)
+  self.buf = Utils.ensure_buf(self.mapping.buffer or 0)
   self.state = self.mapping.get_state(self.buf)
 end
 
@@ -316,13 +330,13 @@ function M.create_abbrev(word, new_word, opts)
     if builtin then
       local built_in_fn = DEFAULT_ABBREV_CONDS[builtin]
       if built_in_fn then
-        cond = built_in_fn()
+        cond = Utils.evaluate(built_in_fn)
       end
     end
 
     -- Combine with custom condition
-    if condition and Utils.type(condition, "function") then
-      cond = cond and condition()
+    if condition then
+      cond = cond and Utils.evaluate(condition)
     end
     return cond and new_word or word
   end, opts)

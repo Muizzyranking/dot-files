@@ -64,7 +64,7 @@ set("o", "N", "'nN'[v:searchforward]",      { expr = true, desc = "Prev Search R
 ------------------------
 -- editing
 ------------------------
-vim.keymap.set("i", "<C-Enter>", function()
+set("i", "<C-Enter>", function()
   vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>o", true, false, true), "n", true)
 end, { silent = true })
 
@@ -143,8 +143,9 @@ local maps = {
   },
   {
     "<leader>ur",
-    Utils.ui.refresh,
-    Utils.ui.close_floats,
+    function()
+      Utils.ui.refresh(true)
+    end,
     desc = "Refresh UI",
     icon = { icon = " ", color = "blue" },
   },
@@ -208,67 +209,62 @@ local maps = {
   },
   {
     "<leader>cf",
-    function()
-      Utils.format({ force = true })
+    function(buf)
+      Utils.format({ force = true, bufnr = buf })
     end,
     desc = "Format buffer",
     icon = { icon = " ", color = "green" },
     mode = { "n", "v" },
   },
+  {
+    "<leader>go",
+    function()
+      vim.fn.system({ "open-repo", "-b" })
+    end,
+    desc = "Open repo in browser",
+    icon = { icon = "󰌧 ", color = "red" },
+    conds = {
+      Utils.is_executable("open-repo"),
+      Utils.is_in_git_repo,
+    },
+  },
+  {
+    "<leader>gb",
+    function()
+      Snacks.git.blame_line()
+    end,
+    desc = "Git blame",
+    icon = { icon = " " },
+    conds = { Utils.is_in_git_repo },
+  },
+  {
+    "<leader>gg",
+    function()
+      Snacks.lazygit()
+    end,
+    desc = "Lazygit",
+    icon = { icon = " ", color = "orange" },
+    conds = { Utils.is_in_git_repo, Utils.is_executable("lazygit") },
+  },
+  {
+    "<leader>gc",
+    function()
+      Snacks.lazygit.log()
+    end,
+    desc = "Lazygit log",
+    icon = { icon = " ", color = "orange" },
+    conds = { Utils.is_in_git_repo, Utils.is_executable("lazygit") },
+  },
+  {
+    "<leader>gC",
+    function()
+      Snacks.lazygit.log_file()
+    end,
+    desc = "Lazygit log (current file)",
+    icon = { icon = " ", color = "orange" },
+    conds = { Utils.is_in_git_repo, Utils.is_executable("lazygit") },
+  },
 }
-
-if Utils.is_in_git_repo() then
-  vim.list_extend(maps, {
-    {
-      "<leader>go",
-      function()
-        if Utils.is_executable("open-repo") then
-          vim.fn.system({ "open-repo", "-b" })
-        else
-          Utils.notify.warn("Command to open repo not available")
-        end
-      end,
-      desc = "Open repo in browser",
-      icon = { icon = "󰌧 ", color = "red" },
-    },
-    {
-      "<leader>gb",
-      function()
-        Snacks.git.blame_line()
-      end,
-      desc = "Git blame",
-      icon = { icon = " " },
-    },
-  })
-  if Utils.is_executable("lazygit") then
-    vim.list_extend(maps, {
-      {
-        "<leader>gg",
-        function()
-          Snacks.lazygit()
-        end,
-        desc = "Lazygit",
-        icon = { icon = " ", color = "orange" },
-      },
-      {
-        "<leader>gc",
-        function()
-          Snacks.lazygit.log()
-        end,
-        desc = "Lazygit log",
-        icon = { icon = " ", color = "orange" },
-      },
-      {
-        "<leader>gC",
-        function()
-          Snacks.lazygit.log_file()
-        end,
-        desc = "Lazygit log (current file)",
-        icon = { icon = " ", color = "orange" },
-      },
-    })
-  end
-end
 
 set.set_keymaps(maps, { silent = true })
 
@@ -379,27 +375,23 @@ local toggle_maps = {
       disabled = "red",
     },
   },
+  {
+    "<leader>ub",
+    get_state = function()
+      local handle = io.popen("tmux display-message -p '#{status}'")
+      local status = handle:read("*a")
+      handle:close()
+      return status:match("on")
+    end,
+    change_state = function(state)
+      Utils.actions.toggle_tmux(state)
+    end,
+    desc = function(state)
+      return ("%s Tmux Bar"):format(state and "Hide" or "Show")
+    end,
+    notify = false,
+    conds = { Utils.is_in_tmux },
+  },
 }
-
-if Utils.is_in_tmux() then
-  vim.list_extend(toggle_maps, {
-    {
-      "<leader>ub",
-      get_state = function()
-        local handle = io.popen("tmux display-message -p '#{status}'")
-        local status = handle:read("*a")
-        handle:close()
-        return status:match("on")
-      end,
-      change_state = function(state)
-        Utils.actions.toggle_tmux(state)
-      end,
-      desc = function(state)
-        return ("%s Tmux Bar"):format(state and "Hide" or "Show")
-      end,
-      notify = false,
-    },
-  })
-end
 
 set.toggle_maps(toggle_maps)
