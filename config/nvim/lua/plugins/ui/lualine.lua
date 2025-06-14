@@ -67,6 +67,7 @@ return {
           {
             "grapple",
           },
+          Utils.lualine.diff,
         },
         lualine_x = {
           {

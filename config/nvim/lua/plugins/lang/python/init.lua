@@ -70,15 +70,18 @@ return {
           end
 
           -- Apply Python path to client settings
+          local client_settings
           if client.settings then
             client.settings = vim.tbl_deep_extend("force", client.settings, { python = { pythonPath = python_path } })
+            client_settings = client.settings
           elseif client.config.settings then
             client.config.settings =
               vim.tbl_deep_extend("force", client.config.settings, { python = { pythonPath = python_path } })
+            client_settings = client.config.settings
           end
 
           -- Force configuration update
-          client.notify("workspace/didChangeConfiguration", { settings = nil })
+          client.notify("workspace/didChangeConfiguration", { settings = client_settings })
         end, "basedpyright")
       end,
       ruff_lsp = function()
