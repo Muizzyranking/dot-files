@@ -55,33 +55,28 @@ return {
       end,
       basedpyright = function()
         Utils.lsp.on_attach(function(client, bufnr)
-          local venv_path = vim.b[bufnr].python_venv
-          local python_path = vim.b[bufnr].python_path
+          local current_python = client.config.settings
+            and client.config.settings.python
+            and client.config.settings.python.pythonPath
 
-          if not venv_path or not python_path then
-            local root = Utils.root(bufnr)
-            local venv = require("plugins.lang.python.venv").detect_and_activate_venv(root)
-            if venv then
-              venv_path = venv.venv_path
-              python_path = venv.python_path
-            else
-              return
+          local root = Utils.root(bufnr)
+          local venv = require("plugins.lang.python.venv").detect_and_activate_venv(root)
+          local new_python = venv and venv.python_path
+
+          if new_python and new_python ~= current_python then
+            local client_settings
+            if client.settings then
+              client.settings = vim.tbl_deep_extend("force", client.settings, { python = { pythonPath = new_python } })
+              client_settings = client.settings
+            elseif client.config.settings then
+              client.config.settings =
+                vim.tbl_deep_extend("force", client.config.settings, { python = { pythonPath = new_python } })
+              client_settings = client.config.settings
             end
-          end
 
-          -- Apply Python path to client settings
-          local client_settings
-          if client.settings then
-            client.settings = vim.tbl_deep_extend("force", client.settings, { python = { pythonPath = python_path } })
-            client_settings = client.settings
-          elseif client.config.settings then
-            client.config.settings =
-              vim.tbl_deep_extend("force", client.config.settings, { python = { pythonPath = python_path } })
-            client_settings = client.config.settings
+            -- Force configuration update
+            client.notify("workspace/didChangeConfiguration", { settings = client_settings })
           end
-
-          -- Force configuration update
-          client.notify("workspace/didChangeConfiguration", { settings = client_settings })
         end, "basedpyright")
       end,
       ruff_lsp = function()
@@ -186,17 +181,6 @@ return {
           buffer = event.buf,
           builtin = "lsp_keyword",
         })
-      end,
-    },
-    {
-      pattern = "python",
-      callback = function(e)
-        local root = Utils.root(e.buf)
-        local venv = require("plugins.lang.python.venv").detect_and_activate_venv(root)
-        if venv then
-          vim.b[e.buf].python_venv = venv.venv_path
-          vim.b[e.buf].python_path = venv.python_path
-        end
       end,
     },
     {
