@@ -114,11 +114,6 @@ function M.set_keymap(mapping)
   end
 
   local lhs, rhs = mapping[1], mapping[2]
-  if Utils.type(rhs, "function") then
-    rhs = function()
-      return rhs(Utils.ensure_buf(mapping.buffer or 0))
-    end
-  end
   local mode = (mapping.mode and Utils.ensure_list(mapping.mode)) or { "n" }
 
   local opts = {

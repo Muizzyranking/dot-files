@@ -216,7 +216,7 @@ end
 
 -----------------------------------------------------------------
 --- Ensures a valid buffer number, defaulting to current buffer if none provided
----@param buf? number|nil # The buffer number to validate
+---@param buf? number # The buffer number to validate
 ---@return number # The validated buffer number
 -----------------------------------------------------------------
 function M.ensure_buf(buf)

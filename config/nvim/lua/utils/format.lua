@@ -8,7 +8,7 @@ local M = setmetatable({}, {
 local api = vim.api
 ----------------------------------------------------
 -- Check if autoformat is enabled for the given buffer
----@param buf number|nil The buffer to check. Defaults to the current buffer if nil.
+---@param buf? number The buffer to check. Defaults to the current buffer if nil.
 ---@return boolean Whether autoformat is enabled for the buffer.
 ----------------------------------------------------
 function M.enabled(buf)
