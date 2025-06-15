@@ -209,8 +209,8 @@ local maps = {
   },
   {
     "<leader>cf",
-    function(buf)
-      Utils.format({ force = true, bufnr = buf })
+    function()
+      Utils.format({ force = true, bufnr = Utils.ensure_buf(0) })
     end,
     desc = "Format buffer",
     icon = { icon = " ", color = "green" },

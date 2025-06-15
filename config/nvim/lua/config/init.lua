@@ -1,3 +1,5 @@
+---@diagnostic disable-next-line: duplicate-set-field
+vim.deprecate = function() end -- disable deprecate warnings
 -- global variables
 _G.Utils = require("utils")
 -- stylua: ignore
