@@ -13,7 +13,7 @@ return {
     "python",
     -- "rust",
     -- "solidity",
-    -- "sql",
+    "sql",
     "typescript",
   }),
 }

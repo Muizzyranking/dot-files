@@ -85,7 +85,8 @@ return {
     -- you can do any additional lsp server setup here
     -- return true if you don't want this server to be setup with lspconfig
     setup = {
-      typescript = function()
+      ---@diagnostic disable-next-line: unused-local
+      typescript = function(server_name, server_config)
         -- do some setup
         return true
       end,
