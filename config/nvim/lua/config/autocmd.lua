@@ -107,9 +107,22 @@ autocmd("TextYankPost", {
 })
 
 -----------------------------------------------------------
+-- jump to last accessed window on closing the current one.
+-----------------------------------------------------------
+autocmd("WinClosed", {
+  nested = true,
+  group = "jump_to_last_window",
+  callback = function()
+    if vim.fn.expand("<amatch>") == vim.fn.win_getid() then
+      vim.cmd("wincmd p")
+    end
+  end,
+})
+
+-----------------------------------------------------------
 -- Remember folds when opening a file
 -----------------------------------------------------------
-Utils.autocmd.autocmd_augroup("remember_folds", {
+autocmd.autocmd_augroup("remember_folds", {
   {
     events = { "BufWinLeave" },
     pattern = "*",
@@ -338,6 +351,33 @@ autocmd({ "BufEnter", "BufWritePost", "TextChanged", "FileType" }, {
     end
     vim.cmd("TSBufEnable incremental_selection")
   end,
+})
+
+autocmd.on_user_event("PersistenceLoadPost", function()
+  for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
+    local wins = vim.tbl_filter(function(win)
+      return vim.fn.win_gettype(win) == ""
+    end, vim.api.nvim_tabpage_list_wins(tab))
+
+    if #wins > 1 then
+      for _, win in ipairs(wins) do
+        local buf = vim.api.nvim_win_get_buf(win)
+        local line_count = vim.api.nvim_buf_line_count(buf)
+        if
+          line_count == 0
+          or line_count == 1
+            and vim.api.nvim_buf_get_lines(buf, 0, 1, false)[1] == ""
+            and not vim.uv.fs_stat(vim.api.nvim_buf_get_name(buf))
+        then
+          vim.api.nvim_win_close(win, false)
+        end
+      end
+    end
+  end
+end, {
+  group = "clear_empty_windows",
+  desc = "Close empty windows after loading session.",
+  nested = true,
 })
 
 require("utils.bigfile").setup()
