@@ -1,5 +1,5 @@
 require("plugins.editor.git.keys")
-local M = {
+local plugins = {
   {
     "lewis6991/gitsigns.nvim",
     event = "LazyFile",
@@ -140,12 +140,10 @@ local M = {
         "<leader>gd",
         function()
           require("unified.diff").show_current()
-          vim.wo.diff = true
         end,
         desc = "Unified Diff",
       },
     },
-    cond = Utils.is_in_git_repo,
     opts = {
       signs = {
         add = "│",
@@ -166,8 +164,8 @@ local M = {
     },
   },
 }
-for _, plugin in ipairs(M) do
+for _, plugin in ipairs(plugins) do
   plugin.cond = Utils.is_in_git_repo
 end
 
-return M
+return plugins

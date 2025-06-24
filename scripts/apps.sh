@@ -150,6 +150,8 @@ if command_exists "gsettings"; then
     gsettings set org.gnome.desktop.interface gtk-theme "Catppuccin-Mocha"
     gsettings set org.gnome.desktop.wm.preferences theme "Catppuccin-Mocha"
     gsettings set org.gnome.desktop.interface cursor-theme "catppuccin-mocha-peach-cursors"
+    gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
+    gsettings set org.gnome.desktop.interface color-scheme "dark"
     if [[ -d "$icon_dir/Reversal" ]]; then
         gsettings set org.gnome.desktop.interface icon-theme "Reversal"
     fi
