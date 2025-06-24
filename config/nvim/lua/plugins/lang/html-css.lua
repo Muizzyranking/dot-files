@@ -6,7 +6,6 @@ return {
     "scss",
     "sass",
     "less",
-    "htmldjango",
   },
   lsp = {
     servers = {
@@ -68,7 +67,6 @@ return {
     parsers = {
       "html",
       "css",
-      "htmldjango",
     },
   },
   options = {
