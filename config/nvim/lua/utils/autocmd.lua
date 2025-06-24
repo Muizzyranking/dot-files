@@ -27,17 +27,12 @@ end
 --------------------------------------------------------------------------
 function M.autocmd_augroup(name, autocmds, events)
   local group = M.augroup(name)
-  for _, au in ipairs(autocmds) do
-    local autocmd_events = au.events or events
-    au.events = nil
+  for _, opts in ipairs(autocmds) do
+    local autocmd_events = opts.events or events
+    opts.events = nil
     if autocmd_events then
-      au.callback = au.callback or function()
-        if au.cmd then
-          vim.cmd(au.cmd)
-        end
-      end
-      au.group = group
-      vim.api.nvim_create_autocmd(autocmd_events, au)
+      opts.group = group
+      M.create(autocmd_events, opts)
     else
       Utils.notify.error("No events specified for autocmd in group: " .. name)
     end
@@ -56,21 +51,22 @@ function M.create(event, opts)
     return
   end
   event = Utils.ensure_list(event)
-  local group = opts.group and M.augroup(opts.group)
-  local once = opts.once
-  local desc = opts.desc
-  local pattern = opts.pattern
-  local callback = opts.callback or function()
-    vim.cmd(opts.cmd or "")
+  local auopts = {
+    group = opts.group and M.augroup(opts.group),
+    callback = opts.callback or function()
+      if opts.cmd then
+        vim.cmd(opts.cmd)
+      end
+    end,
+  }
+  opts.cmd = nil
+  for key, value in pairs(opts) do
+    if auopts[key] == nil then
+      auopts[key] = value
+    end
   end
 
-  return vim.api.nvim_create_autocmd(event, {
-    pattern = pattern,
-    group = group,
-    callback = callback,
-    once = once,
-    desc = desc,
-  })
+  return vim.api.nvim_create_autocmd(event, auopts)
 end
 
 --------------------------------------------------------------------------
@@ -98,19 +94,34 @@ end
 -- Execute a user-defined event
 ---@param patterns string|string[]
 ---@param fn fun(event: table)
----@param group? string|integer
+---@param group? string|integer|table
+---@param opts? table
 ---@return number # autocmd ID
 --------------------------------------------------------------------------
-function M.on_user_event(patterns, fn, group)
-  group = group and M.augroup(group) or nil
+function M.on_user_event(patterns, fn, group, opts)
   patterns = Utils.ensure_list(patterns)
-  return vim.api.nvim_create_autocmd("User", {
+  if Utils.type(group, "table") then
+    opts = group
+    group = nil
+  end
+  opts = opts or {}
+  group = group or opts.group
+  group = group and M.augroup(group)
+  local options = {
     pattern = patterns,
-    group = group or nil,
+    group = group,
     callback = function(event)
-      fn(event)
+      if type(fn) == "function" then
+        fn(event)
+      end
     end,
-  })
+  }
+  for key, value in pairs(opts) do
+    if options[key] == nil then
+      options[key] = value
+    end
+  end
+  return vim.api.nvim_create_autocmd("User", options)
 end
 
 --------------------------------------------------------------------------
