@@ -44,7 +44,7 @@ if vim.g.neovide then
   vim.g.neovide_transparency   = 1
   vim.g.transparency           = 0.8
   vim.g.neovide_window_blurred = true
-  vim.o.guifont = "Maple Mono NF:h11"
+  vim.o.guifont                = "Maple Mono NF:h11"
 end
 -----------------------------------------------------------
 -- Undo and Backup
@@ -98,6 +98,7 @@ o.backspace                    = { "eol", "indent", "start" } -- Allow backspace
 o.iskeyword:append("-") -- Treat dash as a word character
 o.splitright                   = true -- Configure how new splits should be opened
 o.splitbelow                   = true -- Configure how new splits should be opened
+o.splitkeep                    = 'screen'
 o.sessionoptions               = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" } -- Set session options
 o.spelllang                    = { "en" } -- Set spell languages
 o.spell                        = false -- Disable spell checking by default

@@ -14,8 +14,8 @@ set("v", "<A-k>", ":m '<-2<cr>gv=gv",        { desc = "Move Up" })
 ------------------------
 -- navigation
 ------------------------
-set({ "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
-set({ "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+set({ "x" }, "j", "v:count == 0 ? 'gj' : 'j'",      { expr = true, silent = true })
+set({ "x" }, "k", "v:count == 0 ? 'gk' : 'k'",      { expr = true, silent = true })
 set({ "n" }, "<C-h>", "<C-w>h",                     { desc = "Go to left window", remap = true })
 set({ "n" }, "<C-j>", "<C-w>j",                     { desc = "Go to lower window", remap = true })
 set({ "n" }, "<C-k>", "<C-w>k",                     { desc = "Go to upper window", remap = true })
@@ -45,9 +45,10 @@ set("n", "<C-Right>", "<cmd>vertical resize +2<cr>", { desc = "Increase Window W
 ------------------------
 -- saving and quitting
 ------------------------
-set({ "i", "x", "n", "s" }, "<C-s>", "<cmd>update<cr><esc>", { desc = "Save File" })
-set("n", "<C-q>", "<cmd>q<cr>",       { desc = "Quit file" })
-set("n", "<leader>qq", "<cmd>qa<cr>", { desc = "Save all and quit", silent = true })
+set("n", "<C-S>", "<Cmd>silent! update | redraw<CR>",               { desc = "Save" })
+set({ "i", "x" }, "<C-S>", "<Esc><Cmd>silent! update | redraw<CR>", { desc = "Save and go to Normal mode" })
+set("n", "<C-q>", "<cmd>q<cr>",                                     { desc = "Quit file" })
+set("n", "<leader>qq", "<cmd>qa<cr>",                               { desc = "Save all and quit", silent = true })
 
 ------------------------
 -- search
@@ -59,6 +60,17 @@ set("o", "n", "'Nn'[v:searchforward]",      { expr = true, desc = "Next Search R
 set("n", "N", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Prev Search Result" })
 set("x", "N", "'nN'[v:searchforward]",      { expr = true, desc = "Prev Search Result" })
 set("o", "N", "'nN'[v:searchforward]",      { expr = true, desc = "Prev Search Result" })
+
+
+-- set("i", "jj", "<Esc>",     { desc = "Go to normal mode" }) -- esc with jj
+set("n", "<BS>", '"_ciw',           { desc = "Change inner word" }) -- change word
+set({ "i", "c" }, "<c-h>", "<c-w>", { desc = "Delete word" })
+set("v", "<S-Tab>", "<gv",          { noremap = false, silent = true })
+set("v", "<Tab>", ">gv",            { noremap = false, silent = true })
+set({ "n" }, "ciw", '"_ciw')
+
+set("s", "<BS>", "<C-o>s",          { desc = "Delete selection" })
+set("s", "<C-h>", "<C-o>s",         { desc = "Delete selection" })
 -- stylua: ignore end
 
 ------------------------
@@ -113,13 +125,6 @@ set({ "n", "v", "x" }, "<esc>", function()
   return "<esc>"
 end, { expr = true, desc = "Stop snippet and escape" })
 
--- set("i", "jj", "<Esc>",     { desc = "Go to normal mode" }) -- esc with jj
-set("n", "<BS>", '"_ciw', { desc = "Change inner word" }) -- change word
-set({ "i", "c" }, "<c-h>", "<c-w>", { desc = "Delete word" })
-set("v", "<S-Tab>", "<gv", { noremap = false, silent = true })
-set("v", "<Tab>", ">gv", { noremap = false, silent = true })
-set({ "n" }, "ciw", '"_ciw')
-
 -- disable arrow key in normal mode
 for _, key in pairs({ "<UP>", "<DOWN>", "<LEFT>", "<RIGHT>" }) do
   set("n", key, function()
@@ -143,6 +148,12 @@ local maps = {
   },
   {
     "<leader>ur",
+    Utils.ui.refresh,
+    desc = "Refresh UI",
+    icon = { icon = " ", color = "blue" },
+  },
+  {
+    "<leader>uR",
     function()
       Utils.ui.refresh(true)
     end,
