@@ -177,6 +177,9 @@ function M.refresh(close_floats)
   pcall(vim.cmd, "nohlsearch")
   pcall(vim.cmd, "diffupdate")
   pcall(vim.cmd, "normal! \\<C-L>")
+  vim.schedule(function()
+    pcall(vim.cmd, "e!")
+  end)
   vim.cmd("redraw!")
 end
 

@@ -51,15 +51,16 @@ function M.create(event, opts)
     return
   end
   event = Utils.ensure_list(event)
+  local cmd = opts.cmd or ""
+  opts.cmd = nil
   local auopts = {
     group = opts.group and M.augroup(opts.group),
     callback = opts.callback or function()
-      if opts.cmd then
-        vim.cmd(opts.cmd)
+      if cmd then
+        vim.cmd(cmd)
       end
     end,
   }
-  opts.cmd = nil
   for key, value in pairs(opts) do
     if auopts[key] == nil then
       auopts[key] = value
@@ -94,19 +95,13 @@ end
 -- Execute a user-defined event
 ---@param patterns string|string[]
 ---@param fn fun(event: table)
----@param group? string|integer|table
 ---@param opts? table
 ---@return number # autocmd ID
 --------------------------------------------------------------------------
-function M.on_user_event(patterns, fn, group, opts)
+function M.on_user_event(patterns, fn, opts)
   patterns = Utils.ensure_list(patterns)
-  if Utils.type(group, "table") then
-    opts = group
-    group = nil
-  end
   opts = opts or {}
-  group = group or opts.group
-  group = group and M.augroup(group)
+  local group = opts.group and M.augroup(opts.group) or nil
   local options = {
     pattern = patterns,
     group = group,
@@ -130,7 +125,7 @@ end
 ---@param group? string|integer
 --------------------------------------------------------------------------
 function M.on_very_lazy(fn, group)
-  M.on_user_event("VeryLazy", fn, group)
+  M.on_user_event("VeryLazy", fn, { group = group })
 end
 
 return M
