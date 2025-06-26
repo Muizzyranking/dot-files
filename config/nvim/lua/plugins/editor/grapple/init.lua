@@ -66,8 +66,20 @@ return {
       end
     end
     local function grapple_update_maps(method, options)
+      -- when a file is tagged, a new keymap is created, e.g. <leader>m1, m2
+      -- it is created with the index of the tag
+      -- this function wraps methods of grapple and update those keymaps
+      -- when tags are removed, the key pointing to that index is deleted and hidden from which-key
       options = options or {}
+      options.buffer = Utils.ensure_buf(options.buffer or 0)
+      local buf = options.buffer
       method = method or "tag"
+      if Utils.evaluate(vim.bo[buf].buftype, "nofile") then
+        return
+      end
+      if Utils.evaluate(vim.bo[buf].buflisted, false) then
+        return
+      end
       local ok, result = pcall(function()
         require("grapple")[method](options)
         set_num_keys()
@@ -102,7 +114,7 @@ return {
       {
         "<leader>ml",
         function()
-          require("plugins.editor.grapple.snacks").picker.show_bookmarks()
+          require("plugins.editor.grapple.snacks").picker.show_bookmarks(grapple_update_maps)
         end,
         desc = "Show bookmarks",
       },

@@ -44,7 +44,7 @@ return {
           { "put", "PUT" },
         }, {
           buffer = buf,
-          builtin = "lsp_keyword",
+          conds = { "lsp_keyword" },
         })
       end,
     },

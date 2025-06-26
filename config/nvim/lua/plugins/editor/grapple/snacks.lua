@@ -2,7 +2,7 @@ local M = {}
 M.picker = {}
 M.explorer = {}
 
-function M.picker.show_bookmarks()
+function M.picker.show_bookmarks(grapple_methods)
   if not Utils.has("snacks.nvim") then
     return
   end
@@ -68,7 +68,7 @@ function M.picker.show_bookmarks()
           local cur_idx
           for _, item in ipairs(selected) do
             cur_idx = item.idx
-            require("grapple").untag({ path = item.path })
+            grapple_methods("untag", { path = item.path })
           end
           picker:find({
             on_done = function()
