@@ -60,7 +60,7 @@ function M.on_dynamic_capability(fn, opts)
     if client then
       return fn(client, buffer)
     end
-  end, opts.group)
+  end, { group = opts.group })
 end
 
 ----------------------------------------------------
@@ -287,6 +287,29 @@ function M.copy_diagnostics()
   )
 end
 
+------------------------------------------------
+-- notify LSP about a new file creation
+---@param path string Path to the new file
+-----------------------------------------------
+function M.new_file(path)
+  local clients = M.get_clients()
+  for _, client in ipairs(clients) do
+    if
+      client.server_capabilities.workspace
+      and client.server_capabilities.workspace.fileOperations
+      and client.server_capabilities.workspace.fileOperations.didCreate
+    then
+      client.notify("workspace/didCreateFiles", {
+        files = {
+          { uri = vim.uri_from_fname(path) },
+        },
+      })
+    end
+  end
+end
+
+---@param name string
+---@return boolean
 function M.server_is_valid(name)
   if vim.lsp.config[name] == nil then
     Utils.notify.warn(string.format("[LSP] server '%s' is not valid", name))
@@ -295,36 +318,57 @@ function M.server_is_valid(name)
   return true
 end
 
+---@param name string
+---@return boolean
 function M.stop(name)
-  if M.server_is_valid(name) then
-    if vim.cmd.LspStop(name) then
-      return true
-    end
+  if not M.server_is_valid(name) then
+    return false
   end
-  return false
+  local success, err = pcall(function()
+    vim.cmd.LspStop(name)
+  end)
+
+  if not success then
+    Utils.notify.error(string.format("[LSP] Failed to stop server '%s': %s", name, err))
+    return false
+  end
+  return true
 end
 
+---@param name string
+---@return boolean
 function M.start(name)
-  if M.server_is_valid(name) then
-    if vim.cmd.LspStart(name) then
-      return true
-    end
+  if not M.server_is_valid(name) then
+    return false
   end
-  return false
+
+  local success, err = pcall(function()
+    vim.cmd.LspStart(name)
+  end)
+
+  if not success then
+    Utils.notify.error(string.format("[LSP] Failed to start server '%s': %s", name, err))
+    return false
+  end
+  return true
 end
 
+---@param name string
+---@return boolean
 function M.restart(name)
-  if M.server_is_valid(name) then
-    M.stop(name)
-    local timer = assert(vim.uv.new_timer())
-    timer:start(500, 0, function()
-      vim.schedule_wrap(function()
-        M.start(name)
-      end)()
-    end)
-    return true
+  if not M.server_is_valid(name) then
+    return false
   end
-  return false
+
+  if not M.stop(name) then
+    return false
+  end
+
+  vim.defer_fn(function()
+    M.start(name)
+  end, 500)
+
+  return true
 end
 
 return M
