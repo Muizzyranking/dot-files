@@ -42,25 +42,6 @@ return {
             color = { gui = "italic" },
           },
           Utils.lualine.root_dir(),
-          -- i do not need to see git changes in the statusline, no?
-          -- {
-          --   "diff",
-          --   symbols = {
-          --     added = Utils.icons.git.added,
-          --     modified = Utils.icons.git.modified,
-          --     removed = Utils.icons.git.removed,
-          --   },
-          --   source = function()
-          --     local gitsigns = vim.b.gitsigns_status_dict
-          --     if gitsigns then
-          --       return {
-          --         added = gitsigns.added,
-          --         modified = gitsigns.changed,
-          --         removed = gitsigns.removed,
-          --       }
-          --     end
-          --   end,
-          -- },
           Utils.lualine.file,
         },
         lualine_c = {
@@ -70,6 +51,24 @@ return {
           Utils.lualine.diff,
         },
         lualine_x = {
+          {
+            "diff",
+            symbols = {
+              added = Utils.icons.git.added,
+              modified = Utils.icons.git.modified,
+              removed = Utils.icons.git.removed,
+            },
+            source = function()
+              local gitsigns = vim.b.gitsigns_status_dict
+              if gitsigns then
+                return {
+                  added = gitsigns.added,
+                  modified = gitsigns.changed,
+                  removed = gitsigns.removed,
+                }
+              end
+            end,
+          },
           {
             function()
               return require("noice").api.status.command.get()
