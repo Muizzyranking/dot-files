@@ -2,6 +2,7 @@
 vim.deprecate = function() end -- disable deprecate warnings
 -- global variables
 _G.Utils = require("utils")
+_G.uv = vim.uv or vim.loop
 -- stylua: ignore
 _G.P = function(...) vim.print(vim.inspect(...)) end
 

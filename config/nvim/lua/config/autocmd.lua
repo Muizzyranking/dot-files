@@ -224,6 +224,7 @@ autocmd("TermClose", {
       vim.api.nvim_exec_autocmds("BufEnter", {})
       vim.api.nvim_exec_autocmds("WinEnter", {})
       vim.cmd("redraw!")
+      Utils.ui.refresh()
     end)
   end,
 })

@@ -64,7 +64,7 @@ set("o", "N", "'nN'[v:searchforward]",      { expr = true, desc = "Prev Search R
 
 -- set("i", "jj", "<Esc>",     { desc = "Go to normal mode" }) -- esc with jj
 set("n", "<BS>", '"_ciw',           { desc = "Change inner word" }) -- change word
-set({ "i", "c" }, "<c-h>", "<c-w>", { desc = "Delete word" })
+set({ "i", "c" }, "<c-h>", "<c-w>", { desc = "Delete word", silent = false })
 set("v", "<S-Tab>", "<gv",          { noremap = false, silent = true })
 set("v", "<Tab>", ">gv",            { noremap = false, silent = true })
 set({ "n" }, "ciw", '"_ciw')
