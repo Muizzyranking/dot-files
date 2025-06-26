@@ -8,19 +8,13 @@ return {
         sources = {
           files = {
             exclude = { ".git", ".cache" },
-            actions = {
-              bookmark = require("plugins.editor.grapple.snacks").picker.actions.bookmark,
-            },
+            actions = {},
             win = {
               input = {
-                keys = {
-                  ["<c-b>"] = { "bookmark", mode = { "i", "n" }, desc = "Bookmark files" },
-                },
+                keys = {},
               },
               list = {
-                keys = {
-                  ["<c-b>"] = { "bookmark", desc = "Bookmark files" },
-                },
+                keys = {},
               },
             },
           },

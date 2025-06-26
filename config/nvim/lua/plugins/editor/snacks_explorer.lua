@@ -32,44 +32,22 @@ return {
             severity = { pos = "right" },
           },
           -- add icon to bookmarked files in explorer
-          format = require("plugins.editor.grapple.snacks").explorer.format,
+          format = function(item, picker)
+            if Utils.has("grapple.nvim") then
+              return require("plugins.editor.grapple.snacks").explorer.format(item, picker)
+            end
+          end,
           matcher = { sort_empty = false, fuzzy = true },
           actions = {
             bookmark = require("plugins.editor.grapple.snacks").explorer.actions.bookmark,
-            trash = {
-              desc = "Move to trash",
-              action = function(picker)
-                if not Utils.is_executable("Trash") then
-                  Snacks.notify.errror("Trash not found", { title = "Snacks Picker" })
-                  return
-                end
-                local actions = require("snacks.explorer.actions")
-                local Tree = require("snacks.explorer.tree")
-                local paths = vim.tbl_map(Snacks.picker.util.path, picker:selected({ fallback = true }))
-                if #paths == 0 then
-                  return
-                end
-                local what = #paths == 1 and vim.fn.fnamemodify(paths[1], ":p:~:.") or #paths .. " files"
-                actions.confirm("Trash " .. what .. "?", function()
-                  for _, path in ipairs(paths) do
-                    local ok, err = pcall(vim.api.nvim_command, "silent !trash " .. path)
-                    if ok then
-                      Snacks.bufdelete({ file = path, force = true })
-                    else
-                      Snacks.notify.error("Failed to trash `" .. path .. "`:\n- " .. err, { title = "Snacks Picker" })
-                    end
-                    Tree:refresh(vim.fs.dirname(path))
-                  end
-                  picker.list:set_selected()
-                  actions.update(picker)
-                end)
-              end,
-            },
+            new_file = Utils.snacks.explorer.actions.new_file,
+            trash = Utils.snacks.explorer.actions.trash,
           },
           win = {
             list = {
               keys = {
                 ["b"] = "bookmark",
+                ["a"] = "new_file",
                 ["<c-c>"] = "",
                 ["T"] = "trash",
                 ["s"] = "edit_vsplit",

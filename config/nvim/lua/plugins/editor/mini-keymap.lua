@@ -1,5 +1,6 @@
 return {
   "echasnovski/mini.keymap",
+  event = "VeryLazy",
   config = function()
     local mini_key = require("mini.keymap")
     local multistep = mini_key.map_multistep

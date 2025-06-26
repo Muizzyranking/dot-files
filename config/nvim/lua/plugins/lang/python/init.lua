@@ -7,6 +7,7 @@ return {
           basedpyright = {
             analysis = {
               typeCheckingMode = "standard",
+              autoImportCompletions = true,
             },
             disableOrganizeImports = true,
           },
@@ -187,12 +188,7 @@ return {
       event = "BufWritePost",
       pattern = { "*pyrightconfig.json" },
       callback = function()
-        Utils.lsp.stop("basedpyright")
-
-        vim.defer_fn(function()
-          Utils.lsp.start("basedpyright")
-        end, 100)
-
+        Utils.lsp.restart("basedpyright")
         vim.cmd("stopinsert")
         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
       end,
