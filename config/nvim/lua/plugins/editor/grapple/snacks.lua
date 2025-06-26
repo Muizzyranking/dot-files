@@ -101,21 +101,6 @@ function M.picker.show_bookmarks()
   })
 end
 
-M.picker.actions = {
-  bookmark = {
-    desc = "Add bookmarks",
-    action = function(picker, _)
-      local paths = vim.tbl_map(Snacks.picker.util.path, picker:selected({ fallback = true }))
-      if #paths == 0 then
-        return
-      end
-      for _, path in ipairs(paths) do
-        require("grapple").tag({ path = path })
-      end
-    end,
-  },
-}
-
 M.explorer.format = function(item, picker)
   local ret = require("snacks.picker.format").file(item, picker)
   local item_path = Snacks.picker.util.path(item)
