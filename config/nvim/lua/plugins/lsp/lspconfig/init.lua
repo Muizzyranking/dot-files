@@ -10,9 +10,19 @@ return {
     setup = {},
     capabilities = {
       workspace = {
+        didChangeWatchedFiles = {
+          dynamicRegistration = true,
+          relativePatternSupport = true,
+        },
         fileOperations = {
           didRename = true,
           willRename = true,
+          willRenameFiles = true,
+          didRenameFiles = true,
+          willCreateFiles = true,
+          didCreateFiles = true,
+          willDeleteFiles = true,
+          didDeleteFiles = true,
         },
       },
     },
@@ -29,7 +39,6 @@ return {
     },
   },
   config = function(_, opts)
-    local api = vim.api
     local lsp = vim.lsp
     local diagnostic = vim.diagnostic
     opts.diagnostics.signs = {
