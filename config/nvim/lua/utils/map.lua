@@ -311,29 +311,31 @@ function M.create_abbrev(word, new_word, opts)
     return
   end
   opts = opts or {}
-  local condition = opts.condition
   local mode = opts.mode or "ia"
-  local builtin = opts.builtin
-  opts.builtin = nil
+  local conds = Utils.ensure_list(opts.conds) or nil
+  opts.conds = nil
   opts.condition = nil
   opts.mode = nil
   opts = vim.tbl_extend("force", opts or {}, {
     expr = true,
   })
   vim.keymap.set(mode, word, function()
-    local cond = true
-    if builtin then
-      local built_in_fn = DEFAULT_ABBREV_CONDS[builtin]
-      if built_in_fn then
-        cond = Utils.evaluate(built_in_fn)
+    if conds then
+      for _, c in ipairs(conds) do
+        if Utils.type(c, "string") then
+          if not DEFAULT_ABBREV_CONDS[c] then
+            return word
+          end
+          c = DEFAULT_ABBREV_CONDS[c]
+        end
+        if Utils.type(c, "function") then
+          if not Utils.evaluate(c, true) then
+            return word
+          end
+        end
       end
     end
-
-    -- Combine with custom condition
-    if condition then
-      cond = cond and Utils.evaluate(condition)
-    end
-    return cond and new_word or word
+    return new_word
   end, opts)
 end
 
@@ -429,30 +431,42 @@ function M.reload_config(opts)
     end
   end
   -- Determine the command to execute
-  local cmd
-  if opts.restart then
-    cmd = string.format("pkill -x '%s' || true; nohup %s > /dev/null 2>&1 & disown", opts.cmd, opts.cmd)
-  else
-    cmd = string.format("nohup %s > /dev/null 2>&1 & disown", opts.cmd)
+
+  local function build_cmd()
+    local cmd = vim.fn.shellescape(opts.cmd)
+    if opts.restart then
+      local process = opts.title:lower()
+      return string.format("pkill -x %s || true; nohup %s > /dev/null 2>&1 & disown", process, cmd)
+    end
+    return string.format("nohup %s > /dev/null 2>&1 & disown", cmd)
   end
 
   M.set_keymap({
     "<leader>rr",
     function()
+      local cmd = build_cmd()
       local output = vim.fn.system(cmd)
-      local notify_opts = { title = opts.title }
-      local error = vim.v.shell_error ~= 0
-      local mgs = ("%s %s %s"):format(
-        error and "Error reloading" or "Reloaded",
-        opts.title,
-        error and ": " .. output or ""
-      )
-      Utils.notify[error and "error" or "info"](mgs, notify_opts)
+      local has_error = vim.v.shell_error ~= 0
+      local notify_opts = {
+        title = opts.title,
+        timeout = has_error and 5000 or 2000,
+      }
+      local status = has_error and "Error" or "Success"
+      local action = opts.restart and "Restarting" or "Reloading"
+      local msg
+      if has_error then
+        local clean_output = output:gsub("\n", " ")
+        msg = string.format("%s %s %s: %s", status, action, opts.title, clean_output)
+      else
+        msg = string.format("%s %s %s", status, action, opts.title)
+      end
+      Utils.notify[has_error and "error" or "info"](msg, notify_opts)
+      Utils.ui.refresh()
     end,
     desc = "Reload Config",
     silent = true,
     buffer = opts.buffer,
-    icon = { icon = "󰑓 ", color = "orange" },
+    icon = { icon = opts.restart and "󰜉 " or "󰑓 ", color = "orange" },
   })
 end
 

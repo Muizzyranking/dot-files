@@ -157,7 +157,7 @@ function M.setup_language(config)
       optional = true,
       opts = fmt_opts,
     })
-    if Utils.evaluate(fmt.format_on_save) == true then
+    if Utils.evaluate(fmt.format_on_save, true) then
       create_autocmd("FileType", config.ft, function(event)
         vim.b[event.buf].autoformat = true
       end)
