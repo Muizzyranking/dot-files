@@ -17,6 +17,7 @@ end
 -- setting colorsheme here allows to use the colorscheme variable in the lazy.nvim config
 Utils.ui.set_colorscheme("rose-pine")
 Utils.hl.setup()
+Utils.smart_win_nav.setup()
 r("globals")
 r("options")
 r("lazy")
