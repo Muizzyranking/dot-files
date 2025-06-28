@@ -4,7 +4,6 @@ local M = {}
 local api = vim.api
 local schedule = vim.schedule
 local create_augroup = api.nvim_create_augroup
-local nvim_create_autocmd = api.nvim_create_autocmd
 local function set_buf_option(buf, option, value)
   vim.bo[buf][option] = value
 end
@@ -29,13 +28,13 @@ local function create_autocmd_group(config_name)
       pattern = pattern,
       callback = callback,
     }, opts or {})
-    local autocmd = function()
-      nvim_create_autocmd(event, opts)
+    local create_autocmd = function()
+      Utils.autocmd.create(event, opts)
     end
     if not LazyLoad then
-      autocmd()
+      create_autocmd()
     else
-      Utils.autocmd.on_very_lazy(autocmd)
+      Utils.autocmd.on_very_lazy(create_autocmd, group)
     end
   end
 end
