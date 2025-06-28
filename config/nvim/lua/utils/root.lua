@@ -14,7 +14,13 @@ M.ignore_lsp = { "copilot" }
 ---@type table<number, string>
 M.cache = {}
 
+-- Cache for git ancestors by path
+---@type table<string, string|false>
+M.git_cache = {}
+
 -- Get the real path of a file/directory
+---@param path string # the path to resolve
+---@return string|nil # the resolved path or nil if it cannot be resolved
 function M.get_real_path(path)
   if not path or path == "" then
     return nil
@@ -30,11 +36,54 @@ end
 
 ---------------------------------------------------------------
 -- Get the path of a buffer
----@param buf number the buffer number
+---@param buf number # the buffer number
+---@return string|nil # the path of the buffer or nil if it cannot be determined
 ---------------------------------------------------------------
 function M.get_buffer_path(buf)
   local path = Utils.get_filename(assert(buf))
   return path ~= "" and M.get_real_path(path) or nil
+end
+
+----------------------------------------------------------------
+-- Find the nearest git ancestor directory
+---@param path? string # the path to start searching from
+---@param buf? number # the buffer number to get the path from
+---@return string? # the path to the git root or nil if not found
+-----------------------------------------------------------------
+function M.find_git_ancestor(path, buf)
+  if not path then
+    if buf then
+      path = M.get_buffer_path(buf)
+    else
+      path = M.cwd()
+    end
+  end
+  if not path or path == "" then
+    return nil
+  end
+  path = M.get_real_path(path)
+  if not path then
+    return nil
+  end
+
+  if M.git_cache[path] ~= nil then
+    return M.git_cache[path] or nil
+  end
+
+  local git_files = vim.fs.find(".git", {
+    path = path,
+    upward = true,
+    type = "directory",
+  })
+  local git_root
+  if git_files and git_files[1] then
+    git_root = vim.fs.dirname(git_files[1])
+    git_root = git_root and M.get_real_path(git_root)
+  end
+
+  M.git_cache[path] = git_root or false
+
+  return git_root
 end
 
 ---------------------------------------------------------------
@@ -45,9 +94,26 @@ end
 function M.find_pattern_root(buf, patterns)
   patterns = Utils.ensure_list(patterns) ---@type string[]
   local path = M.get_buffer_path(buf) or vim.uv.cwd()
+  if not path or path == "" then
+    return nil
+  end
+
+  ---@type fun(name: string, pattern: string): boolean
+  local function matches_pattern(name, pattern)
+    if pattern == name then
+      return true
+    end
+
+    if pattern:find("*") then
+      local escaped = vim.pesc(pattern):gsub("%%*", ".*")
+      return name:match("^" .. escaped .. "$") ~= nil
+    end
+    return false
+  end
+
   local pattern = vim.fs.find(function(name)
     for _, p in ipairs(patterns) do
-      if name == p or (p:sub(1, 1) == "*" and name:find(vim.pesc(p:sub(2)) .. "$")) then
+      if matches_pattern(name, p) then
         return true
       end
     end
@@ -55,6 +121,7 @@ function M.find_pattern_root(buf, patterns)
   end, {
     path = path,
     upward = true,
+    stop = uv.os_homedir(),
   })[1]
   return pattern and vim.fs.dirname(pattern) or nil
 end
@@ -110,45 +177,96 @@ function M.add_patterns(patterns)
   end
 end
 
+---@class root.opts
+---@field prefer_git boolean # prefer git root if available
+---@field skip_cache boolean # skip cache lookup
+---@field patterns tabl
+
 ---------------------------------------------------------------
 -- Get the project root directory
 ---@param buf? number
+---@param opts? root.opts
 ---------------------------------------------------------------
-function M.get(buf)
+function M.get(buf, opts)
+  opts = opts or {}
   buf = Utils.ensure_buf(buf)
+  if opts.patterns then
+    M.add_patterns(opts.patterns)
+  end
 
-  if M.cache[buf] then
+  local root
+  if not opts.skip_cache and M.cache[buf] then
     return M.cache[buf]
   end
 
+  if opts.prefer_git then
+    root = M.find_git_ancestor(nil, buf)
+  end
+
   -- Try LSP root first (higher priority)
-  local root = M.find_lsp_root(buf)
-  if root then
-    M.cache[buf] = root
-    return root
+  if not root then
+    root = M.find_lsp_root(buf)
   end
 
-  root = M.find_pattern_root(buf, M.root_patterns)
-  if root then
-    M.cache[buf] = root
-    return root
+  if not root and not opts.prefer_git then
+    root = M.find_git_ancestor(nil, buf)
   end
 
-  -- Fallback to CWD
-  root = M.cwd()
-  M.cache[buf] = root
+  if not root then
+    root = M.find_pattern_root(buf, M.root_patterns)
+  end
+
+  if not root then
+    root = M.cwd()
+  end
+
+  if not opts.skip_cache and M.cache[buf] then
+    M.cache[buf] = root
+  end
   return root
 end
 
+function M.clear_cache()
+  M.cache = {}
+  M.git_cache = {}
+end
+
+function M.clear_buf_cache(buf)
+  if not buf or not M.cache[buf] then
+    return
+  end
+  M.cache[buf] = nil
+  local path = M.get_buffer_path(buf)
+  if path and M.git_cache[path] then
+    M.git_cache[path] = nil
+  end
+end
 ---------------------------------------------------------------
 -- Setup autocmds to clear root cache
 ---------------------------------------------------------------
 function M.setup()
-  vim.api.nvim_create_autocmd({ "LspAttach", "BufWritePost", "DirChanged", "BufEnter" }, {
-    group = vim.api.nvim_create_augroup("utils_root_cache", { clear = true }),
-    callback = function(event)
-      M.cache[event.buf] = nil
-    end,
+  Utils.autocmd.autocmd_augroup("utils_root_cache", {
+    {
+      events = { "LspAttach", "LspDetach", "BufWritePost", "BufEnter" },
+      callback = function(event)
+        if event and event.buf then
+          M.clear_buf_cache(event.buf)
+        end
+      end,
+    },
+    {
+      events = { "DirChanged" },
+      callback = function()
+        M.clear_cache()
+      end,
+    },
+    {
+      events = { "BufWritePost" },
+      pattern = { "*.gitignore", "*.gitconfig", "*.gitmodules", ".git/index" },
+      callback = function()
+        M.git_cache = {}
+      end,
+    },
   })
 end
 
