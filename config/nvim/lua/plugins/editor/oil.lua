@@ -20,13 +20,12 @@ return {
     },
     opts = function()
       local detail = false
-      local oil_autocmd = vim.api.nvim_create_augroup("OilSetup", {})
-      vim.api.nvim_create_autocmd("BufEnter", {
-        desc = "Ensure that oil buffers are not listed.",
-        group = oil_autocmd,
+      Utils.autocmd("BufEnter", {
+        desc = "Set filetype for oil buffers",
+        group = "oil_autocmd",
         pattern = "oil://*",
-        callback = function(info)
-          vim.bo[info.buf].buflisted = false
+        callback = function(event)
+          vim.bo[event.buf].buflisted = false
         end,
       })
       Utils.autocmd.on_user_event("OilActionsPost", function(event)

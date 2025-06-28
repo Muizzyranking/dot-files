@@ -49,6 +49,15 @@ return {
             "grapple",
           },
           Utils.lualine.diff,
+          {
+            "diagnostics",
+            symbols = {
+              error = Utils.icons.diagnostics.error,
+              warn = Utils.icons.diagnostics.warn,
+              info = Utils.icons.diagnostics.info,
+              hint = Utils.icons.diagnostics.hint,
+            },
+          },
         },
         lualine_x = {
           {
