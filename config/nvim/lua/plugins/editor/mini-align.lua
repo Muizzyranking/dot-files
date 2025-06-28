@@ -1,6 +1,9 @@
 return {
   "echasnovski/mini.align",
-  keys = { { "ga", desc = "Align text" }, { "gA", desc = "Align text" } },
+  keys = {
+    { "ga", desc = "Align text", mode = { "n", "x", "v" } },
+    { "gA", desc = "Align text", mode = { "n", "x", "v" } },
+  },
   opts = {
     mappings = {
       start = "ga",
