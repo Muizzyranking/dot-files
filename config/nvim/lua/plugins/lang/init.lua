@@ -11,6 +11,7 @@ return {
     "markdown",
     -- "php",
     "python",
+    "r",
     -- "rust",
     -- "solidity",
     "sql",

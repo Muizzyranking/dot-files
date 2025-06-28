@@ -36,7 +36,7 @@ return {
     },
   },
   highlighting = {
-    parsers = { "bash", "hyprlang", "rasi" },
+    parsers = { "bash", "hyprlang", "rasi", "git_config" },
   },
   commentstring = {
     hyprlang = "# %s",
