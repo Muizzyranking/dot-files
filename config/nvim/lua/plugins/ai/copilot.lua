@@ -63,8 +63,7 @@ return {
       table.insert(opts.sections.lualine_y, 1, {
         function()
           local icon = Utils.icons.kinds.Copilot
-          local status = require("copilot.status").data
-          return icon .. (status.message or "")
+          return icon
         end,
         cond = function()
           if not package.loaded["copilot"] then
@@ -80,7 +79,12 @@ return {
           if not package.loaded["copilot"] then
             return
           end
-          local status = require("copilot.status").data
+          local ok, status = pcall(function()
+            return require("copilot.status").data
+          end)
+          if not ok or not status then
+            return colors[""]
+          end
           return colors[status.status] or colors[""]
         end,
       })
