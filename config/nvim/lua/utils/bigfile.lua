@@ -110,77 +110,75 @@ function M.apply_big_file_settings(buf, is_big)
 end
 
 function M.setup()
-  -- set buffer big file detection
-  create_autocmd({ "BufReadPre", "BufWritePost" }, {
-    desc = "Detect big files.",
-    group = bigfile_group,
-    callback = function(event)
-      local buf = event.buf
-      local big = M.is_big_file(buf)
-      M.apply_big_file_settings(buf, big)
-    end,
-  })
-
-  create_autocmd({ "TextChanged", "TextChangedI" }, {
-    desc = "Re-detect big files on text change.",
-    group = bigfile_group,
-    callback = function(event)
-      -- Throttle this to avoid constant checking
-      if vim.b[event.buf].bigfile_check_timer then
-        vim.fn.timer_stop(vim.b[event.buf].bigfile_check_timer)
-      end
-
-      vim.b[event.buf].bigfile_check_timer = vim.fn.timer_start(1000, function()
+  Utils.autocmd.autocmd_augroup("big_file", {
+    {
+      events = { "BufReadPre", "BufWritePost" },
+      desc = "Detect big files.",
+      callback = function(event)
         local buf = event.buf
-        if vim.api.nvim_buf_is_valid(buf) then
-          local big = M.is_big_file(buf)
-          M.apply_big_file_settings(buf, big)
+        local big = M.is_big_file(buf)
+        M.apply_big_file_settings(buf, big)
+      end,
+    },
+    {
+      events = { "TextChanged", "TextChangedI" },
+      desc = "Detect big files.",
+      callback = function(event)
+        if vim.b[event.buf].bigfile_check_timer then
+          vim.fn.timer_stop(vim.b[event.buf].bigfile_check_timer)
         end
-      end)
-    end,
-  })
 
-  create_autocmd({ "FileType" }, {
-    once = true,
-    desc = "Prevent treesitter and LSP from attaching to big files.",
-    group = bigfile_group,
-    callback = function(event)
-      vim.api.nvim_del_autocmd(event.id)
+        vim.b[event.buf].bigfile_check_timer = vim.fn.timer_start(1000, function()
+          local buf = event.buf
+          if vim.api.nvim_buf_is_valid(buf) then
+            local big = M.is_big_file(buf)
+            M.apply_big_file_settings(buf, big)
+          end
+        end)
+      end,
+    },
+    {
+      events = { "FileType" },
+      once = true,
+      desc = "Prevent treesitter and LSP from attaching to big files.",
+      callback = function(event)
+        vim.api.nvim_del_autocmd(event.id)
 
-      local ts_get_parser = vim.treesitter.get_parser
-      local ts_foldexpr = vim.treesitter.foldexpr
-      local lsp_start = vim.lsp.start
+        local ts_get_parser = vim.treesitter.get_parser
+        local ts_foldexpr = vim.treesitter.foldexpr
+        local lsp_start = vim.lsp.start
 
-      ---@diagnostic disable-next-line: duplicate-set-field
-      function vim.treesitter.get_parser(buf, ...)
-        buf = Utils.ensure_buf(buf)
-        -- HACK: Getting parser for a big buffer can freeze nvim, so return a
-        -- fake parser on an empty buffer if current buffer is big
-        if vim.api.nvim_buf_is_valid(buf) and vim.b[buf].bigfile then
-          return vim.treesitter._create_parser(
-            vim.api.nvim_create_buf(false, true),
-            vim.treesitter.language.get_lang(vim.bo.ft) or vim.bo.ft
-          )
+        ---@diagnostic disable-next-line: duplicate-set-field
+        function vim.treesitter.get_parser(buf, ...)
+          buf = Utils.ensure_buf(buf)
+          -- HACK: Getting parser for a big buffer can freeze nvim, so return a
+          -- fake parser on an empty buffer if current buffer is big
+          if vim.api.nvim_buf_is_valid(buf) and vim.b[buf].bigfile then
+            return vim.treesitter._create_parser(
+              vim.api.nvim_create_buf(false, true),
+              vim.treesitter.language.get_lang(vim.bo.ft) or vim.bo.ft
+            )
+          end
+          return ts_get_parser(buf, ...)
         end
-        return ts_get_parser(buf, ...)
-      end
 
-      ---@diagnostic disable-next-line: duplicate-set-field
-      function vim.treesitter.foldexpr(...)
-        if vim.b.bigfile then
-          return
+        ---@diagnostic disable-next-line: duplicate-set-field
+        function vim.treesitter.foldexpr(...)
+          if vim.b.bigfile then
+            return
+          end
+          return ts_foldexpr(...)
         end
-        return ts_foldexpr(...)
-      end
 
-      ---@diagnostic disable-next-line: duplicate-set-field
-      function vim.lsp.start(...)
-        if vim.b.bigfile then
-          return
+        ---@diagnostic disable-next-line: duplicate-set-field
+        function vim.lsp.start(...)
+          if vim.b.bigfile then
+            return
+          end
+          return lsp_start(...)
         end
-        return lsp_start(...)
-      end
-    end,
+      end,
+    },
   })
 end
 
