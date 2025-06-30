@@ -120,44 +120,6 @@ autocmd("WinClosed", {
 })
 
 -----------------------------------------------------------
--- Remember folds when opening a file
------------------------------------------------------------
--- autocmd.autocmd_augroup("remember_folds", {
---   {
---     events = { "BufWinLeave" },
---     pattern = "*",
---     desc = "save folds when leaving a buffer",
---     callback = function()
---       vim.cmd([[silent! mkview]])
---     end,
---   },
---   {
---     events = { "BufWinEnter" },
---     pattern = "*",
---     desc = "load folds when entering a buffer",
---     callback = function()
---       vim.cmd([[silent! loadview]])
---     end,
---   },
---   {
---     events = { "User" },
---     pattern = "PersistenceLoadPost",
---     desc = "load folds after session load",
---     callback = function()
---       vim.cmd([[silent! loadview]])
---     end,
---   },
---   {
---     events = { "User" },
---     pattern = "PersistenceLoadPre",
---     desc = "load folds after session load",
---     callback = function()
---       vim.cmd([[silent! mkview]])
---     end,
---   },
--- })
-
------------------------------------------------------------
 -- Close certain file types with q
 -----------------------------------------------------------
 autocmd("FileType", {
@@ -237,7 +199,7 @@ autocmd("TermClose", {
   group = "refresh_on_termclose",
   callback = function()
     vim.schedule(function()
-      Utils.ui.refresh(true, true)
+      Utils.ui.refresh(nil, true)
     end)
   end,
 })

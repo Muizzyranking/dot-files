@@ -30,6 +30,18 @@ function M.set_colorscheme(colorscheme)
   })
 end
 
+-- close floating windows
+function M.close_floats()
+  vim
+    .iter(vim.api.nvim_list_wins())
+    :filter(function(win)
+      return vim.api.nvim_win_get_config(win).relative ~= ""
+    end)
+    :each(function(win)
+      vim.api.nvim_win_close(win, true)
+    end)
+end
+
 function M.refresh(close_floats, buf_enter)
   if close_floats then
     M.close_floats()
