@@ -54,15 +54,6 @@ o.undofile                     = true
 -- opt.undodir                 = vim.fn.expand("~/.nvim/undodir")
 
 -----------------------------------------------------------
--- Folding
-----------------------------------------------------------
-o.foldlevel                    = 99
-o.foldmethod                   = "expr"
-o.foldexpr                     = "v:lua.require'utils.ui'.foldexpr()"
-o.foldtext                     = "v:lua.require'utils.ui'.foldtext()"
-vim.g.markdown_folding         = 1 -- Enable markdown folding
-
------------------------------------------------------------
 -- Search and Highlighting
 -----------------------------------------------------------
 -- Case-insensitive searching UNLESS \C or capital in search
@@ -109,16 +100,11 @@ o.pumheight                    = 10 -- Maximum number of entries in a popup
 -- opt.conceallevel = 2 -- Hide * markup for bold and italic, but not markers with substitutions
 -- stylua: ignore end
 
-local providers = { "ruby", "node", "perl" }
+local providers = { "ruby", "node", "perl", "python" }
 for _, provider in ipairs(providers) do
   vim.g["loaded_" .. provider .. "_provider"] = 0
 end
 
 if Utils.is_executable("python3") then
   vim.g.python3_host_prog = vim.fn.exepath("python3")
-else
-  Utils.notify.error(
-    "Python3 executable not found! You must install Python3 and set its PATH correctly!",
-    { title = "Python" }
-  )
 end
