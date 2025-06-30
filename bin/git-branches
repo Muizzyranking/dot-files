@@ -1,21 +1,21 @@
 #!/bin/bash
 
 # Check if we're in a git repository
-if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
-  echo "Error: Not inside a git repository"
-  exit 1
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "Error: Not inside a git repository"
+    exit 1
 fi
 
 # Check if fzf is installed
-if ! command -v fzf > /dev/null 2>&1; then
-  echo "Error: fzf is not installed. Please install it first."
-  exit 1
+if ! command -v fzf >/dev/null 2>&1; then
+    echo "Error: fzf is not installed. Please install it first."
+    exit 1
 fi
 
 # Check if tmux is running
 if [ -z "$TMUX" ]; then
-  echo "Error: Not running inside a tmux session"
-  exit 1
+    echo "Error: Not running inside a tmux session"
+    exit 1
 fi
 
 # Get all branches (both local and remote) and format them
@@ -26,28 +26,24 @@ selected_branch=$(echo "$git_branches" | fzf --tmux --height 40% --reverse --bor
 
 # Exit if no branch was selected
 if [ -z "$selected_branch" ]; then
-  echo "No branch selected"
-  exit 0
+    echo "No branch selected"
+    exit 0
 fi
 
 # Handle remote branches (they start with "remotes/")
 if [[ "$selected_branch" == remotes/* ]]; then
-  # Extract the branch name without "remotes/origin/"
-  checkout_branch=$(echo "$selected_branch" | sed 's|remotes/origin/||')
-  
-  # Check if the branch already exists locally
-  if git show-ref --verify --quiet "refs/heads/$checkout_branch"; then
-    echo "Switching to existing local branch '$checkout_branch'"
-    git checkout "$checkout_branch"
-  else
-    echo "Creating local branch '$checkout_branch' from remote branch"
-    git checkout -b "$checkout_branch" --track "origin/$checkout_branch"
-  fi
+    checkout_branch=$(echo "$selected_branch" | sed 's|remotes/origin/||')
+
+    if git show-ref --verify --quiet "refs/heads/$checkout_branch"; then
+        echo "Switching to existing local branch '$checkout_branch'"
+        git checkout "$checkout_branch"
+    else
+        echo "Creating local branch '$checkout_branch' from remote branch"
+        git checkout -b "$checkout_branch" --track "origin/$checkout_branch"
+    fi
 else
-  # For local branches, simply check them out
-  echo "Switching to '$selected_branch'"
-  git checkout "$selected_branch"
+    echo "Switching to '$selected_branch'"
+    git checkout "$selected_branch"
 fi
 
 echo "Successfully checked out branch: $selected_branch"
-

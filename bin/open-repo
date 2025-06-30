@@ -32,19 +32,19 @@ target_dir=""
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -b|--branch)
-            show_branch=true
-            shift
-            ;;
-        *)
-            if [ -z "$target_dir" ]; then
-                target_dir="$1"
-            else
-                echo "Error: Unexpected argument: $1"
-                exit 1
-            fi
-            shift
-            ;;
+    -b | --branch)
+        show_branch=true
+        shift
+        ;;
+    *)
+        if [ -z "$target_dir" ]; then
+            target_dir="$1"
+        else
+            echo "Error: Unexpected argument: $1"
+            exit 1
+        fi
+        shift
+        ;;
     esac
 done
 
@@ -83,7 +83,6 @@ remote_url=${remote_url%.git}
 if [ "$show_branch" = true ]; then
     branch=$(get_current_branch "$target_dir")
     if [ $? -eq 0 ]; then
-        # Different hosting services have different URL patterns
         if [[ $remote_url == *"github.com"* ]]; then
             remote_url="${remote_url}/tree/${branch}"
         elif [[ $remote_url == *"gitlab.com"* ]]; then
@@ -91,7 +90,6 @@ if [ "$show_branch" = true ]; then
         elif [[ $remote_url == *"bitbucket.org"* ]]; then
             remote_url="${remote_url}/src/${branch}"
         else
-            # Generic approach for other git hosts
             remote_url="${remote_url}/tree/${branch}"
             echo -e "\033[0;33mWarning: Unknown git hosting service, using generic branch URL format\033[0m"
         fi
@@ -101,8 +99,6 @@ fi
 # Open the URL in the default browser
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     xdg-open "$remote_url"
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-    open "$remote_url"
 elif [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "cygwin"* || "$OSTYPE" == "win32" ]]; then
     start "$remote_url"
 else
