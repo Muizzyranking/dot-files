@@ -2,7 +2,7 @@
 export PATH=~/.local/bin:$PATH
 export PATH=/snap/bin:$PATH
 
-export EDITOR=nvim
+export EDITOR=nv
 
 dotfile_dir=~/dot-files
 

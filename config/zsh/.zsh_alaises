@@ -2,8 +2,6 @@
 alias v='nv'
 alias cl='clear'
 alias lv='NVIM_APPNAME=lazyvim nv'
-alias mvim='NVIM_APPNAME=my_nvim nvim'
-alias mnvimn='NVIM_APPNAME=my_nvim nv'
 alias cat='bat'
 alias tree='eza --tree'
 alias ls='eza --color=always --icons=always'
@@ -12,9 +10,6 @@ alias django-run='django-runner.py'
 
 # find directory and cd into it
 # alias fdir='find_dir.sh'
-unalias fdir 2>/dev/null
-unalias ff 2>/dev/null
-unalias of 2>/dev/null
 fdir() {
     local selected_dir
     selected_dir=$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse)
