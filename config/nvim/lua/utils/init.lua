@@ -4,6 +4,7 @@
 ---@field bigfile utils.bigfile
 ---@field cmp utils.cmp
 ---@field discipline utils.discipline
+---@field folds utils.folds
 ---@field format utils.format
 ---@field hl utils.hl
 ---@field icons utils.icons
