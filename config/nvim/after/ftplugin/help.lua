@@ -1,3 +1,5 @@
 vim.opt.spell = false
-local buf = vim.api.nvim_get_current_buf()
-vim.keymap.set("n", "gd", "<c-]>", { noremap = true, buffer = buf, desc = "go to definition" })
+local set = vim.keymap.set
+local opts = { noremap = true, buffer = true, desc = "go to definition" }
+set("n", "gd", "<c-]>", opts)
+set("n", "<cr>", "<c-]>", opts)
