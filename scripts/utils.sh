@@ -20,7 +20,7 @@ print_message() {
 
 is_package_installed() {
     local package="$1"
-    dnf list installed "$package" &>/dev/null
+    rpm -q "$package" &>/dev/null
 }
 
 install_package() {
