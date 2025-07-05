@@ -1,5 +1,8 @@
 local set = Utils.map
 
+-- i don't use marks
+vim.keymap.set("n", "m", "<nop>", {})
+
 -- stylua: ignore start
 ------------------------
 -- moving chunks of text/code
