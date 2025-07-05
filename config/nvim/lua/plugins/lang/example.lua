@@ -224,7 +224,7 @@ return {
   autocmds = {
     {
       -- Event(s) to trigger on (defaults to "FileType" if not specified)
-      event = "BufWritePre",
+      events = "BufWritePre",
       -- Pattern to match (defaults to config.ft if not specified)
       pattern = { "*.ts", "*.tsx" },
       -- Either callback function or command string
@@ -237,17 +237,13 @@ return {
       -- Optional: specify custom group name
       group = "typescript_format",
       -- Additional options
-      opts = {
-        desc = "Format TypeScript files on save",
-      },
+      desc = "Format TypeScript files on save",
     },
     {
       -- Simple example with just a command
-      event = "FileType",
-      command = "setlocal conceallevel=0",
-      opts = {
-        desc = "Disable concealing for TypeScript files",
-      },
+      events = "FileType",
+      cmd = "setlocal conceallevel=0",
+      desc = "Disable concealing for TypeScript files",
     },
   },
 

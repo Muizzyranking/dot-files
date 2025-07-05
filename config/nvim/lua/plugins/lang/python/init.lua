@@ -185,7 +185,7 @@ return {
       end,
     },
     {
-      event = "BufWritePost",
+      events = "BufWritePost",
       pattern = { "*pyrightconfig.json" },
       callback = function()
         Utils.lsp.restart("basedpyright")
