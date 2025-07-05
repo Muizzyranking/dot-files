@@ -27,6 +27,25 @@ setmetatable(M, {
   end,
 })
 
+M.CONFIG = {
+  ignore_buftypes = { "nofile", "terminal", "prompt" },
+  ignore_filetypes = {
+    "notify",
+    "noice",
+    "WhichKey",
+    "alpha",
+    "dashboard",
+    "lazy",
+    "mason",
+    "lspinfo",
+    "snacks_picker_list",
+    "snacks_picker_input",
+    "gitcommit",
+    "gitrebase",
+    "help",
+  },
+}
+
 ---------------------------------------------------------------
 -- Check if a plugin is installed
 ---@param plugin string
@@ -272,6 +291,36 @@ function M.evaluate(value, expected_value)
 
   --  return the truthiness of the resolved value
   return not not value
+end
+
+------------------------------------------------------
+-- check if a buffer is ignored based on its type
+---@param bufnr? number # buffer number to check
+---@return boolean # true if the buffer type is ignored
+------------------------------------------------------
+function M.ignore_buftype(bufnr)
+  bufnr = M.ensure_buf(bufnr)
+  local buftype = vim.api.nvim_get_option_value("buftype", { buf = bufnr })
+  if vim.tbl_contains(M.CONFIG.ignore_buftypes, buftype) then
+    return true
+  end
+
+  return false
+end
+
+------------------------------------------------------
+-- check if a buffre filetype is ignored
+---@param bufnr? number # buffer number to check
+---@return boolean # true if the buffer type is ignored
+------------------------------------------------------
+function M.ignore_filetype(bufnr)
+  bufnr = M.ensure_buf(bufnr)
+  local filetype = vim.api.nvim_get_option_value("filetype", { buf = bufnr })
+  if vim.tbl_contains(M.CONFIG.ignore_filetypes, filetype) then
+    return true
+  end
+
+  return false
 end
 
 return M
