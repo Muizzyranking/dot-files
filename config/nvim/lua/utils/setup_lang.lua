@@ -1,7 +1,6 @@
 ---@class utils.setup_lang
 local M = {}
 
-local api = vim.api
 local schedule = vim.schedule
 local function set_buf_option(buf, option, value)
   vim.bo[buf][option] = value
@@ -15,14 +14,15 @@ end
 -----------------------------------------------------------------
 local function create_autocmd_group(config_name)
   local group_name = string.format("language_setup_%s", config_name)
+  local augroup = Utils.autocmd.augroup(group_name, { clear = true })
   ---@param event string|string[]
   ---@param opts? table
   return function(event, opts)
     opts = opts or {}
-    opts.group = opts.group or group_name
+    opts.group = augroup
     Utils.autocmd.on_very_lazy(function()
       Utils.autocmd.create(event, opts)
-    end, { group = group_name })
+    end)
   end
 end
 
@@ -69,17 +69,21 @@ function M.autocmds(config, autocmd_create)
     Utils.notify.error("autocmds must be a table")
     return
   end
+
   for _, autocmd in ipairs(autocmds) do
-    local autocmd_creator = autocmd.group and create_autocmd_group(autocmd.group) or autocmd_create
+    local group = autocmd.group
     autocmd.group = nil
+    local autocmd_creator = group and create_autocmd_group(group) or autocmd_create
     local events = autocmd.events or "FileType"
     autocmd.events = nil
     local autocmd_opts = {}
-    autocmd_opts.pattern = autocmd.pattern or config.ft
+    local pattern = autocmd.pattern or config.ft
     autocmd.pattern = nil
+    autocmd_opts.pattern = pattern
     for key, value in pairs(autocmd) do
       autocmd_opts[key] = value
     end
+
     autocmd_creator(events, autocmd_opts)
   end
 end
@@ -245,7 +249,7 @@ function M.setup_language(config)
 
   -- Setup filetype-specific keymaps
   if config.keys then
-    create_autocmd("Filetype", {
+    create_autocmd("FileType", {
       pattern = config.ft,
       callback = function(event)
         Utils.map.set_keymaps(config.keys, { buffer = event.buf })
