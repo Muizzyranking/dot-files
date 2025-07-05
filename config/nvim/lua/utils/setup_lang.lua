@@ -3,12 +3,11 @@ local M = {}
 
 local api = vim.api
 local schedule = vim.schedule
-local create_augroup = api.nvim_create_augroup
 local function set_buf_option(buf, option, value)
   vim.bo[buf][option] = value
 end
 
----@alias create_autocmd fun(event: string|string[], pattern: string|string[], callback: fun(event: table), opts?: table): nil
+---@alias create_autocmd fun(event: string|string[], opts: autocmd.Create): nil
 -----------------------------------------------------------------
 -- Create an augroup for language-specific autocommands
 ---@param config_name string # Name of the language configuration
@@ -16,32 +15,20 @@ end
 -----------------------------------------------------------------
 local function create_autocmd_group(config_name)
   local group_name = string.format("language_setup_%s", config_name)
-  local group = create_augroup(group_name, { clear = true })
-
   ---@param event string|string[]
-  ---@param pattern string|string[]
-  ---@param callback fun(event: table)
   ---@param opts? table
-  return function(event, pattern, callback, opts)
-    opts = vim.tbl_extend("force", {
-      group = group,
-      pattern = pattern,
-      callback = callback,
-    }, opts or {})
-    local create_autocmd = function()
+  return function(event, opts)
+    opts = opts or {}
+    opts.group = opts.group or group_name
+    Utils.autocmd.on_very_lazy(function()
       Utils.autocmd.create(event, opts)
-    end
-    if not LazyLoad then
-      create_autocmd()
-    else
-      Utils.autocmd.on_very_lazy(create_autocmd, group)
-    end
+    end, { group = group_name })
   end
 end
 
 -----------------------------------------------------------------
 ---@param config setup_lang.add_ft
----@param create_autocmd function
+---@param create_autocmd create_autocmd
 -----------------------------------------------------------------
 function M.add_filetype(config, create_autocmd)
   local ft_configs = config.add_ft
@@ -59,9 +46,14 @@ function M.add_filetype(config, create_autocmd)
   end)
   if ft_configs.filetype then
     for orig, target in pairs(ft_configs.filetype) do
-      create_autocmd("FileType", orig, function(event)
-        set_buf_option(event.buf, "filetype", target)
-      end)
+      create_autocmd("FileType", {
+        callback = function(event)
+          local buf = event.buf
+          if vim.bo[buf].filetype == orig then
+            set_buf_option(buf, "filetype", target)
+          end
+        end,
+      })
     end
   end
 end
@@ -78,14 +70,17 @@ function M.autocmds(config, autocmd_create)
     return
   end
   for _, autocmd in ipairs(autocmds) do
-    local callback = autocmd.callback or function()
-      vim.cmd(autocmd.command)
+    local autocmd_creator = autocmd.group and create_autocmd_group(autocmd.group) or autocmd_create
+    autocmd.group = nil
+    local events = autocmd.events or "FileType"
+    autocmd.events = nil
+    local autocmd_opts = {}
+    autocmd_opts.pattern = autocmd.pattern or config.ft
+    autocmd.pattern = nil
+    for key, value in pairs(autocmd) do
+      autocmd_opts[key] = value
     end
-    local opts = autocmd.opts or {}
-    local events = autocmd.event or "FileType"
-    local create_autocmd = autocmd.group and create_autocmd_group(autocmd.group) or autocmd_create
-    local pattern = autocmd.pattern or config.ft
-    create_autocmd(events, pattern, callback, opts)
+    autocmd_creator(events, autocmd_opts)
   end
 end
 
@@ -157,9 +152,12 @@ function M.setup_language(config)
       opts = fmt_opts,
     })
     if Utils.evaluate(fmt.format_on_save, true) then
-      create_autocmd("FileType", config.ft, function(event)
-        vim.b[event.buf].autoformat = true
-      end)
+      create_autocmd("FileType", {
+        pattern = config.ft,
+        callback = function(event)
+          vim.b[event.buf].autoformat = true
+        end,
+      })
     end
   end
 
@@ -247,23 +245,29 @@ function M.setup_language(config)
 
   -- Setup filetype-specific keymaps
   if config.keys then
-    create_autocmd("Filetype", config.ft, function(event)
-      Utils.map.set_keymaps(config.keys, { buffer = event.buf })
-    end)
+    create_autocmd("Filetype", {
+      pattern = config.ft,
+      callback = function(event)
+        Utils.map.set_keymaps(config.keys, { buffer = event.buf })
+      end,
+    })
   end
 
   -- Setup filetype-specific options
   if config.options then
-    create_autocmd("FileType", config.ft, function(event)
-      local buf = event.buf
-      for option, value in pairs(config.options) do
-        local ok, err = pcall(set_buf_option, buf, option, value)
-        if not ok then
-          local msg = string.format("Error setting option %s = %s: %s", option, vim.inspect(value), err)
-          Utils.notify.error(msg)
+    create_autocmd("FileType", {
+      pattern = config.ft,
+      callback = function(event)
+        local buf = event.buf
+        for option, value in pairs(config.options) do
+          local ok, err = pcall(set_buf_option, buf, option, value)
+          if not ok then
+            local msg = string.format("Error setting option %s = %s: %s", option, vim.inspect(value), err)
+            Utils.notify.error(msg)
+          end
         end
-      end
-    end)
+      end,
+    })
   end
 
   if config.root_patterns then
