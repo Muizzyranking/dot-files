@@ -7,6 +7,8 @@ return {
     skip_ts = { "string" },
     skip_unbalanced = true,
     markdown = true,
+    ['"'] = { action = "closeopen", pair = '""', neigh_pattern = "[^%w\\][^%w]", register = { cr = false } },
+    ["'"] = { action = "closeopen", pair = "''", neigh_pattern = "[^%w\\][^%w]", register = { cr = false } },
   },
   config = function(_, opts)
     Utils.map.toggle_map({

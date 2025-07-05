@@ -74,7 +74,7 @@ return {
       options.buffer = Utils.ensure_buf(options.buffer or 0)
       local buf = options.buffer
       method = method or "tag"
-      if Utils.evaluate(vim.bo[buf].buftype, "nofile") then
+      if Utils.ignore_buftype(buf) then
         return
       end
       if Utils.evaluate(vim.bo[buf].buflisted, false) then
