@@ -122,10 +122,18 @@ end
 --------------------------------------------------------------------------
 -- lazily execute a function
 ---@param fn function
----@param group? string|integer
+---@param opts? table
 --------------------------------------------------------------------------
-function M.on_very_lazy(fn, group)
-  M.on_user_event("VeryLazy", fn, { group = group })
+function M.on_very_lazy(fn, opts)
+  opts = opts or {}
+  local check_lazy_load = opts.check_lazy_load ~= false
+  opts.check_lazy_load = nil
+
+  if check_lazy_load and LazyLoad then
+    fn()
+  else
+    M.on_user_event("VeryLazy", fn, opts)
+  end
 end
 
 return M
