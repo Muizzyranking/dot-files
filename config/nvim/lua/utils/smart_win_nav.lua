@@ -8,30 +8,10 @@ you came from, rather than just the nearest window in that direction.
 local M = {}
 
 M.config = {
-  -- filetpes where smart navigation is always allowed
   allowed_filetypes = { "help", "man", "qf" },
-  ignore_buftypes = { "nofile", "terminal", "prompt" },
-  skip_filetypes = {
-    "notify",
-    "noice",
-    "WhichKey",
-    "alpha",
-    "dashboard",
-    "lazy",
-    "mason",
-    "lspinfo",
-    "snacks_picker_list",
-    "snacks_picker_input",
-  },
 }
 
--- Direction mappings
-local DIRECTIONS = {
-  h = { key = "h", opposite = "l", name = "left" },
-  j = { key = "j", opposite = "k", name = "down" },
-  k = { key = "k", opposite = "j", name = "up" },
-  l = { key = "l", opposite = "h", name = "right" },
-}
+local OPPOSITES = { h = "l", j = "k", k = "j", l = "h" }
 
 -- State tracking
 local state = {
@@ -59,23 +39,52 @@ local function is_valid_window(winid)
     return false
   end
 
-  -- skip floating wins
   local config = vim.api.nvim_win_get_config(winid)
   if config.relative ~= "" then
     return false
   end
 
-  local bufnr = vim.api.nvim_win_get_buf(winid)
-  local buftype = vim.api.nvim_get_option_value("buftype", { buf = bufnr })
-  local filetype = vim.api.nvim_get_option_value("filetype", { buf = bufnr })
-
-  if vim.tbl_contains(M.config.ignore_buftypes, buftype) then
-    return vim.tbl_contains(M.config.allowed_filetypes, filetype)
-  end
-
-  return not vim.tbl_contains(M.config.skip_filetypes, filetype)
+  return true
 end
 
+-----------------------------------------------------------------------------
+---Check if buffer is allowed for navigation
+---@param bufnr number
+---@return boolean
+-----------------------------------------------------------------------------
+local function is_buffer_allowed(bufnr)
+  bufnr = Utils.ensure_buf(bufnr)
+
+  local filetype = vim.api.nvim_get_option_value("filetype", { buf = bufnr })
+  if vim.tbl_contains(M.config.allowed_filetypes, filetype) then
+    return true
+  end
+  return not Utils.ignore_buftype(bufnr) and not Utils.ignore_filetype(bufnr)
+end
+
+-----------------------------------------------------------------------------
+---Check if window is valid for navigation
+---@param winid number
+---@return boolean
+-----------------------------------------------------------------------------
+local function is_valid_nav_win(winid)
+  if not is_valid_window(winid) then
+    return false
+  end
+
+  local bufnr = vim.api.nvim_win_get_buf(winid)
+  return is_buffer_allowed(bufnr)
+end
+
+-----------------------------------------------------------------------------
+---Calculate distance between windows in a specific direction
+---@param from_pos table
+---@param from_size table
+---@param to_pos table
+---@param to_size table
+---@param direction string
+---@return number distance, boolean is_target
+-----------------------------------------------------------------------------
 local function calculate_win_distance(from_pos, from_size, to_pos, to_size, direction)
   local is_target, distance
   if direction == "h" then -- left
@@ -133,10 +142,10 @@ end
 -----------------------------------------------------------------------------
 local function cleanup_invalid_windows()
   for _, winid in ipairs(vim.api.nvim_list_wins()) do
-    for direction, _ in pairs(DIRECTIONS) do
+    for direction in pairs(OPPOSITES) do
       local var_name = get_history_var(direction)
       local ok, stored_win = pcall(vim.api.nvim_win_get_var, winid, var_name)
-      if ok and stored_win and not is_valid_window(stored_win) then
+      if ok and stored_win and not is_valid_nav_win(stored_win) then
         pcall(vim.api.nvim_win_del_var, winid, var_name)
       end
     end
@@ -150,11 +159,12 @@ end
 ---@param direction string
 -----------------------------------------------------------------------------
 local function store_navigation_history(from_win, to_win, direction)
-  if not is_valid_window(from_win) or not is_valid_window(to_win) then
+  if not is_valid_nav_win(from_win) or not is_valid_nav_win(to_win) then
     return
   end
 
-  local opposite_dir = DIRECTIONS[direction].opposite
+  -- local opposite_dir = DIRECTIONS[direction].opposite
+  local opposite_dir = OPPOSITES[direction]
   local var_name = get_history_var(opposite_dir)
   pcall(vim.api.nvim_win_set_var, to_win, var_name, from_win)
 end
@@ -169,7 +179,7 @@ local function get_navigation_history(direction)
   local var_name = get_history_var(direction)
 
   local ok, stored_win = pcall(vim.api.nvim_win_get_var, current, var_name)
-  if ok and stored_win and is_valid_window(stored_win) then
+  if ok and stored_win and is_valid_nav_win(stored_win) then
     return stored_win
   end
 
@@ -181,7 +191,7 @@ end
 ---@param start_win number
 ---@return boolean
 local function is_history_valid(history_win, direction, start_win)
-  local opposite_dir = DIRECTIONS[direction].opposite
+  local opposite_dir = OPPOSITES[direction]
 
   -- Temporarily switch to history window to check reverse direction
   local original_win = vim.api.nvim_get_current_win()
@@ -235,9 +245,9 @@ end
 ---@param new_win number
 local function clear_relevant_history(old_win, new_win)
   -- Don't try to clear history if old window is invalid
-  if not is_valid_window(old_win) then
+  if not is_valid_nav_win(old_win) then
     -- Just clear all history for the new window
-    for direction in pairs(DIRECTIONS) do
+    for direction in pairs(OPPOSITES) do
       local var_name = get_history_var(direction)
       pcall(vim.api.nvim_win_del_var, new_win, var_name)
     end
@@ -246,7 +256,7 @@ local function clear_relevant_history(old_win, new_win)
 
   local cleared_any = false
 
-  for direction in pairs(DIRECTIONS) do
+  for direction in pairs(OPPOSITES) do
     -- Check if new window is in this direction from old window
     local temp_current = vim.api.nvim_get_current_win()
     vim.api.nvim_set_current_win(old_win)
@@ -254,7 +264,7 @@ local function clear_relevant_history(old_win, new_win)
     vim.api.nvim_set_current_win(temp_current)
 
     if target_in_direction == new_win then
-      local opposite_dir = DIRECTIONS[direction].opposite
+      local opposite_dir = OPPOSITES[direction]
       local var_name = get_history_var(opposite_dir)
       pcall(vim.api.nvim_win_del_var, new_win, var_name)
       cleared_any = true
@@ -263,7 +273,7 @@ local function clear_relevant_history(old_win, new_win)
 
   -- If no specific direction was cleared, clear all history
   if not cleared_any then
-    for direction in pairs(DIRECTIONS) do
+    for direction in pairs(OPPOSITES) do
       local var_name = get_history_var(direction)
       pcall(vim.api.nvim_win_del_var, new_win, var_name)
     end
@@ -295,7 +305,12 @@ local function on_win_leave()
   state.current_win = vim.api.nvim_get_current_win()
 end
 
-local function setup()
+------------------------------------
+-- setup function
+------------------------------------
+local function setup(opts)
+  M.config = vim.tbl_deep_extend("force", M.config, opts or {})
+
   Utils.autocmd.autocmd_augroup("smart_window_navigation", {
     {
       events = { "WinEnter" },
@@ -317,7 +332,7 @@ local function setup()
     },
   })
 
-  for direction, _ in pairs(DIRECTIONS) do
+  for direction in pairs(OPPOSITES) do
     vim.keymap.set("n", "<C-w>" .. direction, function()
       M.smart_navigate(direction)
     end, {
@@ -338,7 +353,7 @@ end
 
 function M.clear_history()
   for _, winid in ipairs(vim.api.nvim_list_wins()) do
-    for direction, _ in pairs(DIRECTIONS) do
+    for direction in pairs(OPPOSITES) do
       local var_name = get_history_var(direction)
       pcall(vim.api.nvim_win_del_var, winid, var_name)
     end
@@ -352,11 +367,11 @@ function M.debug_info()
   info.current_window = current
   info.history = {}
 
-  for direction, dir_info in pairs(DIRECTIONS) do
+  for direction in pairs(OPPOSITES) do
     local var_name = get_history_var(direction)
     local ok, stored_win = pcall(vim.api.nvim_win_get_var, current, var_name)
     if ok and stored_win then
-      info.history[dir_info.name] = stored_win
+      info.history[direction] = stored_win
     end
   end
 
