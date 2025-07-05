@@ -1,51 +1,19 @@
 ---@class utils.folds
 local M = {}
-local ignore_buftypes = { "nofile", "prompt", "popup" }
-local excluded_filetypes = {
-  "notify",
-  "noice",
-  "WhichKey",
-  "alpha",
-  "dashboard",
-  "lazy",
-  "mason",
-  "lspinfo",
-  "snacks_picker_list",
-  "snacks_picker_input",
-  "gitcommit",
-  "gitrebase",
-  "help",
-  "man",
-  "qf",
-  "Trouble",
-}
+local query_cache = {}
 
 --- Determines if the current buffer should have its view saved/loaded
 --- Checks buffer type, file type, and file accessibility
 ---@return boolean # true if view should be saved, false otherwise
-function M.should_save_view()
-  if vim.b.bigfile then
-    return false
-  end
-  local buftype = vim.bo.buftype
-  if vim.tbl_contains(ignore_buftypes, buftype) then
-    return false
-  end
-
-  local bufname = vim.fn.expand("%:p")
-  if bufname == "" or bufname:match("^%s*$") then
-    return false
-  end
-
-  local filetype = vim.bo.filetype
-  if vim.tbl_contains(excluded_filetypes, filetype) then
-    return false
-  end
+function M.should_save_view(buf)
+  buf = Utils.ensure_buf(buf)
+  -- stylua: ignore start
+  if vim.b[buf].bigfile then return false end
+  if Utils.ignore_buftype() then return false end
+  if Utils.ignore_filetype() then return false end
+  -- stylua: ignore end
   local full_path = vim.fn.expand("%:p")
-  if full_path == "" or not vim.fn.filereadable(full_path) then
-    return false
-  end
-  return true
+  return full_path ~= "" and vim.fn.filereadable(full_path) == 1
 end
 
 -- Safely saves the current view
@@ -124,16 +92,19 @@ end
 ---@return string|table # fold text (string for fallback, table for highlighted)
 ----------------------------------------------------------
 function M.foldtext()
+  local lang = vim.treesitter.language.get_lang(vim.bo.filetype)
   local pos = vim.v.foldstart
   local line = vim.api.nvim_buf_get_lines(0, pos - 1, pos, false)[1]
-  local lang = vim.treesitter.language.get_lang(vim.bo.filetype)
   local parser = vim.treesitter.get_parser(0, lang)
 
   if parser == nil then
     return vim.fn.foldtext()
   end
 
-  local query = vim.treesitter.query.get(parser:lang(), "highlights")
+  if not query_cache[lang] then
+    query_cache[lang] = vim.treesitter.query.get(lang, "highlights")
+  end
+  local query = query_cache[lang]
 
   if query == nil then
     return vim.fn.foldtext()
@@ -191,9 +162,8 @@ function M.setup()
   end
   vim.fn.mkdir(vim.o.viewdir, "p")
   -- stylua: ignore start
-  _G.FoldsModule         = M
-  vim.opt.foldexpr       = "v:lua.FoldsModule.foldexpr()"
-  vim.opt.foldtext       = "v:lua.FoldsModule.foldtext()"
+  vim.opt.foldexpr       = "v:lua.require('utils.folds').foldexpr()"
+  vim.opt.foldtext       = "v:lua.require('utils.folds').foldtext()"
   vim.opt.foldmethod     = "expr"
   vim.opt.foldenable     = true
   vim.opt.foldlevel      = 99
