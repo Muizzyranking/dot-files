@@ -6,6 +6,7 @@
 
 ---@class setup_lang.autocmd
 ---@field events? string|string[] # The event(s) to trigger on
+---@field group? string|integer # The group name or ID for the autocmd
 ---@field pattern? string|string[] # The pattern(s) to match
 ---@field command? string # The command to run
 ---@field callback? fun(args: table) # The callback function to run
