@@ -379,13 +379,9 @@ function M.debug_info()
 end
 
 function M.setup()
-  if LazyLoad then
+  Utils.autocmd.on_very_lazy(function()
     setup()
-  else
-    Utils.autocmd.on_very_lazy(function()
-      setup()
-    end, "smart_win_navigation")
-  end
+  end, { group = "smart_win_navigation" })
 end
 
 return M

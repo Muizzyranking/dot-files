@@ -43,6 +43,7 @@ end
 -- create an autocmd
 ---@param event string|string[]
 ---@param opts? autocmd.Create
+---@return number? # autocmd ID
 --------------------------------------------------------------------------
 function M.create(event, opts)
   opts = opts or {}
@@ -93,36 +94,27 @@ end
 
 --------------------------------------------------------------------------
 -- Execute a user-defined event
----@param patterns string|string[]
+---@param pattern string|string[]
 ---@param fn fun(event: table)
----@param opts? table
----@return number # autocmd ID
+---@param opts? autocmd.Create
+---@return number? # autocmd ID
 --------------------------------------------------------------------------
-function M.on_user_event(patterns, fn, opts)
-  patterns = Utils.ensure_list(patterns)
+function M.on_user_event(pattern, fn, opts)
   opts = opts or {}
-  local group = opts.group and M.augroup(opts.group) or nil
-  local options = {
-    pattern = patterns,
-    group = group,
-    callback = function(event)
-      if type(fn) == "function" then
-        fn(event)
-      end
-    end,
-  }
-  for key, value in pairs(opts) do
-    if options[key] == nil then
-      options[key] = value
+  pattern = Utils.ensure_list(pattern)
+  opts.pattern = pattern
+  opts.callback = function(event)
+    if Utils.type(fn, "function") then
+      fn(event)
     end
   end
-  return vim.api.nvim_create_autocmd("User", options)
+  return M.create("User", opts)
 end
 
 --------------------------------------------------------------------------
 -- lazily execute a function
 ---@param fn function
----@param opts? table
+---@param opts? {group?: string, check_lazy_load?: boolean}
 --------------------------------------------------------------------------
 function M.on_very_lazy(fn, opts)
   opts = opts or {}
@@ -130,9 +122,9 @@ function M.on_very_lazy(fn, opts)
   opts.check_lazy_load = nil
 
   if check_lazy_load and LazyLoad then
-    fn()
-  else
     M.on_user_event("VeryLazy", fn, opts)
+  else
+    fn()
   end
 end
 

@@ -1,9 +1,10 @@
 ---@class utils.setup_lang
 local M = {}
 
-local schedule = vim.schedule
 local function set_buf_option(buf, option, value)
-  vim.bo[buf][option] = value
+  pcall(function()
+    vim.bo[buf][option] = value
+  end)
 end
 
 ---@alias create_autocmd fun(event: string|string[], opts: autocmd.Create): nil
@@ -41,9 +42,20 @@ function M.add_filetype(config, create_autocmd)
       filetype_config[detect_type] = ft_configs[detect_type]
     end
   end
-  schedule(function()
+  if LazyLoad then
+    local loaded = false
+    create_autocmd("BufReadPre", {
+      callback = function()
+        if not loaded then
+          vim.filetype.add(filetype_config)
+          loaded = true
+        end
+      end,
+      once = true,
+    })
+  else
     vim.filetype.add(filetype_config)
-  end)
+  end
   if ft_configs.filetype then
     for orig, target in pairs(ft_configs.filetype) do
       create_autocmd("FileType", {
