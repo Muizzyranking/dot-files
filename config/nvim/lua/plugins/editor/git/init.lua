@@ -125,6 +125,7 @@ local plugins = {
             "<leader>gD",
             function()
               gs.diffthis("~")
+              require("plugins.editor.git.keys").close_git_signs("q")
             end,
             desc = "Diff this ~",
             icon = { icon = " " },
@@ -140,6 +141,8 @@ local plugins = {
         "<leader>gd",
         function()
           require("unified.diff").show_current()
+          vim.b.diff = true
+          require("plugins.editor.git.keys").close_unified("q")
         end,
         desc = "Unified Diff",
       },
@@ -156,9 +159,9 @@ local plugins = {
         change = "DiffChange",
       },
       line_symbols = {
-        add = "+",
-        delete = "-",
-        change = "~",
+        add = "▎",
+        delete = " ",
+        change = "▎",
       },
       auto_refresh = true,
     },
