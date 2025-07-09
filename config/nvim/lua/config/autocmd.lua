@@ -312,20 +312,23 @@ end)
 autocmd({ "BufEnter", "BufWritePost", "TextChanged", "FileType" }, {
   callback = function(event)
     local buf = Utils.ensure_buf(event.buf)
+    if not vim.api.nvim_buf_is_valid(buf) then
+      pcall(vim.cmd, "TSBufDisable incremental_selection")
+      return
+    end
+    if Utils.ignore_buftype(buf) then
+      pcall(vim.cmd, "TSBufDisable incremental_selection")
+      return
+    end
     local ft = vim.bo[buf].filetype
     local is_empty = vim.fn.getline(1) == "" and vim.fn.line("$") == 1
     local excluded_filetypes = { "text", "txt", "", "bigfile" }
 
-    if not vim.api.nvim_buf_is_valid(buf) then
-      vim.cmd("TSBufDisable incremental_selection")
-      return
-    end
-
     if vim.tbl_contains(excluded_filetypes, ft) or is_empty then
-      vim.cmd("TSBufDisable incremental_selection")
+      pcall(vim.cmd, "TSBufDisable incremental_selection")
       return
     end
-    vim.cmd("TSBufEnable incremental_selection")
+    pcall(vim.cmd, "TSBufEnable incremental_selection")
   end,
 })
 
