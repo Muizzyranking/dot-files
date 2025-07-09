@@ -5,21 +5,21 @@ export PATH=/snap/bin:$PATH
 export EDITOR=nv
 
 dotfile_dir=~/dot-files
+# config_dir=${XDG_CONFIG_HOME:-$HOME/.config}
 
 #Config files
 export CONFIG=$dotfile_dir/config
 export NVIMRC=$dotfile_dir/config/nvim/
-export ZSHRC=$dotfile_dir/shell/.zshrc
-export ZSHENV=$dotfile_dir/shell/.zshenv
-export ALIASES=~$dotfile_dir/shell/.zsh_alaises
-export TMUXRC=$dotfile_dir/config/tmux/tmux.conf
+export ZSHRC=$dotfile_dir/home/.zshrc
+export ZSHENV=$CONFIG/zsh/.zshenv
+export ALIASES=~$CONFIG/zsh/.zsh_alaises
+export TMUXRC=$CONFIG/tmux/tmux.conf
 
 export PATH=$HOME/.npm-global/bin:$PATH
 export PATH=$dotfile_dir/bin:$PATH
 export PATH=~/bin/lua_ls/bin:$PATH
 export PATH=$HOME/.local/bin:$PATH
 
-# export PATH=~/nvim-linux64/bin:$PATH
 export PATH=$HOME/.cargo/bin:$PATH
 # export QT_QPA_PLATFORMTHEME=qt5ct
 export PATH=$PATH:/usr/local/go/bin
