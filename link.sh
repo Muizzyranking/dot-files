@@ -120,9 +120,6 @@ link_zsh_files() {
     link_config "zsh"
 }
 
-link_git_files() {
-    link_home_file ".gitconfig"
-}
 
 # Available config files
 configs=("bat" "git" "hypr" "kitty" "lazygit" "lazyvim" "nvim" "rofi" "swaync" "tmux" "waybar" "wlogout" "zsh")
@@ -140,7 +137,6 @@ for arg in "$@"; do
         for config in "${configs[@]}"; do
             case "$config" in
             "zsh") link_zsh_files ;;
-            "git") link_git_files ;;
             *) link_config "$config" ;;
             esac
         done
@@ -148,7 +144,6 @@ for arg in "$@"; do
     elif [[ " ${configs[*]} " == *" $arg "* ]]; then
         case "$arg" in
         "zsh") link_zsh_files ;;
-        "git") link_git_files ;;
         *) link_config "$arg" ;;
         esac
     else
