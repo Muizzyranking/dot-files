@@ -181,26 +181,14 @@ autocmd("FileType", {
   end,
 })
 
------------------------------------------------------------
--- Turn off line numbering in terminal buffers
------------------------------------------------------------
+--------------------------------------------------------------
+----- Turn off line numbering in terminal buffers
+--------------------------------------------------------------
 autocmd("TermOpen", {
   group = "term_no_line_number",
   callback = function()
     vim.opt_local.number = false
     vim.opt_local.relativenumber = false
-  end,
-})
-
------------------------------------------------------------
--- Refresh buffers when terminal closes
------------------------------------------------------------
-autocmd("TermClose", {
-  group = "refresh_on_termclose",
-  callback = function()
-    vim.schedule(function()
-      Utils.ui.refresh(nil, true)
-    end)
   end,
 })
 
@@ -236,6 +224,15 @@ autocmd.autocmd_augroup("toggle_rel_number", {
       if vim.wo.cursorline then
         vim.w.auto_cursorline = true
         vim.wo.cursorline = false
+      end
+    end,
+  },
+  {
+    events = { "TermClose", "TermLeave" },
+    callback = function()
+      if vim.w.auto_cursorline then
+        vim.wo.cursorline = true
+        vim.w.auto_cursorline = nil
       end
     end,
   },
