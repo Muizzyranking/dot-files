@@ -7,20 +7,18 @@ local api = vim.api
 -----------------------------------------------------------
 function M.toggle_file_executable(state, filename)
   filename = filename or Utils.get_filename()
-  local cmd = ("chmod %s %s"):format(state and "-x" or "+x", filename)
+  local flag = state and "-x" or "+x"
+  local success, output = Utils.run_command({ "chmod", flag, filename }, { trim = true })
   local success_message = ("File made %s"):format(state and "unexecutable" or "executable")
   local error_message = ("Error making file %s"):format(state and "unexecutable" or "executable")
 
-  local output = vim.fn.system(cmd)
-  local err = vim.v.shell_error == 0
-
   local level = "info"
-  if err then
+  if success then
     level = state and "warn" or "info"
   else
     level = "warn"
   end
-  Utils.notify[level](err and success_message or error_message .. ": " .. output, { title = "Options" })
+  Utils.notify[level](success and success_message or error_message .. ": " .. output, { title = "Options" })
 end
 
 -------------------------------------
@@ -61,12 +59,9 @@ function M.toggle_tmux(state)
   end
 
   local status = state and "off" or "on"
-  local cmd = { "tmux", "set-option", "-g", "status", status }
-  local output = vim.fn.system(cmd)
-  local err = vim.v.shell_error == 0
+  local success, output = Utils.run_command({ "tmux", "set-option", "-g", "status", status }, { trim = true })
   local notify_opts = { title = "Tmux" }
-
-  if err then
+  if success then
     local bar_state = state and "Hide" or "Show"
     Utils.notify(("%s Tmux Bar"):format(bar_state), notify_opts)
   else
