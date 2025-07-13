@@ -3,7 +3,7 @@ return {
   opts = function(_, opts)
     opts.dashboard = {
       preset = {
-        header = Utils.ui.logo.one,
+        header = Utils.ui.logo,
         keys = {
           {
             icon = " ",

@@ -53,9 +53,6 @@ return {
                 ["s"] = "edit_vsplit",
                 ["S"] = "edit_split",
               },
-              wo = {
-                cursorline = false,
-              },
             },
           },
         },
