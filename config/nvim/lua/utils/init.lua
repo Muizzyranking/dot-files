@@ -62,9 +62,7 @@ end
 ---------------------------------------------------------------
 function M.get_opts(name)
   local plugin = require("lazy.core.config").plugins[name]
-  if not plugin then
-    return {}
-  end
+  if not plugin then return {} end
   local Plugin = require("lazy.core.plugin")
   return Plugin.values(plugin, "opts", false)
 end
@@ -112,21 +110,13 @@ end
 ---@return boolean
 ---------------------------------------------------------------
 function M.is_in_git_repo()
-  local handle, err = io.popen("git rev-parse --is-inside-work-tree 2>/dev/null")
-  if not handle then
-    M.notify.error("Failed to check git repository: " .. (err or "unknown error"))
-    return false
-  end
-
-  local result = handle:read("*a")
-  handle:close()
-
-  if not result then
-    M.notify.error("Failed to read git command output.")
-    return false
-  end
-
-  return result:match("true") ~= nil
+  local success, output = M.run_command({ "git", "rev-parse", "--is-inside-work-tree" }, {
+    trim = true,
+    error_handler = function(output, exit_code)
+      if exit_code ~= 0 then M.notify.error("Failed to check git repository: " .. output) end
+    end,
+  })
+  return success and output:match("true") ~= nil
 end
 
 -------------------------------------
@@ -135,9 +125,7 @@ end
 ---@return boolean
 -------------------------------------
 M.is_executable = function(path)
-  if path == "" then
-    return false
-  end
+  if path == "" then return false end
   local ok, result = pcall(vim.fn.executable, path)
   return ok and result == 1
 end
@@ -149,9 +137,7 @@ end
 function M.norm(path)
   if path:sub(1, 1) == "~" then
     local home = vim.uv.os_homedir()
-    if home:sub(-1) == "\\" or home:sub(-1) == "/" then
-      home = home:sub(1, -2)
-    end
+    if home:sub(-1) == "\\" or home:sub(-1) == "/" then home = home:sub(1, -2) end
     path = home .. path:sub(2)
   end
   path = path:gsub("\\", "/"):gsub("/+", "/")
@@ -168,9 +154,7 @@ function M.memoize(fn)
   return function(...)
     local key = vim.inspect({ ... })
     cache[fn] = cache[fn] or {}
-    if cache[fn][key] == nil then
-      cache[fn][key] = fn(...)
-    end
+    if cache[fn][key] == nil then cache[fn][key] = fn(...) end
     return cache[fn][key]
   end
 end
@@ -206,12 +190,8 @@ end
 ---@return string[]|table # Listified value
 -----------------------------------------------------------------
 function M.ensure_list(value)
-  if not value then
-    return {}
-  end
-  if M.type(value, "function") then
-    value = value()
-  end
+  if not value then return {} end
+  if M.type(value, "function") then value = value() end
 
   return M.type(value, "table") and value or { value }
 end
@@ -223,16 +203,9 @@ end
 ---@return string # The ensured string value
 -----------------------------------------------------------------
 function M.ensure_string(value, default)
-  if not value or value == "" then
-    return default or ""
-  end
-  if M.type(value, "function") then
-    value = value()
-  end
-
-  if M.type(value, "table") then
-    return table.concat(value, ", ")
-  end
+  if not value or value == "" then return default or "" end
+  if M.type(value, "function") then value = value() end
+  if M.type(value, "table") then return table.concat(value, ", ") end
   return M.type(value, "string") and value or tostring(value)
 end
 
@@ -273,21 +246,15 @@ end
 ---@return boolean true if the resolved value is truthy (and matches expected_value if provided)
 ---------------------------------------------------------------
 function M.evaluate(value, expected_value)
-  if M.type(value, "function") then
-    value = value()
-  end
+  if M.type(value, "function") then value = value() end
 
   if expected_value ~= nil then
-    if M.type(expected_value, "function") then
-      expected_value = expected_value()
-    end
+    if M.type(expected_value, "function") then expected_value = expected_value() end
     return value == expected_value
   end
 
   -- Handle empty tables as falsy
-  if M.type(value, "table") then
-    return next(value) ~= nil
-  end
+  if M.type(value, "table") then return next(value) ~= nil end
 
   --  return the truthiness of the resolved value
   return not not value
@@ -301,9 +268,7 @@ end
 function M.ignore_buftype(bufnr)
   bufnr = M.ensure_buf(bufnr)
   local buftype = vim.api.nvim_get_option_value("buftype", { buf = bufnr })
-  if vim.tbl_contains(M.CONFIG.ignore_buftypes, buftype) then
-    return true
-  end
+  if vim.tbl_contains(M.CONFIG.ignore_buftypes, buftype) then return true end
 
   return false
 end
@@ -316,11 +281,27 @@ end
 function M.ignore_filetype(bufnr)
   bufnr = M.ensure_buf(bufnr)
   local filetype = vim.api.nvim_get_option_value("filetype", { buf = bufnr })
-  if vim.tbl_contains(M.CONFIG.ignore_filetypes, filetype) then
-    return true
-  end
+  if vim.tbl_contains(M.CONFIG.ignore_filetypes, filetype) then return true end
 
   return false
+end
+
+---@param cmd string|string[]|function
+---@param opts utils.run_command_opts
+function M.run_command(cmd, opts)
+  opts = opts or {}
+  if M.type(cmd, "function") then cmd = cmd() end
+  if not cmd or cmd == "" then return false, "No command provided" end
+  local output = vim.fn.system(cmd, opts.input or "")
+  local success = vim.v.shell_error == 0
+
+  if opts.trim then output = vim.trim(output) end
+
+  if not success and opts.error_handler then
+    if M.type(opts.error_handler, "function") then opts.error_handler(output, vim.v.shell_error) end
+  end
+
+  return success, output
 end
 
 return M
