@@ -1,3 +1,4 @@
+if vim.loader.enable then vim.loader.enable() end
 ---@diagnostic disable-next-line: duplicate-set-field
 vim.deprecate = function() end -- disable deprecate warnings
 -- global variables
@@ -15,20 +16,19 @@ end
 -- set colorscheme before loading lazy.nvim
 -- the colorscheme will be applied after lazy.nvim is loaded
 -- setting colorsheme here allows to use the colorscheme variable in the lazy.nvim config
-Utils.ui.set_colorscheme("rose-pine")
+Utils.ui.setup({
+  colorscheme = "rose-pine",
+  logo = "one",
+})
 Utils.hl.setup()
 Utils.smart_win_nav.setup()
 r("globals")
 r("options")
 r("lazy")
-if not LazyLoad then
-  r("autocmd")
-end
+if not LazyLoad then r("autocmd") end
 
 Utils.autocmd.on_very_lazy(function()
-  if LazyLoad then
-    r("autocmd")
-  end
+  if LazyLoad then r("autocmd") end
   r("keymaps")
   r("abbrevations")
   Utils.root.setup()

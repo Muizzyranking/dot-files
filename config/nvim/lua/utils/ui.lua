@@ -1,6 +1,7 @@
 ---@class utils.ui
 local M = {}
 M.colorscheme = "habamax"
+M.logo = nil
 
 ------------------------------------------------------------
 -- sets the colorscheme
@@ -59,8 +60,26 @@ function M.refresh(close_floats, buf_enter)
   vim.cmd("redraw!")
 end
 
-M.logo = {}
-M.logo.one = [[
+---@param logo_name? string
+function M.set_logo(logo_name)
+  if logo_name and M.logos[logo_name] then
+    M.logo = M.logos[logo_name]
+  else
+    if logo_name then
+      Utils.notify.warn("Unknown logo: " .. logo_name .. ", using default 'one'")
+    end
+    M.logo = M.logos.one
+  end
+end
+
+function M.setup(opts)
+  opts = opts or {}
+  M.set_colorscheme(opts.colorscheme)
+  M.set_logo(opts.logo)
+end
+
+M.logos = {}
+M.logos.one = [[
 ┈╭━━━━━━━━━━━╮┈
 ┈┃╭━━━╮┊╭━━━╮┃┈
 ╭┫┃┈▇┈┃┊┃┈▇┈┃┣╮
@@ -73,7 +92,7 @@ M.logo.one = [[
 
 ]]
 
-M.logo.two = [[
+M.logos.two = [[
 
   ███╗   ███╗██╗   ██╗██╗███████╗███████╗██╗   ██╗██████╗  █████╗ ███╗   ██╗██╗  ██╗██╗███╗   ██╗ ██████╗
   ████╗ ████║██║   ██║██║╚══███╔╝╚══███╔╝╚██╗ ██╔╝██╔══██╗██╔══██╗████╗  ██║██║ ██╔╝██║████╗  ██║██╔════╝
@@ -83,7 +102,7 @@ M.logo.two = [[
   ╚═╝     ╚═╝ ╚═════╝ ╚═╝╚══════╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝
 ]]
 
-M.logo.three = [[
+M.logos.three = [[
 ⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣤⣴⣶⣶⣶⣶⣶⠶⣶⣤⣤⣀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⢀⣤⣾⣿⣿⣿⠁⠀⢀⠈⢿⢀⣀⠀⠹⣿⣿⣿⣦⣄⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⣴⣿⣿⣿⣿⣿⠿⠀⠀⣟⡇⢘⣾⣽⠀⠀⡏⠉⠙⢛⣿⣷⡖⠀
