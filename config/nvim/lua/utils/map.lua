@@ -14,9 +14,7 @@ local deepcopy = vim.deepcopy
 ---@return boolean success
 ---------------------------------------------------------------
 local function validate_keymap(mappings)
-  if not mappings then
-    return false
-  end
+  if not mappings then return false end
   if
     type(mappings) ~= "table"
     or type(mappings[1]) ~= "string"
@@ -41,9 +39,7 @@ function M.safe_keymap_set(mode, lhs, rhs, opts)
   local modes = Utils.ensure_list(mode)
 
   for _, m in ipairs(modes) do
-    if keys.have and keys:have(lhs, m) then
-      return false
-    end
+    if keys.have and keys:have(lhs, m) then return false end
   end
 
   opts = opts or {}
@@ -96,20 +92,14 @@ end
 ---@param mapping map.KeymapOpts
 ---------------------------------------------------------------
 function M.set_keymap(mapping)
-  if vim.g.vscode then
-    return
-  end
+  if vim.g.vscode then return end
 
-  if not validate_keymap(mapping) then
-    return
-  end
+  if not validate_keymap(mapping) then return end
 
   if mapping.conds then
     local conditions = Utils.ensure_list(mapping.conds)
     for _, condition in ipairs(conditions) do
-      if not Utils.evaluate(condition) then
-        return
-      end
+      if not Utils.evaluate(condition) then return end
     end
   end
 
@@ -121,13 +111,9 @@ function M.set_keymap(mapping)
   }
 
   for _, field in ipairs({ "buffer", "silent", "remap", "expr" }) do
-    if mapping[field] ~= nil then
-      opts[field] = mapping[field]
-    end
+    if mapping[field] ~= nil then opts[field] = mapping[field] end
   end
-  if not M.safe_keymap_set(mode, lhs, rhs, opts) then
-    return
-  end
+  if not M.safe_keymap_set(mode, lhs, rhs, opts) then return end
 
   if mapping.icon then
     M.add_to_wk({
@@ -147,12 +133,8 @@ end
 ---@param opts? map.KeymapOpts #  Shared options for all mappings
 ---------------------------------------------------------------
 function M.set_keymaps(mappings, opts)
-  if type(mappings) ~= "table" then
-    return
-  end
-  if type(mappings[1]) ~= "table" then
-    mappings = { mappings }
-  end
+  if type(mappings) ~= "table" then return end
+  if type(mappings[1]) ~= "table" then mappings = { mappings } end
   opts = opts or {}
   for _, map in ipairs(mappings) do
     local new_map = vim.tbl_deep_extend("force", {}, opts, map)
@@ -244,9 +226,7 @@ end
 ---------------------------------------------------------------
 function M.toggle_map(mapping)
   local toggle = Toggle:new(mapping)
-  if not toggle:is_toggle_opts() then
-    return
-  end
+  if not toggle:is_toggle_opts() then return end
 
   local map = {
     mapping[1],
@@ -260,9 +240,7 @@ function M.toggle_map(mapping)
 
   local excluded = { "name", "get_state", "toggle_fn", "change_state", "color", "notify", "set_key" }
   for k, v in pairs(mapping) do
-    if map[k] == nil and not vim.tbl_contains(excluded, k) then
-      map[k] = v
-    end
+    if map[k] == nil and not vim.tbl_contains(excluded, k) then map[k] = v end
   end
 
   if mapping.set_key ~= false then
@@ -278,17 +256,13 @@ end
 ---@return table[]? # success or mapping tables
 ---------------------------------------------------------------
 function M.toggle_maps(mappings, opts)
-  if type(mappings) ~= "table" then
-    return nil
-  end
+  if type(mappings) ~= "table" then return nil end
   local results = {}
   opts = opts or {}
   for _, map in ipairs(mappings) do
     local merged_opts = vim.tbl_deep_extend("force", {}, opts, map)
     local result = M.toggle_map(merged_opts)
-    if result then
-      table.insert(results, result)
-    end
+    if result then table.insert(results, result) end
   end
   return #results > 0 and results or nil
 end
@@ -307,9 +281,7 @@ local DEFAULT_ABBREV_CONDS = {
 ---@param opts table
 -----------------------------------
 function M.create_abbrev(word, new_word, opts)
-  if not word or not new_word then
-    return
-  end
+  if not word or not new_word then return end
   opts = opts or {}
   local mode = opts.mode or "ia"
   local conds = Utils.ensure_list(opts.conds) or nil
@@ -323,15 +295,11 @@ function M.create_abbrev(word, new_word, opts)
     if conds then
       for _, c in ipairs(conds) do
         if Utils.type(c, "string") then
-          if not DEFAULT_ABBREV_CONDS[c] then
-            return word
-          end
+          if not DEFAULT_ABBREV_CONDS[c] then return word end
           c = DEFAULT_ABBREV_CONDS[c]
         end
         if Utils.type(c, "function") then
-          if not Utils.evaluate(c, true) then
-            return word
-          end
+          if not Utils.evaluate(c, true) then return word end
         end
       end
     end
@@ -345,9 +313,7 @@ end
 ---@param opts? table # Shared options for all abbreviations
 ---------------------------------------------------------------
 function M.create_abbrevs(abbrevs, opts)
-  if type(abbrevs) ~= "table" then
-    return
-  end
+  if type(abbrevs) ~= "table" then return end
 
   opts = opts or {}
 
@@ -367,20 +333,12 @@ end
 ---@param mappings wk.Spec # Which-key mapping definitions
 ---------------------------------------------------------------
 function M.add_to_wk(mappings)
-  if type(mappings) ~= "table" then
-    return
-  end
-  if type(mappings[1]) ~= "table" then
-    mappings = { mappings }
-  end
+  if type(mappings) ~= "table" then return end
+  if type(mappings[1]) ~= "table" then mappings = { mappings } end
   for _, map in ipairs(mappings) do
-    if type(map) == "table" then
-      table.insert(M._wk_maps, map)
-    end
+    if type(map) == "table" then table.insert(M._wk_maps, map) end
   end
-  if M._is_setup then
-    Utils.autocmd.exec_user_event("KeymapSet")
-  end
+  if M._is_setup then Utils.autocmd.exec_user_event("KeymapSet") end
 end
 
 ---------------------------------------------------------------
@@ -388,9 +346,7 @@ end
 ---@param mappings wk.Spec # Which-key mapping definitions
 ---------------------------------------------------------------
 function M.hide_from_wk(mappings)
-  if type(mappings) ~= "table" then
-    return
-  end
+  if type(mappings) ~= "table" then return end
 
   for _, map in ipairs(mappings) do
     if type(map) == "string" then
@@ -414,9 +370,7 @@ function M.reload_config(opts)
   opts = opts or {}
   opts.buffer = Utils.ensure_buf(opts.buffer)
   opts.title = opts.title or "Config"
-  if opts.cond ~= nil and not opts.cond then
-    return
-  end
+  if opts.cond ~= nil and not opts.cond then return end
   if not opts.cmd then
     Utils.notify.error("No command provided to reload config")
     return
@@ -424,17 +378,15 @@ function M.reload_config(opts)
 
   if opts.restart then
     local process = opts.title:lower()
-    local is_running = vim.fn.system("pgrep -x " .. process) ~= ""
+    local is_running = Utils.run_command({ "pgrep", "-x", process })
     local is_exec = Utils.is_executable(process)
-    if not is_running or not is_exec then
-      return
-    end
+    if not is_running or not is_exec then return end
   end
-  -- Determine the command to execute
 
   local function build_cmd()
-    local cmd = vim.fn.shellescape(opts.cmd)
+    local cmd = opts.cmd
     if opts.restart then
+      cmd = vim.fn.shellescape(cmd)
       local process = opts.title:lower()
       return string.format("pkill -x %s || true; nohup %s > /dev/null 2>&1 & disown", process, cmd)
     end
@@ -445,22 +397,20 @@ function M.reload_config(opts)
     "<leader>rr",
     function()
       local cmd = build_cmd()
-      local output = vim.fn.system(cmd)
-      local has_error = vim.v.shell_error ~= 0
+      local success, output = Utils.run_command(cmd, { trim = true })
       local notify_opts = {
         title = opts.title,
-        timeout = has_error and 5000 or 2000,
+        timeout = success and 2000 or 5000,
       }
-      local status = has_error and "Error" or "Success"
+      local status = success and "Success" or "Error"
       local action = opts.restart and "Restarting" or "Reloading"
       local msg
-      if has_error then
-        local clean_output = output:gsub("\n", " ")
-        msg = string.format("%s %s %s: %s", status, action, opts.title, clean_output)
+      if not success then
+        msg = string.format("%s %s %s: %s", status, action, opts.title, output)
       else
         msg = string.format("%s %s %s", status, action, opts.title)
       end
-      Utils.notify[has_error and "error" or "info"](msg, notify_opts)
+      Utils.notify[success and "info" or "warn"](msg, notify_opts)
       Utils.ui.refresh()
     end,
     desc = "Reload Config",
