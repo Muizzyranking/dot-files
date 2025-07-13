@@ -168,7 +168,9 @@ local plugins = {
   },
 }
 for _, plugin in ipairs(plugins) do
-  plugin.cond = Utils.is_in_git_repo
+  plugin.cond = function()
+    return Utils.is_in_git_repo()
+  end
 end
 
 return plugins

@@ -21,7 +21,7 @@ Utils.ui.setup({
   logo = "one",
 })
 Utils.hl.setup()
-Utils.smart_win_nav.setup()
+Utils.smart_nav.setup()
 r("globals")
 r("options")
 r("lazy")
