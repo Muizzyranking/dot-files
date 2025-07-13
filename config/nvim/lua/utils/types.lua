@@ -104,3 +104,8 @@
 ---@field once? boolean # Whether the autocmd should only run once
 ---@field desc? string # Description of the autocmd
 ---@field events? string|string[]
+
+---@class utils.run_command_opts
+---@field input? string
+---@field trim? boolean
+---@field error_handler? fun(output: string, exit_code: number)
