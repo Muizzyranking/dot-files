@@ -43,9 +43,7 @@ return {
                 local ruff_diags = vim.tbl_filter(function(d)
                   return d.source and Utils.evaluate(d.source:lower(), "ruff")
                 end, diag)
-                if #ruff_diags > 0 then
-                  Utils.lsp.action["source.fixAll.ruff"]()
-                end
+                if #ruff_diags > 0 then Utils.lsp.action["source.fixAll.ruff"]() end
               end,
               desc = "Fix all fixable diagnostics",
               icon = { icon = "󰁨 ", color = "red" },
@@ -159,9 +157,7 @@ return {
           "settings.py",
           "templates/",
         })
-        if root ~= nil then
-          vim.bo[event.buf].filetype = "htmldjango"
-        end
+        if root ~= nil then vim.bo[event.buf].filetype = "htmldjango" end
       end,
     },
     {
@@ -181,6 +177,12 @@ return {
         }, {
           buffer = event.buf,
           conds = { "lsp_keyword" },
+        })
+        Utils.toggle_word.add_filetype_cycles("python", {
+          { "True", "False" },
+          { "and", "or" },
+          { "def", "class" },
+          { "return", "yield" },
         })
       end,
     },

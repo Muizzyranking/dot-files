@@ -109,3 +109,21 @@
 ---@field input? string
 ---@field trim? boolean
 ---@field error_handler? fun(output: string, exit_code: number)
+
+---@class word_cycle.CycleList
+---@field [integer] string
+
+---@class word_cycle.FiletypeCycle
+---@field [string] word_cycle.CycleList[]
+
+---@class word_cycle.CycleEntry
+---@field list word_cycle.CycleList
+---@field current_index integer
+
+--- @class word_cycle.CycleLookup
+--- @field [string] word_cycle.CycleEntry
+
+---@class word_cycle.Config
+---@field global_cycle? word_cycle.CycleList[]
+---@field filetype_cycle? word_cycle.FiletypeCycle
+---@field keymap? string|false
