@@ -6,6 +6,7 @@ local M = setmetatable({}, {
   end,
 })
 
+local uv = vim.uv or vim.loop
 -- Default root patterns
 M.root_patterns = { ".git" }
 M.ignore_lsp = { "copilot" }
@@ -22,10 +23,8 @@ M.git_cache = {}
 ---@param path string # the path to resolve
 ---@return string|nil # the resolved path or nil if it cannot be resolved
 function M.get_real_path(path)
-  if not path or path == "" then
-    return nil
-  end
-  path = vim.uv.fs_realpath(path) or path
+  if not path or path == "" then return nil end
+  path = uv.fs_realpath(path) or path
   return Utils.norm(path)
 end
 
@@ -58,17 +57,11 @@ function M.find_git_ancestor(path, buf)
       path = M.cwd()
     end
   end
-  if not path or path == "" then
-    return nil
-  end
+  if not path or path == "" then return nil end
   path = M.get_real_path(path)
-  if not path then
-    return nil
-  end
+  if not path then return nil end
 
-  if M.git_cache[path] ~= nil then
-    return M.git_cache[path] or nil
-  end
+  if M.git_cache[path] ~= nil then return M.git_cache[path] or nil end
 
   local git_files = vim.fs.find(".git", {
     path = path,
@@ -94,15 +87,11 @@ end
 function M.find_pattern_root(buf, patterns)
   patterns = Utils.ensure_list(patterns) ---@type string[]
   local path = M.get_buffer_path(buf) or vim.uv.cwd()
-  if not path or path == "" then
-    return nil
-  end
+  if not path or path == "" then return nil end
 
   ---@type fun(name: string, pattern: string): boolean
   local function matches_pattern(name, pattern)
-    if pattern == name then
-      return true
-    end
+    if pattern == name then return true end
 
     if pattern:find("*") then
       local escaped = vim.pesc(pattern):gsub("%%*", ".*")
@@ -113,9 +102,7 @@ function M.find_pattern_root(buf, patterns)
 
   local pattern = vim.fs.find(function(name)
     for _, p in ipairs(patterns) do
-      if matches_pattern(name, p) then
-        return true
-      end
+      if matches_pattern(name, p) then return true end
     end
     return false
   end, {
@@ -132,9 +119,7 @@ end
 ---------------------------------------------------------------
 function M.find_lsp_root(buf)
   local bufpath = M.get_buffer_path(buf)
-  if not bufpath then
-    return nil
-  end
+  if not bufpath then return nil end
 
   local roots = {} ---@type string[]
   local clients = Utils.lsp.get_clients({
@@ -148,14 +133,10 @@ function M.find_lsp_root(buf)
     if client.config.workspace_folders then
       for _, ws in pairs(client.config.workspace_folders) do
         local path = vim.uri_to_fname(ws.uri)
-        if path then
-          roots[#roots + 1] = M.get_real_path(path)
-        end
+        if path then roots[#roots + 1] = M.get_real_path(path) end
       end
     end
-    if client.config.root_dir then
-      roots[#roots + 1] = M.get_real_path(client.config.root_dir)
-    end
+    if client.config.root_dir then roots[#roots + 1] = M.get_real_path(client.config.root_dir) end
   end
 
   -- Filter out roots that don't contain the buffer path
@@ -171,9 +152,7 @@ end
 function M.add_patterns(patterns)
   patterns = Utils.ensure_list(patterns) ---@type string[]
   for _, pattern in ipairs(patterns) do
-    if not vim.tbl_contains(M.root_patterns, pattern) then
-      table.insert(M.root_patterns, pattern)
-    end
+    if not vim.tbl_contains(M.root_patterns, pattern) then table.insert(M.root_patterns, pattern) end
   end
 end
 
@@ -190,39 +169,23 @@ end
 function M.get(buf, opts)
   opts = opts or {}
   buf = Utils.ensure_buf(buf)
-  if opts.patterns then
-    M.add_patterns(opts.patterns)
-  end
+  if opts.patterns then M.add_patterns(opts.patterns) end
 
   local root
-  if not opts.skip_cache and M.cache[buf] then
-    return M.cache[buf]
-  end
+  if not opts.skip_cache and M.cache[buf] then return M.cache[buf] end
 
-  if opts.prefer_git then
-    root = M.find_git_ancestor(nil, buf)
-  end
+  if opts.prefer_git then root = M.find_git_ancestor(nil, buf) end
 
   -- Try LSP root first (higher priority)
-  if not root then
-    root = M.find_lsp_root(buf)
-  end
+  if not root then root = M.find_lsp_root(buf) end
 
-  if not root and not opts.prefer_git then
-    root = M.find_git_ancestor(nil, buf)
-  end
+  if not root and not opts.prefer_git then root = M.find_git_ancestor(nil, buf) end
 
-  if not root then
-    root = M.find_pattern_root(buf, M.root_patterns)
-  end
+  if not root then root = M.find_pattern_root(buf, M.root_patterns) end
 
-  if not root then
-    root = M.cwd()
-  end
+  if not root then root = M.cwd() end
 
-  if not opts.skip_cache and M.cache[buf] then
-    M.cache[buf] = root
-  end
+  if not opts.skip_cache and M.cache[buf] then M.cache[buf] = root end
   return root
 end
 
@@ -232,14 +195,10 @@ function M.clear_cache()
 end
 
 function M.clear_buf_cache(buf)
-  if not buf or not M.cache[buf] then
-    return
-  end
+  if not buf or not M.cache[buf] then return end
   M.cache[buf] = nil
   local path = M.get_buffer_path(buf)
-  if path and M.git_cache[path] then
-    M.git_cache[path] = nil
-  end
+  if path and M.git_cache[path] then M.git_cache[path] = nil end
 end
 ---------------------------------------------------------------
 -- Setup autocmds to clear root cache
@@ -249,9 +208,7 @@ function M.setup()
     {
       events = { "LspAttach", "LspDetach", "BufWritePost", "BufEnter" },
       callback = function(event)
-        if event and event.buf then
-          M.clear_buf_cache(event.buf)
-        end
+        if event and event.buf then M.clear_buf_cache(event.buf) end
       end,
     },
     {
