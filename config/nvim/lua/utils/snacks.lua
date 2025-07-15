@@ -12,9 +12,8 @@ M.explorer.actions.new_file = {
     Snacks.input({
       prompt = 'Add a new file or directory (directories end with a "/")',
     }, function(value)
-      if not value or value:find("^%s$") then
-        return
-      end
+      if not value or value:find("^%s$") then return end
+      local uv = vim.uv or vim.loop
       local path = svim.fs.normalize(picker:dir() .. "/" .. value)
       local is_file = value:sub(-1) ~= "/"
       local dir = is_file and vim.fs.dirname(path) or path
@@ -46,9 +45,7 @@ M.explorer.actions.trash = {
     local actions = require("snacks.explorer.actions")
     local Tree = require("snacks.explorer.tree")
     local paths = vim.tbl_map(Snacks.picker.util.path, picker:selected({ fallback = true }))
-    if #paths == 0 then
-      return
-    end
+    if #paths == 0 then return end
     local what = #paths == 1 and vim.fn.fnamemodify(paths[1], ":p:~:.") or #paths .. " files"
     actions.confirm("Trash " .. what .. "?", function()
       for _, path in ipairs(paths) do
@@ -74,9 +71,7 @@ M.explorer.actions.bookmark = {
       return
     end
     local paths = vim.tbl_map(Snacks.picker.util.path, picker:selected({ fallback = true }))
-    if #paths == 0 then
-      return
-    end
+    if #paths == 0 then return end
     local Tree = require("snacks.explorer.tree")
     local actions = require("snacks.explorer.actions")
     for _, path in ipairs(paths) do
