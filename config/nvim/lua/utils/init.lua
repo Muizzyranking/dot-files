@@ -16,7 +16,7 @@
 ---@field setup_lang utils.setup_lang
 ---@field smart_nav utils.smart_nav
 ---@field snacks utils.snacks
----@field toggle_word utils.word_cycle
+---@field word_cycle utils.word_cycle
 ---@field ts utils.ts
 ---@field ui utils.ui
 local M = {}

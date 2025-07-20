@@ -8,7 +8,7 @@ local M = setmetatable({}, {
   __index = function(m, key)
     return function(msg, opts)
       opts = opts or {}
-      opts.level = vim.log.levels[key:upper()]
+      opts.level = opts.level or vim.log.levels[key:upper()]
       return m.notify(msg, opts)
     end
   end,
@@ -41,9 +41,7 @@ function M.notify(msg, opts)
       local ok = pcall(function()
         vim.treesitter.language.add("markdown")
       end)
-      if not ok then
-        pcall(require, "nvim-treesitter")
-      end
+      if not ok then pcall(require, "nvim-treesitter") end
       vim.wo[win].conceallevel = 3
       vim.wo[win].concealcursor = ""
       vim.wo[win].spell = false

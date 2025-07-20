@@ -33,6 +33,17 @@ local global_cycle = nil
 ---@type word_cycle.FiletypeCycle[]
 local filetype_cycle = {}
 
+local notify = setmetatable({}, {
+  __index = function(_, key)
+    return function(msg, opts)
+      opts = opts or {}
+      opts.title = opts.title or "Word Cycle"
+      key = key or "info"
+      Utils.notify[key](msg, opts)
+    end
+  end,
+})
+
 -------------------------------------------------
 -- Create lookup tables for faster searching
 ---@param cycles word_cycle.CycleList[]
@@ -110,7 +121,7 @@ function M.toggle()
   local word, start_col, end_col = get_word_under_cursor()
 
   if not word or word == "" then
-    Utils.notify("No word under cursor")
+    notify.warn("No word under cursor")
     return
   end
 
@@ -126,7 +137,7 @@ function M.toggle()
   if next_word then
     replace_word_under_cursor(next_word, start_col, end_col)
   else
-    Utils.notify(string.format("No cycle found for: %s", word))
+    notify(string.format("No cycle found for: %s", word))
   end
 end
 

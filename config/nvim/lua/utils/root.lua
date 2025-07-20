@@ -30,7 +30,7 @@ end
 
 -- Get current working directory
 function M.cwd()
-  return M.get_real_path(vim.uv.cwd()) or ""
+  return M.get_real_path(vim.uv.cwd()) or vim.uv.cwd()
 end
 
 ---------------------------------------------------------------
@@ -113,8 +113,8 @@ function M.find_pattern_root(buf, patterns)
   return pattern and vim.fs.dirname(pattern) or nil
 end
 
--- Get root directory based on LSP
 ---------------------------------------------------------------
+-- Get root directory based on LSP
 ---@param buf number the buffer number
 ---------------------------------------------------------------
 function M.find_lsp_root(buf)
