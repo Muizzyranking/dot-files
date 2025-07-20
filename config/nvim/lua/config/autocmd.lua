@@ -70,15 +70,11 @@ autocmd("BufWinEnter", {
   callback = function(event)
     local exclude = { "gitcommit" }
     local buf = Utils.ensure_buf(event.buf)
-    if vim.tbl_contains(exclude, vim.bo[buf].filetype) or vim.b[buf].nvim_last_loc then
-      return
-    end
+    if vim.tbl_contains(exclude, vim.bo[buf].filetype) or vim.b[buf].nvim_last_loc then return end
     vim.b[buf].nvim_last_loc = true
     local mark = vim.api.nvim_buf_get_mark(buf, '"')
     local lcount = vim.api.nvim_buf_line_count(buf)
-    if mark[1] > 0 and mark[1] <= lcount then
-      pcall(vim.api.nvim_win_set_cursor, 0, mark)
-    end
+    if mark[1] > 0 and mark[1] <= lcount then pcall(vim.api.nvim_win_set_cursor, 0, mark) end
   end,
 })
 
@@ -113,9 +109,7 @@ autocmd("WinClosed", {
   nested = true,
   group = "jump_to_last_window",
   callback = function()
-    if vim.fn.expand("<amatch>") == vim.fn.win_getid() then
-      vim.cmd("wincmd p")
-    end
+    if vim.fn.expand("<amatch>") == vim.fn.win_getid() then vim.cmd("wincmd p") end
   end,
 })
 
@@ -157,9 +151,7 @@ autocmd("FileType", {
 autocmd({ "BufWritePre" }, {
   group = "auto_create_dir",
   callback = function(event)
-    if event.match:match("^%w%w+://") then
-      return
-    end
+    if event.match:match("^%w%w+://") then return end
     local file = vim.loop.fs_realpath(event.match) or event.match
     vim.fn.mkdir(vim.fn.fnamemodify(file, ":p:h"), "p")
   end,
@@ -205,9 +197,7 @@ autocmd.autocmd_augroup("toggle_rel_number", {
         vim.wo.cursorline = true
         vim.w.auto_cursorline = nil
       end
-      if vim.wo.number then
-        vim.wo.relativenumber = true
-      end
+      if vim.wo.number then vim.wo.relativenumber = true end
     end,
   },
   {
@@ -215,12 +205,8 @@ autocmd.autocmd_augroup("toggle_rel_number", {
     pattern = "*",
     desc = "togger line number",
     callback = function()
-      if vim.b.bigfile then
-        return
-      end
-      if vim.wo.number then
-        vim.wo.relativenumber = false
-      end
+      if vim.b.bigfile then return end
+      if vim.wo.number then vim.wo.relativenumber = false end
       if vim.wo.cursorline then
         vim.w.auto_cursorline = true
         vim.wo.cursorline = false
@@ -228,12 +214,20 @@ autocmd.autocmd_augroup("toggle_rel_number", {
     end,
   },
   {
-    events = { "TermClose", "TermLeave" },
+    events = { "TermClose" },
+    pattern = "*",
+    desc = "restore line number settings after terminal close",
     callback = function()
-      if vim.w.auto_cursorline then
-        vim.wo.cursorline = true
-        vim.w.auto_cursorline = nil
-      end
+      vim.defer_fn(function()
+        local current_win = vim.api.nvim_get_current_win()
+        if vim.api.nvim_win_is_valid(current_win) then
+          if vim.wo.number then vim.wo.relativenumber = true end
+          if vim.w.auto_cursorline then
+            vim.wo.cursorline = true
+            vim.w.auto_cursorline = nil
+          end
+        end
+      end, 10)
     end,
   },
 })
@@ -244,9 +238,7 @@ autocmd.autocmd_augroup("toggle_rel_number", {
 autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
   group = "checktime",
   callback = function()
-    if vim.o.buftype ~= "nofile" then
-      vim.cmd("checktime")
-    end
+    if vim.o.buftype ~= "nofile" then vim.cmd("checktime") end
   end,
 })
 
@@ -257,9 +249,7 @@ autocmd("BufWritePost", {
   pattern = "*",
   group = "FileDetect",
   callback = function()
-    if vim.bo.filetype == "" then
-      vim.cmd("filetype detect")
-    end
+    if vim.bo.filetype == "" then vim.cmd("filetype detect") end
   end,
 })
 
@@ -296,9 +286,7 @@ autocmd.on_user_event("TmuxBarToggle", function()
       local status = handle:read("*a")
       handle:close()
       local state = status:match("on")
-      if not state then
-        vim.system({ "tmux", "set-option", "-g", "status", "on" })
-      end
+      if not state then vim.system({ "tmux", "set-option", "-g", "status", "on" }) end
     end,
   })
 end)
