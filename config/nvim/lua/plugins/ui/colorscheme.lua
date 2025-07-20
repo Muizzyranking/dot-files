@@ -1,7 +1,5 @@
 local transparency = function()
-  if vim.g.neovide then
-    return false
-  end
+  if vim.g.neovide then return false end
   return true
 end
 
@@ -144,6 +142,7 @@ for _, item in ipairs(M) do
       if n == Utils.ui.colorscheme then
         item.lazy = false
         item.priority = 1000
+        item.enabled = true
         table.insert(ret, item)
       end
     end

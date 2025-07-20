@@ -178,7 +178,7 @@ return {
           buffer = event.buf,
           conds = { "lsp_keyword" },
         })
-        Utils.toggle_word.add_filetype_cycles("python", {
+        Utils.word_cycle.add_filetype_cycles("python", {
           { "True", "False" },
           { "and", "or" },
           { "def", "class" },
