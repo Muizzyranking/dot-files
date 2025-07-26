@@ -33,14 +33,10 @@ end
 -----------------------------------------------------------------
 function M.add_filetype(config, create_autocmd)
   local ft_configs = config.add_ft
-  if not ft_configs then
-    return
-  end
+  if not ft_configs then return end
   local filetype_config = {}
   for _, detect_type in ipairs({ "extension", "filename", "pattern" }) do
-    if ft_configs[detect_type] then
-      filetype_config[detect_type] = ft_configs[detect_type]
-    end
+    if ft_configs[detect_type] then filetype_config[detect_type] = ft_configs[detect_type] end
   end
   if LazyLoad then
     local loaded = false
@@ -61,9 +57,7 @@ function M.add_filetype(config, create_autocmd)
       create_autocmd("FileType", {
         callback = function(event)
           local buf = event.buf
-          if vim.bo[buf].filetype == orig then
-            set_buf_option(buf, "filetype", target)
-          end
+          if vim.bo[buf].filetype == orig then set_buf_option(buf, "filetype", target) end
         end,
       })
     end
@@ -74,9 +68,7 @@ end
 ---@param autocmd_create function
 function M.autocmds(config, autocmd_create)
   local autocmds = config.autocmds
-  if not autocmds then
-    return
-  end
+  if not autocmds then return end
   if type(autocmds) ~= "table" or type(autocmds[1]) ~= "table" then
     Utils.notify.error("autocmds must be a table")
     return
@@ -114,22 +106,16 @@ function M.setup_language(config)
   local create_autocmd = create_autocmd_group(config.name)
 
   -- Setup filetype detection
-  if config.add_ft then
-    M.add_filetype(config, create_autocmd)
-  end
+  if config.add_ft then M.add_filetype(config, create_autocmd) end
 
   -- Setup custom autocmds
-  if config.autocmds then
-    M.autocmds(config, create_autocmd)
-  end
+  if config.autocmds then M.autocmds(config, create_autocmd) end
 
   -- LSP Configuration
-  if config.lsp then
-    table.insert(plugins, {
-      "neovim/nvim-lspconfig",
-      opts = config.lsp,
-    })
-  end
+  if config.lsp then table.insert(plugins, {
+    "neovim/nvim-lspconfig",
+    opts = config.lsp,
+  }) end
 
   -- install tools
   if config.tools then
@@ -205,9 +191,7 @@ function M.setup_language(config)
             parser_config[name] = info
             local ft = info.filetype or { name }
             vim.treesitter.language.register(name, ft)
-            if not vim.tbl_contains(parsers, name) then
-              table.insert(opts.ensure_installed, name)
-            end
+            if not vim.tbl_contains(parsers, name) then table.insert(opts.ensure_installed, name) end
           end
         end
       end,
@@ -222,9 +206,7 @@ function M.setup_language(config)
       "echasnovski/mini.icons",
       opts = function(_, opts)
         for _, type in ipairs(available) do
-          if icons[type] then
-            opts[type] = icons[type]
-          end
+          if icons[type] then opts[type] = icons[type] end
         end
       end,
     })
@@ -276,19 +258,13 @@ function M.setup_language(config)
       callback = function(event)
         local buf = event.buf
         for option, value in pairs(config.options) do
-          local ok, err = pcall(set_buf_option, buf, option, value)
-          if not ok then
-            local msg = string.format("Error setting option %s = %s: %s", option, vim.inspect(value), err)
-            Utils.notify.error(msg)
-          end
+          set_buf_option(buf, option, value)
         end
       end,
     })
   end
 
-  if config.root_patterns then
-    Utils.root.add_patterns(config.root_patterns)
-  end
+  if config.root_patterns then Utils.root.add_patterns(config.root_patterns) end
 
   return plugins
 end

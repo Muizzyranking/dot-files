@@ -38,7 +38,7 @@ M.explorer.actions.new_file = {
 M.explorer.actions.trash = {
   desc = "Delete to trash",
   action = function(picker)
-    if not Utils.is_executable("Trash") then
+    if not Utils.is_executable("trash") then
       Snacks.notify.error("Trash not found", { title = "Snacks Picker" })
       return
     end

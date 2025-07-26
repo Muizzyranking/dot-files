@@ -9,6 +9,10 @@ end
 -- install: if true, the colorscheme will be installed regardless of the applied colorscheme
 local M = {
   {
+    "mcauley-penney/techbase.nvim",
+    set = "techbase",
+  },
+  {
     "olimorris/onedarkpro.nvim",
     set = "onedark",
     install = true,
