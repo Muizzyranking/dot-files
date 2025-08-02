@@ -233,7 +233,16 @@ local maps = {
   {
     "<leader>go",
     function()
-      vim.fn.system({ "open-repo", "-b" })
+      Utils.run_command({ "open-repo", "-b" }, {
+        trim = true,
+        callback = function(output, success)
+          if not success then
+            Utils.notify.error("Failed to open repo in browser: " .. output)
+          else
+            Utils.notify.info("Opening repo in browser...")
+          end
+        end,
+      })
     end,
     desc = "Open repo in browser",
     icon = { icon = "󰌧 ", color = "red" },

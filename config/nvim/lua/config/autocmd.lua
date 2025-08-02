@@ -286,7 +286,7 @@ autocmd.on_user_event("TmuxBarToggle", function()
       local status = handle:read("*a")
       handle:close()
       local state = status:match("on")
-      if not state then vim.system({ "tmux", "set-option", "-g", "status", "on" }) end
+      if not state then vim.fn.system({ "tmux", "set-option", "-g", "status", "on" }) end
     end,
   })
 end)
