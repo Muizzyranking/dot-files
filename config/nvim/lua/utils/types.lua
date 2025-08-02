@@ -108,7 +108,7 @@
 ---@class utils.run_command_opts
 ---@field input? string
 ---@field trim? boolean
----@field error_handler? fun(output: string, exit_code: number)
+---@field callback? fun(output: string, success: boolean, exit_code: number)
 
 ---@class word_cycle.CycleList
 ---@field [integer] string

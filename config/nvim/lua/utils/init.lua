@@ -114,8 +114,8 @@ function M.is_in_git_repo(notify)
   notify = notify or false
   local success, output = M.run_command({ "git", "rev-parse", "--is-inside-work-tree" }, {
     trim = true,
-    error_handler = function(output, exit_code)
-      if notify and exit_code ~= 0 then M.notify.error("Failed to check git repository: " .. output) end
+    callback = function(output, success, _)
+      if notify and not success then M.notify.error("Failed to check git repository: " .. output) end
     end,
   })
   return success and output:match("true") ~= nil
@@ -294,14 +294,13 @@ function M.run_command(cmd, opts)
   opts = opts or {}
   if M.type(cmd, "function") then cmd = cmd() end
   if not cmd or cmd == "" then return false, "No command provided" end
-  -- local output = vim.fn.system(cmd, opts.input or "")
   local ok, output = pcall(vim.fn.system, cmd, opts.input or "")
   local success = vim.v.shell_error == 0 and ok
 
   if opts.trim then output = vim.trim(output) end
 
-  if not success and opts.error_handler then
-    if M.type(opts.error_handler, "function") then opts.error_handler(output, vim.v.shell_error) end
+  if opts.callback then
+    if M.type(opts.callback, "function") then opts.callback(output, success, vim.v.shell_error) end
   end
 
   return success, output
