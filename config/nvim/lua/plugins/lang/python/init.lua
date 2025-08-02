@@ -54,6 +54,21 @@ return {
       end,
       basedpyright = function()
         Utils.lsp.on_attach(function(client, bufnr)
+          Utils.map.set_keymap({
+            "<leader>ci",
+            function()
+              vim.lsp.buf.code_action({
+                filter = function(a)
+                  return a.title:find("import") ~= nil
+                end,
+                apply = true,
+              })
+            end,
+            desc = "Auto import word under cursor",
+            icon = { icon = "󰋺 ", color = "blue" },
+            buffer = bufnr,
+          })
+
           local current_python = client.config.settings
             and client.config.settings.python
             and client.config.settings.python.pythonPath
