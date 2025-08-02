@@ -11,6 +11,10 @@ local M = {
   {
     "mcauley-penney/techbase.nvim",
     set = "techbase",
+    branch = "transparency",
+    opts = {
+      transparent = true,
+    },
   },
   {
     "olimorris/onedarkpro.nvim",
