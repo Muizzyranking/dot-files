@@ -38,10 +38,10 @@ return {
       callback = function(event)
         local buf = event.buf
         Utils.map.create_abbrevs({
-          { "post", "POST" },
-          { "get", "GET" },
-          { "patch", "PATCH" },
-          { "put", "PUT" },
+          { "POST", { "post", "Post" } },
+          { "GET", { "get", "Get" } },
+          { "PATCH", { "patch", "Patch" } },
+          { "PUT", { "put", "Put" } },
         }, {
           buffer = buf,
           conds = { "lsp_keyword" },

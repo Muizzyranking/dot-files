@@ -318,13 +318,15 @@ function M.create_abbrevs(abbrevs, opts)
   opts = opts or {}
 
   for _, abbrev in ipairs(abbrevs) do
-    local word = abbrev[1]
-    local new_word = abbrev[2]
+    local right_word = abbrev[1]
+    local wrong_words = Utils.ensure_list(abbrev[2])
     local abbrev_opts = abbrev[3] or {}
 
     local merged_opts = vim.tbl_deep_extend("force", {}, opts, abbrev_opts)
 
-    M.create_abbrev(word, new_word, merged_opts)
+    for _, wrong_word in ipairs(wrong_words) do
+      if type(wrong_word) == "string" then M.create_abbrev(wrong_word, right_word, merged_opts) end
+    end
   end
 end
 

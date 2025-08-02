@@ -40,6 +40,23 @@ return {
     shiftwidth = 2,
     tabstop = 2,
   },
+  autocmds = {
+    {
+      pattern = "lua",
+      callback = function(event)
+        local buf = event.buf
+        Utils.map.create_abbrevs({
+          { "function", { "fn", "Function" } },
+          { "local", { "loc", "Local" } },
+          { "require", { "req", "Require" } },
+          { "return", { "ret", "Return" } },
+        }, {
+          buffer = buf,
+          conds = { "lsp_keyword" },
+        })
+      end,
+    },
+  },
   root_patterns = { "lua", "stylua.toml" },
   keys = {
     {

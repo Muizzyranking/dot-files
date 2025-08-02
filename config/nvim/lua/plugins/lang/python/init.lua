@@ -164,16 +164,10 @@ return {
       pattern = "python",
       callback = function(event)
         Utils.map.create_abbrevs({
-          { "true", "True" },
-          { "ture", "True" },
-          { "false", "False" },
-          { "flase", "False" },
-          { "Class", "class" },
-          { "calss", "class" },
-          { "none", "None" },
-          { "NONE", "None" },
-          { "nil", "None" },
-          { "Nil", "None" },
+          { "True", { "true", "ture" } },
+          { "False", { "false", "flase" } },
+          { "class", { "Class", "calss" } },
+          { "None", { "none", "NONE", "nil", "Nil", "null" } },
         }, {
           buffer = event.buf,
           conds = { "lsp_keyword" },
