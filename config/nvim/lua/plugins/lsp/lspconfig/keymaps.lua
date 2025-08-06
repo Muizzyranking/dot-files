@@ -69,7 +69,6 @@ function M.get()
       has = "workspace/symbols",
     },
 
-    -- { "gd", vim.lsp.buf.definition, desc = "Goto Definition", has = "definition" },
     -- { "gr", vim.lsp.buf.references, desc = "References" },
     -- { "gI", vim.lsp.buf.implementation, desc = "Goto Implementation" },
     -- { "gT", vim.lsp.buf.type_definition, desc = "Goto Type Definition" },

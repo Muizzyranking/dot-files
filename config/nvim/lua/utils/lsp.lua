@@ -394,13 +394,21 @@ function M.goto_definition(opts)
     local start_line = range.start.line + 1
     local start_col = range.start.character
 
+    vim.cmd("normal! m'")
+
     if direction then
       Utils.open_in_split(direction, filename, start_line, start_col)
     elseif reuse_win then
       local existing_win = Utils.find_win_with_file(filename)
       if existing_win then
+        local current_buf = vim.api.nvim_get_current_buf()
+        local target_buf = vim.api.nvim_win_get_buf(existing_win)
         vim.api.nvim_set_current_win(existing_win)
-        pcall(vim.api.nvim_win_set_cursor, existing_win, { start_line, start_col })
+        if current_buf == target_buf then
+          vim.cmd(string.format("normal! %dG%d|", start_line, start_col + 1))
+        else
+          pcall(vim.api.nvim_win_set_cursor, existing_win, { start_line, start_col })
+        end
       else
         vim.lsp.util.show_document(location, client.offset_encoding, { focus = true })
       end

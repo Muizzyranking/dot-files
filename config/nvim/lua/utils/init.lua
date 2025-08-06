@@ -316,8 +316,10 @@ end
 function M.open_in_split(direction, filename, line, col)
   local cmd = vim.tbl_contains({ "vsplit", "split" }, direction) and direction or "vsplit"
   vim.cmd(cmd .. " " .. vim.fn.fnameescape(filename))
-  if line then col = col or 0 end
-  if line and col then pcall(vim.api.nvim_win_set_cursor, 0, { line, col }) end
+  if line then
+    col = col or 0
+    vim.cmd(string.format("normal! %dG%d|", line, col + 1))
+  end
 end
 
 ----------------------------------------------------
