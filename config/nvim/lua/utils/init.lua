@@ -306,4 +306,34 @@ function M.run_command(cmd, opts)
   return success, output
 end
 
+----------------------------------------------------
+--- Open file in split based on direction
+--- @param direction "vsplit"|"split" Direction to open the file
+--- @param filename string File path to open
+--- @param line number Line number to jump to
+--- @param col number Column number to jump to
+----------------------------------------------------
+function M.open_in_split(direction, filename, line, col)
+  local cmd = vim.tbl_contains({ "vsplit", "split" }, direction) and direction or "vsplit"
+  vim.cmd(cmd .. " " .. vim.fn.fnameescape(filename))
+  if line then col = col or 0 end
+  if line and col then pcall(vim.api.nvim_win_set_cursor, 0, { line, col }) end
+end
+
+----------------------------------------------------
+--- Find existing window containing the target file
+--- @param filename string The file path to search for
+--- @return number|nil Window handle if found
+----------------------------------------------------
+function M.find_win_with_file(filename)
+  local target_buf = vim.fn.bufnr(filename)
+  if target_buf == -1 then return nil end
+
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    if vim.api.nvim_win_get_buf(win) == target_buf then return win end
+  end
+
+  return nil
+end
+
 return M

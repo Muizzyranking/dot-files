@@ -11,9 +11,7 @@ local M = setmetatable({}, {
 ---@return number
 -----------------------------------------------------------------------------
 function M.augroup(name, opts)
-  if type(name) == "number" then
-    return name
-  end
+  if type(name) == "number" then return name end
   opts = opts or {}
   name = "Neovim_" .. name
   opts.clear = opts.clear ~= false
@@ -57,15 +55,11 @@ function M.create(event, opts)
   local auopts = {
     group = opts.group and M.augroup(opts.group),
     callback = opts.callback or function()
-      if cmd then
-        vim.cmd(cmd)
-      end
+      if cmd then vim.cmd(cmd) end
     end,
   }
   for key, value in pairs(opts) do
-    if auopts[key] == nil then
-      auopts[key] = value
-    end
+    if auopts[key] == nil then auopts[key] = value end
   end
 
   return vim.api.nvim_create_autocmd(event, auopts)
@@ -84,9 +78,7 @@ function M.exec_user_event(pattern, opts)
   args.data = opts.data or {}
 
   for key, value in pairs(opts) do
-    if args[key] == nil then
-      args[key] = value
-    end
+    if args[key] == nil then args[key] = value end
   end
 
   vim.api.nvim_exec_autocmds("User", args)
@@ -104,9 +96,7 @@ function M.on_user_event(pattern, fn, opts)
   pattern = Utils.ensure_list(pattern)
   opts.pattern = pattern
   opts.callback = function(event)
-    if Utils.type(fn, "function") then
-      fn(event)
-    end
+    if Utils.type(fn, "function") then fn(event) end
   end
   return M.create("User", opts)
 end
