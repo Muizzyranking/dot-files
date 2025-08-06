@@ -2,23 +2,32 @@ local M = {}
 M._keys = nil
 
 function M.get()
-  if M._keys then
-    return M._keys
-  end
+  if M._keys then return M._keys end
   M._keys = {
     {
       "gd",
       function()
-        Snacks.picker.lsp_definitions()
+        Utils.lsp.goto_definition()
       end,
       desc = "Goto Definition",
       has = "definition",
+    },
+    {
+      "gp",
+      function()
+        require("overlook.api").peek_definition()
+      end,
+      desc = "Peek definition",
+      has = "definition",
+      cond = function()
+        return Utils.has("overlook.nvim")
+      end,
     },
     -- vsplit jump
     {
       "gD",
       function()
-        Snacks.picker.lsp_definitions({ confirm = "edit_vsplit" })
+        Utils.lsp.goto_definition({ direction = "vsplit" })
       end,
       desc = "Goto Definition (Vsplit)",
       has = "definition",
@@ -173,8 +182,10 @@ function M.on_attach(_, buffer, opts)
   end
   for _, key in ipairs(keys) do
     local has = not key.has or Utils.lsp.has(buffer, key.has)
-    if has then
+    local cond = not key.cond or Utils.evaluate(key.cond, true)
+    if has and cond then
       key.has = nil
+      key.cond = nil
       key.buffer = buffer
       key.silent = key.silent ~= false
       all_keys[#all_keys + 1] = key

@@ -35,18 +35,18 @@ return {
       mode = { "n" },
       desc = "Put Yanked Text Before Cursor",
     },
-    {
-      "gp",
-      "<Plug>(YankyGPutAfter)",
-      mode = { "n", "x" },
-      desc = "Put Yanked Text After Selection",
-    },
-    {
-      "gP",
-      "<Plug>(YankyGPutBefore)",
-      mode = { "n", "x" },
-      desc = "Put Yanked Text Before Selection",
-    },
+    -- {
+    --   "gp",
+    --   "<Plug>(YankyGPutAfter)",
+    --   mode = { "n", "x" },
+    --   desc = "Put Yanked Text After Selection",
+    -- },
+    -- {
+    --   "gP",
+    --   "<Plug>(YankyGPutBefore)",
+    --   mode = { "n", "x" },
+    --   desc = "Put Yanked Text Before Selection",
+    -- },
     {
       "[y",
       "<Plug>(YankyCycleForward)",
