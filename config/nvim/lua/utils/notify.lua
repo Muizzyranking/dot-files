@@ -55,4 +55,28 @@ function M.notify(msg, opts)
   })
 end
 
+----------------------------------------------------------
+--- Creates a notification function with shared options
+---@param shared_opts? table Shared options to merge with each notification (e.g., {title = "LSP"})
+---@return table A callable table with notification methods (info, warn, error, etc.)
+----------------------------------------------------------
+function M.create(shared_opts)
+  shared_opts = shared_opts or {}
+  return setmetatable({}, {
+    ---@param msg string|table
+    ---@param opts? table
+    __call = function(_, msg, opts)
+      opts = vim.tbl_extend("force", shared_opts, opts or {})
+      return M.notify(msg, opts)
+    end,
+    __index = function(_, key)
+      return function(msg, opts)
+        opts = vim.tbl_extend("force", shared_opts, opts or {})
+        opts.level = opts.level or vim.log.levels[key:upper()]
+        return M.notify(msg, opts)
+      end
+    end,
+  })
+end
+
 return M

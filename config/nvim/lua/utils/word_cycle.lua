@@ -33,16 +33,7 @@ local global_cycle = nil
 ---@type word_cycle.FiletypeCycle[]
 local filetype_cycle = {}
 
-local notify = setmetatable({}, {
-  __index = function(_, key)
-    return function(msg, opts)
-      opts = opts or {}
-      opts.title = opts.title or "Word Cycle"
-      key = key or "info"
-      Utils.notify[key](msg, opts)
-    end
-  end,
-})
+local notify = Utils.notify.create({ title = "Word Cycle" })
 
 -------------------------------------------------
 -- Create lookup tables for faster searching

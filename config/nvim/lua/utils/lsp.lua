@@ -4,16 +4,7 @@ local M = {}
 --- Table to track supported methods for LSP clients
 M._supports_method = {}
 
-local notify = setmetatable({}, {
-  __index = function(_, key)
-    return function(msg, opts)
-      opts = opts or {}
-      opts.title = opts.title or "LSP"
-      key = key or "info"
-      Utils.notify[key](msg, opts)
-    end
-  end,
-})
+local notify = Utils.notify.create({ title = "LSP" })
 
 ----------------------------------------------------
 --- Set up custom LSP handler for dynamic capability registration
@@ -259,7 +250,7 @@ function M.copy_diagnostics()
   if #diags == 1 then
     local msg = diags[1].message
     _yank(msg)
-    notify.info(string.format([[ yanked diagnostic message '%s']], msg))
+    notify(string.format([[ yanked diagnostic message '%s']], msg))
     return
   end
 
