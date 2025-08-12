@@ -1,3 +1,6 @@
+/* Import the color definitions */
+@import "colors.css";
+
 * {
   font-family: "JetBrainsMono Nerd Font", sans-serif;
   font-size: 12px;
@@ -9,28 +12,28 @@
 window#waybar {
   /* background: rgba(30, 30, 46, 0.5); */
   background: transparent;
-  color: #cdd6f4;
+  color: @foreground;
   border-radius: 8px;
   margin: 2px 4px 6px 4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 tooltip {
-  background: #1e1e2e;
-  border: 1px solid #89b4fa;
+  background: @background;
+  border: 1px solid @primary;
   border-radius: 8px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 tooltip label {
-  color: #cdd6f4;
+  color: @foreground;
   padding: 2px;
 }
 
 /* Modules styling */
 #custom-spotify {
-  background: linear-gradient(45deg, #1db954, #24d95e);
-  color: #1e1e2e;
+  background: linear-gradient(45deg, @spotify_green, @spotify_light);
+  color: @background;
   padding: 0 8px;
   margin: 3px;
   border-radius: 6px;
@@ -51,19 +54,19 @@ tooltip label {
 #custom-power,
 #custom-color_picker,
 #custom-lock {
-  background: #1e1e2e;
+  background: @background;
   padding: 0 6px;
   margin: 3px;
   border-radius: 6px;
-  color: #89b4fa;
+  color: @primary;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  border: 1px solid #313244;
+  border: 1px solid @surface0;
 }
 
 #tray {
   padding: 0 8px;
-  background: #1e1e2e;
-  border: 1px solid #313244;
+  background: @background;
+  border: 1px solid @surface0;
 }
 
 /* Grouped modules */
@@ -73,10 +76,10 @@ tooltip label {
 #power-profiles-daemon,
 #bluetooth,
 #pulseaudio {
-  background: #1e1e2e;
+  background: @background;
   padding: 0 6px;
-  color: #89b4fa;
-  border: 1px solid #313244;
+  color: @primary;
+  border: 1px solid @surface0;
 }
 
 #memory,
@@ -100,41 +103,41 @@ tooltip label {
 /* Special modules styling */
 #workspaces {
   padding: 1px 8px;
-  background: #1e1e2e;
+  background: @background;
   border-radius: 6px;
 }
 
 #workspaces button {
   padding: 0 6px;
   margin: 2px;
-  color: #6c7086;
-  background: #313244;
+  color: @overlay0;
+  background: @surface0;
   border-radius: 4px;
   min-width: 20px;
   transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #workspaces button.active {
-  color: #1e1e2e;
+  color: @background;
   padding: 0 6px;
   margin: 2px;
-  background: #89b4fa;
+  background: @primary;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   font-weight: bold;
   min-width: 30px;
 }
 
 #workspaces button:hover {
-  background: #cba6f7;
-  color: #1e1e2e;
+  background: @secondary;
+  color: @background;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   border-radius: 4px;
 }
 
 #custom-os {
   font-size: 13px;
-  background: #cba6f7;
-  color: #1e1e2e;
+  background: @secondary;
+  color: @background;
   border-radius: 6px;
   margin: 3px;
   border: none;
@@ -142,15 +145,15 @@ tooltip label {
 }
 
 #clock {
-  color: #f9e2af;
-  background: #1e1e2e;
+  color: @warning;
+  background: @background;
   border-radius: 6px;
   font-weight: bold;
   padding: 0 8px;
 }
 
 #custom-swaync {
-  background: #1e1e2e;
+  background: @background;
   border-radius: 6px;
   padding: 0 6px;
   font-size: 12px;
@@ -158,33 +161,33 @@ tooltip label {
 
 /* Network styling */
 #network {
-  background: #1e1e2e;
-  color: #a6e3a1;
+  background: @background;
+  color: @network_connected;
   border-radius: 6px;
 }
 
 /* Battery states */
 #battery {
-  color: #a6e3a1;
+  color: @battery_good;
 }
 
 #battery.warning {
-  color: #f9e2af;
+  color: @battery_warning;
 }
 
 #battery.critical {
-  color: #f38ba8;
+  color: @battery_critical;
 }
 
 #battery.critical:not(.charging),
 #battery.critical:not(.charging) + #power-profiles-daemon {
-  background: linear-gradient(45deg, #f38ba8, #f53c3c);
-  color: #1e1e2e;
-  animation-name: blink;
-  animation-duration: 0.7s;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
+  background: linear-gradient(45deg, @battery_critical, @error);
+  color: @background;
+  /* animation-name: blink; */
+  /* animation-duration: 0.7s; */
+  /* animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); */
+  /* animation-iteration-count: infinite; */
+  /* animation-direction: alternate; */
   border-radius: 6px;
   border: none;
 }
@@ -201,32 +204,32 @@ tooltip label {
 
 @keyframes blink {
   to {
-    background: #1e1e2e;
-    color: #f38ba8;
+    background: @background;
+    color: @battery_critical;
   }
 }
 
 /* Additional styling for specific modules */
 #pulseaudio {
-  color: #fab387;
+  color: @audio_normal;
 }
 
 #bluetooth {
-  color: #89b4fa;
+  color: @bluetooth_connected;
 }
 
 #disk {
-  color: #cba6f7;
+  color: @secondary;
 }
 
 #cpu {
-  color: #f38ba8;
+  color: @error;
 }
 
 #memory {
-  color: #a6e3a1;
+  color: @success;
 }
 
 #power-profiles-daemon {
-  color: #f9e2af;
+  color: @warning;
 }

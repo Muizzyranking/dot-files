@@ -1,5 +1,6 @@
 {
   "layer": "top",
+  "position": "top",
   "modules-center": [
     "hyprland/workspaces"
   ],
@@ -19,9 +20,20 @@
     "network",
     "bluetooth",
     "pulseaudio",
-    "battery",
-    "power-profiles-daemon"
+    "group/power"
   ],
+  "group/power": {
+    "modules": [
+      "battery",
+      "power-profiles-daemon"
+    ],
+    "orientation": "inherit",
+    "drawer": {
+      "transition-duration": 400,
+      "children-class": "power",
+      "transition-left-to-right": true
+    }
+  },
   "privacy": {
     "icon-size": 12,
     "icon-spacing": 5,
