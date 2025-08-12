@@ -122,7 +122,7 @@ link_zsh_files() {
 
 
 # Available config files
-configs=("bat" "git" "hypr" "kitty" "lazygit" "lazyvim" "nvim" "rofi" "swaync" "tmux" "waybar" "wlogout" "zsh")
+configs=("bat" "git" "hypr" "kitty" "lazygit" "lazyvim" "my_nvim" "nvim" "rofi" "swaync" "tmux" "waybar" "wlogout" "zsh")
 
 # If no arguments provided, show usage
 if [ $# -eq 0 ]; then
