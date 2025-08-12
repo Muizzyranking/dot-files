@@ -35,6 +35,7 @@ autocmd.autocmd_augroup("Reload_config", {
         title = "Waybar",
         buffer = event.buf,
       })
+      vim.diagnostic.enable(false, { bufnr = event.buf })
     end,
   },
   {
@@ -50,7 +51,7 @@ autocmd.autocmd_augroup("Reload_config", {
       vim.diagnostic.enable(false, { bufnr = event.buf })
     end,
   },
-}, { "BufEnter", "WinEnter", "BufNewFile" })
+}, { "BufEnter", "BufNewFile", "BufReadPost", "WinEnter" })
 
 autocmd("BufEnter", {
   pattern = { ".env", ".env.*", "*.zsh", "*.zsh.*" },

@@ -28,7 +28,7 @@ opt.winminwidth    = 5 -- Minimum window width
 opt.signcolumn     = "yes" -- Always show the signcolumn, otherwise it would shift the text each time
 opt.termguicolors  = true -- Enable true color support
 opt.inccommand     = "nosplit" -- Don't Preview substitutions live, as you type!
-o.equalalways      = false
+o.equalalways      = true
 -- Customize fold characters
 opt.fillchars      = {
   foldopen         = "",
