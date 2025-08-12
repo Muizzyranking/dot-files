@@ -12,7 +12,7 @@ return {
     user_default_options = {
       names = false,
       hooks = {
-        disable_line_highlight = function(line, _, bufnr)
+        disable_line_highlight = function(line, bufnr, line_num)
           local function is_comment(left_comment, right_comment)
             if line:match("^%s*//") then
               return true

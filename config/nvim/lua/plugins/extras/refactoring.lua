@@ -119,7 +119,7 @@ return {
     "folke/which-key.nvim",
     opts = {
       spec = {
-        { "<leader>r", group = "refactor", icon = { icon = " ", color = "red" } },
+        { "<leader>r", mode = { "n", "v" }, group = "refactor", icon = { icon = " ", color = "red" } },
       },
     },
   },
