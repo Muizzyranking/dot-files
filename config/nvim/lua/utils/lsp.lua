@@ -390,18 +390,22 @@ function M.goto_definition(opts)
     if direction then
       Utils.open_in_split(direction, filename, start_line, start_col)
     elseif reuse_win then
-      local existing_win = Utils.find_win_with_file(filename)
-      if existing_win then
-        local current_buf = vim.api.nvim_get_current_buf()
-        local target_buf = vim.api.nvim_win_get_buf(existing_win)
-        vim.api.nvim_set_current_win(existing_win)
-        if current_buf == target_buf then
-          vim.cmd(string.format("normal! %dG%d|", start_line, start_col + 1))
-        else
-          pcall(vim.api.nvim_win_set_cursor, existing_win, { start_line, start_col })
-        end
+      -- Check if the definition is in the current buffer first
+      local current_buf = vim.api.nvim_get_current_buf()
+      local current_filename = vim.api.nvim_buf_get_name(current_buf)
+
+      if current_filename == filename then
+        -- Definition is in current buffer, jump within current window
+        vim.cmd(string.format("normal! %dG%d|", start_line, start_col + 1))
       else
-        vim.lsp.util.show_document(location, client.offset_encoding, { focus = true })
+        -- Definition is in different file, look for existing window
+        local existing_win = Utils.find_win_with_file(filename)
+        if existing_win then
+          vim.api.nvim_set_current_win(existing_win)
+          pcall(vim.api.nvim_win_set_cursor, existing_win, { start_line, start_col })
+        else
+          vim.lsp.util.show_document(location, client.offset_encoding, { focus = true })
+        end
       end
     else
       vim.lsp.util.show_document(location, client.offset_encoding, { focus = true })
