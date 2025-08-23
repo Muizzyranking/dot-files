@@ -11,7 +11,9 @@ return {
     servers = {
       -- emmet_ls = {},
       emmet_language_server = {},
-      cssls = {},
+      cssls = {
+        settings = { css = { lint = { unknownAtRules = "ignore" } } },
+      },
       html = {
         filetypes = { "html", "htmldjango" },
       },
