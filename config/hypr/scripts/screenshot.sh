@@ -18,7 +18,7 @@ close_rofi() {
 
 # Check if hyprshade is active
 current_hyprshade=""
-if [ ! -z $(hyprshade current) ]; then
+if [ ! -z "$(hyprshade current)" ]; then
     current_hyprshade=$(hyprshade current)
     hyprshade off
 fi
@@ -27,7 +27,7 @@ choice=$(echo -e "$options" | rofi -dmenu -config ~/.config/rofi/screenshot.rasi
 close_rofi
 
 case $choice in
-    $option1)
+    "$option1")
         sleep 0.5
         temp_file=$(mktemp)
         grim -g "$(slurp)" "$temp_file"
@@ -41,7 +41,7 @@ case $choice in
             rm "$temp_file"
         fi
     ;;
-    $option2)
+    "$option2")
         sleep 0.5
         grim "$DIR/$NAME"
         wl-copy < "$DIR/$NAME"
@@ -49,7 +49,7 @@ case $choice in
         ${notify_cmd_shot} "Screenshot Saved" "Mode: Fullscreen"
         swappy -f "$DIR/$NAME"
     ;;
-    $option3)
+    "$option3")
         sleep 0.5
         active_window_geometry=$(hyprctl -j activewindow | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')
         grim -g "$active_window_geometry" "$DIR/$ACTIVE_WINDOW_FILE"
@@ -58,7 +58,7 @@ case $choice in
         ${notify_cmd_shot} "Screenshot Saved" "Mode: Current window"
         swappy -f "$DIR/$ACTIVE_WINDOW_FILE"
     ;;
-    $option4)
+    "$option4")
         sleep 0.5
         monitor=$(hyprctl monitors | grep -B 4 "focused: yes" | awk '/^Monitor/{print $2}')
         grim -o "$monitor" "$DIR/$NAME"
@@ -70,8 +70,8 @@ case $choice in
 esac
 
 # Restore hyprshade if it was active
-if [ ! -z $current_hyprshade ]; then
-    hyprshade on $current_hyprshade
+if [ ! -z "$current_hyprshade" ]; then
+    hyprshade on "$current_hyprshade"
 fi
 
 exit 0

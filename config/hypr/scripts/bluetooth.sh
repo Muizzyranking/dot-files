@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# Check if blueman-manager is running
-if pgrep -x "blueman-manager" > /dev/null
-then
-    # If running, kill it
-    killall blueman-manager
-else
-    # If not running, start it
-    blueman-manager
+command_name="blueman-manager"
+
+if ! command -v $command_name &>/dev/null; then
+    exit 1
 fi
 
+if pgrep $command_name >/dev/null; then
+    killall $command_name
+else
+    $command_name &
+fi

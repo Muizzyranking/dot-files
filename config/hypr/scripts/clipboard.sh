@@ -1,7 +1,6 @@
 #!/bin/bash
 
 while true; do
-    # Get clipboard history
     clipboard_entries=$(cliphist list)
 
     # Remove numbers for display but keep full entries for lookup
@@ -11,7 +10,7 @@ while true; do
     selection=$(echo "$formatted_entries" | rofi -i -dmenu \
         -kb-custom-1 "Control-Delete" \
         -kb-custom-2 "Alt-Delete" \
-        -config ~/.config/rofi/clipboard.rasi)
+        -config ~/.config/rofi/clipboard.rasi -p " ")
 
     # Check exit status of rofi
     case "$?" in
