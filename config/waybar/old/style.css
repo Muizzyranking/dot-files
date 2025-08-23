@@ -1,0 +1,230 @@
+/* Import the color definitions */
+@import "colors.css";
+
+* {
+  font-family: "JetBrainsMono Nerd Font", sans-serif;
+  font-size: 11px;
+  min-height: 20px;
+  font-weight: bold;
+  transition: all 0.1s ease;
+  margin: 0 2px;
+}
+
+window#waybar {
+  background: transparent;
+  color: @foreground;
+  border-radius: 8px;
+  margin: 2px 4px 6px 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+tooltip {
+  background: @background;
+  border: 1px solid @primary;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+tooltip label {
+  color: @foreground;
+  padding: 2px;
+}
+
+#custom-spotify {
+  background: linear-gradient(45deg, @spotify_green, @spotify_light);
+  color: @background;
+  padding: 0 10px;
+  margin: 3px;
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+#wlr-taskbar,
+#privacy,
+#disk,
+#taskbar,
+#tray,
+#window,
+#workspaces,
+#custom-os,
+#clock,
+#custom-swaync,
+#network,
+#custom-power,
+#custom-color_picker,
+#custom-lock {
+  background: @background;
+  padding: 0 10px;
+  margin: 3px;
+  border-radius: 6px;
+  color: @primary;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+#tray {
+  padding: 0 10px;
+  background: @background;
+}
+
+#memory,
+#cpu,
+#battery,
+#power-profiles-daemon,
+#bluetooth,
+#pulseaudio {
+  background: @background;
+  padding: 0 10px;
+  color: @primary;
+}
+
+#memory,
+#battery,
+#bluetooth {
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+  border-right: none;
+  margin: 3px 0 3px 3px;
+}
+
+#cpu,
+#power-profiles-daemon,
+#pulseaudio {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+  border-left: none;
+  margin: 3px 3px 3px 0;
+}
+
+/* Special modules styling */
+#workspaces {
+  padding: 1px 8px;
+  background: @background;
+  border-radius: 6px;
+}
+
+#workspaces button {
+  padding: 0 6px;
+  margin: 2px;
+  color: @overlay0;
+  background: @surface0;
+  border-radius: 4px;
+  min-width: 20px;
+  transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#workspaces button.active {
+  color: @base;
+  background: @mauve;
+  padding: 0 6px;
+  margin: 2px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  font-weight: bold;
+  min-width: 30px;
+}
+
+#workspaces button:hover:not(.active) {
+  color: @text;
+  background: alpha(@surface1, 0.8);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+#custom-os {
+  font-size: 13px;
+  background: @secondary;
+  color: @background;
+  border-radius: 6px;
+  margin: 3px;
+  border: none;
+  padding: 0 16px;
+}
+
+#clock {
+  color: @warning;
+  background: @background;
+  border-radius: 6px;
+  font-weight: bold;
+  padding: 0 8px;
+}
+
+#custom-swaync {
+  background: @background;
+  border-radius: 6px;
+  padding: 0 6px;
+  font-size: 12px;
+}
+
+/* Network styling */
+#network {
+  background: @background;
+  color: @network_connected;
+  border-radius: 6px;
+}
+
+/* Battery states */
+#battery {
+  color: @battery_good;
+}
+
+#battery.warning {
+  color: @battery_warning;
+}
+
+#battery.critical {
+  color: @battery_critical;
+}
+
+#battery.critical:not(.charging),
+#battery.critical:not(.charging) + #power-profiles-daemon {
+  background: linear-gradient(45deg, @battery_critical, @error);
+  color: @background;
+  /* animation-name: blink; */
+  /* animation-duration: 0.7s; */
+  /* animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); */
+  /* animation-iteration-count: infinite; */
+  /* animation-direction: alternate; */
+  border-radius: 6px;
+  border: none;
+}
+
+#battery.critical:not(.charging) + #power-profiles-daemon {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+#battery.critical:not(.charging) {
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+
+@keyframes blink {
+  to {
+    background: @background;
+    color: @battery_critical;
+  }
+}
+
+/* Additional styling for specific modules */
+#pulseaudio {
+  color: @audio_normal;
+}
+
+#bluetooth {
+  color: @bluetooth_connected;
+}
+
+#disk {
+  color: @secondary;
+}
+
+#cpu {
+  color: @error;
+}
+
+#memory {
+  color: @success;
+}
+
+#power-profiles-daemon {
+  color: @warning;
+}
