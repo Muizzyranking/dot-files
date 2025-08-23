@@ -72,7 +72,6 @@ alias search='dnf search'
 alias nvimrc='$EDITOR $NVIMRC'
 alias tmuxrc='$EDITOR $TMUXRC'
 alias zshrc='$EDITOR $ZSHRC'
-alias aliases='$EDITOR $ALIASES'
 
 alias rm="echo Use 'trash', or the full path i.e. '/bin/rm'"
 
