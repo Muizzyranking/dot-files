@@ -3,28 +3,28 @@
 * {
   all: unset;
   font-family: "JetBrainsMono Nerd Font", "Iosevka Nerd Font", monospace;
-  font-size: 10px; /* Reduced from 11px */
+  font-size: 11px;
   font-weight: 500;
-  min-height: 12px; /* Reduced from 15px */
+  min-height: 12px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 4px; /* Reduced from 5px */
+  border-radius: 4px;
 }
 
 window#waybar {
   background: transparent;
   color: @text;
-  border-radius: 10px; /* Reduced from 12px */
-  box-shadow: 0 3px 16px alpha(black, 0.3); /* Slightly reduced shadow */
+  border-radius: 10px;
+  box-shadow: 0 3px 16px alpha(black, 0.3);
 }
 
 tooltip {
   background: alpha(@mantle, 0.98);
   border: 1px solid @surface1;
-  border-radius: 6px; /* Reduced from 8px */
+  border-radius: 6px;
   color: @text;
-  box-shadow: 0 3px 10px alpha(black, 0.4); /* Slightly reduced shadow */
-  padding: 6px 8px; /* Reduced from 8px 10px */
-  font-size: 10px; /* Reduced from 11px */
+  box-shadow: 0 3px 10px alpha(black, 0.4);
+  padding: 6px 8px;
+  font-size: 10px;
 }
 
 tooltip label {
@@ -34,18 +34,17 @@ tooltip label {
 .module {
   background: alpha(@surface0, 0.6);
   color: @subtext1;
-  border-radius: 4px; /* Reduced from 5px */
+  border-radius: 4px;
   border: 1px solid alpha(@surface1, 0.4);
-  min-height: 16px; /* Reduced from 20px */
+  min-height: 16px;
 }
 
 #custom-os {
   background: alpha(@blue, 0.8);
   color: @base;
-  padding: 0 20px;
   font-size: 12px;
   border-radius: 4px;
-  padding: 0 5px;
+  padding: 0 20px;
   margin: 2px 3px;
   min-height: 16px;
 }
@@ -99,7 +98,7 @@ tooltip label {
 #clock {
   background: alpha(@surface0, 0.8);
   color: @text;
-  font-size: 10px;
+  font-size: 11px;
   border: 1px solid alpha(@surface1, 0.6);
   min-height: 16px;
   border-radius: 4px;
@@ -118,7 +117,7 @@ tooltip label {
   background: alpha(@surface0, 0.6);
   color: @green;
   border: none;
-  font-size: 10px;
+  font-size: 11px;
   border-radius: 4px;
   padding: 4px 8px;
   margin: 2px 3px;
@@ -138,7 +137,7 @@ tooltip label {
 #privacy,
 #custom-swaync {
   background: alpha(@surface0, 0.6);
-  font-size: 10px;
+  font-size: 11px;
   color: @yellow;
   border: none;
   border-radius: 4px;
@@ -170,7 +169,7 @@ tooltip label {
   border-radius: 4px;
   padding: 4px 8px;
   margin: 2px 3px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
   min-height: 16px;
 }
@@ -213,7 +212,7 @@ tooltip label {
   border-radius: 4px;
   padding: 4px 8px;
   margin: 2px 3px;
-  font-size: 10px;
+  font-size: 11px;
   min-height: 16px;
 }
 
@@ -269,7 +268,7 @@ tooltip label {
   border-radius: 4px;
   padding: 4px 8px;
   margin: 2px 3px;
-  font-size: 10px;
+  font-size: 11px;
   min-height: 16px;
 }
 

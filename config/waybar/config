@@ -5,7 +5,6 @@
   "modules-left": [
     "custom/os",
     "clock",
-    "hyprland/window",
     "group/media"
   ],
   "modules-center": [
