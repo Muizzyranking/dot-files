@@ -1,10 +1,10 @@
 configuration {
     modi: "drun,run,window,filebrowser";
     show-icons: true;
-    display-drun: " Apps";
-    display-run: " Run";
-    display-filebrowser: " Files";
-    display-window: " Windows";
+    display-drun: " ";
+    display-run: " ";
+    display-filebrowser: " ";
+    display-window: " ";
     drun-display-format: "{name}";
     hover-select: true;
     me-select-entry: "MouseSecondary";
@@ -17,19 +17,19 @@ configuration {
 
 
 window {
-    width: 45%;
-    height: 55%;
+    width: 20%;
+    height: 0;
     border: 2px;
     border-color: @border-col;
     background-color: @bg-col;
-    border-radius: 12px;
+    border-radius: 8px;
     padding: 6px;
 }
 
 mainbox {
     background-color: transparent;
     orientation: vertical;
-    children: [ "inputbar", "mode-switcher", "listview" ];
+    children: [ "inputbar", "listview" ];
     spacing: 10px;
     padding: 10px;
 }
@@ -74,19 +74,19 @@ prompt {
 
 entry {
     padding: 10px;
-    margin: 0 0 0 10px;
+    margin: 0 0 0 5px;
     text-color: @fg-col;
     background-color: @bg-col-light;
     border-radius: 8px;
-    placeholder: "Search...";
+    placeholder: "";
 }
 
 listview {
     border: 0px;
     padding: 0;
     margin: 0;
-    columns: 2;
-    lines: 7;
+    columns: 1;
+    lines: 5;
     background-color: transparent;
     scrollbar: false;
     spacing: 5px;
@@ -106,15 +106,15 @@ scrollbar {
 
 element {
     padding: 10px;
-    background-color: @bg-col-light;
+    background-color: transparent;
     text-color: @fg-col;
     border-radius: 8px;
     spacing: 10px;
-    margin: 2px 0;
+    margin: 1px 0;
 }
 
 element-icon {
-    size: 28px;
+    size: 25px;
     vertical-align: 0.5;
     horizontal-align: 0.5;
     margin: 0 8px 0 0;
@@ -125,8 +125,8 @@ element-text {
 }
 
 element selected {
-    background-color: @selected-col;
-    text-color: @blue;
+    background-color: @lavender;
+    text-color: @bg-col;
 }
 
 message {

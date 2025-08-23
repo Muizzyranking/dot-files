@@ -7,8 +7,8 @@ configuration {
 
 window {
     width: 20%;
-    height: 40%;
-    border-radius: 30px;
+    height: 0;
+    border-radius: 10px;
     location: center;
     anchor: center;
     x-offset: 0;
@@ -20,10 +20,6 @@ prompt {
     padding: 10px;
     background-color: @blue;
     text-color: @bg-col;
-}
-
-entry {
-    placeholder: "Select an option";
 }
 
 listview {
@@ -43,6 +39,6 @@ mainbox {
 }
 
 inputbar {
-    children: [ prompt, entry ];
+    children: [ prompt ];
 }
 

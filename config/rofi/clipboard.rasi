@@ -1,11 +1,16 @@
 @import "~/.config/rofi/config.rasi" 
 entry {
-  width: 37%;
   placeholder: "📋 Search Clipboard ** CTRL Del - del or Alt Del - wipe";
 }
 
+window {
+    width: 45%;
+    height: 0;
+}
+
+
 listview {
-  columns: 1;
-  lines: 8;
+  columns: 3;
+  lines: 7;
 }
 
