@@ -1,235 +1,323 @@
-/* Import the color definitions */
 @import "colors.css";
 
 * {
-  font-family: "JetBrainsMono Nerd Font", sans-serif;
-  font-size: 12px;
-  min-height: 20px;
-  font-weight: bold;
-  transition: all 0.1s ease;
+  all: unset;
+  font-family: "JetBrainsMono Nerd Font", "Iosevka Nerd Font", monospace;
+  font-size: 10px; /* Reduced from 11px */
+  font-weight: 500;
+  min-height: 12px; /* Reduced from 15px */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 4px; /* Reduced from 5px */
 }
 
 window#waybar {
-  /* background: rgba(30, 30, 46, 0.5); */
   background: transparent;
-  color: @foreground;
-  border-radius: 8px;
-  margin: 2px 4px 6px 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  color: @text;
+  border-radius: 10px; /* Reduced from 12px */
+  box-shadow: 0 3px 16px alpha(black, 0.3); /* Slightly reduced shadow */
 }
 
 tooltip {
-  background: @background;
-  border: 1px solid @primary;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  background: alpha(@mantle, 0.98);
+  border: 1px solid @surface1;
+  border-radius: 6px; /* Reduced from 8px */
+  color: @text;
+  box-shadow: 0 3px 10px alpha(black, 0.4); /* Slightly reduced shadow */
+  padding: 6px 8px; /* Reduced from 8px 10px */
+  font-size: 10px; /* Reduced from 11px */
 }
 
 tooltip label {
-  color: @foreground;
-  padding: 2px;
+  color: @text;
 }
 
-/* Modules styling */
-#custom-spotify {
-  background: linear-gradient(45deg, @spotify_green, @spotify_light);
-  color: @background;
-  padding: 0 8px;
-  margin: 3px;
-  border-radius: 6px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+.module {
+  background: alpha(@surface0, 0.6);
+  color: @subtext1;
+  border-radius: 4px; /* Reduced from 5px */
+  border: 1px solid alpha(@surface1, 0.4);
+  min-height: 16px; /* Reduced from 20px */
 }
 
-#wlr-taskbar,
-#privacy,
-#disk,
-#taskbar,
-#tray,
-#window,
-#workspaces,
-#custom-os,
-#clock,
-#custom-swaync,
-#network,
-#custom-power,
-#custom-color_picker,
-#custom-lock {
-  background: @background;
-  padding: 0 6px;
-  margin: 3px;
-  border-radius: 6px;
-  color: @primary;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  border: 1px solid @surface0;
+#custom-os {
+  background: alpha(@blue, 0.8);
+  color: @base;
+  padding: 0 20px;
+  font-size: 12px;
+  border-radius: 4px;
+  padding: 0 5px;
+  margin: 2px 3px;
+  min-height: 16px;
 }
 
-#tray {
-  padding: 0 8px;
-  background: @background;
-  border: 1px solid @surface0;
+#custom-os:hover {
+  background: @blue;
 }
 
-/* Grouped modules */
-#memory,
-#cpu,
-#battery,
-#power-profiles-daemon,
-#bluetooth,
-#pulseaudio {
-  background: @background;
-  padding: 0 6px;
-  color: @primary;
-  border: 1px solid @surface0;
-}
-
-#memory,
-#battery,
-#bluetooth {
-  border-top-left-radius: 6px;
-  border-bottom-left-radius: 6px;
-  border-right: none;
-  margin: 3px 0 3px 3px;
-}
-
-#cpu,
-#power-profiles-daemon,
-#pulseaudio {
-  border-top-right-radius: 6px;
-  border-bottom-right-radius: 6px;
-  border-left: none;
-  margin: 3px 3px 3px 0;
-}
-
-/* Special modules styling */
 #workspaces {
-  padding: 1px 8px;
-  background: @background;
-  border-radius: 6px;
+  background: alpha(@surface0, 0.6);
+  border-radius: 4px;
+  border: 1px solid alpha(@surface1, 0.4);
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin: 2px 3px;
+  min-height: 16px;
 }
 
 #workspaces button {
-  padding: 0 6px;
-  margin: 2px;
-  color: @overlay0;
-  background: @surface0;
+  color: @overlay1;
+  background: transparent;
   border-radius: 4px;
+  padding: 3px 6px;
+  margin: 0 2px;
+  font-weight: 600;
   min-width: 20px;
   transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #workspaces button.active {
-  color: @background;
-  padding: 0 6px;
-  margin: 2px;
-  background: @primary;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  font-weight: bold;
-  min-width: 30px;
+  color: @base;
+  background: @mauve;
 }
 
-#workspaces button:hover {
-  background: @secondary;
-  color: @background;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+#workspaces button:hover:not(.active) {
+  color: @text;
+  background: alpha(@surface1, 0.8);
+}
+
+#window {
+  background: alpha(@surface0, 0.4);
+  color: @subtext0;
   border-radius: 4px;
-}
-
-#custom-os {
-  font-size: 13px;
-  background: @secondary;
-  color: @background;
-  border-radius: 6px;
-  margin: 3px;
-  border: none;
-  padding: 0 16px;
+  font-style: italic;
+  border: 1px solid alpha(@surface1, 0.3);
+  padding: 4px 8px;
+  margin: 2px 3px;
+  min-height: 16px;
 }
 
 #clock {
-  color: @warning;
-  background: @background;
-  border-radius: 6px;
-  font-weight: bold;
-  padding: 0 8px;
+  background: alpha(@surface0, 0.8);
+  color: @text;
+  font-size: 10px;
+  border: 1px solid alpha(@surface1, 0.6);
+  min-height: 16px;
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin: 2px 3px;
+  min-height: 16px;
+}
+
+#clock:hover {
+  background: alpha(@surface1, 0.8);
+  color: @lavender;
+}
+
+#custom-spotify,
+#mpris {
+  background: alpha(@surface0, 0.6);
+  color: @green;
+  border: none;
+  font-size: 10px;
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin: 2px 3px;
+  min-height: 16px;
+}
+
+#custom-spotify {
+  color: @green;
+}
+
+#custom-spotify:hover,
+#mpris:hover {
+  background: alpha(@green, 0.2);
+  color: @green;
+}
+
+#privacy,
+#custom-swaync {
+  background: alpha(@surface0, 0.6);
+  font-size: 10px;
+  color: @yellow;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin: 2px 3px;
+  min-height: 16px;
 }
 
 #custom-swaync {
-  background: @background;
-  border-radius: 6px;
-  padding: 0 6px;
-  font-size: 12px;
+  color: @peach;
 }
 
-/* Network styling */
-#network {
-  background: @background;
-  color: @network_connected;
-  border-radius: 6px;
+#custom-updates {
+  color: @red;
 }
 
-/* Battery states */
-#battery {
-  color: @battery_good;
+#privacy:hover,
+#custom-swaync:hover,
+#custom-updates:hover {
+  background: alpha(@surface1, 0.8);
 }
 
-#battery.warning {
-  color: @battery_warning;
-}
-
-#battery.critical {
-  color: @battery_critical;
-}
-
-#battery.critical:not(.charging),
-#battery.critical:not(.charging) + #power-profiles-daemon {
-  background: linear-gradient(45deg, @battery_critical, @error);
-  color: @background;
-  /* animation-name: blink; */
-  /* animation-duration: 0.7s; */
-  /* animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); */
-  /* animation-iteration-count: infinite; */
-  /* animation-direction: alternate; */
-  border-radius: 6px;
+#cpu,
+#memory,
+#disk,
+#temperature {
+  background: alpha(@surface0, 0.6);
   border: none;
-}
-
-#battery.critical:not(.charging) + #power-profiles-daemon {
-  border-top-right-radius: 6px;
-  border-bottom-right-radius: 6px;
-}
-
-#battery.critical:not(.charging) {
-  border-top-left-radius: 6px;
-  border-bottom-left-radius: 6px;
-}
-
-@keyframes blink {
-  to {
-    background: @background;
-    color: @battery_critical;
-  }
-}
-
-/* Additional styling for specific modules */
-#pulseaudio {
-  color: @audio_normal;
-}
-
-#bluetooth {
-  color: @bluetooth_connected;
-}
-
-#disk {
-  color: @secondary;
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin: 2px 3px;
+  font-size: 10px;
+  font-weight: 500;
+  min-height: 16px;
 }
 
 #cpu {
-  color: @error;
+  color: @red;
 }
 
 #memory {
-  color: @success;
+  color: @green;
+}
+
+#disk {
+  color: @blue;
+}
+
+#temperature {
+  color: @peach;
+}
+
+#temperature.critical {
+  color: @red;
+  background: alpha(@red, 0.2);
+}
+
+#cpu:hover,
+#memory:hover,
+#disk:hover,
+#temperature:hover {
+  background: alpha(@surface1, 0.8);
+}
+
+/* Connectivity Group */
+#tray,
+#network,
+#bluetooth,
+#pulseaudio {
+  background: alpha(@surface0, 0.6);
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin: 2px 3px;
+  font-size: 10px;
+  min-height: 16px;
+}
+
+#network {
+  color: @teal;
+}
+
+#network.disconnected {
+  color: @overlay1;
+}
+
+#bluetooth {
+  color: @sapphire;
+}
+
+#bluetooth.disabled {
+  color: @overlay1;
+}
+
+#pulseaudio {
+  color: @peach;
+}
+
+#pulseaudio.muted {
+  color: @overlay1;
+}
+
+#tray {
+  color: @text;
+}
+
+#tray > .passive {
+  -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+  -gtk-icon-effect: highlight;
+  background: alpha(@red, 0.2);
+}
+
+#network:hover,
+#bluetooth:hover,
+#pulseaudio:hover,
+#tray:hover {
+  background: alpha(@surface1, 0.8);
+}
+
+#battery,
+#power-profiles-daemon,
+#backlight {
+  background: alpha(@surface0, 0.6);
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin: 2px 3px;
+  font-size: 10px;
+  min-height: 16px;
+}
+
+#battery {
+  color: @green;
+}
+
+#battery.warning {
+  color: @yellow;
+}
+
+#battery.critical {
+  color: @red;
+  background: alpha(@red, 0.2);
+  animation: battery-blink 1s ease-in-out infinite;
+}
+
+@keyframes battery-blink {
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 #power-profiles-daemon {
-  color: @warning;
+  color: @mauve;
+}
+
+#backlight {
+  color: @yellow;
+}
+
+#battery:hover,
+#power-profiles-daemon:hover,
+#backlight:hover {
+  background: alpha(@surface1, 0.8);
+}
+
+.module:hover {
+  box-shadow: 0 3px 10px alpha(black, 0.2); /* Slightly reduced shadow */
+}
+
+#group-media:hover .module,
+#group-system:hover .module,
+#group-hardware:hover .module,
+#group-connectivity:hover .module,
+#group-session:hover .module {
+  background: alpha(@surface1, 0.7);
 }
