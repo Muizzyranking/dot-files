@@ -2,6 +2,7 @@
   "layer": "top",
   "position": "top",
   "margin": "5",
+  "reload_style_on_change": true,
   "modules-left": [
     "custom/os",
     "clock",
@@ -11,8 +12,8 @@
     "hyprland/workspaces"
   ],
   "modules-right": [
-    "group/system",
     "group/hardware",
+    "group/system",
     "group/connectivity",
     "group/session"
   ],
@@ -36,6 +37,7 @@
   },
   "group/hardware": {
     "modules": [
+      "custom/reveal-icon",
       "cpu",
       "memory",
       "disk",
@@ -45,7 +47,8 @@
     "drawer": {
       "transition-duration": 300,
       "children-class": "hardware-drawer",
-      "transition-left-to-right": true
+      "transition-left-to-right": true,
+      "click-to-reveal": true
     }
   },
   "group/connectivity": {
@@ -75,6 +78,10 @@
     "tooltip": true,
     "tooltip-format": "System Menu",
     "on-click": "sh $HOME/.config/hypr/scripts/wlogout.sh"
+  },
+  "custom/reveal-icon": {
+    "format": "",
+    "tooltip": false
   },
   "hyprland/workspaces": {
     "active-only": false,
@@ -242,14 +249,14 @@
   },
   "network": {
     "format-wifi": "{icon} {signalStrength}%",
-    "format-ethernet": "",
-    "format-linked": "",
-    "format-disconnected": "󰌙",
+    "format-ethernet": " ",
+    "format-linked": " ",
+    "format-disconnected": "󰤯 ",
     "tooltip-format": "Network: {essid}\nIP: {ipaddr}\nStrength: {signalStrength}%\n⬇ {bandwidthDownBytes} ⬆ {bandwidthUpBytes}",
     "tooltip-format-ethernet": "Ethernet\nIP: {ipaddr}\n⬇ {bandwidthDownBytes} ⬆ {bandwidthUpBytes}",
     "tooltip-format-disconnected": "Disconnected",
     "on-click": "nmgui",
-    "on-click-right": "nm-connection-editor",
+    "on-click-right": "bash -c $HOME/.config/hypr/scripts/airplane.sh",
     "interval": 5,
     "format-icons": [
       "󰤯",
@@ -260,9 +267,10 @@
     ]
   },
   "bluetooth": {
-    "format": "",
+    "format": "{icon}",
+    "format-icons": "",
     "format-disabled": "󰂳",
-    "format-connected": " {num_connections}",
+    "format-connected": "{icon} {device_alias}",
     "tooltip-format": "Bluetooth: {status}",
     "tooltip-format-connected": "Bluetooth: Connected\n{device_enumerate}",
     "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
