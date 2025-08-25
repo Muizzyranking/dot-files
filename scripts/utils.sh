@@ -20,7 +20,12 @@ print_message() {
 
 is_package_installed() {
     local package="$1"
-    rpm -q "$package" &>/dev/null
+    if rpm -q "$package" &>/dev/null; then
+        return 0
+    elif command -v "$package" &>/dev/null; then
+        return 0
+    fi
+    return 1
 }
 
 install_package() {
@@ -36,8 +41,9 @@ install_package() {
         if sudo dnf install -y -q "$package"; then
             print_message success "Successfully installed package $package."
             return 0
-        else
-            print_message error "Failed to install package $package."
+        fi
+        if ! is_package_installed "$package"; then
+            print_message error "Package $package installation verification failed."
             return 1
         fi
     fi
