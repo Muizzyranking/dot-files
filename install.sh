@@ -2,9 +2,6 @@
 
 set -euo pipefail
 
-SCRIPT_VERSION="2.0.0"
-SCRIPT_NAME="Fedora Dotfiles Installer"
-
 cleanup() {
     echo
     print_message info "Script interrupted....."
@@ -134,10 +131,6 @@ main() {
         -h | --help)
             echo "help"
             show_usage
-            exit 0
-            ;;
-        -v | --version)
-            echo "$SCRIPT_NAME v$SCRIPT_VERSION"
             exit 0
             ;;
         all | dev | hypr | apps | minimal)
