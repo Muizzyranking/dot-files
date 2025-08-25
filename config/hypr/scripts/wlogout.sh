@@ -1,2 +1,2 @@
 #!/bin/bash
-wlogout
+wlogout -b 4 -m 400
