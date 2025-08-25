@@ -8,13 +8,42 @@
 
 ![image](https://muizzyranking.github.io/images/dot_images/nvim_shot.png)
 
+<details>
+<summary>Spotify</summary>
+
 ![image](https://muizzyranking.github.io/images/dot_images/spotify.png)
+
+</details>
+
+<details>
+<summary>Home Screen</summary>
 
 ![image](https://muizzyranking.github.io/images/dot_images/home_shot.png)
 
+</details>
+
+<details>
+<summary>Rofi</summary>
+
 ![image](https://muizzyranking.github.io/images/dot_images/rofi_shot.png)
 
+</details>
+
+<details>
+<summary>Waybar</summary>
+
+![image](https://muizzyranking.github.io/images/dot_images/waybar_1.png)
+
+![image](https://muizzyranking.github.io/images/dot_images/waybar_2.png)
+
+</details>
+
+<details>
+<summary>SDDM</summary>
+
 ![image](https://muizzyranking.github.io/images/dot_images/sddm.png)
+</details>
+
 
 ## Used software
 
@@ -67,6 +96,6 @@ Check out my wallpapers [repository](https://github.com/muizzyranking/images)
 
 - [ ] Improve installation script
 - [x] SDDM theme
-- [ ] Switch from oh my zsh to zinit
-- [ ] Write simple oh my posh theme
+- [ ] Remove oh-my-zsh and use zsh plugins only
+- [ ] Change from powerlevel10k to ohMyPost
 - [x] Change gtk theme
