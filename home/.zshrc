@@ -54,7 +54,6 @@ fpath+=("$HOME/.zsh/completions/" "$fpath")
 autoload -U compinit
 compinit
 
-eval "$(thefuck --alias)"
 eval "$(zoxide init zsh)"
 source <(fzf --zsh)
 
@@ -70,5 +69,6 @@ esac
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-. "/home/muizzyranking/.deno/env"
 eval "$(uv generate-shell-completion zsh)"
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
