@@ -1,5 +1,4 @@
 {
-  "R.nvim": { "branch": "main", "commit": "a1aa07f35179328021c6ad7ca9093ef07df30095" },
   "SchemaStore.nvim": { "branch": "main", "commit": "a23c631533b60f8d24ca9826bf28c9e21bec0424" },
   "blink-cmp-copilot": { "branch": "main", "commit": "439cff78780c033aa23cf061d7315314b347e3c1" },
   "blink.cmp": { "branch": "main", "commit": "bae4bae0eedd1fa55f34b685862e94a222d5c6f8" },
