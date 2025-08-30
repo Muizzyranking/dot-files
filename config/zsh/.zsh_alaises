@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-alias v='nv'
-alias cl='clear'
-alias lv='NVIM_APPNAME=lazyvim nv'
+alias v='nvim'
 alias mvim='NVIM_APPNAME=my_nvim nv'
 alias cat='bat'
 alias tree='eza --tree'
@@ -39,7 +37,7 @@ of() {
 }
 
 mkcd() {
-    mkdir -p "$1" && cd "$1" || echo "Failed"
+    mkdir -p "$1" && \cd "$1" || echo "Failed"
 }
 
 
