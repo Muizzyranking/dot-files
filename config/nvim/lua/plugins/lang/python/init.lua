@@ -176,13 +176,12 @@ return {
       end,
     },
     {
-      pattern = "python",
       callback = function(event)
         Utils.map.create_abbrevs({
           { "True", { "true", "ture" } },
           { "False", { "false", "flase" } },
           { "class", { "Class", "calss" } },
-          { "None", { "none", "NONE", "nil", "Nil", "null" } },
+          { "None", { "none", "NONE", "nil", "Nil" } },
         }, {
           buffer = event.buf,
           conds = { "lsp_keyword" },
@@ -193,6 +192,7 @@ return {
           { "def", "class" },
           { "return", "yield" },
         })
+        require("plugins.lang.python.fstring").setup({ buffer = event.buf })
       end,
     },
     {
