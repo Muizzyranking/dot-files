@@ -26,6 +26,13 @@ get_current_branch() {
     echo "$branch"
 }
 
+is_wsl() {
+    if [[ -n "${WSL_DISTRO_NAME}" ]] || [[ -n "${WSL_INTEROP}" ]] || [[ $(uname -r) == *microsoft* ]] || [[ $(uname -r) == *Microsoft* ]]; then
+        return 0
+    fi
+    return 1
+}
+
 # Process command line arguments
 show_branch=false
 target_dir=""
@@ -97,7 +104,19 @@ if [ "$show_branch" = true ]; then
 fi
 
 # Open the URL in the default browser
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+if is_wsl; then
+    if command -v powershell.exe >/dev/null 2>&1; then
+        powershell.exe -Command "Start-Process '$remote_url'"
+    elif command -v cmd.exe >/dev/null 2>&1; then
+        cmd.exe /c start "$remote_url"
+    else
+        echo -e "\033[0;31mError: Cannot find Windows command to open URL in WSL\033[0m"
+        echo "URL: $remote_url"
+        exit 1
+    fi
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    open "$remote_url"
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
     xdg-open "$remote_url"
 elif [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "cygwin"* || "$OSTYPE" == "win32" ]]; then
     start "$remote_url"
