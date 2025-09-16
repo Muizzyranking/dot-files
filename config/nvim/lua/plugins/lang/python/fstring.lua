@@ -55,12 +55,13 @@ local function get_string_info(line, col)
       if char == "\\" then
         -- Skip escaped character
         i = i + 2
-      elseif line:sub(i, i + #string_quote - 1) == string_quote then
+      elseif string_quote and line:sub(i, i + #string_quote - 1) == string_quote then
+        local quote_len = #string_quote
         in_string = false
         string_start = nil
         string_quote = nil
         is_fstring = false
-        i = i + #string_quote
+        i = i + quote_len
       else
         i = i + 1
       end
@@ -129,14 +130,6 @@ function M.handle_brace()
 
   -- Position cursor between the braces
   vim.api.nvim_win_set_cursor(win, { pos[1], remove_start + 1 })
-end
-
-function M.setup(opts)
-  opts = opts or {}
-  opts.buffer = opts.buffer or true
-  vim.keymap.set("i", "{", function()
-    M.handle_brace()
-  end, { buffer = opts.buffer, noremap = true, silent = true, desc = "Insert f-string brace" })
 end
 
 return M

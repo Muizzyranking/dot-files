@@ -163,6 +163,7 @@ return {
   autocmds = {
     {
       pattern = "html",
+      desc = "Detect Django HTML files and set filetype to htmldjango",
       group = "htmldjango_detection",
       callback = function(event)
         local buf = event.buf
@@ -192,7 +193,6 @@ return {
           { "def", "class" },
           { "return", "yield" },
         })
-        require("plugins.lang.python.fstring").setup({ buffer = event.buf })
       end,
     },
     {
@@ -218,6 +218,16 @@ return {
       [[<Cmd>normal! ggO#!/usr/bin/python3<CR><Esc>]],
       icon = { icon = " ", color = "red" },
       desc = "Add shebang",
+      silent = true,
+    },
+    {
+      "{",
+      function()
+        require("plugins.lang.python.fstring").handle_brace()
+      end,
+      mode = "i",
+      desc = "Insert f-string brace",
+      noremap = true,
       silent = true,
     },
   },
