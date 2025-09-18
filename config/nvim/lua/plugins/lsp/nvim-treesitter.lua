@@ -2,53 +2,14 @@ return {
   {
     "nvim-treesitter/nvim-treesitter",
     version = false,
+    branch = "main",
     build = ":TSUpdate",
+    lazy = vim.fn.argc(-1) == 0,
     event = { "LazyFile", "VeryLazy" },
-    init = function(plugin)
-      require("lazy.core.loader").add_to_rtp(plugin)
-      require("nvim-treesitter.query_predicates")
-    end,
+    cmd = { "TSUpdate", "TSInstall", "TSLog", "TSUninstall" },
     dependencies = {},
     opts_extend = { "ensure_installed" },
     opts = {
-      textobjects = {
-        move = {
-          enable = true,
-          set_jumps = true,
-          goto_next_start = {
-            ["]f"] = "@function.outer",
-            ["]c"] = "@class.outer",
-            ["]l"] = "@loop.*",
-          },
-          goto_next_end = {
-            ["]F"] = "@function.outer",
-            ["]C"] = "@class.outer",
-          },
-          goto_previous_start = {
-            ["[f"] = "@function.outer",
-            ["[c"] = "@class.outer",
-          },
-          goto_previous_end = {
-            ["[F"] = "@function.outer",
-            ["[C"] = "@class.outer",
-          },
-          goto_next = {
-            ["]o"] = "@conditional.outer",
-          },
-          goto_previous = {
-            ["[o"] = "@conditional.outer",
-          },
-        },
-      },
-      incremental_selection = {
-        enable = true,
-        keymaps = {
-          init_selection = "<cr>",
-          node_incremental = "<cr>",
-          scope_incremental = false,
-          node_decremental = "<bs>",
-        },
-      },
       ensure_installed = {
         "c",
         "cpp",
@@ -68,26 +29,29 @@ return {
         "xml",
         "puppet",
       },
-
-      -- Install parsers synchronously (only applied to `ensure_installed`)
-      sync_install = false,
-
-      -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-      auto_install = false,
-
-      indent = { true },
-      auto_tag = { true },
-
-      highlight = {
-        enable = true,
-        disable = function(_, buf)
-          return vim.b[buf].bigfile or Utils.evaluate(vim.fn.win_gettype(), "command")
-        end,
-        additional_vim_regex_highlighting = false,
-      },
     },
     config = function(_, opts)
-      require("nvim-treesitter.configs").setup(opts)
+      local ts = require("nvim-treesitter")
+      if not Utils.is_executable("tree-sitter") then
+        return Utils.notify.error({
+          "**treesitter-main** requires the `tree-sitter` CLI executable to be installed.",
+        })
+      end
+      ts.setup()
+      local install = vim.tbl_filter(function(lang)
+        return not Utils.ts.have(lang)
+      end, opts.ensure_installed or {})
+      if #install > 0 then
+        ts.install(install, { summary = true }):await(function()
+          Utils.ts.get_installed(true)
+        end)
+      end
+
+      vim.api.nvim_create_autocmd("FileType", {
+        callback = function(ev)
+          if not vim.b[ev.buf].bigfile and Utils.ts.have(ev.match) then pcall(vim.treesitter.start) end
+        end,
+      })
     end,
   },
   {
@@ -97,34 +61,61 @@ return {
   },
   {
     "nvim-treesitter/nvim-treesitter-textobjects",
+    branch = "main",
     event = "VeryLazy",
-    enabled = true,
-    config = function()
-      if Utils.is_loaded("nvim-treesitter") then
-        local opts = Utils.get_opts("nvim-treesitter")
-        require("nvim-treesitter.configs").setup({ textobjects = opts.textobjects })
-      end
-
-      -- When in diff mode, we want to use the default
-      -- vim text objects c & C instead of the treesitter ones.
-      local move = require("nvim-treesitter.textobjects.move") ---@type table<string,fun(...)>
-      local configs = require("nvim-treesitter.configs")
-      for name, fn in pairs(move) do
-        if name:find("goto") == 1 then
-          move[name] = function(q, ...)
-            if vim.wo.diff then
-              local config = configs.get_module("textobjects.move")[name] ---@type table<string,string>
-              for key, query in pairs(config or {}) do
-                if q == query and key:find("[%]%[][cC]") then
-                  vim.cmd("normal! " .. key)
-                  return
-                end
-              end
-            end
-            return fn(q, ...)
-          end
+    opts = {},
+    keys = function()
+      local moves = {
+        goto_next_start = {
+          ["]f"] = "@function.outer",
+          ["]c"] = "@class.outer",
+          ["]a"] = "@parameter.inner",
+        },
+        goto_next_end = {
+          ["]F"] = "@function.outer",
+          ["]C"] = "@class.outer",
+          ["]A"] = "@parameter.inner",
+        },
+        goto_previous_start = {
+          ["[f"] = "@function.outer",
+          ["[c"] = "@class.outer",
+          ["[a"] = "@parameter.inner",
+        },
+        goto_previous_end = {
+          ["[F"] = "@function.outer",
+          ["[C"] = "@class.outer",
+          ["[A"] = "@parameter.inner",
+        },
+        goto_next = {
+          ["]o"] = "@conditional.outer",
+        },
+        goto_previous = {
+          ["[o"] = "@conditional.outer",
+        },
+      }
+      local ret = {} ---@type LazyKeysSpec[]
+      for method, keymaps in pairs(moves) do
+        for key, query in pairs(keymaps) do
+          local desc = query:gsub("@", ""):gsub("%..*", "")
+          desc = desc:sub(1, 1):upper() .. desc:sub(2)
+          desc = (key:sub(1, 1) == "[" and "Prev " or "Next ") .. desc
+          desc = desc .. (key:sub(2, 2) == key:sub(2, 2):upper() and " End" or " Start")
+          ret[#ret + 1] = {
+            key,
+            function()
+              if vim.wo.diff and key:find("[cC]") then return vim.cmd("normal! " .. key) end
+              require("nvim-treesitter-textobjects.move")[method](query, "textobjects")
+            end,
+            desc = desc,
+            mode = { "n", "x", "o" },
+            silent = true,
+          }
         end
       end
+      return ret
+    end,
+    config = function(_, opts)
+      require("nvim-treesitter-textobjects").setup(opts)
     end,
   },
 }
