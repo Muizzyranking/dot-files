@@ -54,6 +54,19 @@ return {
         end,
         desc = "Toggle Flash Search",
       },
+      {
+        "<cr>",
+        mode = { "n", "o", "x" },
+        function()
+          require("flash").treesitter({
+            actions = {
+              ["<cr>"] = "next",
+              ["<BS>"] = "prev",
+            },
+          })
+        end,
+        desc = "Treesitter Incremental Selection",
+      },
     },
   },
 }
