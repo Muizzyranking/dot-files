@@ -28,7 +28,7 @@ return {
         ["<C-y>"] = { "select_and_accept" },
       },
       appearance = {
-        use_nvim_cmp_as_default = true,
+        use_nvim_cmp_as_default = false,
         nerd_font_variant = "mono",
         kind_icons = Utils.icons.kinds,
       },
@@ -38,10 +38,18 @@ return {
       sources = {
         default = { "lsp", "path", "snippets", "buffer" },
       },
-      -- i don't like command line completions
       cmdline = {
-        enabled = false,
-        sources = {},
+        enabled = true,
+        keymap = { preset = "cmdline" },
+        completion = {
+          list = { selection = { preselect = false } },
+          menu = {
+            auto_show = function(ctx)
+              return vim.fn.getcmdtype() == ":"
+            end,
+          },
+          ghost_text = { enabled = true },
+        },
       },
       fuzzy = { implementation = "prefer_rust" },
       completion = {
