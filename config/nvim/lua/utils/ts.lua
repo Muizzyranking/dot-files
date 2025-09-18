@@ -19,14 +19,10 @@ end
 -------------------------------------------------
 function M.is_active(buf)
   buf = Utils.ensure_buf(buf)
-  if vim.treesitter.highlighter.active[buf] then
-    return true
-  end
+  if vim.treesitter.highlighter.active[buf] then return true end
 
   -- `vim.treesitter.get_parser()` can be slow for big files
-  if not vim.b.bigfile and (pcall(vim.treesitter.get_parser, buf)) then
-    return true
-  end
+  if not vim.b.bigfile and (pcall(vim.treesitter.get_parser, buf)) then return true end
 
   -- File is big or cannot get parser for buf
   return false
@@ -60,9 +56,7 @@ end
 ---@return TSNode?
 ------------------------------------------------
 function M.find_node(types, opts)
-  if not M.is_active(opts and opts.bufnr) then
-    return
-  end
+  if not M.is_active(opts and opts.bufnr) then return end
 
   ---Check if given node type matches any of the types given in `types`
   ---@type fun(t: string): boolean?
@@ -78,11 +72,38 @@ function M.find_node(types, opts)
   local node = M.get_node(opts)
   while node do
     local nt = node:type() -- current node type
-    if check_type_match(nt) then
-      return node
-    end
+    if check_type_match(nt) then return node end
     node = node:parent()
   end
+end
+
+M._installed = nil ---@type table<string,string>?
+
+---@param force boolean?
+function M.get_installed(force)
+  if not M._installed or force then
+    M._installed = {}
+    for _, lang in ipairs(require("nvim-treesitter").get_installed("parsers")) do
+      M._installed[lang] = lang
+    end
+  end
+  return M._installed
+end
+
+---@param ft string
+function M.have(ft)
+  local lang = vim.treesitter.language.get_lang(ft)
+  return lang and M.get_installed()[lang]
+end
+
+function M.foldexpr()
+  local buf = vim.api.nvim_get_current_buf()
+  return M.have(vim.b[buf].filetype) and vim.treesitter.foldexpr() or "0"
+end
+
+function M.indentexpr()
+  local buf = vim.api.nvim_get_current_buf()
+  return M.have(vim.b[buf].filetype) and require("nvim-treesitter").indentexpr() or -1
 end
 
 return M
