@@ -1,4 +1,8 @@
 ---@class utils.notify
+---@field warn fun(msg: string|table, opts?: table): integer
+---@field error fun(msg: string|table, opts?: table): integer
+---@field info fun(msg: string|table, opts?: table): integer
+
 local M = setmetatable({}, {
   ---@param msg string|table
   ---@param opts? table
