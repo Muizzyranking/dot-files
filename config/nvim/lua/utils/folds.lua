@@ -22,9 +22,7 @@ function M.safe_mkview()
     local ok, err = pcall(function()
       vim.cmd([[silent! mkview]])
     end)
-    if not ok then
-      Utils.notify.error({ "Error saving view:", err })
-    end
+    if not ok then Utils.notify.error({ "Error saving view:", err }) end
   end
 end
 
@@ -35,9 +33,7 @@ function M.safe_loadview()
     local ok, err = pcall(function()
       vim.cmd([[silent! loadview]])
     end)
-    if not ok then
-      Utils.notify.error({ "Error loading view:", err })
-    end
+    if not ok then Utils.notify.error({ "Error loading view:", err }) end
   end
 end
 
@@ -49,9 +45,7 @@ end
 function M.foldexpr()
   local buf = vim.api.nvim_get_current_buf()
   if vim.b[buf].ts_folds == nil then
-    if vim.bo[buf].filetype == "" then
-      return "0"
-    end
+    if vim.bo[buf].filetype == "" then return "0" end
     if vim.bo[buf].filetype:find("dashboard") then
       vim.b[buf].ts_folds = false
     else
@@ -97,18 +91,12 @@ function M.foldtext()
   local line = vim.api.nvim_buf_get_lines(0, pos - 1, pos, false)[1]
   local parser = vim.treesitter.get_parser(0, lang)
 
-  if parser == nil then
-    return vim.fn.foldtext()
-  end
+  if parser == nil then return vim.fn.foldtext() end
 
-  if not query_cache[lang] then
-    query_cache[lang] = vim.treesitter.query.get(lang, "highlights")
-  end
+  if not query_cache[lang] then query_cache[lang] = vim.treesitter.query.get(lang, "highlights") end
   local query = query_cache[lang]
 
-  if query == nil then
-    return vim.fn.foldtext()
-  end
+  if query == nil then return vim.fn.foldtext() end
 
   -- PERF: Only parsing needed range, as parsing whole file would be slower.
   local tree = parser:parse({ pos - 1, pos })[1]
@@ -121,13 +109,9 @@ function M.foldtext()
     local name = query.captures[id]
     local text = vim.treesitter.get_node_text(node, 0)
     local start_row, start_col, end_row, end_col = node:range()
-    if start_col > line_pos then
-      table.insert(result, { line:sub(line_pos + 1, start_col), "Folded" })
-    end
+    if start_col > line_pos then table.insert(result, { line:sub(line_pos + 1, start_col), "Folded" }) end
 
-    if end_col == nil or start_col == nil then
-      break
-    end
+    if end_col == nil or start_col == nil then break end
 
     line_pos = end_col
 
@@ -136,9 +120,7 @@ function M.foldtext()
     -- Use language specific highlight, if it exists.
     local highlight = "@" .. name
     local highlight_lang = highlight .. "." .. lang
-    if vim.fn.hlexists(highlight_lang) then
-      highlight = highlight_lang
-    end
+    if vim.fn.hlexists(highlight_lang) then highlight = highlight_lang end
 
     if range[1] == prev_range[1] and range[2] == prev_range[2] then
       result[#result] = { text, highlight }
@@ -157,9 +139,7 @@ function M.foldtext()
 end
 
 function M.setup()
-  if vim.o.viewdir == "" then
-    vim.o.viewdir = vim.fn.stdpath("state") .. "/view"
-  end
+  if vim.o.viewdir == "" then vim.o.viewdir = vim.fn.stdpath("state") .. "/view" end
   vim.fn.mkdir(vim.o.viewdir, "p")
   -- stylua: ignore start
   vim.opt.foldexpr       = "v:lua.require('utils.folds').foldexpr()"
