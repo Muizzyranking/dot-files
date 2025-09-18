@@ -112,10 +112,17 @@ function M.setup_language(config)
   if config.autocmds then M.autocmds(config, create_autocmd) end
 
   -- LSP Configuration
-  if config.lsp then table.insert(plugins, {
-    "neovim/nvim-lspconfig",
-    opts = config.lsp,
-  }) end
+  if config.lsp then
+    local servers = config.lsp.servers or {}
+    for server_name, server_conf in pairs(servers) do
+      if type(server_conf) == "function" then servers[server_name] = server_conf(config) end
+    end
+    config.lsp.servers = servers
+    table.insert(plugins, {
+      "neovim/nvim-lspconfig",
+      opts = config.lsp,
+    })
+  end
 
   -- install tools
   if config.tools then
