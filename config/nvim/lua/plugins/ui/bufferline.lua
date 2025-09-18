@@ -10,6 +10,8 @@ return {
       { "<leader>bc", "<Cmd>BufferLinePick<CR>", desc = "Choose a buffer" },
       { "<S-h>", "<cmd>BufferLineCyclePrev<cr>", desc = "Prev buffer" },
       { "<S-l>", "<cmd>BufferLineCycleNext<cr>", desc = "Next buffer" },
+      { "<A-h>", "<cmd>BufferLineCyclePrev<cr>", desc = "Prev buffer" },
+      { "<A-l>", "<cmd>BufferLineCycleNext<cr>", desc = "Next buffer" },
     },
     opts = {
       options = {
