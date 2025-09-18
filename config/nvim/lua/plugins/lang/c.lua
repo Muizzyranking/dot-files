@@ -8,21 +8,21 @@ return {
     servers = {
       clangd = {
         ft = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
-        root_dir = function(fname)
-          return require("lspconfig.util").root_pattern(
-            "Makefile",
-            "configure.ac",
-            "configure.in",
-            "config.h.in",
-            "meson.build",
-            "meson_options.txt",
-            "build.ninja"
-          )(fname) or require("lspconfig.util").root_pattern("compile_commands.json", "compile_flags.txt")(
-            fname
-          ) or vim.fs.dirname(vim.fs.find(".git", { path = fname, upward = true })[1])
-        end,
         capabilities = {
           offsetEncoding = { "utf-16" },
+        },
+        root_markers = {
+          "compile_commands.json",
+          "compile_flags.txt",
+          "configure.ac", -- AutoTools
+          "Makefile",
+          "configure.ac",
+          "configure.in",
+          "config.h.in",
+          "meson.build",
+          "meson_options.txt",
+          "build.ninja",
+          ".git",
         },
         cmd = {
           "clangd",

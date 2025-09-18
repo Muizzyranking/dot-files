@@ -46,7 +46,7 @@ return {
       callback = function(event)
         local buf = event.buf
         Utils.map.create_abbrevs({
-          { "function", { "fn", "Function" } },
+          { "function", { "Function" } },
           { "local", { "loc", "Local" } },
           { "require", { "req", "Require" } },
           { "return", { "ret", "Return" } },
