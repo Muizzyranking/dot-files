@@ -1,6 +1,6 @@
 return {
   "neovim/nvim-lspconfig",
-  event = "LazyFile",
+  event = { "BufReadPre", "BufNewFile", "BufWritePre" },
   dependencies = {
     "mason-org/mason.nvim",
     "mason-org/mason-lspconfig.nvim",
@@ -39,7 +39,6 @@ return {
     },
   },
   config = function(_, opts)
-    local lsp = vim.lsp
     local diagnostic = vim.diagnostic
     opts.diagnostics.signs = {
       text = {},
@@ -62,67 +61,50 @@ return {
       require("plugins.lsp.lspconfig.keymaps").on_attach(client, buffer, opts)
     end)
 
-    local has_blink, blink = pcall(require, "blink.cmp")
-    local capabilities = vim.tbl_deep_extend(
-      "force",
-      {},
-      lsp.protocol.make_client_capabilities(),
-      has_blink and blink.get_lsp_capabilities() or {},
-      opts.capabilities or {}
-    )
+    Utils.lsp.on_support_methods("textDocument/foldingRange", function(_, _)
+      local win = vim.api.nvim_get_current_win()
+      vim.wo[win][0].foldexpr = "v:lua.vim.lsp.foldexpr()"
+    end)
+    if opts.capabilities then vim.lsp.config("*", { capabilities = opts.capabilities }) end
 
     local function setup(server)
-      local server_opts = vim.tbl_deep_extend("force", {
-        capabilities = vim.deepcopy(capabilities),
-      }, opts.servers[server] or {})
-
+      local server_opts = opts.servers[server] or {}
       if opts.setup[server] then
-        if opts.setup[server](server, server_opts) then
-          return
-        end
-      end
-      -- try to get the server config if exists
-      -- if not found, then it is a custom server and it is added to lspconfig
-      local config_available, config = pcall(Utils.lsp.get_config, server)
-      if not config_available or not config.default_config then
-        if not opts.servers[server] or not opts.servers[server].cmd then
-          Utils.notify.error(("Missing configuration for server '%s'"):format(server))
-          return
-        end
-        if not Utils.is_executable(opts.servers[server].cmd[1]) then
-          Utils.notify.error(("Server '%s' is not found"):format(server))
-          return
-        end
-        local ok, configs = pcall(require, "lspconfig.configs")
-        if not ok then
-          return
-        end
-        configs[server] = {
-          default_config = vim.tbl_extend("keep", opts.servers[server], {
-            filetypes = { server },
-          }),
-        }
+        if opts.setup[server](server, server_opts) then return true end
       end
 
-      require("lspconfig")[server].setup(server_opts)
+      if server_opts.cmd and not Utils.is_executable(server_opts.cmd[1]) then
+        Utils.notify.error(("Server '%s' is not found"):format(server))
+        return false
+      end
+
+      vim.lsp.config(server, server_opts)
     end
     -- get all the servers that are available through mason-lspconfig
     local mason_ok, mason_lspconfig = pcall(require, "mason-lspconfig")
     local all_servers = {}
     if mason_ok then
-      all_servers = vim.tbl_keys(require("mason-lspconfig").get_mappings().lspconfig_to_package)
+      all_servers = vim.tbl_keys(require("mason-lspconfig").get_mappings().lspconfig_to_package) or {}
     end
 
     local ensure_installed = {} ---@type string[]
+    local exclude_automatic_enable = {} ---@type string[]
     for server, server_opts in pairs(opts.servers) do
+      server_opts = server_opts == true and {} or server_opts
       if server_opts then
-        server_opts = server_opts == true and {} or server_opts
-
         if server_opts.enabled ~= false then
-          if vim.tbl_contains(all_servers, server) then
+          local handled_by_setup = setup(server)
+
+          if handled_by_setup then
+            exclude_automatic_enable[#exclude_automatic_enable + 1] = server
+          elseif not vim.tbl_contains(all_servers, server) then
+            vim.lsp.enable(server)
+            exclude_automatic_enable[#exclude_automatic_enable + 1] = server
+          else
             ensure_installed[#ensure_installed + 1] = server
           end
-          setup(server)
+        else
+          exclude_automatic_enable[#exclude_automatic_enable + 1] = server
         end
       end
     end
@@ -130,7 +112,9 @@ return {
     if mason_ok then
       mason_lspconfig.setup({
         ensure_installed = vim.tbl_deep_extend("force", ensure_installed, {}),
-        automatic_enable = false,
+        automatic_enable = {
+          exclude = exclude_automatic_enable,
+        },
       })
     end
   end,
