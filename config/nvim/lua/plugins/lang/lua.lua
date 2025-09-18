@@ -90,10 +90,11 @@ return {
     { "Bilal2453/luvit-meta" },
     {
       "saghen/blink.cmp",
-      optional = true,
       opts = {
         sources = {
-          default = { "lazydev" },
+          per_filetype = {
+            lua = { inherit_defaults = true, "lazydev" },
+          },
           providers = {
             lazydev = {
               name = "LazyDev",
