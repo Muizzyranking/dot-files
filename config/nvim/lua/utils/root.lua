@@ -43,6 +43,31 @@ function M.get_buffer_path(buf)
   return path ~= "" and M.get_real_path(path) or nil
 end
 
+-----------------------------------------------------
+-- get root markers with specific field in files
+---@param root_files string[]
+---@param new_files string[]
+---@param field string
+---@param fname string
+---@return string[]
+-----------------------------------------------------
+function M.markers_with_field(root_files, new_files, field, fname)
+  local path = vim.fn.fnamemodify(fname, ":h")
+  local found = vim.fs.find(new_files, { path = path, upward = true })
+
+  for _, f in ipairs(found or {}) do
+    -- Match the given `field`.
+    for line in io.lines(f) do
+      if line:find(field) then
+        root_files[#root_files + 1] = vim.fs.basename(f)
+        break
+      end
+    end
+  end
+
+  return root_files
+end
+
 ----------------------------------------------------------------
 -- Find the nearest git ancestor directory
 ---@param path? string # the path to start searching from
@@ -200,6 +225,7 @@ function M.clear_buf_cache(buf)
   local path = M.get_buffer_path(buf)
   if path and M.git_cache[path] then M.git_cache[path] = nil end
 end
+
 ---------------------------------------------------------------
 -- Setup autocmds to clear root cache
 ---------------------------------------------------------------
