@@ -92,6 +92,7 @@ opt.spell          = false -- Disable spell checking by default
 opt.pumblend       = 0 -- Popup blend
 opt.winblend       = 0 -- Popup blend
 opt.pumheight      = 10 -- Maximum number of entries in a popup
+opt.indentexpr     = "v:lua.Utils.treesitter.indentexpr()" -- treesitter indents
 -- opt.conceallevel = 2 -- Hide * markup for bold and italic, but not markers with substitutions
 -- stylua: ignore end
 
