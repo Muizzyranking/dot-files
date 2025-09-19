@@ -73,9 +73,11 @@ return {
         if opts.setup[server](server, server_opts) then return true end
       end
 
-      if server_opts.cmd and not Utils.is_executable(server_opts.cmd[1]) then
-        Utils.notify.error(("Server '%s' is not found"):format(server))
-        return false
+      if server_opts.cmd then
+        if type(server_opts.cmd) == "table" and not Utils.is_executable(server_opts.cmd[1]) then
+          Utils.notify.error(("Server '%s' is not found"):format(server))
+          return false
+        end
       end
 
       vim.lsp.config(server, server_opts)
