@@ -25,19 +25,17 @@ end
 -- Duplicate the current line.
 -------------------------------------
 function M.duplicate_line()
-  -- stylua: ignore
   if Utils.ignore_buftype() then return end
-  local current_line = api.nvim_get_current_line() -- Get the current line
-  local cursor = api.nvim_win_get_cursor(0) -- Get current cursor position
+  local current_line = api.nvim_get_current_line()
+  local cursor = api.nvim_win_get_cursor(0)
   api.nvim_buf_set_lines(0, cursor[1], cursor[1], false, { current_line })
-  api.nvim_win_set_cursor(0, { cursor[1] + 1, cursor[2] }) -- Move cursor to the duplicated line
+  api.nvim_win_set_cursor(0, { cursor[1] + 1, cursor[2] })
 end
 
 -------------------------------------
 -- Duplicate the currently selected lines in visual mode.
 -------------------------------------
 function M.duplicate_selection()
-  -- stylua: ignore
   if Utils.ignore_buftype() then return end
   local start_line = vim.fn.line("v")
   local end_line = vim.fn.line(".")
