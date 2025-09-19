@@ -39,17 +39,17 @@ return {
       end
       ts.setup()
       local install = vim.tbl_filter(function(lang)
-        return not Utils.ts.have(lang)
+        return not Utils.treesitter.have(lang)
       end, opts.ensure_installed or {})
       if #install > 0 then
         ts.install(install, { summary = true }):await(function()
-          Utils.ts.get_installed(true)
+          Utils.treesitter.get_installed(true)
         end)
       end
 
       vim.api.nvim_create_autocmd("FileType", {
         callback = function(ev)
-          if not vim.b[ev.buf].bigfile and Utils.ts.have(ev.match) then pcall(vim.treesitter.start) end
+          if not vim.b[ev.buf].bigfile and Utils.treesitter.have(ev.match) then pcall(vim.treesitter.start) end
         end,
       })
     end,
