@@ -128,6 +128,11 @@ set({ "n", "v", "x" }, "<esc>", function()
   return "<esc>"
 end, { expr = true, desc = "Stop snippet and escape" })
 
+set("n", "<CR>", Utils.treesitter.incr.init_selection, { desc = "Init incremental selection" })
+set("x", "<CR>", Utils.treesitter.incr.node_incremental, { desc = "Node incremental" })
+set("x", "w", Utils.treesitter.incr.scope_incremental, { desc = "Scope incremental" })
+set("x", "<BS>", Utils.treesitter.incr.node_decremental, { desc = "Node decremental" })
+
 -- disable arrow key in normal mode
 for _, key in pairs({ "<UP>", "<DOWN>", "<LEFT>", "<RIGHT>" }) do
   set("n", key, function()
@@ -308,7 +313,7 @@ local toggle_maps = {
   {
     "<leader>ut",
     get_state = function(buf)
-      return Utils.ts.hl_is_active(buf)
+      return Utils.treesitter.hl_is_active(buf)
     end,
     change_state = function(state)
       vim.treesitter[state and "stop" or "start"]()
