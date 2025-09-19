@@ -52,7 +52,7 @@
   "tiny-inline-diagnostic.nvim": { "branch": "main", "commit": "f64efd33a51ea89bdb847fb3aaf716e96b83ba1a" },
   "todo-comments.nvim": { "branch": "main", "commit": "304a8d204ee787d2544d8bc23cd38d2f929e7cc5" },
   "treesj": { "branch": "main", "commit": "4770492244ccecdc9b01e0e81fa8f2f6b4a23841" },
-  "trouble.nvim": { "branch": "main", "commit": "3fb3bd737be8866e5f3a170abc70b4da8b5dd45a" },
+  "trouble.nvim": { "branch": "main", "commit": "f176232e7759c4f8abd923c21e3e5a5c76cd6837" },
   "ts-comments.nvim": { "branch": "main", "commit": "1bd9d0ba1d8b336c3db50692ffd0955fe1bb9f0c" },
   "unified.nvim": { "branch": "main", "commit": "5831251be3a4d552f15a32565fe1a3f07c6a4a94" },
   "which-key.nvim": { "branch": "main", "commit": "370ec46f710e058c9c1646273e6b225acf47cbed" },

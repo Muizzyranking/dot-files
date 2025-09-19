@@ -270,7 +270,8 @@ end
 local DEFAULT_ABBREV_CONDS = {
   -- disable abbreviations in comments and strings
   lsp_keyword = function()
-    return Utils.ts.is_active() and not Utils.ts.find_node({ "comment", "string" })
+    local ts = Utils.treesitter
+    return ts.is_active() and not ts.find_node({ "comment", "string" })
   end,
 }
 
