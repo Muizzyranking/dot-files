@@ -12,7 +12,7 @@
 ---@field callback? fun(args: table) # The callback function to run
 
 ---@class setup_lang.lspconfig
----@field servers lspconfig.options # Server configurations
+---@field servers table<string, fun(config: setup_lang.config) | table> # Server configurations
 ---@field setup? table<string, fun(server:string, opts:_.lspconfig.options):boolean?> # Setup functions
 
 ---@class setup_lang.formatting

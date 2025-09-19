@@ -38,24 +38,6 @@ function M.safe_loadview()
 end
 
 ----------------------------------------------------------
--- Custom fold expression using treesitter when available
--- Falls back to manual folding for unsupported file types
----@return string # fold level expression
-----------------------------------------------------------
-function M.foldexpr()
-  local buf = vim.api.nvim_get_current_buf()
-  if vim.b[buf].ts_folds == nil then
-    if vim.bo[buf].filetype == "" then return "0" end
-    if vim.bo[buf].filetype:find("dashboard") then
-      vim.b[buf].ts_folds = false
-    else
-      vim.b[buf].ts_folds = pcall(vim.treesitter.get_parser, buf)
-    end
-  end
-  return vim.b[buf].ts_folds and vim.treesitter.foldexpr() or "0"
-end
-
-----------------------------------------------------------
 --- Adds fold information (line count) to fold text
 ---@param foldtext table[] # array of {text, highlight} pairs
 ---@param highlight_add? string # highlight group for added text
@@ -141,14 +123,16 @@ end
 function M.setup()
   if vim.o.viewdir == "" then vim.o.viewdir = vim.fn.stdpath("state") .. "/view" end
   vim.fn.mkdir(vim.o.viewdir, "p")
-  -- stylua: ignore start
-  vim.opt.foldexpr       = "v:lua.require('utils.folds').foldexpr()"
+  vim.schedule(function()
+      -- stylua: ignore start
+  vim.opt.foldexpr       = "v:lua.require('utils.treesitter').foldexpr()"
   vim.opt.foldtext       = "v:lua.require('utils.folds').foldtext()"
   vim.opt.foldmethod     = "expr"
   vim.opt.foldenable     = true
   vim.opt.foldlevel      = 99
   vim.g.markdown_folding = 1
-  -- stylua: ignore end
+    -- stylua: ignore end
+  end)
   Utils.autocmd.autocmd_augroup("remember_folds", {
     {
       events = { "BufWinLeave" },

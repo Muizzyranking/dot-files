@@ -1,4 +1,3 @@
----@class setup_lang.config
 return {
   name = "r",
   filetypes = { "r", "rmd", "quarto" },
