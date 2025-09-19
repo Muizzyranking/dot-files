@@ -17,7 +17,7 @@
 ---@field smart_nav utils.smart_nav
 ---@field snacks utils.snacks
 ---@field word_cycle utils.word_cycle
----@field ts utils.ts
+---@field treesitter utils.treesitter
 ---@field ui utils.ui
 local M = {}
 
