@@ -92,13 +92,5 @@ return {
     tabstop = 2,
   },
   keys = {},
-  plugins = {
-    {
-      "brianhuster/live-preview.nvim",
-      cmd = { "LivePreview" },
-      keys = { { "<leader>cp", "<cmd>LivePreview start<CR>", ft = { "html" }, desc = "Start Live Preview" } },
-      dependencies = {},
-      opts = {},
-    },
-  },
+  plugins = {},
 }

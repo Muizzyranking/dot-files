@@ -12,17 +12,6 @@ function M.get()
       desc = "Goto Definition",
       has = "definition",
     },
-    {
-      "gp",
-      function()
-        require("overlook.api").peek_definition()
-      end,
-      desc = "Peek definition",
-      has = "definition",
-      cond = function()
-        return Utils.has("overlook.nvim")
-      end,
-    },
     -- vsplit jump
     {
       "gD",
