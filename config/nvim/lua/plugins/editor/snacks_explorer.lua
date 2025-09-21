@@ -32,14 +32,8 @@ return {
             severity = { pos = "right" },
           },
           -- add icon to bookmarked files in explorer
-          format = function(item, picker)
-            if Utils.has("grapple.nvim") then
-              return require("plugins.editor.grapple.snacks").explorer.format(item, picker)
-            end
-          end,
           matcher = { sort_empty = false, fuzzy = true },
           actions = {
-            bookmark = require("plugins.editor.grapple.snacks").explorer.actions.bookmark,
             new_file = Utils.snacks.explorer.actions.new_file,
             trash = Utils.snacks.explorer.actions.trash,
           },
