@@ -133,6 +133,9 @@ set("x", "<CR>", Utils.treesitter.incr.node_incremental, { desc = "Node incremen
 set("x", "w", Utils.treesitter.incr.scope_incremental, { desc = "Scope incremental" })
 set("x", "<BS>", Utils.treesitter.incr.node_decremental, { desc = "Node decremental" })
 
+set("i", "<tab>", Utils.actions.smart_tab, { desc = "Smart Tab" })
+set("i", "<s-tab>", Utils.actions.smart_shift_tab, { desc = "Smart S-tab" })
+
 -- disable arrow key in normal mode
 for _, key in pairs({ "<UP>", "<DOWN>", "<LEFT>", "<RIGHT>" }) do
   set("n", key, function()

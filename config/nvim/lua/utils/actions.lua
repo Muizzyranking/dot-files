@@ -67,4 +67,69 @@ function M.toggle_tmux(state)
   end
 end
 
+local function is_in_indent()
+  local line, col = vim.api.nvim_get_current_line(), vim.fn.col(".")
+  return line:sub(1, col - 1):find("^%s*$") ~= nil
+end
+
+local function can_jump_after_close()
+  return vim.fn.search([=[[)\]}"'`]]=], "cnW") ~= 0
+end
+
+local function can_jump_before_open()
+  return vim.fn.search([=[[(\[{"'`]]=], "cnbW") ~= 0
+end
+
+local function do_jump_after_close()
+  local pos = vim.fn.search([=[[)\]}"'`]]=], "cW")
+  if pos ~= 0 then
+    -- Move cursor one position right
+    local cursor_pos = vim.api.nvim_win_get_cursor(0)
+    vim.api.nvim_win_set_cursor(0, { cursor_pos[1], cursor_pos[2] + 1 })
+    return true
+  end
+  return false
+end
+
+local function do_jump_before_open()
+  return vim.fn.search([=[[(\[{"'`]]=], "bW") ~= 0
+end
+
+---------------------------------------
+-- jump after closing pair or insert tab
+---------------------------------------
+function M.smart_tab()
+  if vim.fn.mode() ~= "i" then
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Tab>", true, false, true), "n", false)
+    return
+  end
+
+  if is_in_indent() then
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-t>", true, false, true), "n", false)
+  elseif can_jump_after_close() then
+    do_jump_after_close()
+  else
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Tab>", true, false, true), "n", false)
+  end
+end
+
+---------------------------------------
+-- jump before closing pair or insert s-tab
+---------------------------------------
+function M.smart_shift_tab()
+  if vim.fn.mode() ~= "i" then
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<S-Tab>", true, false, true), "n", false)
+    return
+  end
+
+  -- Check conditions in order and execute first matching action
+  if is_in_indent() then
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-d>", true, false, true), "n", false)
+  elseif can_jump_before_open() then
+    do_jump_before_open()
+  else
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<S-Tab>", true, false, true), "n", false)
+  end
+end
+
 return M
