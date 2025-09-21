@@ -350,71 +350,53 @@ function M.goto_definition(opts)
   local direction = opts.direction
   local reuse_win = opts.reuse_win ~= false
 
-  local clients = M.get_clients({ bufnr = 0 })
-  if not clients or #clients == 0 then return end
-  local client = clients[1]
-  local params = vim.lsp.util.make_position_params(0, client.offset_encoding)
-
-  vim.lsp.buf_request(0, "textDocument/definition", params, function(err, result, ctx)
-    if err then
-      notify.error("Error getting definition: " .. tostring(err.message))
-      return
-    end
-
-    if not result or vim.tbl_isempty(result) then
-      notify.warn("No definition found")
-      return
-    end
-
-    local location = vim.islist(result) and result[1] or result
-
-    if not location then
-      notify.warn("Invalid definition result")
-      return
-    end
-
-    local uri = location.uri or location.targetUri
-    local range = location.range or location.targetSelectionRange or location.targetRange
-
-    if not uri or not range then
-      notify.error("Invalid location data")
-      return
-    end
-
-    local filename = vim.uri_to_fname(uri)
-    local start_line = range.start.line + 1
-    local start_col = range.start.character
-
-    vim.cmd("normal! m'")
-
-    if direction then
-      Utils.open_in_split(direction, filename, start_line, start_col)
-    elseif reuse_win then
-      -- Check if the definition is in the current buffer first
-      local current_buf = vim.api.nvim_get_current_buf()
-      local current_filename = vim.api.nvim_buf_get_name(current_buf)
-
-      if current_filename == filename then
-        -- Definition is in current buffer, jump within current window
-        vim.cmd(string.format("normal! %dG%d|", start_line, start_col + 1))
-      else
-        -- Definition is in different file, look for existing window
-        local existing_win = Utils.find_win_with_file(filename)
-        if existing_win then
-          vim.api.nvim_set_current_win(existing_win)
-          pcall(vim.api.nvim_win_set_cursor, existing_win, { start_line, start_col })
-        else
-          vim.lsp.util.show_document(location, client.offset_encoding, { focus = true })
-        end
+  vim.lsp.buf.definition({
+    on_list = function(list_opts)
+      local items = list_opts.items
+      if not items or #items == 0 then
+        notify.warn("No definition found")
+        return
       end
-    else
-      vim.lsp.util.show_document(location, client.offset_encoding, { focus = true })
-    end
 
-    if vim.islist(result) and #result > 1 then
-      notify(string.format("Jumped to first definition (found %d total)", #result))
-    end
-  end)
+      -- Get the first definition
+      local item = items[1]
+      local filename = item.filename
+      local lnum = item.lnum
+      local col = item.col
+
+      if not filename then
+        notify.error("Invalid definition result: no filename")
+        return
+      end
+
+      -- Mark current position for jump list
+      vim.cmd("normal! m'")
+
+      if direction then
+        Utils.open_in_split(direction, filename, lnum, col - 1) -- col is 1-indexed, adjust if needed
+      elseif reuse_win then
+        local current_buf = vim.api.nvim_get_current_buf()
+        local current_filename = vim.api.nvim_buf_get_name(current_buf)
+
+        if current_filename == filename then
+          vim.cmd(string.format("normal! %dG%d|", lnum, col))
+        else
+          local existing_win = Utils.find_win_with_file(filename)
+          if existing_win then
+            vim.api.nvim_set_current_win(existing_win)
+            pcall(vim.api.nvim_win_set_cursor, existing_win, { lnum, col - 1 }) -- 0-indexed
+          else
+            vim.cmd("edit " .. filename)
+            pcall(vim.api.nvim_win_set_cursor, 0, { lnum, col - 1 })
+          end
+        end
+      else
+        vim.cmd("edit " .. filename)
+        pcall(vim.api.nvim_win_set_cursor, 0, { lnum, col - 1 })
+      end
+      if #items > 1 then notify(string.format("Jumped to first definition (found %d total)", #items)) end
+    end,
+  })
 end
 
 return M
