@@ -67,7 +67,6 @@ return {
             end
           end,
           desc = "Next Hunk",
-          icon = { icon = "󰊢 " },
         },
         {
           "[h",
@@ -79,18 +78,16 @@ return {
             end
           end,
           desc = "Prev Hunk",
-          icon = { icon = "󰊢 " },
         },
         {
           "<leader>ghs",
           gs.stage_hunk,
-          icon = { icon = "󰊢 " },
+          desc = "Stage Hunk",
         },
         {
           "<leader>ghs",
           gs_visual("stage_hunk"),
           desc = "Stage Hunk",
-          icon = { icon = "󰊢 " },
           mode = { "v" },
         },
         {
@@ -159,7 +156,7 @@ return {
           desc = "Diff this ~",
           icon = { icon = " " },
         },
-      }, { buffer = buffer })
+      }, { buffer = buffer, icon = { icon = "󰊢 " } })
     end,
   },
 }
