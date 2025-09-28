@@ -34,7 +34,7 @@ vscode_map("n", "<leader>w\\", "workbench.action.splitEditorRight", { desc = "Sp
 vscode_map("n", "<leader>wo", "workbench.action.closeOtherEditors", { desc = "Close other windows" })
 vscode_map("n", "<leader>ws", "workbench.action.closeEditorsInGroup", { desc = "Close split" })
 
-vscode_map({ "i", "x", "n", "s" }, "<C-s>", "workbench.action.files.save", { desc = "Save File" })
+-- vscode_map({ "i", "x", "n", "s" }, "<C-s>", "workbench.action.files.save", { desc = "Save File" })
 -- vscode_map({ "i", "x", "n", "s" }, "<C-s>", "workbench.action.files.saveAll", { desc = "Save all Files" })
 
 -- Select all

@@ -1,6 +1,4 @@
-if not vim.g.vscode then
-  return {}
-end
+if not vim.g.vscode then return {} end
 
 local enabled = {
   "treesj",
