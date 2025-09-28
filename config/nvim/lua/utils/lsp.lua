@@ -101,6 +101,16 @@ function M.on_attach(on_attach, name)
   })
 end
 
+function M.on_dettach(on_dettach, name)
+  return vim.api.nvim_create_autocmd("LspDetach", {
+    callback = function(args)
+      local buffer = args.buf ---@type number
+      local client = vim.lsp.get_client_by_id(args.data.client_id)
+      if client and (not name or client.name == name) then return on_dettach(client, buffer) end
+    end,
+  })
+end
+
 ----------------------------------------------------
 -- Get a list of active LSP clients
 ---@param opts table?
