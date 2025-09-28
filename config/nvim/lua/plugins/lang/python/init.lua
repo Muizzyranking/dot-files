@@ -27,6 +27,7 @@ return {
             "<leader>co",
             Utils.lsp.action["source.organizeImports"],
             desc = "Organize Imports",
+            icon = { icon = "󰺲" },
           },
         },
       },
@@ -101,7 +102,7 @@ return {
   formatting = {
     formatters = {
       black = {
-        append_args = { "--line-length", "100" },
+        append_args = { "--line-length", "85" },
       },
       djlint = {
         append_args = { "--indent", "2" },
