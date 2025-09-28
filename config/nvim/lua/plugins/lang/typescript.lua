@@ -57,9 +57,14 @@ return {
             "<leader>co",
             Utils.lsp.action["source.organizeImports"],
             desc = "Organize Imports",
+            cond = function()
+              local buf = Utils.ensure_buf(0)
+              return vim.b[buf].biome_attached
+            end,
+            icon = { icon = "󰺲" },
           },
           {
-            "<leader>cM",
+            "<leader>ci",
             Utils.lsp.action["source.addMissingImports.ts"],
             desc = "Add missing imports",
           },
@@ -197,6 +202,7 @@ return {
         vim.api.nvim_buf_set_text(0, start_row, start_col, start_row, start_col, { "async " })
       end,
       mode = "i",
+      vscode = true,
       desc = "Auto add async",
     },
   },

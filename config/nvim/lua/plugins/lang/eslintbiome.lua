@@ -52,6 +52,14 @@ return {
             if not using_biome then return end
             on_dir(project_root)
           end,
+          keys = {
+            {
+              "<leader>co",
+              Utils.lsp.action["source.organizeImports.biome"],
+              desc = "Organize Imports",
+              icon = { icon = "󰺲" },
+            },
+          },
         }
       end,
     },
@@ -72,6 +80,14 @@ return {
             end,
           })
         end, "eslint")
+      end,
+      biome = function()
+        Utils.lsp.on_attach(function(_, bufnr)
+          vim.b[bufnr].biome_attached = true
+        end, "biome")
+        Utils.lsp.on_dettach(function(_, bufnr)
+          vim.b[bufnr].biome_attached = false
+        end, "biome")
       end,
     },
   },
