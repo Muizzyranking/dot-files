@@ -1,7 +1,6 @@
 ---@class utils.treesitter
 local M = {}
 M.incr = {}
-local incr = require("utils.treesitter.incr")
 
 -------------------------------------------------
 ---Only checks whether treesitter highlighting is active in `buf`
@@ -118,55 +117,66 @@ function M.indentexpr()
 end
 
 ---Ensure treesitter is active and parser is available
----@param buf number?
----@param language string?
 ---@return boolean, number?, string?
-local function ensure_active(buf, language)
-  buf = Utils.ensure_buf(buf)
+function M.incr.ensure_active()
+  local buf = Utils.ensure_buf(0)
   if not M.is_active(buf) then return false end
-  language = language or vim.treesitter.language.get_lang(vim.bo[buf].filetype)
+  local language = vim.treesitter.language.get_lang(vim.bo[buf].filetype)
   if not language or not M.have(vim.bo[buf].filetype) then return false end
   return true, buf, language
 end
 
--------------------------------------------------
----Start incremental selection from the node under cursor
----@param buf number? # default: current buffer
----@param language string? # language (will be inferred if not provided)
--------------------------------------------------
-function M.incr.init_selection(buf, language)
-  local success, bufnr, lang = ensure_active(buf, language)
-  if success then return incr.init_selection(bufnr, lang) end
+M.incr.keymaps = {
+  init_selection = nil,
+  node_incremental = nil,
+  scope_incremental = nil,
+  node_decremental = nil,
+}
+
+M.incr.is_attached = false
+
+function M.incr.attach(opts)
+  if M.incr.is_attached then return end
+  M.incr.is_attached = true
+  local incr = require("utils.treesitter.incr")
+  local i = M.incr
+  opts = opts or {}
+  M.incr.keymaps = vim.tbl_extend("force", {
+    init_selection = "<CR>",
+    node_incremental = "<CR>",
+    scope_incremental = "w",
+    node_decremental = "<BS>",
+  }, opts.keymaps or {})
+
+  local set = vim.keymap.set
+
+  set("n", M.incr.keymaps.init_selection, function()
+    local success, buf, lang = i.ensure_active()
+    if success then return incr.init_selection(buf, lang) end
+  end, { desc = "Init incremental selection" })
+
+  set("x", M.incr.keymaps.node_incremental, function()
+    local success, buf, lang = i.ensure_active()
+    if success then return incr.node_incremental(buf, lang) end
+  end, { desc = "Node incremental" })
+
+  set("x", M.incr.keymaps.scope_incremental, function()
+    local success, buf, lang = i.ensure_active()
+    if success then return incr.scope_incremental(buf, lang) end
+  end, { desc = "Scope incremental" })
+
+  set("x", M.incr.keymaps.node_decremental, function()
+    local success, bufnr, lang = i.ensure_active()
+    if success then return incr.node_decremental(bufnr, lang) end
+  end, { desc = "Node decremental" })
 end
 
--------------------------------------------------
----Expand selection to parent node
----@param buf number? # default: current buffer
----@param language string? # language (will be inferred if not provided)
--------------------------------------------------
-function M.incr.node_incremental(buf, language)
-  local success, bufnr, lang = ensure_active(buf, language)
-  if success then return incr.node_incremental(bufnr, lang) end
-end
-
--------------------------------------------------
----Expand selection to surrounding scope
----@param buf number? # default: current buffer
----@param language string? # language (will be inferred if not provided)
--------------------------------------------------
-function M.incr.scope_incremental(buf, language)
-  local success, bufnr, lang = ensure_active(buf, language)
-  if success then return incr.scope_incremental(bufnr, lang) end
-end
-
--------------------------------------------------
----Shrink selection to previous node
----@param buf number? # default: current buffer
----@param language string? # language (will be inferred if not provided)
--------------------------------------------------
-function M.incr.node_decremental(buf, language)
-  local success, bufnr, _ = ensure_active(buf, language)
-  if success then return incr.node_decremental(bufnr) end
+function M.incr.detach()
+  if not M.incr.is_attached then return end
+  pcall(vim.keymap.del, "n", M.incr.keymaps.init_selection)
+  pcall(vim.keymap.del, "x", M.incr.keymaps.node_incremental)
+  pcall(vim.keymap.del, "x", M.incr.keymaps.scope_incremental)
+  pcall(vim.keymap.del, "x", M.incr.keymaps.node_decremental)
 end
 
 return M

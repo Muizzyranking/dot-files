@@ -162,9 +162,17 @@ local NodeUtils = {}
 ---@param node TSNode
 function NodeUtils.select(node)
   local range = Range.node(node)
-  vim.fn.setpos("'<", range:pos(false))
-  vim.fn.setpos("'>", range:pos(true))
-  vim.cmd.normal({ "gv", bang = true })
+  local start_pos = range:pos(false)
+  local end_pos = range:pos(true)
+
+  vim.cmd.normal({ bang = true, "\27" })
+
+  vim.fn.setpos(".", start_pos)
+  vim.cmd.normal({ bang = true, "v" })
+  vim.fn.setpos(".", end_pos)
+
+  vim.fn.setpos("'<", start_pos)
+  vim.fn.setpos("'>", end_pos)
 end
 
 ---Common delimiter patterns for initial node detection
