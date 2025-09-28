@@ -14,12 +14,8 @@ return {
       hooks = {
         disable_line_highlight = function(line, bufnr, line_num)
           local function is_comment(left_comment, right_comment)
-            if line:match("^%s*//") then
-              return true
-            end
-            if line:match("{%s*/%*") and line:match("%*/%s*}") then
-              return true
-            end
+            if line:match("^%s*//") then return true end
+            if line:match("{%s*/%*") and line:match("%*/%s*}") then return true end
             local trimmed_line = vim.trim(line)
             if right_comment then
               return trimmed_line:sub(1, #left_comment) == left_comment
