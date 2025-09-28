@@ -128,11 +128,6 @@ set({ "n", "v", "x" }, "<esc>", function()
   return "<esc>"
 end, { expr = true, desc = "Stop snippet and escape" })
 
-set("n", "<CR>", Utils.treesitter.incr.init_selection, { desc = "Init incremental selection" })
-set("x", "<CR>", Utils.treesitter.incr.node_incremental, { desc = "Node incremental" })
-set("x", "w", Utils.treesitter.incr.scope_incremental, { desc = "Scope incremental" })
-set("x", "<BS>", Utils.treesitter.incr.node_decremental, { desc = "Node decremental" })
-
 set("i", "<tab>", Utils.actions.smart_tab, { desc = "Smart Tab" })
 set("i", "<s-tab>", Utils.actions.smart_shift_tab, { desc = "Smart S-tab" })
 

@@ -292,32 +292,6 @@ autocmd.on_user_event("TmuxBarToggle", function()
   })
 end)
 
------------------------------------------------------------
--- disable incremental selection when not needed
------------------------------------------------------------
-autocmd({ "BufEnter", "BufWritePost", "TextChanged", "FileType" }, {
-  callback = function(event)
-    local buf = Utils.ensure_buf(event.buf)
-    if not vim.api.nvim_buf_is_valid(buf) then
-      pcall(vim.cmd, "TSBufDisable incremental_selection")
-      return
-    end
-    if Utils.ignore_buftype(buf) then
-      pcall(vim.cmd, "TSBufDisable incremental_selection")
-      return
-    end
-    local ft = vim.bo[buf].filetype
-    local is_empty = vim.fn.getline(1) == "" and vim.fn.line("$") == 1
-    local excluded_filetypes = { "text", "txt", "", "bigfile" }
-
-    if vim.tbl_contains(excluded_filetypes, ft) or is_empty then
-      pcall(vim.cmd, "TSBufDisable incremental_selection")
-      return
-    end
-    pcall(vim.cmd, "TSBufEnable incremental_selection")
-  end,
-})
-
 autocmd.on_user_event("PersistenceLoadPost", function()
   for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
     local wins = vim.tbl_filter(function(win)
