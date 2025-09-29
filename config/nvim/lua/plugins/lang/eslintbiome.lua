@@ -85,7 +85,7 @@ return {
         Utils.lsp.on_attach(function(_, bufnr)
           vim.b[bufnr].biome_attached = true
         end, "biome")
-        Utils.lsp.on_dettach(function(_, bufnr)
+        Utils.lsp.on_detach(function(_, bufnr)
           vim.b[bufnr].biome_attached = false
         end, "biome")
       end,

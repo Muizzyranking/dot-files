@@ -101,7 +101,7 @@ function M.on_attach(on_attach, name)
   })
 end
 
-function M.on_dettach(on_dettach, name)
+function M.on_detach(on_dettach, name)
   return vim.api.nvim_create_autocmd("LspDetach", {
     callback = function(args)
       local buffer = args.buf ---@type number
