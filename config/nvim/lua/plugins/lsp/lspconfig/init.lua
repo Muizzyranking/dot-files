@@ -81,6 +81,7 @@ return {
       end
 
       vim.lsp.config(server, server_opts)
+      vim.lsp.enable(server, true)
     end
     -- get all the servers that are available through mason-lspconfig
     local mason_ok, mason_lspconfig = pcall(require, "mason-lspconfig")
@@ -90,23 +91,12 @@ return {
     end
 
     local ensure_installed = {} ---@type string[]
-    local exclude_automatic_enable = {} ---@type string[]
     for server, server_opts in pairs(opts.servers) do
       server_opts = server_opts == true and {} or server_opts
-      if server_opts then
-        if server_opts.enabled ~= false then
-          local handled_by_setup = setup(server)
-
-          if handled_by_setup then
-            exclude_automatic_enable[#exclude_automatic_enable + 1] = server
-          elseif not vim.tbl_contains(all_servers, server) then
-            vim.lsp.enable(server)
-            exclude_automatic_enable[#exclude_automatic_enable + 1] = server
-          else
-            ensure_installed[#ensure_installed + 1] = server
-          end
-        else
-          exclude_automatic_enable[#exclude_automatic_enable + 1] = server
+      if server_opts and server_opts.enabled ~= false then
+        setup(server)
+        if vim.tbl_contains(all_servers, server) and server_opts.mason ~= false then
+          ensure_installed[#ensure_installed + 1] = server
         end
       end
     end
@@ -114,9 +104,7 @@ return {
     if mason_ok then
       mason_lspconfig.setup({
         ensure_installed = vim.tbl_deep_extend("force", ensure_installed, {}),
-        automatic_enable = {
-          exclude = exclude_automatic_enable,
-        },
+        automatic_enable = false,
       })
     end
   end,
