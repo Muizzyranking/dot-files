@@ -5,7 +5,7 @@ return {
   opts = {
     input = {},
     bigfile = { enabled = false },
-    image = { enabled = true },
+    image = { enabled = Utils.has_kitty_graphics_support },
     notifier = { enabled = true },
     quickfile = { enabled = true },
     statuscolumn = { enabled = true },
@@ -51,8 +51,6 @@ return {
   config = function(_, opts)
     local notify = vim.notify
     require("snacks").setup(opts)
-    if Utils.has("noice.nvim") then
-      vim.notify = notify
-    end
+    if Utils.has("noice.nvim") then vim.notify = notify end
   end,
 }

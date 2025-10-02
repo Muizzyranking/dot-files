@@ -338,4 +338,13 @@ function M.find_win_with_file(filename)
   return nil
 end
 
+local function _has_kitty_graphics_support(script_path)
+  local path = script_path or "check_kitty.py"
+  if not M.is_executable(path) then return false end
+  local success = M.run_command(path)
+  return success
+end
+
+M.has_kitty_graphics_support = M.memoize(_has_kitty_graphics_support)()
+
 return M
