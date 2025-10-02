@@ -22,36 +22,9 @@ return {
       },
       biome = function(opts)
         return {
-          cmd = function(dispatchers, config)
-            config = config or {}
-            local cmd = "biome"
-            local local_cmd = config.root_dir and config.root_dir .. "/node_modules/.bin/biome"
-            if local_cmd and Utils.is_executable(local_cmd) then cmd = local_cmd end
-            return vim.lsp.rpc.start({ cmd, "lsp-proxy" }, dispatchers)
-          end,
           filetypes = opts.ft,
           workspace_required = true,
-          root_dir = function(buf, on_dir)
-            local root_markers = { "package.json", "pacakge-lock.json", "pnpm-lock.json" }
-            root_markers = { root_markers, { ".git" } }
-            local project_root = vim.fs.root(buf, root_markers) or vim.fn.getcwd()
-
-            local filename = Utils.get_filename(buf)
-
-            local biome_config_files = { "biome.json", "biome.jsonc" }
-            biome_config_files =
-              Utils.root.markers_with_field(biome_config_files, { "package.json", "package.json5" }, "biome", filename)
-
-            local using_biome = vim.fs.find(biome_config_files, {
-              path = filename,
-              upward = true,
-              type = "file",
-              limit = 1,
-              stop = vim.fs.dirname(project_root),
-            })[1]
-            if not using_biome then return end
-            on_dir(project_root)
-          end,
+          root_markers = { "biome.json", "biome.jsonc" },
           keys = {
             {
               "<leader>co",
