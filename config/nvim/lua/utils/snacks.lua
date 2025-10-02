@@ -63,33 +63,4 @@ M.explorer.actions.trash = {
   end,
 }
 
-M.explorer.actions.bookmark = {
-  desc = "Toggle bookmarks with grapple",
-  action = function(picker)
-    if not Utils.has("grapple.nvim") then
-      Snacks.notify.error("Grapple.nvim not found", { title = "Snacks Explorer" })
-      return
-    end
-    local paths = vim.tbl_map(Snacks.picker.util.path, picker:selected({ fallback = true }))
-    if #paths == 0 then return end
-    local Tree = require("snacks.explorer.tree")
-    local actions = require("snacks.explorer.actions")
-    for _, path in ipairs(paths) do
-      require("grapple").toggle({ path = path })
-      Tree:refresh(vim.fs.dirname(path))
-    end
-    actions.update(picker)
-  end,
-}
-
-M.explorer.format = function(item, picker)
-  local ret = require("snacks.picker.format").file(item, picker)
-  local item_path = Snacks.picker.util.path(item)
-  if not Utils.has("grapple.nvim") then
-    local exists = require("grapple").exists({ path = item_path })
-    ret[#ret + 1] = { ("%s"):format(exists and "  " or ""), "DiagnosticOk" }
-  end
-  return ret
-end
-
 return M
