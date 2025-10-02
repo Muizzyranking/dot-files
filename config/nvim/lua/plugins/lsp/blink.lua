@@ -5,7 +5,7 @@ return {
       "rafamadriz/friendly-snippets",
     },
     version = "*",
-    event = "InsertEnter",
+    event = { "InsertEnter", "CmdlineEnter" },
     build = "cargo build --release",
     opts_extend = {
       "sources.default",
@@ -80,7 +80,7 @@ return {
           },
         },
         ghost_text = {
-          enabled = false,
+          enabled = true,
         },
       },
     },
