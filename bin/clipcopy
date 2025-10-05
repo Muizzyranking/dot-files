@@ -9,6 +9,7 @@ elif command -v wl-copy >/dev/null 2>&1; then
 elif command -v xclip >/dev/null 2>&1; then
     xclip -in -selection clipboard
 else
-    cat > "/tmp/tmux-buffer-$(whoami)"
-    echo "No clipboard utility found, saved to /tmp/tmux-buffer-$(whoami)" >&2
+    local path = "/tpm/copy/$(date +%s).log"
+    cat > $path
+    echo "No clipboard utility found, saved to $path" >&2
 fi
