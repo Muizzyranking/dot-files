@@ -53,16 +53,16 @@ return {
             end,
             desc = "File References",
           },
-          {
-            "<leader>co",
-            Utils.lsp.action["source.organizeImports"],
-            desc = "Organize Imports",
-            cond = function()
-              local buf = Utils.ensure_buf(0)
-              return vim.b[buf].biome_attached
-            end,
-            icon = { icon = "󰺲" },
-          },
+          -- {
+          --   "<leader>co",
+          --   Utils.lsp.action["source.organizeImports"],
+          --   desc = "Organize Imports",
+          --   cond = function()
+          --     local buf = Utils.ensure_buf(0)
+          --     return not vim.b[buf].biome_attached
+          --   end,
+          --   icon = { icon = "󰺲" },
+          -- },
           {
             "<leader>ci",
             Utils.lsp.action["source.addMissingImports.ts"],

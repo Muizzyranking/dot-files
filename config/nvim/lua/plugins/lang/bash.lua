@@ -39,11 +39,6 @@ return {
       ["sh"] = { "shfmt" },
     },
   },
-  linting = {
-    linters_by_ft = {
-      sh = { "shellcheck" },
-    },
-  },
   highlighting = {
     parsers = { "bash", "hyprlang", "rasi", "git_config" },
   },
