@@ -1,0 +1,83 @@
+{
+  "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+  "blocks": [
+    {
+      "alignment": "left",
+      "newline": true,
+      "segments": [
+        {
+          "foreground": "#5f9fef",
+          "leading_diamond": "<#3b78ff> </><#5f9fef></>",
+          "properties": {
+            "folder_icon": "",
+            "folder_separator_icon": "",
+            "home_icon": "~",
+            "style": "agnoster_full"
+          },
+          "style": "diamond",
+          "template": "  {{ .Path }} ",
+          "trailing_diamond": "<#5f9fef></>",
+          "type": "path"
+        },
+        {
+          "foreground": "#7aa2f7",
+          "properties": {
+            "branch_icon": " ",
+            "fetch_status": true,
+            "fetch_upstream_icon": true,
+            "fetch_worktree_count": true
+          },
+          "style": "diamond",
+          "template": " <#9ece6a>{{ .UpstreamIcon }}{{ .HEAD }}</>{{if .BranchStatus }} {{ .BranchStatus }}{{ end }}{{ if .Working.Changed }} <#ff9e64> {{ .Working.String }}</>{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Changed }} <#9ece6a> {{ .Staging.String }}</>{{ end }}{{ if gt .StashCount 0 }}  {{ .StashCount }}{{ end }} ",
+          "type": "git",
+          "mapped_branches": {
+            "feat/*": "🚀 ",
+            "bug/*": "🐛 "
+          }
+        },
+        {
+          "type": "project",
+          "style": "powerline",
+          "foreground": "#3b78ff",
+          "template": " {{ if .Error }}{{ .Error }}{{ else }}{{ if .Version }} {{.Version}}{{ end }} {{ if .Name }}{{ .Name }}{{ end }}{{ end }} "
+        },
+        {
+          "type": "python",
+          "style": "powerline",
+          "powerline_symbol": "",
+          "foreground": "#100e23",
+          "background": "#906cff",
+          "template": "  {{ .Full }} "
+        }
+      ],
+      "type": "prompt"
+    },
+    {
+      "alignment": "left",
+      "newline": true,
+      "segments": [
+        {
+          "foreground": "#3b78ff",
+          "foreground_templates": [
+            "{{ if gt .Code 0 }}#f7768e{{ end }}"
+          ],
+          "properties": {
+            "always_enabled": true
+          },
+          "style": "plain",
+          "template": " ",
+          "type": "status"
+        }
+      ],
+      "type": "prompt"
+    }
+  ],
+  "console_title_template": "{{ .Folder }}",
+  "transient_prompt": {
+    "background": "transparent",
+    "foreground": "#3b78ff",
+    "newline": true,
+    "template": " "
+  },
+  "version": 3
+}
