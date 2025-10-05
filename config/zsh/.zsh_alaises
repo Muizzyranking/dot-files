@@ -6,10 +6,43 @@ alias cat='bat'
 alias tree='eza --tree --group-directories-first --git-ignore --color=always --icons=always'
 alias ls='eza --color=always --icons=always --group-directories-first'
 alias cd='z'
-alias django-run='django-runner.py'
+
+alias la='eza -la --color=always --icons=always --group-directories-first'
+alias ll='eza -l --color=always --icons=always --group-directories-first'
+alias lt='eza --tree --level=2 --color=always --icons=always'
+
+alias df='df -h'               # Human readable
+alias du='du -h'               # Human readable
+alias dus='du -sh * | sort -h' # Sorted by size
+
+alias ports='netstat -tulanp'    # Show open ports
+alias myip='curl -s ifconfig.me' # Get public IP
+
+alias gs='git status -sb'
+alias gd='git diff'
+alias gl='git log --oneline --graph --decorate -10'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+
+alias ae='$EDITOR ~/.config/zsh/.zsh_alaises'
+
+alias -- -='cd -'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+alias ......='cd ../../../../..'
+
+aliases() {
+    alias | sed 's/=/ => /' | bat --language=bash --style=plain
+}
+
+bak() {
+    cp "$1" "$1.bak"
+}
 
 # find directory and cd into it
-# alias fdir='find_dir.sh'
 fdir() {
     local selected_dir
     selected_dir=$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse)
@@ -41,26 +74,29 @@ mkcd() {
     mkdir -p "$1" && \cd "$1" || echo "Failed"
 }
 
+copypath() {
+    echo -n ${PWD} | clipcopy
+    echo "Copied: ${PWD}"
+}
 
 extract() {
     if [ -f "$1" ]; then
         case "$1" in
-            *.tar.bz2)   tar xjf "$1"     ;;
-            *.tar.gz)    tar xzf "$1"     ;;
-            *.bz2)       bunzip2 "$1"     ;;
-            *.rar)       unrar x "$1"     ;;
-            *.gz)        gunzip "$1"      ;;
-            *.tar)       tar xvf "$1"     ;;
-            *.tbz2)      tar xjf "$1"     ;;
-            *.tgz)       tar xzf "$1"     ;;
-            *.zip)       unzip "$1"       ;;
-            *)           echo "'$1' cannot be extracted via extract()" ;;
+        *.tar.bz2) tar xjf "$1" ;;
+        *.tar.gz) tar xzf "$1" ;;
+        *.bz2) bunzip2 "$1" ;;
+        *.rar) unrar x "$1" ;;
+        *.gz) gunzip "$1" ;;
+        *.tar) tar xvf "$1" ;;
+        *.tbz2) tar xjf "$1" ;;
+        *.tgz) tar xzf "$1" ;;
+        *.zip) unzip "$1" ;;
+        *) echo "'$1' cannot be extracted via extract()" ;;
         esac
     else
         echo "'$1' is not a valid file"
     fi
 }
-
 
 alias gg='lazygit'
 
@@ -72,7 +108,7 @@ alias nvimrc='$EDITOR $NVIMRC'
 alias tmuxrc='$EDITOR $TMUXRC'
 alias zshrc='$EDITOR $ZSHRC'
 
-alias rm="echo Use 'trash', or the full path i.e. '/bin/rm'"
+# alias rm="echo Use 'trash', or the full path i.e. '/bin/rm'"
 
 venv-create() {
     if [[ $# -eq 0 ]]; then
