@@ -113,16 +113,17 @@ link_home_file() {
 }
 
 link_zsh_files() {
-    local zsh_files=(".zshrc" ".p10k.zsh")
+    local zsh_files=(".zshrc")
     for file in "${zsh_files[@]}"; do
         link_home_file "$file"
     done
     link_config "zsh"
+    link_config "oh-my-posh"
 }
 
 
 # Available config files
-configs=("bat" "git" "hypr" "kitty" "lazygit" "lazyvim" "my_nvim" "nvim" "rofi" "swaync" "tmux" "waybar" "wlogout" "zsh")
+configs=("bat" "git" "hypr" "kitty" "lazygit" "lazyvim" "my_nvim" "nvim" "oh-my-posh" "rofi" "swaync" "tmux" "waybar" "wlogout" "zsh")
 
 # If no arguments provided, show usage
 if [ $# -eq 0 ]; then

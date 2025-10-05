@@ -52,61 +52,6 @@ install_packages "${core_packages[@]}"
 print_message info "Installing CLI tools..."
 install_packages "${cli_tools[@]}"
 
-# Oh My Zsh Setup
-print_message info "Installing Oh My Zsh..."
-
-if [[ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh}" ]]; then
-    temp_script="/tmp/install-oh-my-zsh.sh"
-
-    print_message info "Downloading Oh My Zsh install script..."
-
-    if safe_download "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh" "$temp_script"; then
-        if bash -n "$temp_script"; then
-            sh "$temp_script" "" --unattended
-            rm -f "$temp_script"
-            print_message success "Oh My Zsh installed successfully."
-        else
-            print_message error "Invalid Oh My Zsh install script"
-            rm -f "$temp_script"
-        fi
-    fi
-else
-    print_message warning "Oh My Zsh already installed, skipping."
-fi
-
-# Powerlevel10k theme
-print_message info "Installing Powerlevel10k theme..."
-p10k_dir="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
-if [[ ! -d "$p10k_dir" ]]; then
-    safe_git_clone https://github.com/romkatv/powerlevel10k.git "$p10k_dir"
-    print_message success "Powerlevel10k theme installed successfully."
-fi
-
-# Zsh plugins
-zsh_plugins=(
-    "zsh-history-substring-search"
-    "zsh-autosuggestions"
-    "zsh-syntax-highlighting"
-)
-
-for plugin in "${zsh_plugins[@]}"; do
-    plugin_dir="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/$plugin"
-    if [[ ! -d "$plugin_dir" ]]; then
-        print_message info "Installing $plugin plugin..."
-        safe_git_clone "https://github.com/zsh-users/$plugin.git" "$plugin_dir"
-    fi
-done
-
-# Install fzf-tab plugin
-fzf_tab_dir="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fzf-tab"
-if [[ ! -d "$fzf_tab_dir" ]]; then
-    print_message info "Installing fzf-tab plugin..."
-    safe_git_clone https://github.com/Aloxaf/fzf-tab "$fzf_tab_dir"
-    print_message success "fzf-tab plugin installed successfully."
-else
-    print_message warning "fzf-tab plugin already installed, skipping."
-fi
-
 # Tmux Plugin Manager Installation
 print_message info "Installing Tmux Plugin Manager (TPM)..."
 tmux_dir="$HOME/.tmux/plugins/tpm"
