@@ -45,9 +45,6 @@ return {
           Utils.lualine.file,
         },
         lualine_c = {
-          {
-            "grapple",
-          },
           Utils.lualine.diff,
           {
             "diagnostics",
