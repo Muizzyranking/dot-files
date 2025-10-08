@@ -8,12 +8,13 @@
 ---@field format utils.format
 ---@field hl utils.hl
 ---@field icons utils.icons
+---@field js_ts utils.js_ts
 ---@field lsp utils.lsp
 ---@field lualine utils.lualine
 ---@field map utils.map
 ---@field notify utils.notify
+---@field python utils.python
 ---@field root utils.root
----@field setup_lang utils.setup_lang
 ---@field smart_nav utils.smart_nav
 ---@field snacks utils.snacks
 ---@field word_cycle utils.word_cycle
@@ -336,6 +337,16 @@ function M.find_win_with_file(filename)
   end
 
   return nil
+end
+
+---@param option string
+---@param value any
+---@param buf? number
+function M.set_buf_option(option, value, buf)
+  buf = Utils.ensure_buf(buf)
+  pcall(function()
+    vim.bo[buf][option] = value
+  end)
 end
 
 local function _has_kitty_graphics_support(script_path)
