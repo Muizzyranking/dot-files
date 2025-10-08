@@ -9,7 +9,7 @@ M.incr = {}
 ---@return boolean
 -------------------------------------------------
 function M.hl_is_active(buf)
-  buf = Utils.ensure_list(buf)
+  buf = Utils.ensure_buf(buf)
   return vim.treesitter.highlighter.active[buf] ~= nil
 end
 
