@@ -26,6 +26,24 @@ return {
   {
     "folke/ts-comments.nvim",
     event = "LazyFile",
-    opts = {},
+    opts = {
+      lang = {
+        -- python = "# %s",
+        -- lua = "-- %s",
+        -- rust = "// %s",
+        -- javascript = "// %s",
+        -- typescript = "// %s",
+        -- html = "<!-- %s -->",
+        -- css = "/* %s */",
+        -- scss = "/* %s */",
+        -- json = "// %s",
+        -- jsonc = "// %s",
+        -- yaml = "# %s",
+        -- sh = "# %s",
+        -- bash = "# %s",
+        -- zsh = "# %s",
+        -- fish = "# %s",
+      },
+    },
   },
 }
