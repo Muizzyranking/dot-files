@@ -1,39 +1,3 @@
-local M = {}
-
-M.root_file = function(files)
-  return function(_, ctx)
-    return vim.fs.root(ctx.dirname, files)
-  end
-end
-
-local use_biome = function(ctx)
-  if M.root_file({ "biome.json", "biome.jsonc" })(nil, ctx) then
-    return true
-  end
-  if vim.g.use_biome then
-    return true
-  end
-  return false
-end
-
-M.use_biome = Utils.memoize(use_biome)
-
-M.biome_supported = {
-  "astro",
-  "css",
-  "graphql",
-  "javascript",
-  "javascriptreact",
-  "json",
-  "jsonc",
-  -- "markdown",
-  "svelte",
-  "typescript",
-  "typescriptreact",
-  "vue",
-  -- "yaml",
-}
-
 return {
   {
     "stevearc/conform.nvim",
@@ -52,51 +16,121 @@ return {
         desc = "Format Injected Langs",
       },
     },
-    opts_extend = { "use_prettier_biome" },
-    opts = {
-      -- since prettier is used for multiple filetypes
-      -- this options allows to specify which filetypes to use with prettier
-      use_prettier_biome = { "yaml" },
-      notify_on_error = true,
-      default_format_opts = {
-        timeout_ms = 2500,
-        async = false,
-        quiet = false,
-        lsp_format = "fallback",
-      },
-      formatters = {},
-      formatters_by_ft = {},
-    },
-  },
-  {
-    "stevearc/conform.nvim",
-    config = function(_, opts)
-      local use_prettier_biome = opts.use_prettier_biome or {}
-      opts.formatters_by_ft = opts.formatters_by_ft or {}
-      opts.formatters = opts.formatters or {}
-      opts.formatters["biome"] = {
-        require_cwd = true,
-        condition = function(_, ctx)
-          local ft = vim.bo[ctx.buf].filetype
-          return M.use_biome(ctx) and vim.tbl_contains(M.biome_supported, ft)
-        end,
-      }
-      opts.formatters["prettierd"] = {
-        condition = function(_, ctx)
-          local ft = vim.bo[ctx.buf].filetype
-          return not M.use_biome(ctx) or not vim.tbl_contains(M.biome_supported, ft)
-        end,
+    opts = function()
+      local biome_supported = {
+        "astro",
+        "css",
+        "graphql",
+        "javascript",
+        "javascriptreact",
+        "json",
+        "jsonc",
+        "svelte",
+        "typescript",
+        "typescriptreact",
+        "vue",
       }
 
-      for _, ft in ipairs(use_prettier_biome) do
+      local biome_available = function(ctx)
+        return vim.fs.root(ctx.dirname, { "biome.json", "biome.jsonc" }) ~= nil or vim.g.use_biome
+      end
+      local use_biome = Utils.memoize(biome_available)
+      local opts = {
+        notify_on_error = true,
+        format_on_save = {
+          timeout_ms = 500,
+          lsp_format = "fallback",
+        },
+        default_format_opts = {
+          timeout_ms = 2500,
+          async = false,
+          quiet = false,
+          lsp_format = "fallback",
+        },
+        formatters = {
+          biome = {
+            require_cwd = true,
+            condition = function(_, ctx)
+              return use_biome(ctx) and vim.tbl_contains(biome_supported, vim.bo[ctx.buf].filetype)
+            end,
+          },
+          prettierd = {
+            condition = function(_, ctx)
+              local ft = vim.bo[ctx.buf].filetype
+              return not use_biome(ctx) or not vim.tbl_contains(biome_supported, ft)
+            end,
+          },
+          black = {
+            append_args = { "--line-length", "85" },
+          },
+          djlint = {
+            append_args = { "--indent", "2" },
+          },
+          ["kulala-fmt"] = {
+            condition = function()
+              return Utils.is_executable("kulala-fmt")
+            end,
+          },
+        },
+        formatters_by_ft = {
+          yaml = { "prettierd", "biome" },
+          lua = { "stylua" },
+          python = { "black" },
+          ["htmldjango"] = { "djlint" },
+          ["bash"] = { "shfmt" },
+          ["sh"] = { "shfmt" },
+          go = { "goimports", "gofumpt" },
+          http = { "kulala-fmt" },
+          ["markdown"] = { -- [[ "prettier" ]],
+            "markdownlint-cli2",
+            "markdown-toc",
+          },
+          ["markdown.mdx"] = {
+            -- "prettier",
+            "markdownlint-cli2",
+            "markdown-toc",
+          },
+          ["json"] = { "jq" },
+          ["jsonc"] = { "jq" },
+        },
+      }
+      local use_prettier_or_biome = {
+        "typescript",
+        "typescriptreact",
+        "javascript",
+        "javascriptreact",
+        "jsx",
+        "tsx",
+        "html",
+        "css",
+      }
+      for _, ft in ipairs(use_prettier_or_biome) do
         opts.formatters_by_ft[ft] = opts.formatters_by_ft[ft] or {}
         table.insert(opts.formatters_by_ft[ft], "prettierd")
-        if vim.list_contains(M.biome_supported, ft) then
-          table.insert(opts.formatters_by_ft[ft], "biome")
-        end
+        if vim.list_contains(biome_supported, ft) then table.insert(opts.formatters_by_ft[ft], "biome") end
       end
-      opts.use_prettier_biome = nil
+      return opts
+    end,
+    config = function(_, opts)
       require("conform").setup(opts)
     end,
+  },
+  {
+    "williamboman/mason.nvim",
+    optional = true,
+    opts = {
+      ensure_installed = {
+        "black",
+        "djlint",
+        "prettierd",
+        "biome",
+        "stylua",
+        "shfmt",
+        "goimports",
+        "gofumpt",
+        "jq",
+        "stylua",
+      },
+    },
   },
 }
