@@ -114,37 +114,62 @@ autocmd("WinClosed", {
   end,
 })
 
------------------------------------------------------------
--- Close certain file types with q
------------------------------------------------------------
-autocmd("FileType", {
-  group = "close_with_q",
-  pattern = {
-    "PlenaryTestPopup",
-    "help",
-    "lspinfo",
-    "man",
-    "help",
-    "notify",
-    "qf",
-    "query",
-    "spectre_panel",
-    "startuptime",
-    "tsplayground",
-    "neotest-output",
-    "checkhealth",
-    "neotest-summary",
-    "neotest-output-panel",
-    "grug-far",
-    "grug-far-history",
-    "grug-far-help",
-    "AvanteInput",
+autocmd.autocmd_augroup("Filetype autocmds", {
+  {
+    pattern = { "html", "css", "typescript", "typescriptreact", "javascript", "javascriptreact", "jsx", "tsx" },
+    callback = function(event)
+      vim.bo[event.buf].shiftwidth = 2
+      vim.bo[event.buf].tabstop = 2
+    end,
   },
-  callback = function(event)
-    vim.bo[event.buf].buflisted = false
-    vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = event.buf, silent = true })
-  end,
-})
+  {
+    pattern = { "typescript", "typescriptreact", "javascript", "javascriptreact", "jsx", "tsx" },
+    callback = function(event)
+      Utils.map.set_keymaps({
+        {
+          "t",
+          Utils.js_ts.auto_add_async,
+          mode = "i",
+          desc = "Auto add async",
+          buffer = event.buf,
+        },
+      })
+    end,
+  },
+  {
+    pattern = { "man" },
+    callback = function(event)
+      vim.bo[event.buf].buflisted = false
+    end,
+  },
+  {
+    pattern = {
+      "PlenaryTestPopup",
+      "help",
+      "lspinfo",
+      "man",
+      "help",
+      "notify",
+      "qf",
+      "query",
+      "spectre_panel",
+      "startuptime",
+      "tsplayground",
+      "neotest-output",
+      "checkhealth",
+      "neotest-summary",
+      "neotest-output-panel",
+      "grug-far",
+      "grug-far-history",
+      "grug-far-help",
+      "AvanteInput",
+    },
+    callback = function(event)
+      vim.bo[event.buf].buflisted = false
+      vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = event.buf, silent = true })
+    end,
+  },
+}, { "Filetype" })
 
 -----------------------------------------------------------
 -- Auto create directory when saving a file
@@ -162,17 +187,6 @@ autocmd({ "BufWritePre" }, {
 -- Don't auto comment new line
 -----------------------------------------------------------
 autocmd("BufEnter", { cmd = [[set formatoptions-=cro]] })
-
------------------------------------------------------------
--- Make it easier to close man-files when opened inline
------------------------------------------------------------
-autocmd("FileType", {
-  group = "man_unlisted",
-  pattern = { "man" },
-  callback = function(event)
-    vim.bo[event.buf].buflisted = false
-  end,
-})
 
 --------------------------------------------------------------
 ----- Turn off line numbering in terminal buffers
