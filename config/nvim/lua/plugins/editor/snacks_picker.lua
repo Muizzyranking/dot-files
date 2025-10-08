@@ -7,7 +7,14 @@ return {
         ui_select = true,
         sources = {
           files = {
-            exclude = { ".git", ".cache" },
+            exclude = {
+              ".git",
+              ".cache",
+              "node_modules",
+              "venv",
+              ".venv",
+              ".pytest_cache",
+            },
             actions = {},
             win = {
               input = {
