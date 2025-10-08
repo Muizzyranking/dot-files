@@ -1,6 +1,7 @@
 local M = {}
 M._keys = nil
 M.lsp_servers = {}
+M._server_keys = {}
 
 function M.get()
   if M._keys then return M._keys end
@@ -157,6 +158,29 @@ function M.get()
   return M._keys
 end
 
+function M.register_keys(server_name, keys)
+  M._server_keys[server_name] = keys
+end
+
+function M.get_server_keys(server_name)
+  return M._server_keys[server_name] or {}
+end
+
+function M.load_lsp_configs()
+  local path = vim.fn.stdpath("config") .. "/lsp"
+  local lsp_files = vim.fn.readdir(path)
+
+  for _, file in ipairs(lsp_files) do
+    if file:match("%.lua$") then
+      local name = file:match("(.+)%.lua$")
+      table.insert(M.lsp_servers, name)
+
+      local ok, config = pcall(dofile, path .. "/" .. file)
+      if ok and config and config.keys then M.register_keys(name, config.keys) end
+    end
+  end
+end
+
 local all_keys = {}
 function M.on_attach(_, buffer)
   pcall(vim.keymap.del, "n", "gra")
@@ -166,7 +190,7 @@ function M.on_attach(_, buffer)
   local clients = Utils.lsp.get_clients({ bufnr = buffer })
   local keys = vim.tbl_extend("force", {}, M.get())
   for _, client in ipairs(clients) do
-    local maps = Utils.lsp.get_server_keys(client.name)
+    local maps = M.get_server_keys(client.name)
     vim.list_extend(keys, maps)
   end
   for _, key in ipairs(keys) do
@@ -238,14 +262,8 @@ function M.setup(opts)
       },
     },
   })
-  local path = vim.fn.stdpath("config") .. "/lsp"
+  M.load_lsp_configs()
 
-  for _, file in ipairs(vim.fn.readdir(path)) do
-    if file:match("%.lua$") then
-      local name = file:match("(.+)%.lua$")
-      table.insert(M.lsp_servers, name)
-    end
-  end
   vim.lsp.enable(M.lsp_servers, true)
 end
 
