@@ -123,8 +123,8 @@ fi
 eval "$(zoxide init zsh)"
 
 # FZF
-source <(fzf --zsh)
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+source <(fzf --zsh)
 
 # NVM
 export NVM_DIR="$HOME/.nvm"
