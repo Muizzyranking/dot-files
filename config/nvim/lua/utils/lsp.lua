@@ -3,6 +3,7 @@ local M = {}
 
 --- Table to track supported methods for LSP clients
 M._supports_method = {}
+M._server_keys = {}
 
 local notify = Utils.notify.create({ title = "LSP" })
 
@@ -239,6 +240,14 @@ function M.rename()
     end
   end
   vim.lsp.buf.rename()
+end
+
+function M.register_keys(server_name, keys)
+  M._server_keys[server_name] = keys
+end
+
+function M.get_server_keys(server_name)
+  return M._server_keys[server_name] or {}
 end
 
 -----------------------------------------------
