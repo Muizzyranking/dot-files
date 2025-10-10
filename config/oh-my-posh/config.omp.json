@@ -7,7 +7,6 @@
       "segments": [
         {
           "foreground": "#5f9fef",
-          "leading_diamond": "<#3b78ff> </><#5f9fef></>",
           "properties": {
             "folder_icon": "",
             "folder_separator_icon": "",

@@ -1,11 +1,3 @@
-Utils.lsp.register_keys("lua_ls", {
-  {
-    "<leader>md",
-    function()
-      print("works")
-    end,
-  },
-})
 return {
   settings = {
     Lua = {
