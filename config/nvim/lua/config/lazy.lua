@@ -53,6 +53,7 @@ require("lazy").setup({
         "zipPlugin",
         "osc52",
         "rplugin",
+        "editorconfig",
       },
     },
   },
