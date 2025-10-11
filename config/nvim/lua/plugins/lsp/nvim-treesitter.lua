@@ -58,8 +58,18 @@ return {
         "php",
         "phpdoc",
       },
+      incremental_selection = {
+        keymaps = {
+          init_selection = "<CR>",
+          node_incremental = "<CR>",
+          scope_incremental = "<C-n>",
+          node_decremental = "<BS>",
+        },
+      },
     },
     config = function(_, opts)
+      local incr = opts.incremental_selection or {}
+      opts.incremental_selection = nil
       local ts = require("nvim-treesitter")
       if not Utils.is_executable("tree-sitter") then
         return Utils.notify.error({
@@ -81,6 +91,7 @@ return {
           if not vim.b[ev.buf].bigfile and Utils.treesitter.have(ev.match) then pcall(vim.treesitter.start) end
         end,
       })
+      Utils.treesitter.incr.attach(incr)
     end,
   },
   {

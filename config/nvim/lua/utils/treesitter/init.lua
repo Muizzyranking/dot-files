@@ -139,36 +139,24 @@ function M.incr.attach(opts)
   if M.incr.is_attached then return end
   M.incr.is_attached = true
   local incr = require("utils.treesitter.incr")
-  local i = M.incr
   opts = opts or {}
-  M.incr.keymaps = vim.tbl_extend("force", {
-    init_selection = "<CR>",
-    node_incremental = "<CR>",
-    scope_incremental = "w",
-    node_decremental = "<BS>",
-  }, opts.keymaps or {})
+  M.incr.keymaps = vim.tbl_extend("force", {}, opts.keymaps or {})
 
-  local set = vim.keymap.set
+  local function map(mode, action, key_opts)
+    local lhs = M.incr.keymaps[action]
+    if lhs == nil or lhs == "" then return end
+    local rhs = incr[action]
+    if not rhs then return end
+    pcall(vim.keymap.set, mode, lhs, function()
+      local success, buf, lang = M.incr.ensure_active()
+      if success then return rhs(buf, lang) end
+    end, key_opts)
+  end
 
-  set("n", M.incr.keymaps.init_selection, function()
-    local success, buf, lang = i.ensure_active()
-    if success then return incr.init_selection(buf, lang) end
-  end, { desc = "Init incremental selection" })
-
-  set("x", M.incr.keymaps.node_incremental, function()
-    local success, buf, lang = i.ensure_active()
-    if success then return incr.node_incremental(buf, lang) end
-  end, { desc = "Node incremental" })
-
-  set("x", M.incr.keymaps.scope_incremental, function()
-    local success, buf, lang = i.ensure_active()
-    if success then return incr.scope_incremental(buf, lang) end
-  end, { desc = "Scope incremental" })
-
-  set("x", M.incr.keymaps.node_decremental, function()
-    local success, bufnr, lang = i.ensure_active()
-    if success then return incr.node_decremental(bufnr, lang) end
-  end, { desc = "Node decremental" })
+  map("n", "init_selection", { desc = "Init incremental selection" })
+  map("x", "node_incremental", { desc = "Node incremental" })
+  map("x", "scope_incremental", { desc = "Scope incremental" })
+  map("x", "node_decremental", { desc = "Node decremental" })
 end
 
 function M.incr.detach()
