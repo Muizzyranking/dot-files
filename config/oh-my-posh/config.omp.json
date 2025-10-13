@@ -27,7 +27,7 @@
             "fetch_worktree_count": true
           },
           "style": "diamond",
-          "template": " <#9ece6a>{{ .UpstreamIcon }}{{ .HEAD }}</>{{if .BranchStatus }} {{ .BranchStatus }}{{ end }}{{ if .Working.Changed }} <#ff9e64> {{ .Working.String }}</>{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Changed }} <#9ece6a> {{ .Staging.String }}</>{{ end }}{{ if gt .StashCount 0 }}  {{ .StashCount }}{{ end }} ",
+          "template": " <#9ece6a>{{ .UpstreamIcon }}{{ .HEAD }}</>{{if .BranchStatus }} {{ .BranchStatus }}{{ end }}{{ if .Working.Changed }} <#ff9e64>  {{ .Working.String }}</>{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Changed }} <#9ece6a>  {{ .Staging.String }}</>{{ end }}{{ if gt .StashCount 0 }}  {{ .StashCount }}{{ end }} ",
           "type": "git",
           "mapped_branches": {
             "feat/*": "🚀 ",
