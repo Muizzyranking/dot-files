@@ -1,0 +1,182 @@
+#!/bin/bash
+
+export FZF_DEFAULT_OPTS="
+--color=fg:#c0caf5,bg:#1a1b26,hl:#bb9af7
+--color=fg+:#c0caf5,bg+:#283457,hl+:#7dcfff
+--color=info:#7aa2f7,prompt:#f7768e,pointer:#bb9af7
+--color=marker:#9ece6a,spinner:#bb9af7,header:#7aa2f7
+--color=border:#565f89,label:#7aa2f7,query:#c0caf5
+--border=rounded
+--prompt='🔍 '
+--pointer='▶'
+--marker='✓'
+"
+
+FILTER_MODE="user"
+
+get_processes() {
+    local filter=$1
+    case "$filter" in
+    "user")
+        ps -u $(whoami) -o pid,%cpu,%mem,vsz,rss,stat,start,time,comm,args --sort=-%cpu |
+            awk 'NR>1 {
+                    printf "%-8s | %-6s | %-6s | %-10s | %-8s | %-5s | %-8s | %-10s | %s\n",
+                        $1, $2, $3, $4, $5, $6, $7, $8, substr($0, index($0,$9))
+                }'
+        ;;
+    "all")
+        ps aux --sort=-%cpu |
+            awk 'NR>1 {
+                    printf "%-8s | %-6s | %-6s | %-10s | %-8s | %-5s | %-8s | %-10s | %s\n",
+                        $2, $3, $4, $5, $6, $8, $9, $10, substr($0, index($0,$11))
+                }'
+        ;;
+    "high-cpu")
+        ps -u $(whoami) -o pid,%cpu,%mem,vsz,rss,stat,start,time,comm,args --sort=-%cpu |
+            awk 'NR>1 && $2+0 > 1.0 {
+                    printf "%-8s | %-6s | %-6s | %-10s | %-8s | %-5s | %-8s | %-10s | %s\n",
+                        $1, $2, $3, $4, $5, $6, $7, $8, substr($0, index($0,$9))
+                }'
+        ;;
+    "high-mem")
+        ps -u $(whoami) -o pid,%cpu,%mem,vsz,rss,stat,start,time,comm,args --sort=-%mem |
+            awk 'NR>1 && $3+0 > 1.0 {
+                    printf "%-8s | %-6s | %-6s | %-10s | %-8s | %-5s | %-8s | %-10s | %s\n",
+                        $1, $2, $3, $4, $5, $6, $7, $8, substr($0, index($0,$9))
+                }'
+        ;;
+    esac
+}
+
+while true; do
+    process_info=$(get_processes "$FILTER_MODE")
+
+    if [[ -z "$process_info" ]]; then
+        echo "❌ No processes found with filter: $FILTER_MODE"
+        exit 0
+    fi
+
+    header="PID      | CPU%   | MEM%   | VSZ        | RSS      | STAT  | START    | TIME       | COMMAND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💀 CTRL-K: kill | ⚡ CTRL-F: force kill | 📂 CTRL-O: open files | 📋 CTRL-Y: copy PID 🔄 CTRL-R: refresh | 🔀 CTRL-T: toggle filter [$FILTER_MODE] | ESC: exit"
+
+    selection=$(echo "$process_info" |
+        fzf --tmux 95%,85% \
+            --header="$header" \
+            --prompt="Select process ⚡ " \
+            --preview='
+                pid=$(echo {} | awk -F"|" "{print \$1}" | xargs)
+                
+                echo "╔══════════════════════════════════════╗"
+                echo "║       ⚡ PROCESS DETAILS             ║"
+                echo "╚══════════════════════════════════════╝"
+                
+                if [[ -n "$pid" && "$pid" =~ ^[0-9]+$ ]]; then
+                    ps -p $pid -o pid,ppid,user,%cpu,%mem,vsz,rss,stat,start,time,command 2>/dev/null || echo "❌ Process not found"
+                    echo ""
+                    
+                    if [[ -d "/proc/$pid" ]]; then
+                        echo "╔══════════════════════════════════════╗"
+                        echo "║      📂 WORKING DIRECTORY            ║"
+                        echo "╚══════════════════════════════════════╝"
+                        readlink -f /proc/$pid/cwd 2>/dev/null || echo "🔒 Unable to read"
+                        echo ""
+                        
+                        echo "╔══════════════════════════════════════╗"
+                        echo "║         💻 COMMAND LINE              ║"
+                        echo "╚══════════════════════════════════════╝"
+                        cat /proc/$pid/cmdline 2>/dev/null | tr "\0" " " || echo "🔒 Unable to read"
+                        echo ""
+                        
+                        echo "╔══════════════════════════════════════╗"
+                        echo "║      🌐 NETWORK CONNECTIONS          ║"
+                        echo "╚══════════════════════════════════════╝"
+                        ss -tuanp 2>/dev/null | grep "pid=$pid" || echo "❌ No network connections"
+                        echo ""
+                        
+                        echo "╔══════════════════════════════════════╗"
+                        echo "║         📂 OPEN FILES (top 10)       ║"
+                        echo "╚══════════════════════════════════════╝"
+                        lsof -p $pid 2>/dev/null | head -n 11 || echo "❌ Unable to list open files"
+                    else
+                        echo "⚠️  Process information unavailable"
+                    fi
+                else
+                    echo "⚠️  Invalid PID"
+                fi
+            ' \
+            --preview-window=up:70%:wrap \
+            --bind "ctrl-r:reload($(declare -f get_processes); get_processes '$FILTER_MODE')" \
+            --bind "ctrl-t:reload(
+                if [[ '$FILTER_MODE' == 'user' ]]; then
+                    FILTER_MODE='high-cpu'
+                elif [[ '$FILTER_MODE' == 'high-cpu' ]]; then
+                    FILTER_MODE='high-mem'
+                elif [[ '$FILTER_MODE' == 'high-mem' ]]; then
+                    FILTER_MODE='all'
+                else
+                    FILTER_MODE='user'
+                fi
+                $(declare -f get_processes); get_processes \$FILTER_MODE
+            )" \
+            --bind "ctrl-y:execute-silent(echo {} | awk -F'|' '{print \$1}' | xargs | clipcopy)" \
+            --bind "ctrl-o:execute(
+                pid=\$(echo {} | awk -F'|' '{print \$1}' | xargs)
+                echo '📂 Open Files for PID: '\$pid
+                echo '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
+                lsof -p \$pid 2>/dev/null | less || echo '❌ Unable to list open files'
+                read -p '⏎ Press enter to continue...'
+            )" \
+            --expect=ctrl-k,ctrl-f)
+
+    key=$(echo "$selection" | head -1)
+    selected_line=$(echo "$selection" | tail -1)
+
+    if [[ -z "$selected_line" ]]; then
+        echo "👋 Exiting..."
+        exit 0
+    fi
+
+    pid=$(echo "$selected_line" | awk -F'|' '{print $1}' | xargs)
+    command=$(echo "$selected_line" | awk -F'|' '{print $9}' | xargs)
+
+    case "$key" in
+    ctrl-k)
+        if [[ -z "$pid" || ! "$pid" =~ ^[0-9]+$ ]]; then
+            echo "⚠️  Invalid PID"
+            read -p "⏎ Press enter to continue..."
+        else
+            echo "💀 Killing process: $command (PID: $pid) with SIGTERM..."
+            kill "$pid" 2>/dev/null
+            if [[ $? -eq 0 ]]; then
+                echo "✅ Process killed successfully"
+            else
+                echo "❌ Failed to kill process"
+            fi
+            sleep 1
+        fi
+        ;;
+    ctrl-f)
+        if [[ -z "$pid" || ! "$pid" =~ ^[0-9]+$ ]]; then
+            echo "⚠️  Invalid PID"
+            read -p "⏎ Press enter to continue..."
+        else
+            echo "⚠️  WARNING: Force kill process: $command (PID: $pid)?"
+            echo "⚡ This will send SIGKILL (-9) which cannot be caught by the process."
+            read -p "Type 'yes' to confirm: " confirm
+            if [[ "$confirm" == "yes" ]]; then
+                kill -9 "$pid" 2>/dev/null
+                if [[ $? -eq 0 ]]; then
+                    echo "✅ Process force killed successfully"
+                else
+                    echo "❌ Failed to kill process"
+                fi
+            else
+                echo "🚫 Cancelled."
+            fi
+            sleep 1
+        fi
+        ;;
+    *) ;;
+    esac
+done
