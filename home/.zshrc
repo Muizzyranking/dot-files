@@ -1,3 +1,8 @@
+# ============================================
+# Performance: Skip global compinit
+# ============================================
+skip_global_compinit=1
+
 setopt CASE_GLOB            # Case-sensitive globbing (default)
 setopt NO_CASE_GLOB         # Case-insensitive globbing
 setopt CORRECT              # Command correction
@@ -13,17 +18,17 @@ setopt PUSHD_IGNORE_DUPS # Don't push duplicates
 setopt PUSHD_SILENT      # Don't print directory stack
 
 # Completion
-setopt COMPLETE_IN_WORD     # Complete from both ends
-setopt ALWAYS_TO_END        # Move cursor to end after completion
-setopt AUTO_MENU            # Show menu on successive tab
-setopt AUTO_LIST            # List choices on ambiguous completion
-setopt MENU_COMPLETE        # Insert first match immediately
+setopt COMPLETE_IN_WORD # Complete from both ends
+setopt ALWAYS_TO_END    # Move cursor to end after completion
+setopt AUTO_MENU        # Show menu on successive tab
+setopt AUTO_LIST        # List choices on ambiguous completion
+setopt MENU_COMPLETE    # Insert first match immediately
 
 # History
-setopt EXTENDED_HISTORY     # Save timestamp and duration
+setopt EXTENDED_HISTORY # Save timestamp and duration
 setopt HIST_EXPIRE_DUPS_FIRST
-setopt HIST_IGNORE_SPACE    # Don't save commands starting with space
-setopt HIST_VERIFY          # Show command with history expansion before running
+setopt HIST_IGNORE_SPACE # Don't save commands starting with space
+setopt HIST_VERIFY       # Show command with history expansion before running
 
 # History configuration
 HISTFILE=~/.zsh_history
@@ -85,34 +90,23 @@ bindkey '^[[A' history-substring-search-up
 bindkey '^[[B' history-substring-search-down
 
 # ============================================
-# Useful Functions
-# ============================================
-
-# sudo - press ESC twice to add sudo
-sudo-command-line() {
-    [[ -z $BUFFER ]] && zle up-history
-    if [[ $BUFFER == sudo\ * ]]; then
-        LBUFFER="${LBUFFER#sudo }"
-    else
-        LBUFFER="sudo $LBUFFER"
-    fi
-}
-zle -N sudo-command-line
-bindkey "\e\e" sudo-command-line
-
-# ============================================
 # Configuration Files
 # ============================================
 config_dir="$HOME/.config/zsh"
+
+# Load environment variables
+if [ -f "$config_dir/.zshenv" ]; then
+    source "$config_dir/.zshenv"
+fi
 
 # Load aliases
 if [ -f "$config_dir/.zsh_alaises" ]; then
     source "$config_dir/.zsh_alaises"
 fi
 
-# Load environment variables
-if [ -f "$config_dir/.zshenv" ]; then
-    source "$config_dir/.zshenv"
+# functions
+if [ -f "$config_dir/.zsh_functions" ]; then
+    source "$config_dir/.zsh_functions"
 fi
 
 # ============================================
@@ -124,19 +118,9 @@ eval "$(zoxide init zsh)"
 
 # FZF
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-source <(fzf --zsh)
-
-# NVM
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-
-# PNPM
-export PNPM_HOME="/home/muizzyranking/.local/share/pnpm"
-case ":$PATH:" in
-*":$PNPM_HOME:"*) ;;
-*) export PATH="$PNPM_HOME:$PATH" ;;
-esac
+if command -v fzf &>/dev/null; then
+    eval "$(fzf --zsh)"
+fi
 
 # UV
 eval "$(uv generate-shell-completion zsh)"
