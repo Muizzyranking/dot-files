@@ -15,7 +15,6 @@ alias df='df -h'               # Human readable
 alias du='du -h'               # Human readable
 alias dus='du -sh * | sort -h' # Sorted by size
 
-alias ports='netstat -tulanp'    # Show open ports
 alias myip='curl -s ifconfig.me' # Get public IP
 
 alias gs='git status -sb'
@@ -34,70 +33,6 @@ alias ....='cd ../../..'
 alias .....='cd ../../../..'
 alias ......='cd ../../../../..'
 
-aliases() {
-    alias | sed 's/=/ => /' | bat --language=bash --style=plain
-}
-
-bak() {
-    cp "$1" "$1.bak"
-}
-
-# find directory and cd into it
-fdir() {
-    local selected_dir
-    selected_dir=$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse)
-    if [ -n "$selected_dir" ]; then
-        cd "$selected_dir" || echo "Failed to change directory to $selected_dir"
-    fi
-}
-
-# find files and echo the location
-ff() {
-    local selected_dir
-    select_file=$(fd --type f --hidden --exclude .git | fzf-tmux -p --reverse)
-    if [ -n "$select_file" ]; then
-        echo "$select_file"
-    fi
-
-}
-
-# find files and open it in nvim
-of() {
-    local selected_dir
-    selected_file=$(fzf --tmux 80% --preview="bat --color=always {}")
-    if [ -n "$selected_file" ]; then
-        nvim "$selected_file"
-    fi
-}
-
-mkcd() {
-    mkdir -p "$1" && \cd "$1" || echo "Failed"
-}
-
-copypath() {
-    echo -n ${PWD} | clipcopy
-    echo "Copied: ${PWD}"
-}
-
-extract() {
-    if [ -f "$1" ]; then
-        case "$1" in
-        *.tar.bz2) tar xjf "$1" ;;
-        *.tar.gz) tar xzf "$1" ;;
-        *.bz2) bunzip2 "$1" ;;
-        *.rar) unrar x "$1" ;;
-        *.gz) gunzip "$1" ;;
-        *.tar) tar xvf "$1" ;;
-        *.tbz2) tar xjf "$1" ;;
-        *.tgz) tar xzf "$1" ;;
-        *.zip) unzip "$1" ;;
-        *) echo "'$1' cannot be extracted via extract()" ;;
-        esac
-    else
-        echo "'$1' is not a valid file"
-    fi
-}
-
 alias gg='lazygit'
 
 alias install='sudo dnf install -y'
@@ -108,23 +43,4 @@ alias nvimrc='$EDITOR $NVIMRC'
 alias tmuxrc='$EDITOR $TMUXRC'
 alias zshrc='$EDITOR $ZSHRC'
 
-# alias rm="echo Use 'trash', or the full path i.e. '/bin/rm'"
-
-venv-create() {
-    if [[ $# -eq 0 ]]; then
-        python3 -m venv .venv && source ./.venv/bin/activate
-    else
-        python3 -m venv .venv --prompt="$1" && source ./.venv/bin/activate
-    fi
-}
-
-f() {
-    local dir
-    dir=$(
-        zoxide query --list --score |
-            fzf --height 40% --layout reverse --info inline \
-                --nth 2.. --tac --no-sort --query "$*" \
-                --bind 'enter:become:echo {2..}'
-    ) && cd "$dir" || return
-}
-export PATH=$HOME/.npm-global/bin:$PATH
+alias ff='find_files'
