@@ -269,6 +269,18 @@ autocmd("BufWritePost", {
 })
 
 -----------------------------------------------------------
+-- make scripts in ~/dot_files/bin executable on save
+-----------------------------------------------------------
+autocmd("BufWritePost", {
+  pattern = vim.fn.expand("$HOME") .. "/dot-files/bin/*",
+  callback = function(e)
+    local buf = e.buf
+    local filepath = Utils.get_filename(buf)
+    if not Utils.is_executable(filepath) then Utils.actions.toggle_file_executable(false, filepath, false) end
+  end,
+})
+
+-----------------------------------------------------------
 -- Remove hl search when enter Insert
 -----------------------------------------------------------
 autocmd({ "InsertEnter", "CmdlineEnter" }, {

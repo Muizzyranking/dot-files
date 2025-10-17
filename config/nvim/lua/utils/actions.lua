@@ -4,11 +4,14 @@ local api = vim.api
 
 -----------------------------------------------------------
 -- Make the current file executable
+---@param state boolean true to make unexecutable, false to make executable
+---@param filepath? string The file to change permissions for (defaults to current file)
+---@param notify? boolean Whether to show a notification (default: true)
 -----------------------------------------------------------
-function M.toggle_file_executable(state, filename)
-  filename = filename or Utils.get_filename()
+function M.toggle_file_executable(state, filepath, notify)
+  filepath = filepath or Utils.get_filename()
   local flag = state and "-x" or "+x"
-  local success, output = Utils.run_command({ "chmod", flag, filename }, { trim = true })
+  local success, output = Utils.run_command({ "chmod", flag, filepath }, { trim = true })
   local success_message = ("File made %s"):format(state and "unexecutable" or "executable")
   local error_message = ("Error making file %s"):format(state and "unexecutable" or "executable")
 
@@ -18,7 +21,9 @@ function M.toggle_file_executable(state, filename)
   else
     level = "warn"
   end
-  Utils.notify[level](success and success_message or error_message .. ": " .. output, { title = "Options" })
+  if notify ~= false then
+    Utils.notify[level](success and success_message or error_message .. ": " .. output, { title = "Options" })
+  end
 end
 
 -------------------------------------
