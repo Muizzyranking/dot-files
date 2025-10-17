@@ -13,7 +13,7 @@ return {
             "--no-show-source",
             "--stdin-display-name",
             function()
-              return Utils.get_filename()
+              return Utils.get_filepath()
             end,
             "-",
           },
@@ -67,7 +67,7 @@ return {
         vim.list_extend(names, lint.linters_by_ft["*"] or {})
 
         -- Filter out linters that don't exist or don't match the condition.
-        local ctx = { filename = Utils.get_filename() }
+        local ctx = { filename = Utils.get_filepath() }
         ctx.dirname = vim.fn.fnamemodify(ctx.filename, ":h")
         names = vim.tbl_filter(function(name)
           local linter = lint.linters[name]

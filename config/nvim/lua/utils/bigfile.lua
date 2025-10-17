@@ -7,7 +7,7 @@ local bigfile_group = vim.api.nvim_create_augroup("Bigfile", { clear = true })
 ---@param buf number
 ---@param is_big boolean
 function M.notify(buf, is_big)
-  local path = vim.fn.fnamemodify(Utils.get_filename(buf), ":p:~:.")
+  local path = vim.fn.fnamemodify(Utils.get_filepath(buf), ":p:~:.")
   local message = is_big and "Big file detected `%s`. Some features disabled."
     or "File `%s` no longer treated as big file."
   Utils.notify[is_big and "warn" or "info"](message:format(path), { title = "Big file", timeout = 5000 })
@@ -39,18 +39,14 @@ end
 function M.is_big_file(buf)
   vim.g.bigfile = vim.g.bigfile or 1.5 * 1024 * 1024
   vim.g.bigfile_max_lines = vim.g.bigfile_max_lines or 32768
-  local path = Utils.get_filename(buf)
+  local path = Utils.get_filepath(buf)
   if path and path ~= "" then
     local stat = vim.uv.fs_stat(path)
-    if stat and stat.size > vim.g.bigfile then
-      return true
-    end
+    if stat and stat.size > vim.g.bigfile then return true end
   end
 
   local line_count = vim.api.nvim_buf_line_count(buf)
-  if line_count > vim.g.bigfile_max_lines then
-    return true
-  end
+  if line_count > vim.g.bigfile_max_lines then return true end
 
   if vim.api.nvim_buf_is_loaded(buf) then
     local sample_size = math.min(line_count, 100)
@@ -62,9 +58,7 @@ function M.is_big_file(buf)
     end
 
     local avg_line_length = total_size / sample_size
-    if avg_line_length > 1000 then
-      return true
-    end
+    if avg_line_length > 1000 then return true end
   end
 
   return false
@@ -74,9 +68,7 @@ end
 ---@param is_big boolean
 function M.apply_big_file_settings(buf, is_big)
   buf = Utils.ensure_buf(buf)
-  if vim.b[buf].bigfile == is_big then
-    return
-  end
+  if vim.b[buf].bigfile == is_big then return end
   vim.b[buf].bigfile = is_big
 
   if not vim.b[buf].bigfile_notified then
@@ -98,9 +90,7 @@ function M.apply_big_file_settings(buf, is_big)
     local ft = vim.bo[buf].filetype
     if ft and ft ~= "" then
       vim.schedule(function()
-        if vim.api.nvim_buf_is_valid(buf) then
-          vim.bo[buf].syntax = ft
-        end
+        if vim.api.nvim_buf_is_valid(buf) then vim.bo[buf].syntax = ft end
       end)
     end
   else
@@ -124,9 +114,7 @@ function M.setup()
       events = { "TextChanged", "TextChangedI" },
       desc = "Detect big files.",
       callback = function(event)
-        if vim.b[event.buf].bigfile_check_timer then
-          vim.fn.timer_stop(vim.b[event.buf].bigfile_check_timer)
-        end
+        if vim.b[event.buf].bigfile_check_timer then vim.fn.timer_stop(vim.b[event.buf].bigfile_check_timer) end
 
         vim.b[event.buf].bigfile_check_timer = vim.fn.timer_start(1000, function()
           local buf = event.buf
@@ -164,17 +152,13 @@ function M.setup()
 
         ---@diagnostic disable-next-line: duplicate-set-field
         function vim.treesitter.foldexpr(...)
-          if vim.b.bigfile then
-            return
-          end
+          if vim.b.bigfile then return end
           return ts_foldexpr(...)
         end
 
         ---@diagnostic disable-next-line: duplicate-set-field
         function vim.lsp.start(...)
-          if vim.b.bigfile then
-            return
-          end
+          if vim.b.bigfile then return end
           return lsp_start(...)
         end
       end,

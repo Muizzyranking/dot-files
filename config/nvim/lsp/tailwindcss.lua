@@ -1,6 +1,6 @@
 return {
   root_dir = function(buf, on_dir)
-    local fname = Utils.get_filename(buf)
+    local fpath = Utils.get_filepath(buf)
     local root_files = {
       "tailwind.config.js",
       "tailwind.config.cjs",
@@ -17,8 +17,8 @@ return {
       "theme/static_src/tailwind.config.ts",
       "theme/static_src/postcss.config.js",
     }
-    root_files = Utils.root.markers_with_field(root_files, { "package.json", "package-lock.json" }, "tailwind", fname)
-    on_dir(vim.fs.dirname(vim.fs.find(root_files, { path = fname, upward = true })[1]))
+    root_files = Utils.root.markers_with_field(root_files, { "package.json", "package-lock.json" }, "tailwind", fpath)
+    on_dir(vim.fs.dirname(vim.fs.find(root_files, { path = fpath, upward = true })[1]))
   end,
   filetypes_exclude = { "markdown" },
   filetypes_include = {},

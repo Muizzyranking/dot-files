@@ -275,7 +275,7 @@ autocmd("BufWritePost", {
   pattern = vim.fn.expand("$HOME") .. "/dot-files/bin/*",
   callback = function(e)
     local buf = e.buf
-    local filepath = Utils.get_filename(buf)
+    local filepath = Utils.get_filepath(buf)
     if not Utils.is_executable(filepath) then Utils.actions.toggle_file_executable(false, filepath, false) end
   end,
 })

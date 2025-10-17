@@ -9,7 +9,7 @@ local api = vim.api
 ---@param notify? boolean Whether to show a notification (default: true)
 -----------------------------------------------------------
 function M.toggle_file_executable(state, filepath, notify)
-  filepath = filepath or Utils.get_filename()
+  filepath = filepath or Utils.get_filepath()
   local flag = state and "-x" or "+x"
   local success, output = Utils.run_command({ "chmod", flag, filepath }, { trim = true })
   local success_message = ("File made %s"):format(state and "unexecutable" or "executable")

@@ -39,7 +39,7 @@ end
 ---@return string|nil # the path of the buffer or nil if it cannot be determined
 ---------------------------------------------------------------
 function M.get_buffer_path(buf)
-  local path = Utils.get_filename(assert(buf))
+  local path = Utils.get_filepath(assert(buf))
   return path ~= "" and M.get_real_path(path) or nil
 end
 

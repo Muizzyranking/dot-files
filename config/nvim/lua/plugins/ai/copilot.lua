@@ -6,9 +6,7 @@ return {
     event = "BufReadPost",
     opts = {
       should_attach = function()
-        if vim.b.bigfile then
-          return false
-        end
+        if vim.b.bigfile then return false end
 
         return true
       end,
@@ -18,7 +16,7 @@ return {
         markdown = true,
         help = true,
         sh = function()
-          local filename = vim.fs.basename(Utils.get_filename())
+          local filename = vim.fs.basename(Utils.get_filepath())
           if
             string.match(filename, "^%.env")
             or string.match(filename, "^%.secret.*")
@@ -66,25 +64,17 @@ return {
           return icon
         end,
         cond = function()
-          if not package.loaded["copilot"] then
-            return
-          end
+          if not package.loaded["copilot"] then return end
           local ok, clients = pcall(Utils.lsp.get_clients, { name = "copilot", bufnr = 0 })
-          if not ok then
-            return false
-          end
+          if not ok then return false end
           return ok and #clients > 0
         end,
         color = function()
-          if not package.loaded["copilot"] then
-            return
-          end
+          if not package.loaded["copilot"] then return end
           local ok, status = pcall(function()
             return require("copilot.status").data
           end)
-          if not ok or not status then
-            return colors[""]
-          end
+          if not ok or not status then return colors[""] end
           return colors[status.status] or colors[""]
         end,
       })

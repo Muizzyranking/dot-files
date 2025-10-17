@@ -381,12 +381,12 @@ local toggle_maps = {
   {
     "<leader>cx",
     get_state = function(buf)
-      local filename = Utils.get_filename(buf)
-      return Utils.is_executable(filename)
+      local fpath = Utils.get_filepath(buf)
+      return Utils.is_executable(fpath)
     end,
     change_state = function(state, buf)
-      local filename = Utils.get_filename(buf)
-      Utils.actions.toggle_file_executable(state, filename)
+      local fpath = Utils.get_filepath(buf)
+      Utils.actions.toggle_file_executable(state, fpath)
     end,
     desc = function(state)
       return ("Make file %s"):format(state and "unexecutable" or "executable")

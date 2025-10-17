@@ -228,7 +228,7 @@ end
 ---@param buf? number # default: current buf
 ---@return string # filename
 -----------------------------------------------------------------
-function M.get_filename(buf)
+function M.get_filepath(buf)
   buf = M.ensure_buf(buf)
   return vim.api.nvim_buf_get_name(buf)
 end

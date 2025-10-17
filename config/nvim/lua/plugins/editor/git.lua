@@ -31,7 +31,7 @@ return {
 
             for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
               local buf = vim.api.nvim_win_get_buf(win)
-              local bufname = Utils.get_filename(buf)
+              local bufname = Utils.get_filepath(buf)
               if bufname:find("^gitsigns://") then
                 target_win = win
                 break

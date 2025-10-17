@@ -3,9 +3,7 @@ local M = {}
 local window_width_limit = 100
 
 local function truncate_lsp_name(name)
-  if #name < 10 then
-    return name
-  end
+  if #name < 10 then return name end
 
   if name:find("_") then
     name = name:match("([^_]+)")
@@ -13,9 +11,7 @@ local function truncate_lsp_name(name)
     name = name:match("(%S+)%-?language") or name:match("(%S+)%-?ls") or name
   end
 
-  if #name > 10 then
-    name = name:sub(1, 10) .. "…"
-  end
+  if #name > 10 then name = name:sub(1, 10) .. "…" end
 
   return name
 end
@@ -71,7 +67,7 @@ end
 M.file = {
   function()
     local icon = Utils.icons.ui.File
-    local path = Utils.get_filename(M.stbufnr())
+    local path = Utils.get_filepath(M.stbufnr())
     local name = (path == "" and "Empty ") or path:match("([^/\\]+)[/\\]*$")
 
     if name ~= "Empty " then
@@ -88,7 +84,7 @@ M.file = {
   end,
 
   color = function()
-    local file_path = Utils.get_filename(M.stbufnr())
+    local file_path = Utils.get_filepath(M.stbufnr())
     local is_exec = file_path ~= "" and Utils.is_executable(file_path)
     local hl_group = is_exec and "DiagnosticOk" or "Constant"
     return { fg = Utils.hl.get_hl_color(hl_group), gui = "italic,bold" }
@@ -118,9 +114,7 @@ M.lsp = {
         table.insert(client_names, client.name)
       end
     end
-    if #client_names == 0 then
-      return ""
-    end
+    if #client_names == 0 then return "" end
 
     if #client_names > 2 then
       for i, client in ipairs(client_names) do
@@ -143,13 +137,9 @@ M.lsp = {
 ------------------------------------------------------------------------------
 M.formatters = {
   function()
-    if not package.loaded["conform"] then
-      return ""
-    end
+    if not package.loaded["conform"] then return "" end
     local ok, conform = pcall(require, "conform")
-    if not ok then
-      return ""
-    end
+    if not ok then return "" end
     local conform_formatters = conform.list_formatters(0)
     local formatters = {}
     for _, formatter in ipairs(conform_formatters) do
@@ -158,9 +148,7 @@ M.formatters = {
         formatters[#formatters + 1] = ("%s %s"):format(icon, formatter.name)
       end
     end
-    if #formatters == 0 then
-      return ""
-    end
+    if #formatters == 0 then return "" end
     return table.concat(formatters, ", ")
   end,
   color = function()
@@ -188,12 +176,8 @@ function M.root_dir()
   end
   local function display()
     local result = get()
-    if result == "" or result == nil or result == "." then
-      return ""
-    end
-    if result then
-      return icon .. " " .. result
-    end
+    if result == "" or result == nil or result == "." then return "" end
+    if result then return icon .. " " .. result end
     return ""
   end
 
@@ -215,9 +199,7 @@ function M.snacks_lualine()
     local meta = ""
 
     local picker = nil
-    if filetype == "snacks_picker_list" or filetype == "snacks_picker_input" then
-      picker = Snacks.picker.get()[1]
-    end
+    if filetype == "snacks_picker_list" or filetype == "snacks_picker_input" then picker = Snacks.picker.get()[1] end
 
     if filetype == "snacks_picker_list" then
       title = "🍿 Explorer"
