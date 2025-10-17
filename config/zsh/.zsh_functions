@@ -1,0 +1,74 @@
+aliases() {
+    alias | sed 's/=/ => /' | bat --language=bash --style=plain
+}
+
+bak() {
+    cp "$1" "$1.bak"
+}
+
+# find directory and cd into it
+fdir() {
+    local selected_dir
+    selected_dir=$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse)
+    if [ -n "$selected_dir" ]; then
+        cd "$selected_dir" || echo "Failed to change directory to $selected_dir"
+    fi
+}
+
+mkcd() {
+    mkdir -p "$1" && \cd "$1" || echo "Failed"
+}
+
+copypath() {
+    echo -n ${PWD} | clipcopy
+    echo "Copied: ${PWD}"
+}
+
+extract() {
+    if [ -f "$1" ]; then
+        case "$1" in
+        *.tar.bz2) tar xjf "$1" ;;
+        *.tar.gz) tar xzf "$1" ;;
+        *.bz2) bunzip2 "$1" ;;
+        *.rar) unrar x "$1" ;;
+        *.gz) gunzip "$1" ;;
+        *.tar) tar xvf "$1" ;;
+        *.tbz2) tar xjf "$1" ;;
+        *.tgz) tar xzf "$1" ;;
+        *.zip) unzip "$1" ;;
+        *) echo "'$1' cannot be extracted via extract()" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
+}
+
+venv-create() {
+    if [[ $# -eq 0 ]]; then
+        python3 -m venv .venv && source ./.venv/bin/activate
+    else
+        python3 -m venv .venv --prompt="$1" && source ./.venv/bin/activate
+    fi
+}
+
+f() {
+    local dir
+    dir=$(
+        zoxide query --list --score |
+            fzf --height 40% --layout reverse --info inline \
+                --nth 2.. --tac --no-sort --query "$*" \
+                --bind 'enter:become:echo {2..}'
+    ) && cd "$dir" || return
+}
+
+# sudo - press ESC twice to add sudo
+sudo-command-line() {
+    [[ -z $BUFFER ]] && zle up-history
+    if [[ $BUFFER == sudo\ * ]]; then
+        LBUFFER="${LBUFFER#sudo }"
+    else
+        LBUFFER="sudo $LBUFFER"
+    fi
+}
+zle -N sudo-command-line
+bindkey "\e\e" sudo-command-line
