@@ -43,4 +43,4 @@ alias nvimrc='$EDITOR $NVIMRC'
 alias tmuxrc='$EDITOR $TMUXRC'
 alias zshrc='$EDITOR $ZSHRC'
 
-alias ff='find_files'
+alias ff='find_file'
