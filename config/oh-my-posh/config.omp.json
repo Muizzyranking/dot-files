@@ -14,7 +14,7 @@
             "style": "agnoster_full"
           },
           "style": "diamond",
-          "template": "  {{ .Path }} ",
+          "template": "{{ .Path }} ",
           "trailing_diamond": "<#5f9fef></>",
           "type": "path"
         },

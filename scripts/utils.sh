@@ -20,9 +20,9 @@ print_message() {
 
 is_package_installed() {
     local package="$1"
-    if rpm -q "$package" &>/dev/null; then
+    if command -v "$package" &>/dev/null; then
         return 0
-    elif command -v "$package" &>/dev/null; then
+    elif rpm -q "$package" &>/dev/null; then
         return 0
     fi
     return 1

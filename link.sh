@@ -121,7 +121,6 @@ link_zsh_files() {
     link_config "oh-my-posh"
 }
 
-
 # Available config files
 configs=("bat" "git" "hypr" "kitty" "lazygit" "lazyvim" "my_nvim" "nvim" "oh-my-posh" "rofi" "swaync" "tmux" "waybar" "wlogout" "zsh")
 
