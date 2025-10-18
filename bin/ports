@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 while true; do
-    # Get listening ports with process info
     port_info=$(ss -tulpn 2>/dev/null |
         awk 'NR>1 && $5 ~ /:[0-9]+$/ {
             # Extract port number from Local Address:Port
