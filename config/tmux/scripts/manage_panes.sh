@@ -63,9 +63,7 @@ Current: $current_dir"
             --prompt="Select panes 🪟 " \
             --ansi \
             --preview='
-                pane_id=$(echo {} | awk "{print \$(NF-1)}")
-                
-                # Capture pane content with ANSI colors preserved (-e flag)
+                pane_id=$(echo {} | sed "s/.*\(%[0-9]\+\).*/\1/")
                 tmux capture-pane -t "$pane_id" -e -p 2>/dev/null || echo "❌ Cannot capture pane content"
             ' \
             --preview-window=up:60%:wrap \
@@ -79,7 +77,7 @@ Current: $current_dir"
         exit 0
     fi
 
-    selected_ids=$(echo "$selected_panes" | awk '{print $(NF-1)}' | grep -o '%[0-9]*')
+    selected_ids=$(echo "$selected_panes" | awk -F ' \\| ' '{split($5,a," "); print a[1]}')
 
     case "$key" in
     ctrl-s)
@@ -95,7 +93,6 @@ Current: $current_dir"
         fi
         ;;
     ctrl-k)
-        # Kill pane(s)
         pane_count=$(echo "$selected_ids" | wc -w)
         echo "⚠️  WARNING: Kill $pane_count pane(s)?"
         read -p "Type 'yes' to confirm: " confirm
