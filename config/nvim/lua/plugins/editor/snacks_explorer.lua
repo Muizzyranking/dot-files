@@ -33,17 +33,12 @@ return {
           },
           -- add icon to bookmarked files in explorer
           matcher = { sort_empty = false, fuzzy = true },
-          actions = {
-            new_file = Utils.snacks.explorer.actions.new_file,
-            trash = Utils.snacks.explorer.actions.trash,
-          },
+          actions = {},
           win = {
             list = {
               keys = {
                 ["b"] = "bookmark",
-                ["a"] = "new_file",
                 ["<c-c>"] = "",
-                ["T"] = "trash",
                 ["s"] = "edit_vsplit",
                 ["S"] = "edit_split",
               },
