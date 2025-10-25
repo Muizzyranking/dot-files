@@ -1,17 +1,17 @@
 return {
   {
     "neovim/nvim-lspconfig",
-    event = { "BufReadPre", "BufNewFile", "BufWritePre" },
+    event = { "LazyFile" },
     dependencies = { "mason-org/mason.nvim" },
     opts = {},
-    config = function(_, opts)
+    config = vim.schedule_wrap(function(_, opts)
       require("config.lsp").setup(opts)
-    end,
+    end),
   },
   {
     "williamboman/mason.nvim",
     optional = true,
-    oprts = {
+    opts = {
       ensure_installed = {
         "basedpyright",
         "bash-language-server",
