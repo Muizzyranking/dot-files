@@ -26,6 +26,8 @@ end
 function M.autocmd_augroup(name, autocmds, events)
   local group = M.augroup(name)
   for _, opts in ipairs(autocmds) do
+    if opts.merge_events == true then opts.events = vim.tbl_extend("force", {}, events or {}, opts.events or {}) end
+    opts.merge_events = nil
     local autocmd_events = opts.events or events
     opts.events = nil
     if autocmd_events then

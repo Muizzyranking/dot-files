@@ -28,10 +28,10 @@ end
 ---------------------------------------------------------------
 -- copied from lazyvim
 ---Set a keymap safely, checking for lazy key handler conflicts
----@param mode KeymapMode|KeymapMode[] Mode or modes for the mapping
+---@param mode map.KeymapMode|map.KeymapMode[] Mode or modes for the mapping
 ---@param lhs string Left-hand side of the mapping
 ---@param rhs string|function Right-hand side of the mapping
----@param opts? table Additional options for the mapping
+---@param opts? vim.keymap.set.Opts Additional options for the mapping
 ---@return boolean success Whether the mapping was set successfully
 ---------------------------------------------------------------
 function M.safe_keymap_set(mode, lhs, rhs, opts)
@@ -50,7 +50,7 @@ end
 
 ---------------------------------------------------------------
 -- Function to handle conditional mappings based on snippet session
----@param modes table|string
+---@param modes map.KeymapMode|map.KeymapMode[]
 ---@param lhs string
 ---@param rhs string
 ---@param opts table
@@ -71,7 +71,7 @@ end
 ---------------------------------------------------------------
 -- auto indent
 ---@param keys string[]|string
----@param opts? table
+---@param opts? vim.keymap.set.Opts
 ---------------------------------------------------------------
 function M.auto_indent(keys, opts)
   keys = keys and Utils.ensure_list(keys) or Utils.ensure_list({ "i" })
@@ -253,7 +253,7 @@ end
 ---------------------------------------------------------------
 ---Create multiple toggle mappings
 ---@param mappings map.ToggleOpts[]
----@return table[]? # success or mapping tables
+---@return map.KeymapOpts[]? # Returns array of mappings if set_key=false, nil otherwise
 ---------------------------------------------------------------
 function M.toggle_maps(mappings, opts)
   if type(mappings) ~= "table" then return nil end
@@ -279,15 +279,14 @@ local DEFAULT_ABBREV_CONDS = {
 -- create abbreviations
 ---@param word string
 ---@param new_word string
----@param opts table
+---@param opts? map.AbbrevOpts
 -----------------------------------
 function M.create_abbrev(word, new_word, opts)
   if not word or not new_word then return end
   opts = opts or {}
   local mode = opts.mode or "ia"
-  local conds = Utils.ensure_list(opts.conds) or nil
+  local conds = Utils.ensure_list(opts.conds, false) or nil
   opts.conds = nil
-  opts.condition = nil
   opts.mode = nil
   opts = vim.tbl_extend("force", opts or {}, {
     expr = true,
@@ -310,8 +309,8 @@ end
 
 ---------------------------------------------------------------
 ---Create multiple abbreviations with shared options
----@param abbrevs table[] # List of abbreviation pairs {word, new_word} or {word, new_word, opts}
----@param opts? table # Shared options for all abbreviations
+---@param abbrevs map.Abbrevs[]
+---@param opts? map.AbbrevOpts
 ---------------------------------------------------------------
 function M.create_abbrevs(abbrevs, opts)
   if type(abbrevs) ~= "table" then return end
@@ -333,7 +332,7 @@ end
 
 ---------------------------------------------------------------
 ---Add mappings to which-key without setting them
----@param mappings wk.Spec # Which-key mapping definitions
+---@param mappings wk.Spec|wk.Spec[] # Which-key mapping definitions
 ---------------------------------------------------------------
 function M.add_to_wk(mappings)
   if type(mappings) ~= "table" then return end
@@ -346,7 +345,7 @@ end
 
 ---------------------------------------------------------------
 -- Hide mappings in which-key window
----@param mappings wk.Spec # Which-key mapping definitions
+---@param mappings wk.Spec|wk.Spec[] # Which-key mapping definitions
 ---------------------------------------------------------------
 function M.hide_from_wk(mappings)
   if type(mappings) ~= "table" then return end
@@ -373,6 +372,8 @@ function M.reload_config(opts)
   opts = opts or {}
   opts.buffer = Utils.ensure_buf(opts.buffer)
   opts.title = opts.title or "Config"
+  local key = opts.key or "<leader>rr"
+  opts.key = nil
   if opts.cond ~= nil and not opts.cond then return end
   if not opts.cmd then
     Utils.notify.error("No command provided to reload config")
@@ -397,7 +398,7 @@ function M.reload_config(opts)
   end
 
   M.set_keymap({
-    "<leader>rr",
+    key,
     function()
       local cmd = build_cmd()
       local success, output = Utils.run_command(cmd, { trim = true })
@@ -418,7 +419,7 @@ function M.reload_config(opts)
     end,
     desc = "Reload Config",
     silent = true,
-    buffer = opts.buffer,
+    buffer = opts.buffer or true,
     icon = { icon = opts.restart and "󰜉 " or "󰑓 ", color = "orange" },
   })
 end

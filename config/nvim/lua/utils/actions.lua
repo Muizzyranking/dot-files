@@ -10,20 +10,22 @@ local api = vim.api
 -----------------------------------------------------------
 function M.toggle_file_executable(state, filepath, notify)
   filepath = filepath or Utils.get_filepath()
+  if not filepath or filepath == "" then
+    if notify ~= false then Utils.notify.warn("No file to change permissions for", { title = "Options" }) end
+    return false
+  end
   local flag = state and "-x" or "+x"
   local success, output = Utils.run_command({ "chmod", flag, filepath }, { trim = true })
-  local success_message = ("File made %s"):format(state and "unexecutable" or "executable")
-  local error_message = ("Error making file %s"):format(state and "unexecutable" or "executable")
-
-  local level = "info"
-  if success then
-    level = state and "warn" or "info"
-  else
-    level = "warn"
-  end
   if notify ~= false then
-    Utils.notify[level](success and success_message or error_message .. ": " .. output, { title = "Options" })
+    if success then
+      local message = ("File made %s"):format(state and "unexecutable" or "executable")
+      Utils.notify[state and "warn" or "info"](message, { title = "Options" })
+    else
+      local message = ("Error making file %s: %s"):format(state and "unexecutable" or "executable", output)
+      Utils.notify.warn(message, { title = "Options" })
+    end
   end
+  return success
 end
 
 -------------------------------------
@@ -54,11 +56,11 @@ function M.duplicate_selection()
   api.nvim_win_set_cursor(0, { new_cursor_line, 0 })
 end
 
-M.__tmux_executed = false
+local tmux_executed = false
 function M.toggle_tmux(state)
-  if not M.__tmux_executed then
+  if not tmux_executed then
     Utils.autocmd.exec_user_event("TmuxBarToggle")
-    M.__tmux_executed = true
+    tmux_executed = true
   end
 
   local status = state and "off" or "on"

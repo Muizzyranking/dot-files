@@ -190,11 +190,13 @@ end
 -----------------------------------------------------------------
 --- Normalize a value to ensure it’s always a list.
 ---@param value any # Input value
+---@param resolve? boolean # Whether to resolve functions
 ---@return string[]|table # Listified value
 -----------------------------------------------------------------
-function M.ensure_list(value)
+function M.ensure_list(value, resolve)
+  resolve = resolve or false
   if not value then return {} end
-  if M.type(value, "function") then value = value() end
+  if resolve and M.type(value, "function") then value = value() end
 
   return M.type(value, "table") and value or { value }
 end
