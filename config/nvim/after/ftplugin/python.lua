@@ -22,7 +22,7 @@ Utils.map.set_keymaps({
     noremap = true,
     silent = true,
   },
-})
+}, { buffer = buf })
 
 Utils.map.create_abbrevs({
   { "True", { "true", "ture" } },

@@ -15,4 +15,4 @@ Utils.map.set_keymaps({
     mode = "n",
     silent = true,
   },
-})
+}, { buffer = Utils.ensure_buf(0) })

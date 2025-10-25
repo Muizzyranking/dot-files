@@ -1,3 +1,4 @@
+local buf = Utils.ensure_buf(0)
 vim.bo.shiftwidth = 2
 vim.bo.tabstop = 2
 
@@ -5,9 +6,8 @@ Utils.map.create_abbrevs({
   { "function", { "Function" } },
   { "local", { "loc", "Local" } },
   { "require", { "req", "Require" } },
-  { "return", { "ret", "Return" } },
 }, {
-  buffer = true,
+  buffer = buf,
   conds = { "lsp_keyword" },
 })
 
@@ -24,7 +24,7 @@ Utils.map.set_keymaps({
     end,
     desc = "Show help",
     icon = { icon = "󰞋 ", color = "blue" },
-    buffer = true,
+    buffer = buf,
   },
 })
 
