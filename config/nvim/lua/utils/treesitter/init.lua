@@ -133,13 +133,10 @@ M.incr.keymaps = {
   node_decremental = nil,
 }
 
-M.incr.is_attached = false
-
 function M.incr.attach(opts)
-  if M.incr.is_attached then return end
-  M.incr.is_attached = true
   local incr = require("utils.treesitter.incr")
   opts = opts or {}
+  local buffer = opts.buffer or nil
   M.incr.keymaps = vim.tbl_extend("force", {}, opts.keymaps or {})
 
   local function map(mode, action, key_opts)
@@ -147,6 +144,8 @@ function M.incr.attach(opts)
     if lhs == nil or lhs == "" then return end
     local rhs = incr[action]
     if not rhs then return end
+    key_opts = key_opts or {}
+    if buffer then key_opts.buffer = buffer end
     pcall(vim.keymap.set, mode, lhs, function()
       local success, buf, lang = M.incr.ensure_active()
       if success then return rhs(buf, lang) end
@@ -159,12 +158,17 @@ function M.incr.attach(opts)
   map("x", "node_decremental", { desc = "Node decremental" })
 end
 
-function M.incr.detach()
-  if not M.incr.is_attached then return end
-  pcall(vim.keymap.del, "n", M.incr.keymaps.init_selection)
-  pcall(vim.keymap.del, "x", M.incr.keymaps.node_incremental)
-  pcall(vim.keymap.del, "x", M.incr.keymaps.scope_incremental)
-  pcall(vim.keymap.del, "x", M.incr.keymaps.node_decremental)
+function M.incr.detach(buf)
+  local function unmap(mode, key)
+    local opts = buf and { buffer = buf } or {}
+    local lhs = M.incr.keymaps[key]
+    if lhs == nil or lhs == "" then return end
+    pcall(vim.keymap.del, mode, lhs, opts)
+  end
+  unmap("n", "init_selection")
+  unmap("x", "node_incremental")
+  unmap("x", "scope_incremental")
+  unmap("x", "node_decremental")
 end
 
 return M
