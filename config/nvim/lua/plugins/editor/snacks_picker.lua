@@ -236,7 +236,7 @@ return {
       {
         "<leader>fC",
         function()
-          Snacks.picker.resume()
+          Snacks.picker.resume({ exclude = { "explorer", "notifications" } })
         end,
         desc = "Continue from last search",
       },
