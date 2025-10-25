@@ -39,6 +39,37 @@ end
 -- apply the highlights
 -----------------------------------------------
 function M.setup()
+  local breadcrumb_hl = {
+    BreadcrumbsFile = { link = "Directory" },
+    BreadcrumbsModule = { link = "Include" },
+    BreadcrumbsNamespace = { link = "Include" },
+    BreadcrumbsPackage = { link = "Include" },
+    BreadcrumbsClass = { link = "Type" },
+    BreadcrumbsMethod = { link = "Function" },
+    BreadcrumbsProperty = { link = "Identifier" },
+    BreadcrumbsField = { link = "Identifier" },
+    BreadcrumbsConstructor = { link = "Special" },
+    BreadcrumbsEnum = { link = "Type" },
+    BreadcrumbsInterface = { link = "Type" },
+    BreadcrumbsFunction = { link = "Function" },
+    BreadcrumbsVariable = { link = "Identifier" },
+    BreadcrumbsConstant = { link = "Constant" },
+    BreadcrumbsString = { link = "String" },
+    BreadcrumbsNumber = { link = "Number" },
+    BreadcrumbsBoolean = { link = "Boolean" },
+    BreadcrumbsArray = { link = "Type" },
+    BreadcrumbsObject = { link = "Type" },
+    BreadcrumbsKey = { link = "Identifier" },
+    BreadcrumbsNull = { link = "Comment" },
+    BreadcrumbsEnumMember = { link = "Constant" },
+    BreadcrumbsStruct = { link = "Structure" },
+    BreadcrumbsEvent = { link = "Special" },
+    BreadcrumbsOperator = { link = "Operator" },
+    BreadcrumbsTypeParameter = { link = "Type" },
+  }
+
+  M.add_highlights(breadcrumb_hl)
+
   M.add_highlights({
     WInBar = {},
     WinBarNc = {},
