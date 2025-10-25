@@ -86,29 +86,38 @@ function M._check_methods(client, buffer)
     end
   end
 end
+
+-----------------------------------------------------------------
+---@param events string|string[]
+---@param on_attach fun(client:vim.lsp.Client, buffer:number)
+---@param name string
+---@return number
+-----------------------------------------------------------------
+function M.on_event(events, on_attach, name)
+  return vim.api.nvim_create_autocmd(events, {
+    callback = function(args)
+      local buffer = Utils.ensure_buf(args.buf)
+      local client = vim.lsp.get_client_by_id(args.data.client_id)
+      if client and (not name or client.name == name) then return on_attach(client, buffer) end
+    end,
+  })
+end
 ----------------------------------------------------
 -- Create auto command for LSP attach
 ---@param on_attach fun(client:vim.lsp.Client, buffer)
 ---@param name? string
 ----------------------------------------------------
 function M.on_attach(on_attach, name)
-  return vim.api.nvim_create_autocmd("LspAttach", {
-    callback = function(args)
-      local buffer = args.buf ---@type number
-      local client = vim.lsp.get_client_by_id(args.data.client_id)
-      if client and (not name or client.name == name) then return on_attach(client, buffer) end
-    end,
-  })
+  return M.on_event("LspAttach", on_attach, name)
 end
 
-function M.on_detach(on_dettach, name)
-  return vim.api.nvim_create_autocmd("LspDetach", {
-    callback = function(args)
-      local buffer = args.buf ---@type number
-      local client = vim.lsp.get_client_by_id(args.data.client_id)
-      if client and (not name or client.name == name) then return on_dettach(client, buffer) end
-    end,
-  })
+----------------------------------------------------
+-- Create auto command for LSP attach
+---@param on_detach fun(client:vim.lsp.Client, buffer)
+---@param name? string
+----------------------------------------------------
+function M.on_detach(on_detach, name)
+  return M.on_event("LspDetach", on_detach, name)
 end
 
 ----------------------------------------------------
@@ -217,7 +226,7 @@ end
 --- @param severity? string Diagnostic severity level
 --- @return function Diagnostic navigation function
 ----------------------------------------------------
-function M.diagnostic_goto(next, severity)
+function M.goto_diagnostics(next, severity)
   local count = next and 1 or -1
   severity = severity and vim.diagnostic.severity[severity:upper()] or nil
 

@@ -1,8 +1,15 @@
 local M = {}
+---@class lsp.KeymapOpts : map.KeymapOpts
+---@field has? string|string[] # LSP capability required for this keymap
+
+---@type lsp.KeymapOpts[]?
 M._keys = nil
+---@type string[]
 M.lsp_servers = {}
+---@type table<string, lsp.KeymapOpts[]>
 M._server_keys = {}
 
+---@return lsp.KeymapOpts[]
 function M.get()
   if M._keys then return M._keys end
   M._keys = {
@@ -83,32 +90,32 @@ function M.get()
     },
     {
       "]d",
-      Utils.lsp.diagnostic_goto(true),
+      Utils.lsp.goto_diagnostics(true),
       desc = "Next Diagnostic",
     },
     {
       "[d",
-      Utils.lsp.diagnostic_goto(false),
+      Utils.lsp.goto_diagnostics(false),
       desc = "Prev Diagnostic",
     },
     {
       "]e",
-      Utils.lsp.diagnostic_goto(true, "ERROR"),
+      Utils.lsp.goto_diagnostics(true, "ERROR"),
       desc = "Next Error",
     },
     {
       "[e",
-      Utils.lsp.diagnostic_goto(false, "ERROR"),
+      Utils.lsp.goto_diagnostics(false, "ERROR"),
       desc = "Prev Error",
     },
     {
       "]w",
-      Utils.lsp.diagnostic_goto(true, "WARN"),
+      Utils.lsp.goto_diagnostics(true, "WARN"),
       desc = "Next Warning",
     },
     {
       "[w",
-      Utils.lsp.diagnostic_goto(false, "WARN"),
+      Utils.lsp.goto_diagnostics(false, "WARN"),
       desc = "Prev Warning",
     },
     {
@@ -158,47 +165,94 @@ function M.get()
   return M._keys
 end
 
+---@param server_name string
+---@param keys lsp.KeymapOpts[]
 function M.register_keys(server_name, keys)
   M._server_keys[server_name] = keys
 end
 
+---@param server_name string
+---@return lsp.KeymapOpts[]
 function M.get_server_keys(server_name)
   return M._server_keys[server_name] or {}
 end
 
-function M.load_lsp_configs()
-  local path = vim.fn.stdpath("config") .. "/lsp"
+---Check if a file is a Lua file
+---@param file string
+---@return boolean
+local function is_lua_file(file)
+  return file:match("%.lua$") ~= nil
+end
+
+---Extract LSP server name from filename
+---@param file string
+---@return string?
+local function get_server_name(file)
+  return file:match("(.+)%.lua$")
+end
+
+---@param path string # Full path to the file
+---@param name string # Server name
+---@return boolean?
+local function load_lsp_file(path, name)
+  local ok, config = pcall(dofile, path)
+  if ok and config then
+    if config.keys then M.register_keys(name, config.keys) end
+    M.register_keys(name, config.keys)
+    return config.enabled
+  elseif not ok then
+    Utils.notify.warn(string.format("Failed to load LSP config: %s\n%s", name, config), { title = "LSP Config" })
+  end
+  return nil
+end
+
+---@param path string # Directory path
+local function process_lsp_directory(path)
+  if vim.fn.isdirectory(path) == 0 then return end
+
   local lsp_files = vim.fn.readdir(path)
 
   for _, file in ipairs(lsp_files) do
-    if file:match("%.lua$") then
-      local name = file:match("(.+)%.lua$")
-      table.insert(M.lsp_servers, name)
-
-      local ok, config = pcall(dofile, path .. "/" .. file)
-      if ok and config and config.keys then M.register_keys(name, config.keys) end
+    if is_lua_file(file) then
+      local name = get_server_name(file)
+      if name then
+        local enabled = load_lsp_file(path .. "/" .. file, name)
+        if M.lsp_servers[name] == nil then
+          M.lsp_servers[name] = enabled ~= false -- true unless explicitly false
+        end
+      end
     end
   end
 end
 
+function M.load_lsp_configs(dirs)
+  local config_path = vim.fn.stdpath("config")
+  dirs = dirs or { "/lsp", "/after/lsp" }
+  dirs = Utils.ensure_list(dirs, true)
+
+  for _, dir in ipairs(dirs) do
+    process_lsp_directory(config_path .. dir)
+  end
+end
+
+---@type lsp.KeymapOpts[]
 local all_keys = {}
 function M.on_attach(_, buffer)
-  pcall(vim.keymap.del, "n", "gra")
-  pcall(vim.keymap.del, "n", "grn")
-  pcall(vim.keymap.del, "n", "grr")
-  pcall(vim.keymap.del, "n", "gri")
+  buffer = Utils.ensure_buf(buffer)
+  local defaults = { "gra", "grn", "grr", "gri" }
+  for _, key in ipairs(defaults) do
+    pcall(vim.keymap.del, "n", key, { buffer = buffer })
+  end
   local clients = Utils.lsp.get_clients({ bufnr = buffer })
   local keys = vim.tbl_extend("force", {}, M.get())
   for _, client in ipairs(clients) do
-    local maps = M.get_server_keys(client.name)
-    vim.list_extend(keys, maps)
+    vim.list_extend(keys, M.get_server_keys(client.name))
   end
+  all_keys = {}
   for _, key in ipairs(keys) do
     local has = not key.has or Utils.lsp.has(buffer, key.has)
-    local cond = not key.cond or Utils.evaluate(key.cond, true)
-    if has and cond then
+    if has then
       key.has = nil
-      key.cond = nil
       key.buffer = buffer
       key.silent = key.silent ~= false
       all_keys[#all_keys + 1] = key
@@ -230,7 +284,6 @@ function M.setup(opts)
   })
   Utils.format.setup()
   Utils.lsp.on_attach(function(client, buffer)
-    buffer = Utils.ensure_buf(buffer)
     M.on_attach(client, buffer)
   end)
   Utils.lsp.setup()
@@ -252,19 +305,17 @@ function M.setup(opts)
         fileOperations = {
           didRename = true,
           willRename = true,
-          willRenameFiles = true,
-          didRenameFiles = true,
-          willCreateFiles = true,
-          didCreateFiles = true,
-          willDeleteFiles = true,
-          didDeleteFiles = true,
         },
       },
     },
   })
   M.load_lsp_configs()
 
-  vim.lsp.enable(M.lsp_servers, true)
+  local servers_to_enable = {}
+  for server, enabled in pairs(M.lsp_servers) do
+    if enabled then table.insert(servers_to_enable, server) end
+  end
+  if #servers_to_enable > 0 then vim.lsp.enable(servers_to_enable, true) end
 end
 
 return M
