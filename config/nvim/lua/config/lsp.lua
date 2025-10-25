@@ -198,7 +198,6 @@ local function load_lsp_file(path, name)
   local ok, config = pcall(dofile, path)
   if ok and config then
     if config.keys then M.register_keys(name, config.keys) end
-    M.register_keys(name, config.keys)
     return config.enabled
   elseif not ok then
     Utils.notify.warn(string.format("Failed to load LSP config: %s\n%s", name, config), { title = "LSP Config" })
@@ -206,32 +205,55 @@ local function load_lsp_file(path, name)
   return nil
 end
 
+---Process LSP directory using async libuv APIs for better performance
 ---@param path string # Directory path
-local function process_lsp_directory(path)
-  if vim.fn.isdirectory(path) == 0 then return end
+---@param callback function # Callback when done
+local function process_lsp_directory_async(path, callback)
+  if vim.fn.isdirectory(path) == 0 then
+    callback()
+    return
+  end
 
-  local lsp_files = vim.fn.readdir(path)
+  local uv = vim.loop
+  local handle = uv.fs_scandir(path)
 
-  for _, file in ipairs(lsp_files) do
-    if is_lua_file(file) then
-      local name = get_server_name(file)
-      if name then
-        local enabled = load_lsp_file(path .. "/" .. file, name)
-        if M.lsp_servers[name] == nil then
-          M.lsp_servers[name] = enabled ~= false -- true unless explicitly false
+  if not handle then
+    callback()
+    return
+  end
+
+  while true do
+    local name, type = uv.fs_scandir_next(handle)
+    if not name then break end
+
+    if type == "file" and is_lua_file(name) then
+      local server_name = get_server_name(name)
+      if server_name then
+        local enabled = load_lsp_file(path .. "/" .. name, server_name)
+        if M.lsp_servers[server_name] == nil then
+          M.lsp_servers[server_name] = enabled ~= false -- true unless explicitly false
         end
       end
     end
   end
+
+  callback()
 end
 
-function M.load_lsp_configs(dirs)
+---Load LSP configs with async processing
+---@param callback function?
+function M.load_lsp_configs(callback)
   local config_path = vim.fn.stdpath("config")
-  dirs = dirs or { "/lsp", "/after/lsp" }
-  dirs = Utils.ensure_list(dirs, true)
+  local dirs = { "/lsp", "/after/lsp" }
+
+  local pending = #dirs
+  local function on_dir_done()
+    if pending == 0 and callback then callback() end
+  end
 
   for _, dir in ipairs(dirs) do
-    process_lsp_directory(config_path .. dir)
+    pending = pending - 1
+    process_lsp_directory_async(config_path .. dir, on_dir_done)
   end
 end
 
@@ -309,13 +331,24 @@ function M.setup(opts)
       },
     },
   })
-  M.load_lsp_configs()
 
-  local servers_to_enable = {}
-  for server, enabled in pairs(M.lsp_servers) do
-    if enabled then table.insert(servers_to_enable, server) end
-  end
-  if #servers_to_enable > 0 then vim.lsp.enable(servers_to_enable, true) end
+  vim.defer_fn(function()
+    M.load_lsp_configs(function()
+      local servers_to_enable = {}
+      for server, enabled in pairs(M.lsp_servers) do
+        if enabled then table.insert(servers_to_enable, server) end
+      end
+      if #servers_to_enable > 0 then vim.lsp.enable(servers_to_enable, true) end
+    end)
+    require("utils.breadcrumb").setup()
+    vim.schedule(function()
+      for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_loaded(bufnr) and vim.bo[bufnr].buftype == "" then
+          vim.api.nvim_exec_autocmds("FileType", { buffer = bufnr })
+        end
+      end
+    end)
+  end, 0)
 end
 
 return M
