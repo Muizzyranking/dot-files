@@ -4,4 +4,5 @@ Utils.map.create_abbrevs({
   { "local", { "lcaol", "lcoal", "locla" } },
   { "share", { "saher", "sahre" } },
   { "blame", { "balme" } },
+  { "return", { "ret", "Return" } },
 }, {})
