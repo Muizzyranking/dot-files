@@ -47,17 +47,17 @@ end
 --------------------------------------------------------------------------
 function M.create(event, opts)
   opts = opts or {}
-  if not opts.callback and not opts.cmd then
+  if not opts.callback and not opts.command then
     Utils.notify.error("No callback or cmd provided for autocmd")
     return
   end
   event = Utils.ensure_list(event)
-  local cmd = opts.cmd or ""
-  opts.cmd = nil
+  local command = opts.command or ""
+  opts.command = nil
   local auopts = {
     group = opts.group and M.augroup(opts.group),
     callback = opts.callback or function()
-      if cmd then vim.cmd(cmd) end
+      if command then vim.cmd(command) end
     end,
   }
   for key, value in pairs(opts) do

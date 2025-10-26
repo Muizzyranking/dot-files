@@ -122,7 +122,7 @@ M.lsp = {
       end
     end
 
-    local unique_client_names = table.concat(client_names, ", ")
+    local unique_client_names = Utils.ensure_string(client_names)
     local lsp_icon = Utils.icons.ui.ActiveLSP or ""
     return ("%s %s"):format(lsp_icon, unique_client_names)
   end,
@@ -149,7 +149,7 @@ M.formatters = {
       end
     end
     if #formatters == 0 then return "" end
-    return table.concat(formatters, ", ")
+    return Utils.ensure_string(formatters)
   end,
   color = function()
     return { fg = Utils.hl.get_hl_color("Constant"), gui = "italic,bold" }

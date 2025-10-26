@@ -74,7 +74,7 @@
 ---@class autocmd.Create
 ---@field merge_events? boolean # Whether to merge provided events with existing ones
 ---@field callback? fun(event: table) # Callback function for the autocmd
----@field cmd? string # Command to run when the autocmd is triggered
+---@field command? string # Command to run when the autocmd is triggered
 ---@field pattern? string|string[] # Pattern(s) to match for the autocmd
 ---@field group? string|integer # Group name or ID for the autocmd
 ---@field once? boolean # Whether the autocmd should only run once
