@@ -161,7 +161,7 @@ local maps = {
   {
     "<leader>uR",
     function()
-      Utils.ui.refresh(true)
+      Utils.ui.refresh(true, true)
     end,
     desc = "Refresh UI",
     icon = { icon = " ", color = "blue" },

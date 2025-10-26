@@ -186,7 +186,7 @@ autocmd({ "BufWritePre" }, {
 -----------------------------------------------------------
 -- Don't auto comment new line
 -----------------------------------------------------------
-autocmd("BufEnter", { cmd = [[set formatoptions-=cro]] })
+autocmd("BufEnter", { command = [[set formatoptions-=cro]] })
 
 --------------------------------------------------------------
 ----- Turn off line numbering in terminal buffers
