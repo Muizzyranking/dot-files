@@ -55,13 +55,25 @@ return {
       local colors = {
         [""] = Utils.lualine.fg("Special"),
         ["Normal"] = Utils.lualine.fg("Special"),
-        ["Warning"] = Utils.lualine.fg("DiagnosticError"),
+        ["Warning"] = Utils.lualine.fg("DiagnosticWarn"),
         ["InProgress"] = Utils.lualine.fg("DiagnosticWarn"),
+        ["Error"] = Utils.lualine.fg("DiagnosticError"),
+      }
+      local status_icons = {
+        [""] = Utils.icons.kinds.Copilot,
+        ["Normal"] = Utils.icons.kinds.Copilot,
+        ["Warning"] = " ",
+        ["InProgress"] = " ",
+        ["Error"] = " ",
       }
       table.insert(opts.sections.lualine_y, 1, {
         function()
-          local icon = Utils.icons.kinds.Copilot
-          return icon
+          if not package.loaded["copilot"] then return status_icons[""] end
+          local ok, status = pcall(function()
+            return require("copilot.status").data
+          end)
+          if not ok or not status then return status_icons[""] end
+          return status_icons[status.status] or status_icons[""]
         end,
         cond = function()
           if not package.loaded["copilot"] then return end
