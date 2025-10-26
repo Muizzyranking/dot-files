@@ -1,8 +1,5 @@
-local create_newfile = require("config.custom-func").new_file
 -- local del = vim.keymap.del
 local set = vim.keymap.set
-
-set("n", "<leader>fn", create_newfile, { desc = "New file", noremap = true, silent = true })
 
 set("n", "x", '"_x')
 
