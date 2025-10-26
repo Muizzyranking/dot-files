@@ -3,6 +3,11 @@ return {
   event = "VeryLazy",
   opts_extend = { "spec" },
   opts = {
+    icons = {
+      rules = {
+        { pattern = "%f[%a]ai", icon = "  ", color = "blue" },
+      },
+    },
     preset = "classic",
     plugins = {
       marks = true,
@@ -25,7 +30,6 @@ return {
       {
         mode = { "n", "v" },
         { "<leader><tab>", group = "tabs", icon = { icon = "󰭋 ", color = "orange" } },
-        { "<leader>a", group = "avante", icon = { icon = "  ", color = "orange", cat = "avante" } },
         { "<leader>c", group = "code" },
         { "<leader>g", group = "git" },
         { "<leader>gh", group = "hunks" },
