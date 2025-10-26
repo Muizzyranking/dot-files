@@ -8,7 +8,18 @@ local M = setmetatable({}, {
 
 local uv = vim.uv or vim.loop
 -- Default root patterns
-M.root_patterns = { ".git" }
+M.root_patterns = {
+  ".git",
+  "lua",
+  "stylua.toml",
+  "pyproject.toml",
+  "setup.py",
+  "requirements.txt",
+  "pyrightconfig.json",
+  "biome.json",
+  "package.json",
+  "biome.jsonc",
+}
 M.ignore_lsp = { "copilot" }
 
 -- Cache for root directories by buffer

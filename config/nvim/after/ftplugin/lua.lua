@@ -27,5 +27,3 @@ Utils.map.set_keymaps({
     buffer = buf,
   },
 })
-
-Utils.root.add_patterns({ "lua", "stylua.toml" })

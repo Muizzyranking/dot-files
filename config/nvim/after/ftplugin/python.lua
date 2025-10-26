@@ -42,10 +42,6 @@ Utils.word_cycle.add_filetype_cycles("python", {
 
 Utils.root.add_patterns({
   "manage.py",
-  "pyproject.toml",
-  "setup.py",
-  "setup.cfg",
-  "requirements.txt",
   "Pipfile",
   "pyrightconfig.json",
 })
