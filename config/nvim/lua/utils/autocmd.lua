@@ -48,7 +48,7 @@ end
 function M.create(event, opts)
   opts = opts or {}
   if not opts.callback and not opts.command then
-    Utils.notify.error("No callback or cmd provided for autocmd")
+    Utils.notify.error("No callback or cmd provided for autocmd" .. opts.cmd)
     return
   end
   event = Utils.ensure_list(event)
