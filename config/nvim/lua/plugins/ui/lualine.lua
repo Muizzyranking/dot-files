@@ -13,6 +13,8 @@ return {
     local lualine_require = require("lualine_require")
     lualine_require.require = require
 
+    local lualine_utils = Utils.plugins.lualine
+
     vim.o.laststatus = vim.g.lualine_laststatus
     return {
       options = {
@@ -35,17 +37,17 @@ return {
         always_divide_middle = false,
       },
       sections = {
-        lualine_a = { Utils.lualine.mode },
+        lualine_a = { Utils.plugins.lualine.mode },
         lualine_b = {
           {
             "branch",
             color = { gui = "italic" },
           },
-          Utils.lualine.root_dir(),
-          Utils.lualine.file,
+          lualine_utils.root_dir(),
+          lualine_utils.file,
         },
         lualine_c = {
-          Utils.lualine.diff,
+          lualine_utils.diff,
           {
             "diagnostics",
             symbols = {
@@ -82,7 +84,7 @@ return {
             cond = function()
               return package.loaded["noice"] and require("noice").api.status.command.has()
             end,
-            color = Utils.lualine.fg("Statement"),
+            color = lualine_utils.fg("Statement"),
           },
           {
             function()
@@ -91,12 +93,12 @@ return {
             cond = function()
               return package.loaded["noice"] and require("noice").api.status.mode.has()
             end,
-            color = Utils.lualine.fg("Constant"),
+            color = lualine_utils.fg("Constant"),
           },
         },
         lualine_y = {
-          Utils.lualine.formatters,
-          Utils.lualine.lsp,
+          lualine_utils.formatters,
+          lualine_utils.lsp,
         },
         lualine_z = {
           {
@@ -146,7 +148,7 @@ return {
           },
           filetypes = { "lazygit" },
         },
-        Utils.lualine.snacks_lualine(),
+        lualine_utils.snacks_lualine(),
       },
     }
   end,

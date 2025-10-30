@@ -1,4 +1,4 @@
----@class utils.lualine
+---@class utils.plugin.lualine
 local M = {}
 local window_width_limit = 100
 
@@ -132,24 +132,36 @@ M.lsp = {
   end,
 }
 
+function M.formatters_conform()
+  if not package.loaded["conform"] then return "" end
+  local ok, conform = pcall(require, "conform")
+  if not ok then return "" end
+  local conform_formatters = conform.list_formatters(Utils.ensure_buf(0))
+  local formatters = {}
+  for _, formatter in ipairs(conform_formatters) do
+    if formatter.available then
+      local icon = M.get_formatter_icon(formatter.name)
+      formatters[#formatters + 1] = ("%s %s"):format(icon, formatter.name)
+    end
+  end
+  return Utils.ensure_string(formatters)
+end
 ------------------------------------------------------------------------------
 -- Defines the formatters component for the statusline
 ------------------------------------------------------------------------------
 M.formatters = {
   function()
-    if not package.loaded["conform"] then return "" end
-    local ok, conform = pcall(require, "conform")
-    if not ok then return "" end
-    local conform_formatters = conform.list_formatters(0)
-    local formatters = {}
-    for _, formatter in ipairs(conform_formatters) do
-      if formatter.available then
-        local icon = M.get_formatter_icon(formatter.name)
-        formatters[#formatters + 1] = ("%s %s"):format(icon, formatter.name)
-      end
-    end
-    if #formatters == 0 then return "" end
-    return Utils.ensure_string(formatters)
+    local buf = Utils.ensure_buf()
+    ---@type utils.FormatterConfig
+    local formatter = vim.b[buf].formatter
+    local formatter_name = formatter and formatter.name or nil
+    if not formatter_name then return "" end
+
+    if formatter_name == "conform" then return M.formatters_conform() end
+
+    return Utils.ensure_string(formatter_name and {
+      ("%s %s"):format(M.get_formatter_icon(formatter_name), formatter_name),
+    } or {})
   end,
   color = function()
     return { fg = Utils.hl.get_hl_color("Constant"), gui = "italic,bold" }

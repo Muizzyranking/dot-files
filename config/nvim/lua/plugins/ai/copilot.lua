@@ -52,12 +52,13 @@ return {
     "nvim-lualine/lualine.nvim",
     optional = true,
     opts = function(_, opts)
+      local lualine_utils = Utils.plugins.lualine
       local colors = {
-        [""] = Utils.lualine.fg("Special"),
-        ["Normal"] = Utils.lualine.fg("Special"),
-        ["Warning"] = Utils.lualine.fg("DiagnosticWarn"),
-        ["InProgress"] = Utils.lualine.fg("DiagnosticWarn"),
-        ["Error"] = Utils.lualine.fg("DiagnosticError"),
+        [""] = lualine_utils.fg("Special"),
+        ["Normal"] = lualine_utils.fg("Special"),
+        ["Warning"] = lualine_utils.fg("DiagnosticError"),
+        ["InProgress"] = lualine_utils.fg("DiagnosticWarn"),
+        ["Error"] = lualine_utils.fg("DiagnosticError"),
       }
       local status_icons = {
         [""] = Utils.icons.kinds.Copilot,

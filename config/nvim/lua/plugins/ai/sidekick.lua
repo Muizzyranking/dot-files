@@ -164,7 +164,7 @@ return {
           return #require("sidekick.status").cli() > 0
         end,
         color = function()
-          return { fg = Utils.lualine.fg("Special") }
+          return { fg = Utils.plugins.lualine.fg("Special") }
         end,
       })
     end,
