@@ -1,4 +1,4 @@
----@class utils.python
+---@class utils.lang.python
 local M = {}
 
 --[[

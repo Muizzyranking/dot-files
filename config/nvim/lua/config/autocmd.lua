@@ -128,7 +128,7 @@ autocmd.autocmd_augroup("Filetype autocmds", {
       Utils.map.set_keymaps({
         {
           "t",
-          Utils.js_ts.auto_add_async,
+          Utils.lang.js_ts.auto_add_async,
           mode = "i",
           desc = "Auto add async",
           buffer = event.buf,

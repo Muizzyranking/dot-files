@@ -9,7 +9,7 @@ return {
     },
   },
   on_new_config = function(config, root_dir)
-    local venv = Utils.python.detect_and_activate_venv(root_dir)
+    local venv = Utils.lang.python.detect_and_activate_venv(root_dir)
     if venv then
       config.settings = config.settings or {}
       config.settings.python = config.settings.python or {}
@@ -22,7 +22,7 @@ return {
       and client.config.settings.python.pythonPath
 
     local root = Utils.root(bufnr)
-    local venv = Utils.python.detect_and_activate_venv(root)
+    local venv = Utils.lang.python.detect_and_activate_venv(root)
     local new_python = venv and venv.python_path
 
     if new_python and new_python ~= current_python then
@@ -47,7 +47,6 @@ return {
         vim.cmd("stopinsert")
         vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
       end,
-      buffer = bufnr,
     })
   end,
   keys = {

@@ -1,4 +1,4 @@
----@class utils.js_ts
+---@class utils.lang.js_ts
 local M = {}
 
 function M.auto_add_async()

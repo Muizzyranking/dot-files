@@ -16,7 +16,7 @@ Utils.map.set_keymaps({
   },
   {
     "{",
-    Utils.python.handle_brace,
+    Utils.lang.python.handle_brace,
     mode = "i",
     desc = "Insert f-string brace",
     noremap = true,
