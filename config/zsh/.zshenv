@@ -2,7 +2,8 @@
 export PATH=~/.local/bin:$PATH
 export PATH=/snap/bin:$PATH
 
-export EDITOR=nv
+export EDITOR=nvim
+export SUDO_EDITOR=$EDITOR
 
 dotfile_dir=~/dot-files
 # config_dir=${XDG_CONFIG_HOME:-$HOME/.config}
