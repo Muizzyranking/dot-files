@@ -1,6 +1,7 @@
 ---@class utils.hl
 local M = {}
 M._highlights = {}
+local did_setup = false
 
 ------------------------------------------------------------------------------
 -- Get the color of a highlight group
@@ -26,6 +27,7 @@ function M.add_highlights(highlights)
     opts.name = nil
     M._highlights[hl_name] = vim.tbl_extend("force", M._highlights[hl_name] or {}, opts)
   end
+  if did_setup then Utils.autocmd.exec_user_event("HighlightSet") end
 end
 
 function M.set_hl(hl)
@@ -39,37 +41,6 @@ end
 -- apply the highlights
 -----------------------------------------------
 function M.setup()
-  local breadcrumb_hl = {
-    BreadcrumbsFile = { link = "Directory" },
-    BreadcrumbsModule = { link = "Include" },
-    BreadcrumbsNamespace = { link = "Include" },
-    BreadcrumbsPackage = { link = "Include" },
-    BreadcrumbsClass = { link = "Type" },
-    BreadcrumbsMethod = { link = "Function" },
-    BreadcrumbsProperty = { link = "Identifier" },
-    BreadcrumbsField = { link = "Identifier" },
-    BreadcrumbsConstructor = { link = "Special" },
-    BreadcrumbsEnum = { link = "Type" },
-    BreadcrumbsInterface = { link = "Type" },
-    BreadcrumbsFunction = { link = "Function" },
-    BreadcrumbsVariable = { link = "Identifier" },
-    BreadcrumbsConstant = { link = "Constant" },
-    BreadcrumbsString = { link = "String" },
-    BreadcrumbsNumber = { link = "Number" },
-    BreadcrumbsBoolean = { link = "Boolean" },
-    BreadcrumbsArray = { link = "Type" },
-    BreadcrumbsObject = { link = "Type" },
-    BreadcrumbsKey = { link = "Identifier" },
-    BreadcrumbsNull = { link = "Comment" },
-    BreadcrumbsEnumMember = { link = "Constant" },
-    BreadcrumbsStruct = { link = "Structure" },
-    BreadcrumbsEvent = { link = "Special" },
-    BreadcrumbsOperator = { link = "Operator" },
-    BreadcrumbsTypeParameter = { link = "Type" },
-  }
-
-  M.add_highlights(breadcrumb_hl)
-
   M.add_highlights({
     WInBar = {},
     WinBarNc = {},
@@ -77,21 +48,28 @@ function M.setup()
 
   Utils.autocmd.autocmd_augroup("custom_hl", {
     {
-      group = "custom_hl",
       callback = function()
         M.set_hl()
       end,
       events = { "ColorScheme", "UiEnter" },
     },
     {
-      group = "custom_hl",
       callback = function()
         M.set_hl()
       end,
       events = { "User" },
       pattern = "VeryLazy",
     },
+    {
+      callback = function()
+        M.set_hl()
+      end,
+      events = { "User" },
+      pattern = "HighlightSet",
+    },
   })
+
+  did_setup = true
 end
 
 return M
