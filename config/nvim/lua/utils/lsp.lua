@@ -131,6 +131,37 @@ function M.get_clients(opts)
   return opts and opts.filter and vim.tbl_filter(opts.filter, ret) or ret
 end
 
+function M.format(opts)
+  opts = opts or {}
+  local ok, conform = pcall(require, "conform")
+  if ok then
+    conform.format(opts)
+  else
+    vim.lsp.buf.format(opts)
+  end
+end
+
+---@param config {name: string, priority?: number, filetypes?: string[]}
+---@return utils.FormatterConfig
+function M.formatter(config)
+  return {
+    name = config.name,
+    priority = config.priority or 1,
+    filetypes = config.filetypes,
+    check = function(buf)
+      local clients = M.get_clients({ bufnr = buf, name = config.name })
+      print("Checking " .. config.name .. " for buffer " .. buf)
+      print("Clients found: " .. #clients)
+      if #clients == 0 then return false end
+      local client = clients[1]
+      return client:supports_method("textDocument/formatting") or client:supports_method("textDocument/rangeFormatting")
+    end,
+    format = function(opts)
+      M.format(vim.tbl_extend("force", opts or {}, { name = config.name }))
+    end,
+  }
+end
+
 ----------------------------------------------------
 -- Execute LSP command
 ---@param opts LspCommand Options for the LSP command
