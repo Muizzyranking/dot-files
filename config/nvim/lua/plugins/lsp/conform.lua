@@ -5,6 +5,19 @@ return {
     cmd = { "ConformInfo" },
     init = function()
       vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+      Utils.format.register({
+        name = "conform",
+        priority = 10,
+        check = function(buf)
+          local ok, conform = pcall(require, "conform")
+          if not ok then return false end
+          local formatters = conform.list_formatters(buf)
+          return #formatters > 0
+        end,
+        format = function(opts)
+          require("conform").format(vim.tbl_extend("force", opts or {}, { timeout_ms = 3000 }))
+        end,
+      })
     end,
     keys = {
       {
