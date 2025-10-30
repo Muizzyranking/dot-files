@@ -8,12 +8,11 @@
 ---@field format utils.format
 ---@field hl utils.hl
 ---@field icons utils.icons
----@field js_ts utils.js_ts
+---@field lang utils.lang
 ---@field lsp utils.lsp
----@field lualine utils.lualine
 ---@field map utils.map
 ---@field notify utils.notify
----@field python utils.python
+---@field plugins utils.plugins
 ---@field root utils.root
 ---@field smart_nav utils.smart_nav
 ---@field snacks utils.snacks
