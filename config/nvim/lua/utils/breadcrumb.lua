@@ -157,9 +157,6 @@ local function get_treesitter_symbols()
 
   if not Utils.treesitter.is_active(bufnr) then return nil end
 
-  local cursor = vim.api.nvim_win_get_cursor(0)
-
-  -- Use Utils.treesitter.get_node if available
   local node = Utils.treesitter.get_node({ bufnr = bufnr })
 
   if not node then return nil end
@@ -270,6 +267,35 @@ end
 
 function M.setup(opts)
   M.config = vim.tbl_deep_extend("force", M.config, opts or {})
+  local breadcrumb_hl = {
+    BreadcrumbsFile = { link = "Directory" },
+    BreadcrumbsModule = { link = "Include" },
+    BreadcrumbsNamespace = { link = "Include" },
+    BreadcrumbsPackage = { link = "Include" },
+    BreadcrumbsClass = { link = "Type" },
+    BreadcrumbsMethod = { link = "Function" },
+    BreadcrumbsProperty = { link = "Identifier" },
+    BreadcrumbsField = { link = "Identifier" },
+    BreadcrumbsConstructor = { link = "Special" },
+    BreadcrumbsEnum = { link = "Type" },
+    BreadcrumbsInterface = { link = "Type" },
+    BreadcrumbsFunction = { link = "Function" },
+    BreadcrumbsVariable = { link = "Identifier" },
+    BreadcrumbsConstant = { link = "Constant" },
+    BreadcrumbsString = { link = "String" },
+    BreadcrumbsNumber = { link = "Number" },
+    BreadcrumbsBoolean = { link = "Boolean" },
+    BreadcrumbsArray = { link = "Type" },
+    BreadcrumbsObject = { link = "Type" },
+    BreadcrumbsKey = { link = "Identifier" },
+    BreadcrumbsNull = { link = "Comment" },
+    BreadcrumbsEnumMember = { link = "Constant" },
+    BreadcrumbsStruct = { link = "Structure" },
+    BreadcrumbsEvent = { link = "Special" },
+    BreadcrumbsOperator = { link = "Operator" },
+    BreadcrumbsTypeParameter = { link = "Type" },
+  }
+  Utils.hl.add_highlights(breadcrumb_hl)
   Utils.autocmd.autocmd_augroup("breadcrumbs", {
     {
       events = { "CursorMoved" },
