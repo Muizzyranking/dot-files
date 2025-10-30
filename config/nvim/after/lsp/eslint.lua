@@ -3,6 +3,12 @@ return {
     workingDirectories = { mode = "auto" },
   },
   on_attach = function(_, bufnr)
+    local formatter = Utils.lsp.formatter({
+      name = "eslint",
+      priority = 100,
+      filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact", "vue", "svelte" },
+    })
+    Utils.format.register(formatter)
     vim.api.nvim_create_autocmd("BufWritePre", {
       buffer = bufnr,
       callback = function()
