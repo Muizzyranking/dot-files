@@ -1,5 +1,13 @@
 ---@class utils.lsp
+---@field breadcrumb utils.lsp.breadcrumb
 local M = {}
+
+setmetatable(M, {
+  __index = function(t, k)
+    t[k] = require("utils.lsp." .. k)
+    return t[k]
+  end,
+})
 
 --- Table to track supported methods for LSP clients
 M._supports_method = {}
@@ -13,6 +21,7 @@ local notify = Utils.notify.create({ title = "LSP" })
 ----------------------------------------------------
 function M.setup()
   local register_capability = vim.lsp.handlers["client/registerCapability"]
+  ---@diagnostic disable-next-line: duplicate-set-field
   vim.lsp.handlers["client/registerCapability"] = function(err, res, ctx)
     ---@diagnostic disable-next-line: no-unknown
     local ret = register_capability(err, res, ctx)
@@ -129,37 +138,6 @@ function M.get_clients(opts)
   local ret = {} ---@type lsp.Client[]
   if vim.lsp.get_clients then ret = vim.lsp.get_clients(opts) end
   return opts and opts.filter and vim.tbl_filter(opts.filter, ret) or ret
-end
-
-function M.format(opts)
-  opts = opts or {}
-  local ok, conform = pcall(require, "conform")
-  if ok then
-    conform.format(opts)
-  else
-    vim.lsp.buf.format(opts)
-  end
-end
-
----@param config {name: string, priority?: number, filetypes?: string[]}
----@return utils.FormatterConfig
-function M.formatter(config)
-  return {
-    name = config.name,
-    priority = config.priority or 1,
-    filetypes = config.filetypes,
-    check = function(buf)
-      local clients = M.get_clients({ bufnr = buf, name = config.name })
-      print("Checking " .. config.name .. " for buffer " .. buf)
-      print("Clients found: " .. #clients)
-      if #clients == 0 then return false end
-      local client = clients[1]
-      return client:supports_method("textDocument/formatting") or client:supports_method("textDocument/rangeFormatting")
-    end,
-    format = function(opts)
-      M.format(vim.tbl_extend("force", opts or {}, { name = config.name }))
-    end,
-  }
 end
 
 ----------------------------------------------------
@@ -423,7 +401,12 @@ function M.goto_definition(opts)
       vim.cmd("normal! m'")
 
       if direction then
-        Utils.open_in_split(direction, filename, lnum, col - 1) -- col is 1-indexed, adjust if needed
+        local cmd = vim.tbl_contains({ "vsplit", "split" }, direction) and direction or "vsplit"
+        vim.cmd(cmd .. " " .. vim.fn.fnameescape(filename))
+        if lnum then
+          col = (col - 1) or 0
+          vim.cmd(string.format("normal! %dG%d|", lnum, col + 1))
+        end
       elseif reuse_win then
         local current_buf = vim.api.nvim_get_current_buf()
         local current_filename = vim.api.nvim_buf_get_name(current_buf)

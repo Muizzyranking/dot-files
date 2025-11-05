@@ -1,25 +1,27 @@
+---@class utils.lsp.breadcrumb
 local M = {}
 
 M.config = {
   separator = " > ",
-  max_depth = nil, -- Maximum depth of breadcrumbs (nil = unlimited)
-  use_treesitter = true, -- Set to false to disable treesitter fallback
-  debounce_ms = 100, -- Debounce delay for cursor movement
-  padding = {
-    left = 1,
-    right = 1,
-  },
+  max_depth = nil,
+  debounce_ms = 100,
+  padding = { left = 1, right = 1 },
 }
 
 -- Cache
 local cache = {
   bufnr = nil,
   row = nil,
+  col = nil,
+  changedtick = nil,
   symbols = nil,
 }
 
 -- Debounce timer
 local debounce_timer = nil
+
+-- Request state
+local requesting = false
 
 -- LSP symbol kinds to highlight group mapping for icons
 local symbol_hl = {
@@ -69,29 +71,107 @@ local function get_icon(kind_name, kind_num)
   return icon, hl
 end
 
-local function find_symbols_at_position(symbols, row, path)
+--- Checks if a cursor position (line, char) is inside an LSP range.
+--- LSP ranges are inclusive at start, exclusive at end.
+---@param range any LSP Range object
+---@param line number Zero-indexed line number
+---@param char number Zero-indexed character number
+---@return boolean
+local function range_contains_pos(range, line, char)
+  local start = range.start
+  local stop = range["end"]
+
+  if line < start.line or line > stop.line then return false end
+  if line == start.line and char < start.character then return false end
+  if line == stop.line and char >= stop.character then return false end
+  return true
+end
+
+--- Calculate the size of a range for sorting by specificity
+---@param range any LSP Range object
+---@return number
+local function range_size(range)
+  local start = range.start
+  local stop = range["end"]
+  return (stop.line - start.line) * 10000 + (stop.character - start.character)
+end
+
+--- Check if cursor is in symbol, prioritizing selectionRange over range
+---@param symbol any LSP symbol
+---@param row number Zero-indexed line
+---@param col number Zero-indexed column
+---@return boolean in_range
+---@return number priority (2 = in selectionRange, 1 = in range, 0 = not in symbol)
+local function check_symbol_position(symbol, row, col)
+  -- Prefer selectionRange (just the identifier) over range (entire declaration)
+  if symbol.selectionRange and range_contains_pos(symbol.selectionRange, row, col) then return true, 2 end
+
+  local range = symbol.range or (symbol.location and symbol.location.range)
+  if range and range_contains_pos(range, row, col) then return true, 1 end
+
+  return false, 0
+end
+
+--- Find the deepest/most specific symbol path at cursor position
+---@param symbols any[] List of LSP symbols
+---@param row number Zero-indexed line
+---@param col number Zero-indexed column
+---@param path table[] Current path of symbols
+---@return table[] Path to deepest symbol
+local function find_symbols_at_position(symbols, row, col, path)
   path = path or {}
+  local best_path = path
+  local best_priority = 0
+
+  -- Filter and sort symbols by specificity (smaller ranges first)
+  local candidates = {}
   for _, symbol in ipairs(symbols) do
-    local range = symbol.range or symbol.location.range
-    local start_line = range.start.line
-    local end_line = range["end"].line
-
-    if start_line <= row and row <= end_line then
-      local new_path = vim.list_extend({}, path)
-      table.insert(new_path, {
-        name = symbol.name,
-        kind = symbol.kind,
+    local in_range, priority = check_symbol_position(symbol, row, col)
+    if in_range then
+      table.insert(candidates, {
+        symbol = symbol,
+        priority = priority,
+        size = range_size(symbol.range or symbol.location.range),
       })
-
-      if symbol.children then
-        local child_path = find_symbols_at_position(symbol.children, row, new_path)
-        if child_path then return child_path end
-      end
-
-      return new_path
     end
   end
-  return path
+
+  table.sort(candidates, function(a, b)
+    if a.priority ~= b.priority then return a.priority > b.priority end
+    return a.size < b.size
+  end)
+
+  for _, candidate in ipairs(candidates) do
+    local symbol = candidate.symbol
+    local new_path = vim.list_extend({}, path)
+    table.insert(new_path, {
+      name = symbol.name,
+      kind = symbol.kind,
+    })
+
+    local current_priority = candidate.priority
+
+    if symbol.children and #symbol.children > 0 then
+      local child_path = find_symbols_at_position(symbol.children, row, col, new_path)
+      if #child_path > #best_path then
+        best_path = child_path
+        best_priority = current_priority
+      elseif #child_path == #best_path and current_priority > best_priority then
+        best_path = child_path
+        best_priority = current_priority
+      end
+    else
+      if #new_path > #best_path then
+        best_path = new_path
+        best_priority = current_priority
+      elseif #new_path == #best_path and current_priority > best_priority then
+        best_path = new_path
+        best_priority = current_priority
+      end
+    end
+  end
+
+  return best_path
 end
 
 local function is_valid_buffer(bufnr)
@@ -111,10 +191,12 @@ local function is_valid_buffer(bufnr)
   return true
 end
 
+---@param bufnr number Buffer number
 local function has_document_symbol_support(bufnr)
   return Utils.lsp.has(bufnr, "documentSymbol")
 end
 
+---@param callback function Callback to execute with symbols
 local function get_lsp_symbols(callback)
   local bufnr = Utils.ensure_buf(0)
   if not has_document_symbol_support(bufnr) then
@@ -124,62 +206,50 @@ local function get_lsp_symbols(callback)
 
   local cursor = vim.api.nvim_win_get_cursor(0)
   local row = cursor[1] - 1
+  local col = cursor[2]
+  local changedtick = vim.api.nvim_buf_get_changedtick(bufnr)
 
-  if cache.bufnr == bufnr and cache.row == row and cache.symbols then
+  if
+    cache.bufnr == bufnr
+    and cache.row == row
+    and cache.col == col
+    and cache.changedtick == changedtick
+    and cache.symbols ~= nil
+  then
     callback(cache.symbols)
     return
   end
 
+  if requesting then
+    if cache.symbols then
+      callback(cache.symbols)
+    else
+      callback(nil)
+    end
+    return
+  end
+
+  requesting = true
   local params = {
     textDocument = vim.lsp.util.make_text_document_params(bufnr),
   }
 
-  vim.lsp.buf_request(bufnr, "textDocument/documentSymbol", params, function(err, result, _, _)
-    if err or not result or #result == 0 then
-      callback(nil)
-      return
-    end
+  local cb = callback
 
-    local symbols = find_symbols_at_position(result, row)
+  vim.lsp.buf_request(bufnr, "textDocument/documentSymbol", params, function(err, result, _, _)
+    requesting = false
+
+    local symbols = nil
+    if not err and result and #result > 0 then symbols = find_symbols_at_position(result, row, col) end
 
     cache.bufnr = bufnr
     cache.row = row
+    cache.col = col
+    cache.changedtick = changedtick
     cache.symbols = symbols
 
-    callback(symbols)
+    if cb then cb(symbols) end
   end)
-end
-
-local function get_treesitter_symbols()
-  if not M.config.use_treesitter then return nil end
-
-  local bufnr = vim.api.nvim_get_current_buf()
-
-  if not Utils.treesitter.is_active(bufnr) then return nil end
-
-  local node = Utils.treesitter.get_node({ bufnr = bufnr })
-
-  if not node then return nil end
-
-  local symbols = {}
-  while node do
-    local type = node:type()
-    if type:match("function") or type:match("method") or type:match("class") then
-      local name_node = node:field("name")[1]
-      if name_node then
-        local ok_text, name = pcall(vim.treesitter.get_node_text, name_node, bufnr)
-        if ok_text and name then
-          table.insert(symbols, 1, {
-            name = name,
-            kind = type:match("class") and 5 or 6,
-          })
-        end
-      end
-    end
-    node = node:parent()
-  end
-
-  return #symbols > 0 and symbols or nil
 end
 
 local function build_breadcrumb(symbols)
@@ -251,8 +321,8 @@ end
 -- Update winbar
 function M.update()
   if not is_valid_buffer() then return end
+
   get_lsp_symbols(function(symbols)
-    if not symbols then symbols = get_treesitter_symbols() end
     render_breadcrumb(symbols)
   end)
 end
@@ -267,6 +337,7 @@ end
 
 function M.setup(opts)
   M.config = vim.tbl_deep_extend("force", M.config, opts or {})
+
   local breadcrumb_hl = {
     BreadcrumbsFile = { link = "Directory" },
     BreadcrumbsModule = { link = "Include" },
@@ -295,7 +366,9 @@ function M.setup(opts)
     BreadcrumbsOperator = { link = "Operator" },
     BreadcrumbsTypeParameter = { link = "Type" },
   }
+
   Utils.hl.add_highlights(breadcrumb_hl)
+
   Utils.autocmd.autocmd_augroup("breadcrumbs", {
     {
       events = { "CursorMoved" },
@@ -309,7 +382,7 @@ function M.setup(opts)
       callback = function(event)
         local bufnr = event.buf
         if not is_valid_buffer(bufnr) then return end
-        cache = { bufnr = nil, row = nil, symbols = nil }
+        cache = { bufnr = nil, row = nil, col = nil, changedtick = nil, symbols = nil }
         M.update()
       end,
     },
