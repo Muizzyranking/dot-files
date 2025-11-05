@@ -1,5 +1,6 @@
 ---@class utils.plugins
 ---@field lualine utils.plugin.lualine
+---@field sidekick utils.plugins.sidekick
 local M = {}
 
 setmetatable(M, {

@@ -1,30 +1,3 @@
-local notify = Utils.notify.create({ title = "Sidekick" })
-
-local function kill_session(state)
-  if not state or not state.session then
-    notify.warn("No session to kill", vim.log.levels.WARN)
-    return
-  end
-
-  local tool_name = state.tool.name
-  require("sidekick.cli").close()
-
-  if state.session.mux_session then
-    Utils.run_command("tmux kill-session -t " .. vim.fn.shellescape(state.session.mux_session), {
-      callback = function(_, success)
-        if success then
-          notify("Killed " .. tool_name .. " session")
-        else
-          notify.error("Failed to kill " .. tool_name .. " session")
-        end
-      end,
-    })
-  else
-    require("sidekick.cli.state").detach(state)
-    notify("Closed " .. tool_name .. " session")
-  end
-end
-
 return {
   {
     "folke/sidekick.nvim",
@@ -35,34 +8,16 @@ return {
         win = {
           keys = {
             insertstop = { "<esc>", "stopinsert", mode = "t", desc = "enter normal mode" },
-            del_word = {
-              "<c-h>",
-              function()
-                vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-w>", true, false, true), "i", false)
-              end,
-              mode = { "t", "i" },
-              desc = "delete word",
-            },
-            c_enter = {
-              "<c-enter>",
-              function()
-                vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-j>", true, false, true), "i", false)
-              end,
-              mode = { "t", "i" },
-              desc = "new line",
-            },
+            del_word = { "<c-h>", "<c-w>", mode = { "t", "i" }, desc = "delete word" },
+            c_bs = { "<c-bs>", "<c-w>", mode = { "t", "i" }, desc = "delete word" },
+            c_enter = { "<c-enter>", "<c-j>", mode = { "t", "i" }, desc = "new line" },
           },
           nav = function(dir)
-            -- \x17 is the hex code for Ctrl-W
-            -- i override default <c-w>hjkl behavior to enable smart navigation
             -- see lua/utils/smart_nav.lua
-            vim.cmd("normal! \x17" .. dir)
+            Utils.smart_nav.smart_navigate(dir)
           end,
         },
-        mux = {
-          backend = "tmux",
-          enabled = true,
-        },
+        mux = { backend = "tmux", enabled = true },
       },
     },
     keys = {
@@ -70,7 +25,7 @@ return {
       {
         "<c-_>",
         function()
-          require("sidekick.cli").toggle({ name = "gemini", focus = true })
+          require("sidekick.cli").toggle({ name = "opencode", focus = true })
         end,
         desc = "Sidekick Toggle",
         mode = { "n", "t", "i", "x" },
@@ -84,31 +39,7 @@ return {
       },
       {
         "<leader>ak",
-        function()
-          local attached = require("sidekick.cli.state").get({ attached = true })
-
-          if #attached == 0 then
-            notify.warn("No active CLI session")
-            return
-          end
-
-          if #attached > 1 then
-            local choices = {}
-            for _, state in ipairs(attached) do
-              table.insert(choices, state.tool.name)
-            end
-
-            vim.ui.select(choices, {
-              prompt = "Select session to kill:",
-            }, function(choice, idx)
-              if not choice then return end
-              local state = attached[idx]
-              kill_session(state)
-            end)
-          else
-            kill_session(attached[1])
-          end
-        end,
+        Utils.plugins.sidekick.kill_attached_session,
         desc = "Kill CLI Session",
       },
       {
