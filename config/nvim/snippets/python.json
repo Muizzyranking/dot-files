@@ -25,6 +25,16 @@
     ],
     "description": "Creates a Django REST Framework API view function"
   },
+  "Try Except": {
+    "prefix": "try",
+    "body": [
+      "try:",
+      "    pass",
+      "except Exception:",
+      "    pass"
+    ],
+    "description": "Creates a try-except block"
+  },
   "Docstring": {
     "prefix": "doc",
     "body": [
