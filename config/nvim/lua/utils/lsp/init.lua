@@ -291,27 +291,6 @@ function M.copy_diagnostics()
   )
 end
 
-------------------------------------------------
--- notify LSP about a new file creation
----@param path string Path to the new file
------------------------------------------------
-function M.new_file(path)
-  local clients = M.get_clients()
-  for _, client in ipairs(clients) do
-    if
-      client.server_capabilities.workspace
-      and client.server_capabilities.workspace.fileOperations
-      and client.server_capabilities.workspace.fileOperations.didCreate
-    then
-      client.notify("workspace/didCreateFiles", {
-        files = {
-          { uri = vim.uri_from_fname(path) },
-        },
-      })
-    end
-  end
-end
-
 ---@param name string
 ---@return boolean
 function M.server_is_valid(name)
@@ -427,6 +406,9 @@ function M.goto_definition(opts)
         vim.cmd("edit " .. filename)
         pcall(vim.api.nvim_win_set_cursor, 0, { lnum, col - 1 })
       end
+
+      vim.cmd("normal! zz")
+
       if #items > 1 then notify(string.format("Jumped to first definition (found %d total)", #items)) end
     end,
   })
