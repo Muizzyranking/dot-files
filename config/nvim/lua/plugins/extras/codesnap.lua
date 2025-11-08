@@ -3,9 +3,7 @@ return {
   build = "make",
   cmd = { "CodeSnap" },
   init = function()
-    if vim.fn.readable("~/Pictures/nvim") == 0 then
-      vim.fn.mkdir("~/Pictures/nvim")
-    end
+    if vim.fn.filereadable("~/Pictures/nvim") == 0 then vim.fn.mkdir("~/Pictures/nvim", "p") end
   end,
   keys = {
     -- { "<leader>cc", "<cmd>CodeSnap<cr>", mode = "x", desc = "Save selected code snapshot into clipboard" },

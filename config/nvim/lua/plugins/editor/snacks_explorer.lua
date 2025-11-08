@@ -19,6 +19,8 @@ return {
             hidden = { "input" },
             auto_hide = { "input" },
           },
+          include = { "*.zsh*", ".env" },
+          -- exclude = { "node_modules", "venv", ".venv" },
           supports_live = true,
           tree = true,
           watch = true,
