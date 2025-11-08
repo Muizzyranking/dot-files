@@ -122,6 +122,7 @@ end
 ---------------------------------------------------------------
 function M.find_pattern_root(buf, patterns)
   patterns = Utils.ensure_list(patterns) ---@type string[]
+  buf = Utils.ensure_buf(buf)
   local path = M.get_buffer_path(buf) or vim.uv.cwd()
   if not path or path == "" then return nil end
 

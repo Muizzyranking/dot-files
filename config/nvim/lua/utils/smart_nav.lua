@@ -90,7 +90,7 @@ local function record_movement(from_win, to_win, direction)
   if reverse_dir then win_history[to_win][reverse_dir] = from_win end
 end
 
-local function smart_navigate(direction)
+function M.smart_navigate(direction)
   local current_win = get_current_win()
 
   if
@@ -131,7 +131,7 @@ end
 function M.setup()
   for keymap, direction in pairs(config.keymaps) do
     vim.keymap.set("n", keymap, function()
-      smart_navigate(direction)
+      M.smart_navigate(direction)
     end, { noremap = true, silent = true, desc = "Smart window navigation" })
   end
 

@@ -95,8 +95,9 @@ function M.set_keymap(mapping)
   if vim.g.vscode then return end
 
   if not validate_keymap(mapping) then return end
+  local conds = Utils.ensure_list(mapping.conds)
 
-  if mapping.conds then
+  if conds then
     local conditions = Utils.ensure_list(mapping.conds)
     for _, condition in ipairs(conditions) do
       if not Utils.evaluate(condition) then return end
@@ -160,7 +161,7 @@ function Toggle:new(mapping)
   return self
 end
 
-function Toggle:is_toggle_opts()
+function Toggle:is_valid()
   local mapping = self.mapping
   return type(mapping) == "table"
     and type(mapping[1]) == "string"
@@ -219,6 +220,28 @@ function Toggle:icon()
   end
 end
 
+function Toggle:to_keymap()
+  local map = {
+    self.mapping[1],
+    function()
+      self:toggle()
+    end,
+    mode = self.mapping.mode or "n",
+    desc = self:desc(),
+    icon = self:icon(),
+  }
+  local excluded = { "name", "get_state", "toggle_fn", "change_state", "color", "notify", "set_key" }
+  for k, v in pairs(self.mapping) do
+    if map[k] == nil and not vim.tbl_contains(excluded, k) then map[k] = v end
+  end
+  return map
+end
+
+function Toggle:set_keymap()
+  if self.mapping.set_key ~= false then M.set_keymap(self:to_keymap()) end
+  return self:to_keymap()
+end
+
 ---------------------------------------------------------------
 ---Create a toggle mapping
 ---@param mapping map.ToggleOpts
@@ -226,28 +249,8 @@ end
 ---------------------------------------------------------------
 function M.toggle_map(mapping)
   local toggle = Toggle:new(mapping)
-  if not toggle:is_toggle_opts() then return end
-
-  local map = {
-    mapping[1],
-    function()
-      toggle:toggle()
-    end,
-    mode = mapping.mode or "n",
-    desc = toggle:desc(),
-    icon = toggle:icon(),
-  }
-
-  local excluded = { "name", "get_state", "toggle_fn", "change_state", "color", "notify", "set_key" }
-  for k, v in pairs(mapping) do
-    if map[k] == nil and not vim.tbl_contains(excluded, k) then map[k] = v end
-  end
-
-  if mapping.set_key ~= false then
-    M.set_keymap(map)
-    return
-  end
-  return map
+  if not toggle:is_valid() then return nil end
+  return toggle:set_keymap()
 end
 
 ---------------------------------------------------------------

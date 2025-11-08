@@ -267,9 +267,13 @@ end
 ------------------------------------------------------
 -- check if a buffer is ignored based on its type
 ---@param bufnr? number # buffer number to check
+---@param buftypes? string[] # list of buffer types to check against
+---@param merge? boolean # whether to merge with default ignore list
 ---@return boolean # true if the buffer type is ignored
 ------------------------------------------------------
-function M.ignore_buftype(bufnr)
+function M.ignore_buftype(bufnr, buftypes, merge)
+  buftypes = merge and vim.list_extend(M.CONFIG.ignore_buftypes, M.ensure_list(buftypes))
+    or (buftypes or M.CONFIG.ignore_buftypes)
   bufnr = M.ensure_buf(bufnr)
   local buftype = vim.api.nvim_get_option_value("buftype", { buf = bufnr })
   if vim.tbl_contains(M.CONFIG.ignore_buftypes, buftype) then return true end
@@ -280,12 +284,16 @@ end
 ------------------------------------------------------
 -- check if a buffre filetype is ignored
 ---@param bufnr? number # buffer number to check
+---@param filetypes? string[] # list of filetypes to check against
+---@param merge? boolean # whether to merge with default ignore list
 ---@return boolean # true if the buffer type is ignored
 ------------------------------------------------------
-function M.ignore_filetype(bufnr)
+function M.ignore_filetype(bufnr, filetypes, merge)
   bufnr = M.ensure_buf(bufnr)
+  filetypes = merge and vim.list_extend(M.CONFIG.ignore_filetypes, M.ensure_list(filetypes))
+    or (filetypes or M.CONFIG.ignore_filetypes)
   local filetype = vim.api.nvim_get_option_value("filetype", { buf = bufnr })
-  if vim.tbl_contains(M.CONFIG.ignore_filetypes, filetype) then return true end
+  if vim.tbl_contains(filetypes, filetype) then return true end
 
   return false
 end
@@ -306,22 +314,6 @@ function M.run_command(cmd, opts)
   end
 
   return success, output
-end
-
-----------------------------------------------------
---- Open file in split based on direction
---- @param direction "vsplit"|"split" Direction to open the file
---- @param filename string File path to open
---- @param line number Line number to jump to
---- @param col number Column number to jump to
-----------------------------------------------------
-function M.open_in_split(direction, filename, line, col)
-  local cmd = vim.tbl_contains({ "vsplit", "split" }, direction) and direction or "vsplit"
-  vim.cmd(cmd .. " " .. vim.fn.fnameescape(filename))
-  if line then
-    col = col or 0
-    vim.cmd(string.format("normal! %dG%d|", line, col + 1))
-  end
 end
 
 ----------------------------------------------------
