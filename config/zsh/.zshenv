@@ -60,3 +60,6 @@ export FZF_DEFAULT_OPTS="
 --pointer='▶'
 --marker='✓'
 "
+export PATH=/home/muizzyranking/.opencode/bin:$PATH
+
+. "$HOME/.cargo/env"
