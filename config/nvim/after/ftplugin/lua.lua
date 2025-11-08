@@ -1,6 +1,7 @@
 local buf = Utils.ensure_buf(0)
 vim.bo.shiftwidth = 2
 vim.bo.tabstop = 2
+vim.b.autoformat = true
 
 Utils.map.create_abbrevs({
   { "function", { "Function" } },

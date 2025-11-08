@@ -1,4 +1,5 @@
 local buf = Utils.ensure_buf()
+vim.b.autoformat = true
 Utils.map.set_keymaps({
   {
     "<leader>cb",
