@@ -8,6 +8,12 @@ return {
       desc = "Organize Imports",
       icon = { icon = "󰺲" },
     },
+    {
+      "<leader>cb",
+      Utils.lsp.action["source.fixAll.biome"],
+      desc = "Fix all diagnostics (biome)",
+      icon = { icon = "󰁨" },
+    },
   },
   on_attach = function(_, bufnr)
     vim.b[bufnr].biome_attached = true

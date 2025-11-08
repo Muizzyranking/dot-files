@@ -1,7 +1,7 @@
-Utils.lsp.on_attach(function(client, _)
-  client.server_capabilities.hoverProvider = false
-end, "ruff")
 return {
+  on_attach = function(client, _)
+    client.server_capabilities.hoverProvider = false
+  end,
   keys = {
     {
       "<leader>co",
