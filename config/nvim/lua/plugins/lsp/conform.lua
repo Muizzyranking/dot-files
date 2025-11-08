@@ -5,19 +5,6 @@ return {
     cmd = { "ConformInfo" },
     init = function()
       vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
-      Utils.format.register({
-        name = "conform",
-        priority = 10,
-        check = function(buf)
-          local ok, conform = pcall(require, "conform")
-          if not ok then return false end
-          local formatters = conform.list_formatters(buf)
-          return #formatters > 0
-        end,
-        format = function(opts)
-          require("conform").format(vim.tbl_extend("force", opts or {}, { timeout_ms = 3000 }))
-        end,
-      })
     end,
     keys = {
       {
@@ -50,10 +37,7 @@ return {
       local use_biome = Utils.memoize(biome_available)
       local opts = {
         notify_on_error = true,
-        format_on_save = {
-          timeout_ms = 500,
-          lsp_format = "fallback",
-        },
+        format_on_save = false,
         default_format_opts = {
           timeout_ms = 2500,
           async = false,

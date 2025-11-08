@@ -1,3 +1,5 @@
+if true then return {} end
+-- i have no use for nvim lint
 return {
   {
     "mfussenegger/nvim-lint",
