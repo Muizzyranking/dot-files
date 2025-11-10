@@ -317,8 +317,8 @@ local toggle_maps = {
     get_state = function(buf)
       return Utils.treesitter.hl_is_active(buf)
     end,
-    change_state = function(state)
-      vim.treesitter[state and "stop" or "start"]()
+    change_state = function(state, buf)
+      vim.treesitter[state and "stop" or "start"](buf)
     end,
     name = "treesitter Highlight",
   },
