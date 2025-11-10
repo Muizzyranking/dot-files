@@ -4,7 +4,7 @@ local M = {}
 
 ---@type lsp.KeymapOpts[]?
 M._keys = nil
----@type string[]
+---@type table<string, boolean>
 M.lsp_servers = {}
 ---@type table<string, lsp.KeymapOpts[]>
 M._server_keys = {}
@@ -120,7 +120,7 @@ function M.get()
     },
     {
       "]i",
-      Utils.lsp.goto_diagnostics(false, "HINT"),
+      Utils.lsp.goto_diagnostics(true, "HINT"),
       desc = "Next Hint",
     },
     {
@@ -240,7 +240,10 @@ local function enable_servers(server_list)
     if enabled then table.insert(servers_to_enable, server) end
   end
 
-  if #servers_to_enable > 0 then vim.lsp.enable(servers_to_enable, true) end
+  if #servers_to_enable > 0 then
+    local success, err = pcall(vim.lsp.enable, servers_to_enable, true)
+    if not success then Utils.notify.error("Failed to enable LSP servers: " .. tostring(err), { title = "LSP" }) end
+  end
 end
 
 ---Load LSP configs with async processing
@@ -296,11 +299,7 @@ function M.setup()
   Utils.format.setup()
   Utils.lsp.setup()
   Utils.lsp.breadcrumb.setup()
-  local defaults = { "gra", "grn", "grr", "gri", "grt" }
-  for _, key in ipairs(defaults) do
-    pcall(vim.keymap.del, "n", key, {})
-  end
-
+  Utils.map.del_keymaps({ "gra", "grn", "grr", "gri", "grt" }, { mode = "n" })
   Utils.lsp.on_attach(function(client, buffer)
     M.on_attach(client, buffer)
   end)
@@ -330,13 +329,6 @@ function M.setup()
   vim.defer_fn(function()
     M.load_lsp_configs()
     enable_servers(M.lsp_servers)
-    vim.schedule(function()
-      for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-        if vim.api.nvim_buf_is_loaded(bufnr) and vim.bo[bufnr].buftype == "" then
-          vim.api.nvim_exec_autocmds("FileType", { buffer = bufnr })
-        end
-      end
-    end)
   end, 0)
 end
 
