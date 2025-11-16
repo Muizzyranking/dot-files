@@ -19,6 +19,7 @@ return {
           local filename = vim.fs.basename(Utils.get_filepath())
           if
             string.match(filename, "^%.env")
+            or string.match(filename, "^%.env.*")
             or string.match(filename, "^%.secret.*")
             or string.match(filename, "^%id_rsa.*")
           then
