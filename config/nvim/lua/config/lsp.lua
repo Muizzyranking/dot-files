@@ -255,6 +255,8 @@ end
 
 ---@type lsp.KeymapOpts[]
 local all_keys = {}
+---@param _ table LSP client (unused)
+---@param buffer number|nil Buffer number
 function M.on_attach(_, buffer)
   buffer = Utils.ensure_buf(buffer)
   local clients = Utils.lsp.get_clients({ bufnr = buffer })
@@ -269,6 +271,10 @@ function M.on_attach(_, buffer)
       key.has = nil
       key.buffer = buffer
       key.silent = key.silent ~= false
+      key.ui = {
+        group = "LSP",
+        register = true,
+      }
       all_keys[#all_keys + 1] = key
     end
   end
@@ -330,6 +336,11 @@ function M.setup()
     M.load_lsp_configs()
     enable_servers(M.lsp_servers)
   end, 0)
+  require("utils.action_manager").configure_group("LSP", {
+    icon = "󰅩",
+    columns = 2,
+    title = "LSP Actions",
+  })
 end
 
 return M
