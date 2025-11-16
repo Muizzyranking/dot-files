@@ -26,8 +26,8 @@ set({ "n" }, "<C-l>", "<C-w>l",                     { desc = "Go to right window
 set({ "n" }, "<C-p>", "<C-w>p",                     { desc = "Go to previous window", remap = true })
 set({ "n" }, "<C-o>", "<C-o>zz",                    {})
 set({ "n" }, "<C-i>", "<C-i>zz",                    {})
-set({ "n" }, "<C-u>", "<C-u>zz",                    {})
-set({ "n" }, "<C-d>", "<C-d>zz",                    {})
+-- set({ "n" }, "<C-u>", "<C-u>zz",                    {})
+-- set({ "n" }, "<C-d>", "<C-d>zz",                    {})
 set("t", "<Esc><Esc>", "<C-\\><C-n>",               { desc = "Exit terminal mode" })
 set("t", "<C-h>", "<cmd>wincmd h<cr>",              { desc = "Go to Left Window" })
 set("t", "<C-j>", "<cmd>wincmd j<cr>",              { desc = "Go to Lower Window" })
@@ -155,6 +155,7 @@ local maps = {
     "<leader>ux",
     Utils.ui.close_floats,
     desc = "Close all floating windows",
+    ui = { group = "UI" },
   },
   {
     "<leader>ur",
@@ -237,6 +238,11 @@ local maps = {
     icon = { icon = " ", color = "green" },
     mode = { "n", "v" },
   },
+}
+
+set.set_keymaps(maps, { silent = true })
+
+local git_maps = {
   {
     "<leader>go",
     function()
@@ -253,10 +259,7 @@ local maps = {
     end,
     desc = "Open repo in browser",
     icon = { icon = "󰌧 ", color = "red" },
-    conds = {
-      Utils.is_executable("open-repo"),
-      Utils.is_in_git_repo,
-    },
+    conds = { Utils.is_executable("open-repo") },
   },
   {
     "<leader>gb",
@@ -265,7 +268,6 @@ local maps = {
     end,
     desc = "Git blame",
     icon = { icon = " " },
-    conds = { Utils.is_in_git_repo },
   },
   {
     "<leader>gg",
@@ -273,8 +275,8 @@ local maps = {
       Snacks.lazygit()
     end,
     desc = "Lazygit",
-    icon = { icon = " ", color = "orange" },
-    conds = { Utils.is_in_git_repo, Utils.is_executable("lazygit") },
+    conds = { Utils.is_executable("lazygit") },
+    ui_group = "Git",
   },
   {
     "<leader>gc",
@@ -282,8 +284,7 @@ local maps = {
       Snacks.lazygit.log()
     end,
     desc = "Lazygit log",
-    icon = { icon = " ", color = "orange" },
-    conds = { Utils.is_in_git_repo, Utils.is_executable("lazygit") },
+    conds = { Utils.is_executable("lazygit") },
   },
   {
     "<leader>gC",
@@ -291,12 +292,16 @@ local maps = {
       Snacks.lazygit.log_file()
     end,
     desc = "Lazygit log (current file)",
-    icon = { icon = " ", color = "orange" },
-    conds = { Utils.is_in_git_repo, Utils.is_executable("lazygit") },
+    conds = { Utils.is_executable("lazygit") },
   },
 }
 
-set.set_keymaps(maps, { silent = true })
+set.set_keymaps(git_maps, {
+  silent = true,
+  icon = { icon = " ", color = "orange" },
+  conds = { Utils.is_in_git_repo },
+  ui = { group = "Git" },
+})
 
 ------------------------------------
 -- toggle keymaps
