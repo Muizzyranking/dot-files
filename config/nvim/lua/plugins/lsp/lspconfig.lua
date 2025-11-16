@@ -4,15 +4,16 @@ return {
     event = { "LazyFile" },
     dependencies = { "mason-org/mason.nvim" },
     opts = {},
-    config = vim.schedule_wrap(function(_, opts)
-      require("config.lsp").setup(opts)
+    config = vim.schedule_wrap(function()
+      require("config.lsp").setup()
     end),
   },
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     optional = true,
-    opts = {
-      ensure_installed = {
+    opts = function(_, opts)
+      opts.ensure_installed = opts.ensure_installed or {}
+      vim.list_extend(opts.ensure_installed, {
         "basedpyright",
         "bash-language-server",
         "biome",
@@ -29,8 +30,8 @@ return {
         "stylua",
         "tailwindcss-language-server",
         "vtsls",
-      },
-    },
+      })
+    end,
   },
   {
     "folke/lazydev.nvim",
