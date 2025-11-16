@@ -57,22 +57,19 @@ return {
               return not use_biome(ctx) or not vim.tbl_contains(biome_supported, ft)
             end,
           },
-          black = {
-            append_args = { "--line-length", "85" },
-          },
-          djlint = {
-            append_args = { "--indent", "2" },
-          },
+          black = { append_args = { "--line-length", "85" } },
+          djlint = { append_args = { "--indent", "2" } },
           ["kulala-fmt"] = {
             condition = function()
               return Utils.is_executable("kulala-fmt")
             end,
           },
+          ruff = require("conform.formatters.ruff_format"),
         },
         formatters_by_ft = {
           yaml = { "prettierd", "biome" },
           lua = { "stylua" },
-          python = { "black" },
+          python = { "ruff" },
           ["htmldjango"] = { "djlint" },
           ["bash"] = { "shfmt" },
           ["sh"] = { "shfmt" },
@@ -113,11 +110,10 @@ return {
     end,
   },
   {
-    "williamboman/mason.nvim",
-    optional = true,
-    opts = {
-      ensure_installed = {
-        "black",
+    "mason-org/mason.nvim",
+    opts = function(_, opts)
+      opts.ensure_installed = opts.ensure_installed or {}
+      vim.list_extend(opts.ensure_installed, {
         "djlint",
         "prettierd",
         "biome",
@@ -127,7 +123,8 @@ return {
         "gofumpt",
         "jq",
         "stylua",
-      },
-    },
+        "pyproject-fmt",
+      })
+    end,
   },
 }
