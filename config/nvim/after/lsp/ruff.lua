@@ -21,5 +21,17 @@ return {
       desc = "Fix all fixable diagnostics",
       icon = { icon = "󰁨 ", color = "red" },
     },
+    {
+      "<leader>cU",
+      function()
+        require("conform").format({
+          buf = Utils.ensure_buf(0),
+          formatters = { "ruff_fix" },
+          timeout_ms = 3000,
+        })
+      end,
+      desc = "Fix all",
+      icon = { icon = "󰁨 ", color = "red" },
+    },
   },
 }
