@@ -1,6 +1,6 @@
 if vim.loader.enable then vim.loader.enable() end
 ---@diagnostic disable-next-line: duplicate-set-field
-vim.deprecate = function() end -- disable deprecate warnings
+-- vim.deprecate = function() end -- disable deprecate warnings
 -- global variables
 _G.Utils = require("utils")
 -- stylua: ignore
@@ -36,4 +36,15 @@ Utils.autocmd.on_very_lazy(function()
   Utils.folds.setup()
   Utils.smart_nav.setup()
   require("utils.word_cycle").setup()
+  Utils.action_manager.configure_group("Toggles", {
+    title = "Toggles",
+    icon = " ",
+    columns = 3,
+  })
+  Utils.action_manager.configure_group("Git", {
+    title = "Git",
+    icon = "",
+    columns = 2,
+  })
+  Utils.map.safe_keymap_set("n", "<leader>tu", Utils.action_manager.show_ui, {})
 end, { group = "LazyModules" })
