@@ -127,6 +127,7 @@ function M.set_keymap(mapping)
       },
     })
   end
+  if mapping.ui then require("utils.action_manager.registry").register_keymap_to_ui(mapping, rhs) end
 end
 
 ---------------------------------------------------------------
@@ -139,12 +140,55 @@ function M.set_keymaps(mappings, opts)
   opts = opts or {}
   for _, map in ipairs(mappings) do
     local new_map = vim.tbl_deep_extend("force", {}, opts, map)
+    if opts.conds and map.conds then new_map.conds = vim.list_extend(vim.list_slice(opts.conds), map.conds) end
     M.set_keymap(new_map)
   end
 end
 
+function M.del_keymap(mapping)
+  if type(mapping) == "string" then mapping = { [1] = mapping } end
+
+  local lhs = mapping[1]
+  if not lhs then return end
+
+  local modes = mapping.mode and Utils.ensure_list(mapping.mode) or { "n" }
+  local opts = {}
+
+  if mapping.buffer ~= nil then opts.buffer = mapping.buffer end
+
+  pcall(vim.keymap.del, modes, lhs, opts)
+
+  if mapping.icon then
+    M.hide_from_wk({
+      {
+        lhs,
+        mode = modes,
+        buffer = mapping.buffer,
+      },
+    })
+  end
+end
+
+---------------------------------------------------------------
+---Delete multiple keymaps
+---@param mappings (map.KeymapOpts|string)[] # List of keymaps to delete
+---@param opts? map.KeymapOpts # Shared options for all mappings (e.g., mode, buffer)
+---------------------------------------------------------------
+function M.del_keymaps(mappings, opts)
+  if type(mappings) ~= "table" then return end
+
+  if type(mappings[1]) ~= "table" and type(mappings[1]) ~= "string" then mappings = { mappings } end
+  opts = opts or {}
+  for _, map in ipairs(mappings) do
+    local mapping = type(map) == "string" and { [1] = map } or map
+    local new_map = vim.tbl_deep_extend("force", {}, opts, mapping)
+
+    M.del_keymap(new_map)
+  end
+end
+
 ----------------------------------------------------------------------
----@class Toggle
+---@class map.Toggle
 ---@field mapping map.ToggleOpts
 ---@field buf number
 ---@field state boolean
@@ -153,7 +197,7 @@ local Toggle = {}
 Toggle.__index = Toggle
 
 ---@param mapping map.ToggleOpts
----@return Toggle
+---@return map.Toggle
 function Toggle:new(mapping)
   self = setmetatable({}, Toggle)
   self.mapping = mapping
@@ -171,8 +215,9 @@ function Toggle:is_valid()
 end
 
 ---Refresh current buffer and state
-function Toggle:refresh()
-  self.buf = Utils.ensure_buf(self.mapping.buffer or 0)
+---@param buf? number
+function Toggle:refresh(buf)
+  self.buf = buf or Utils.ensure_buf(self.mapping.buffer or 0)
   self.state = self.mapping.get_state(self.buf)
 end
 
@@ -187,29 +232,28 @@ function Toggle:notify()
 end
 
 -- toggle
-function Toggle:toggle()
-  self:refresh()
+---@param buf? number
+function Toggle:toggle(buf)
+  self:refresh(buf)
   self.mapping.change_state(self.state, self.buf)
   self:notify()
 end
 
 ---Get description for the mapping
 ---@return string|function
-function Toggle:desc()
-  if Utils.type(self.mapping.desc, "function") then
-    return function()
-      self:refresh()
-      return self.mapping.desc(self.state)
-    end
+function Toggle:desc(buf)
+  return function()
+    self:refresh(buf)
+    if Utils.type(self.mapping.desc, "function") then return self.mapping.desc(self.state) end
+    return self.mapping.desc or string.format("Toggle %s", self.mapping.name)
   end
-  return self.mapping.desc or string.format("Toggle %s", self.mapping.name)
 end
 
 ---Get icon
 ---@return fun(): table
-function Toggle:icon()
+function Toggle:icon(buf)
   return function()
-    self:refresh()
+    self:refresh(buf)
     local icon = self.mapping.icon or {}
     local color = self.mapping.color or {}
     local state = self.state
@@ -234,12 +278,23 @@ function Toggle:to_keymap()
   for k, v in pairs(self.mapping) do
     if map[k] == nil and not vim.tbl_contains(excluded, k) then map[k] = v end
   end
+  map._is_toggle = true
+  map._toggle_instance = self
   return map
 end
 
-function Toggle:set_keymap()
-  if self.mapping.set_key ~= false then M.set_keymap(self:to_keymap()) end
-  return self:to_keymap()
+function Toggle:register_to_ui()
+  local registry = require("utils.action_manager.registry")
+  self.mapping.ui = self.mapping.ui or {}
+  if self.mapping.ui == false then return end
+  if self.mapping.ui.register == false then return end
+
+  registry.register_item("Toggles", {
+    type = "toggle",
+    name = self.mapping.name,
+    state = self.state,
+    toggle = self,
+  })
 end
 
 ---------------------------------------------------------------
@@ -250,7 +305,11 @@ end
 function M.toggle_map(mapping)
   local toggle = Toggle:new(mapping)
   if not toggle:is_valid() then return nil end
-  return toggle:set_keymap()
+  toggle:register_to_ui()
+  local key = toggle:to_keymap()
+  key.ui_type = "toggle"
+  if mapping.set_key ~= false then M.set_keymap(key) end
+  return key
 end
 
 ---------------------------------------------------------------
