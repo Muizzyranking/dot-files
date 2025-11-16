@@ -11,6 +11,11 @@
 ---@alias map.AbbrevConds
 ---| "lsp_keyword"
 
+---@class ui_group
+---@field register? boolean # Whether to register keymap to ui
+---@field group? string # Group to add the keymap to
+---@field type? "toggle" | "action" # Type of the item (e.g., "toggle", "action")
+
 ---@class map.IconConfig
 ---@field icon string # Icon character/text
 ---@field color string # Icon color
@@ -38,6 +43,7 @@
 ---@field expr? boolean # Whether the mapping is an expression
 ---@field icon? string|map.IconConfig # Icon for which-key integration
 ---@field conds? table<number, function|boolean> # Conditions for the mapping
+---@field ui? ui_group | boolean # register to action manager UI
 
 ---@class map.ToggleOpts : map.KeymapOpts
 ---@field name string # Name of the toggle (required for notifications unless notify=false)
