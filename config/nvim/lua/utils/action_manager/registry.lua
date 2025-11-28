@@ -43,7 +43,14 @@ function M.register_item(group_name, item)
   local items = M._registry[group_name].items
 
   for i, existing in ipairs(items) do
-    if existing.name == item.name then
+    local is_duplicate = false
+    if existing.type == "toggle" and item.type == "toggle" then
+      is_duplicate = existing.toggle == item.toggle
+    elseif existing.name == item.name then
+      is_duplicate = true
+    end
+
+    if is_duplicate then
       items[i] = item
       return
     end
