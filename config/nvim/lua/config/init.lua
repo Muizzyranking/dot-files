@@ -47,4 +47,5 @@ Utils.autocmd.on_very_lazy(function()
     columns = 2,
   })
   Utils.map.safe_keymap_set("n", "<leader>tu", Utils.action_manager.show_ui, {})
+  require("utils.git").setup()
 end, { group = "LazyModules" })
