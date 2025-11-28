@@ -12,7 +12,7 @@
     defaultBranch = main
 [core]
 	excludesfile = /home/muizzyranking/.config/git/ignore
-    editor = nv
+	editor = nvim
 [help]
     autocorrect = 1
 [color]
