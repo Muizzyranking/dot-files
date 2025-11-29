@@ -127,7 +127,6 @@ function M.set_keymap(mapping)
       },
     })
   end
-  if mapping.ui then require("utils.action_manager.registry").register_keymap_to_ui(mapping, rhs) end
 end
 
 ---------------------------------------------------------------
@@ -278,23 +277,12 @@ function Toggle:to_keymap()
   for k, v in pairs(self.mapping) do
     if map[k] == nil and not vim.tbl_contains(excluded, k) then map[k] = v end
   end
-  map._is_toggle = true
-  map._toggle_instance = self
   return map
 end
 
 function Toggle:register_to_ui()
-  local registry = require("utils.action_manager.registry")
-  self.mapping.ui = self.mapping.ui or {}
   if self.mapping.ui == false then return end
-  if self.mapping.ui.register == false then return end
-
-  registry.register_item("Toggles", {
-    type = "toggle",
-    name = self.mapping.name,
-    state = self.state,
-    toggle = self,
-  })
+  require("utils.toggle").register_toggle(self)
 end
 
 ---------------------------------------------------------------
