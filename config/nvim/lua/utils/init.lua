@@ -1,6 +1,5 @@
 ---@class utils
 ---@field actions utils.actions
----@field action_manager utils.action_manager
 ---@field autocmd utils.autocmd
 ---@field bigfile utils.bigfile
 ---@field cmp utils.cmp

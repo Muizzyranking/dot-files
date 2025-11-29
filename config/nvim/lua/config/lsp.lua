@@ -336,11 +336,6 @@ function M.setup()
     M.load_lsp_configs()
     enable_servers(M.lsp_servers)
   end, 0)
-  require("utils.action_manager").configure_group("LSP", {
-    icon = "󰅩",
-    columns = 2,
-    title = "LSP Actions",
-  })
 end
 
 return M

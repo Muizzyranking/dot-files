@@ -36,16 +36,6 @@ Utils.autocmd.on_very_lazy(function()
   Utils.folds.setup()
   Utils.smart_nav.setup()
   require("utils.word_cycle").setup()
-  Utils.action_manager.configure_group("Toggles", {
-    title = "Toggles",
-    icon = " ",
-    columns = 3,
-  })
-  Utils.action_manager.configure_group("Git", {
-    title = "Git",
-    icon = "",
-    columns = 2,
-  })
-  Utils.map.safe_keymap_set("n", "<leader>tu", Utils.action_manager.show_ui, {})
+  Utils.map.safe_keymap_set("n", "<leader>tu", Utils.toggle.toggle_ui, {})
   require("utils.git").setup()
 end, { group = "LazyModules" })
