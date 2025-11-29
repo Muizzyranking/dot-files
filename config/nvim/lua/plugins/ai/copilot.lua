@@ -15,6 +15,7 @@ return {
       filetypes = {
         markdown = true,
         help = true,
+        gitcommit = true,
         sh = function()
           local filename = vim.fs.basename(Utils.get_filepath())
           if
