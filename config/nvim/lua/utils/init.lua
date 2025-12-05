@@ -6,6 +6,7 @@
 ---@field discipline utils.discipline
 ---@field folds utils.folds
 ---@field format utils.format
+---@field git utils.git
 ---@field hl utils.hl
 ---@field icons utils.icons
 ---@field lang utils.lang
@@ -14,10 +15,8 @@
 ---@field notify utils.notify
 ---@field plugins utils.plugins
 ---@field root utils.root
----@field smart_nav utils.smart_nav
----@field snacks utils.snacks
----@field word_cycle utils.word_cycle
 ---@field treesitter utils.treesitter
+---@field toggle utils.toggle
 ---@field ui utils.ui
 local M = {}
 
@@ -104,21 +103,6 @@ end
 ---------------------------------------------------------------
 M.is_in_tmux = function()
   return os.getenv("TMUX") ~= nil
-end
-
----------------------------------------------------------------
--- Check if is a git repo.
----@return boolean
----------------------------------------------------------------
-function M.is_in_git_repo(notify)
-  notify = notify or false
-  local success, output = M.run_command({ "git", "rev-parse", "--is-inside-work-tree" }, {
-    trim = true,
-    callback = function(output, success, _)
-      if notify and not success then M.notify.error("Failed to check git repository: " .. output) end
-    end,
-  })
-  return success and output:match("true") ~= nil
 end
 
 -------------------------------------

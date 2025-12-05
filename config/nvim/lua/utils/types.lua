@@ -11,11 +11,6 @@
 ---@alias map.AbbrevConds
 ---| "lsp_keyword"
 
----@class ui_group
----@field register? boolean # Whether to register keymap to ui
----@field group? string # Group to add the keymap to
----@field type? "toggle" | "action" # Type of the item (e.g., "toggle", "action")
-
 ---@class map.IconConfig
 ---@field icon string # Icon character/text
 ---@field color string # Icon color
@@ -43,9 +38,8 @@
 ---@field expr? boolean # Whether the mapping is an expression
 ---@field icon? string|map.IconConfig # Icon for which-key integration
 ---@field conds? table<number, function|boolean> # Conditions for the mapping
----@field ui? ui_group | boolean # register to action manager UI
 
----@class map.ToggleOpts : map.KeymapOpts
+---@class toggle.Opts : map.KeymapOpts
 ---@field name string # Name of the toggle (required for notifications unless notify=false)
 ---@field get_state fun(buf?: number): boolean # Function that returns the current state
 ---@field change_state fun(state: boolean, buf?: number) # Function to change the state
@@ -53,6 +47,7 @@
 ---@field color? map.ToggleColorConfig # Color configuration for different states
 ---@field notify? boolean # Whether to show notifications (default: true)
 ---@field set_key? boolean # Whether to set the keymap immediately (default: true)
+---@field ui? boolean # (default: true)
 
 ---@class map.ReloadConfig
 ---@field cmd string # Command to reload/restart the configuration
@@ -92,26 +87,42 @@
 ---@field trim? boolean
 ---@field callback? fun(output: string, success: boolean, exit_code: number)
 
----@class word_cycle.CycleList
----@field [integer] string
-
----@class word_cycle.FiletypeCycle
----@field [string] word_cycle.CycleList[]
-
----@class word_cycle.CycleEntry
----@field list word_cycle.CycleList
----@field current_index integer
-
---- @class word_cycle.CycleLookup
---- @field [string] word_cycle.CycleEntry
-
----@class word_cycle.Config
----@field global_cycle? word_cycle.CycleList[]
----@field filetype_cycle? word_cycle.FiletypeCycle
----@field keymap? string|false
-
 ---@class BigFileConfig
 ---@field size number File size threshold in bytes (default: 1.5MB)
 ---@field max_lines number Maximum line count threshold (default: 32768)
 ---@field avg_line_length number Average line length threshold (default: 1000)
 ---@field sample_lines number Number of lines to sample for avg calculation (default: 100)
+
+---@class utils.git.WindowOpts
+---@field height_frac number
+---@field width_frac number
+---@field style string
+---@field border string|table
+---@field title? string
+---@field title_pos? "center"|"left"|"right"
+---@field footer? string
+---@field footer_pos? "center"|"left"|"right"
+
+---@class utils.git.stageOpts
+---@field float_win_opts { staging: utils.git.WindowOpts, commit: utils.git.WindowOpts }
+---@field default_expanded boolean
+---@field icons { outgoing: string, incoming: string, changed: string, untracked: string }
+
+---@class utils.git.File
+---@field path string Full path relative to git root
+---@field status string Porcelain status code (2 chars, e.g. "M ", " M", "??")
+---@field is_dir boolean
+---@field children? utils.git.File[]
+
+---@class utils.git.stageStat
+---@field ahead integer
+---@field behind integer
+---@field changes integer
+---@field untracked integer
+
+---@class utils.git.stageState
+---@field expanded table<string, boolean> Map of path -> expanded state
+---@field cursor? { [1]: integer, [2]: integer } Last cursor position
+
+---@class utils.git.stageSessionState
+---@field repos table<string, utils.git.stageState>
