@@ -22,6 +22,7 @@ return {
       },
       config = {
         git = { overrideGpg = true },
+        promptToReturnFromSubprocess = false,
       },
     },
     styles = {
