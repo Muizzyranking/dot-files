@@ -2,7 +2,7 @@ return {
   "lewis6991/gitsigns.nvim",
   event = "LazyFile",
   cond = function()
-    return Utils.is_in_git_repo()
+    return Utils.git.is_in_git_repo()
   end,
   opts = {
     signs = {

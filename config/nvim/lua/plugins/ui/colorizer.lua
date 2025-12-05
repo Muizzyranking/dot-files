@@ -52,7 +52,7 @@ return {
     lazy_load = false,
   },
   config = function(_, opts)
-    Utils.map.toggle_map({
+    Utils.toggle({
       "<leader>uh",
       get_state = function(buf)
         return require("colorizer").is_buffer_attached(buf)

@@ -11,7 +11,7 @@ return {
     ["'"] = { action = "closeopen", pair = "''", neigh_pattern = "[^%w\\][^%w]", register = { cr = false } },
   },
   config = function(_, opts)
-    Utils.map.toggle_map({
+    Utils.toggle({
       "<leader>up",
       get_state = function()
         return not vim.g.minipairs_disable
@@ -35,9 +35,7 @@ return {
       local prev = cursor[2] > 0 and line:sub(cursor[2], cursor[2]) or ""
       local at_end_of_word = prev:match("%w")
 
-      if at_end_of_word and o == c then
-        return o
-      end
+      if at_end_of_word and o == c then return o end
       if o == c then
         local _, count = before:gsub(vim.pesc(o), "")
         if count % 2 == 1 then return o end
