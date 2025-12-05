@@ -155,7 +155,6 @@ local maps = {
     "<leader>ux",
     Utils.ui.close_floats,
     desc = "Close all floating windows",
-    ui = { group = "UI" },
   },
   {
     "<leader>ur",
@@ -276,7 +275,6 @@ local git_maps = {
     end,
     desc = "Lazygit",
     conds = { Utils.is_executable("lazygit") },
-    ui_group = "Git",
   },
   {
     "<leader>gc",
@@ -299,14 +297,13 @@ local git_maps = {
 set.set_keymaps(git_maps, {
   silent = true,
   icon = { icon = " ", color = "orange" },
-  conds = { Utils.is_in_git_repo },
-  ui = { group = "Git" },
+  conds = { Utils.git.is_in_git_repo },
 })
 
 ------------------------------------
 -- toggle keymaps
 ------------------------------------
-local toggle_maps = {
+Utils.toggle.group({
   {
     "<leader>z",
     get_state = function()
@@ -427,6 +424,4 @@ local toggle_maps = {
     notify = false,
     conds = { Utils.is_in_tmux },
   },
-}
-
-set.toggle_maps(toggle_maps)
+})

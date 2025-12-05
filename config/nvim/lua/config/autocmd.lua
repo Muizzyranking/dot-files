@@ -61,6 +61,14 @@ autocmd("BufEnter", {
   end,
 })
 
+autocmd("FileType", {
+  pattern = { "conf" },
+  callback = function(event)
+    local filepath = event.file
+    if filepath:match("/tmux/") or filepath:match("tmux%.conf") then vim.bo.filetype = "tmux" end
+  end,
+})
+
 -----------------------------------------------------------
 -- Go to the last cursor position when opening a buffer
 -----------------------------------------------------------

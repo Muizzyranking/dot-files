@@ -153,7 +153,7 @@ function M.get()
       has = "rename",
       silent = false,
     },
-    Utils.map.toggle_map({
+    Utils.toggle({
       "<leader>ui",
       get_state = function(buf)
         return vim.lsp.inlay_hint.is_enabled({ bufnr = buf })
