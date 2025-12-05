@@ -1,49 +1,62 @@
 #!/bin/bash
 
-# Check if we're in a git repository
 if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    echo "Error: Not inside a git repository"
+    echo "❌ Error: Not inside a git repository"
     exit 1
 fi
 
-# Check if fzf is installed
-if ! command -v fzf >/dev/null 2>&1; then
-    echo "Error: fzf is not installed. Please install it first."
-    exit 1
-fi
-
-# Check if tmux is running
 if [ -z "$TMUX" ]; then
-    echo "Error: Not running inside a tmux session"
+    echo "❌ Error: Not running inside a tmux session"
     exit 1
 fi
 
-# Get all branches (both local and remote) and format them
-git_branches=$(git branch -a | sed 's/^[ *]*//' | sort -u)
+git_branches=$(git branch --all --format='%(refname:short)')
 
-# Use fzf with tmux to select a branch
-selected_branch=$(echo "$git_branches" | fzf --tmux --height 40% --reverse --border --prompt="Select branch: ")
+output=$(echo "$git_branches" | fzf --tmux 70% \
+    --print-query \
+    --reverse \
+    --border \
+    --prompt="🌿 Checkout or Create > " \
+    --header="ENTER: Switch/Create | CTRL-C: Cancel" \
+    --preview="git log --oneline --graph --color=always {} | head -n 20")
 
-# Exit if no branch was selected
-if [ -z "$selected_branch" ]; then
-    echo "No branch selected"
-    exit 0
+if [ -z "$output" ]; then exit 0; fi
+
+query=$(echo "$output" | head -1)
+selection=$(echo "$output" | tail -1)
+
+if [ "$query" == "$selection" ] && ! echo "$git_branches" | grep -q "^$selection$"; then
+    selection=""
 fi
 
-# Handle remote branches (they start with "remotes/")
-if [[ "$selected_branch" == remotes/* ]]; then
-    checkout_branch=$(echo "$selected_branch" | sed 's|remotes/origin/||')
+if [ -n "$selection" ]; then
+    if git show-ref --verify --quiet "refs/heads/$selection"; then
+        echo "🔄 Switching to local branch '$selection'..."
+        git checkout "$selection"
 
-    if git show-ref --verify --quiet "refs/heads/$checkout_branch"; then
-        echo "Switching to existing local branch '$checkout_branch'"
-        git checkout "$checkout_branch"
+    elif [[ "$selection" == *"/"* ]]; then
+        local_name=$(echo "$selection" | sed 's/^[^\/]*\///')
+        if git show-ref --verify --quiet "refs/heads/$local_name"; then
+            echo "🔄 Switching to existing local branch '$local_name'..."
+            git checkout "$local_name"
+        else
+            echo "☁️  Tracking remote branch '$selection' as '$local_name'..."
+            git checkout --track "$selection"
+        fi
+
     else
-        echo "Creating local branch '$checkout_branch' from remote branch"
-        git checkout -b "$checkout_branch" --track "origin/$checkout_branch"
+        echo "🔄 Switching to '$selection'..."
+        git checkout "$selection"
     fi
-else
-    echo "Switching to '$selected_branch'"
-    git checkout "$selected_branch"
-fi
 
-echo "Successfully checked out branch: $selected_branch"
+elif [ -n "$query" ]; then
+    echo "✨ Branch '$query' does not exist."
+    read -p "Create new branch '$query'? [Y/n] " -n 1 -r
+    echo ""
+    if [[ $REPLY =~ ^[Yy]$ ]] || [[ -z $REPLY ]]; then
+        git checkout -b "$query"
+        echo "✅ Created and switched to '$query'"
+    else
+        echo "❌ Cancelled."
+    fi
+fi
