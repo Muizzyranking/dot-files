@@ -1,69 +1,15 @@
 #!/bin/bash
 
-NO_PREVIEW=false
-if [[ "$1" == "-np" ]]; then
-    NO_PREVIEW=true
-    shift
-fi
-
 header="📁 FILE FINDER
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📝 ENTER: echo path | 🚀 CTRL-O: open in nvim | 📋 CTRL-Y: copy path | 🔄 CTRL-T: toggle view | ESC: exit"
+📝 ENTER: echo path | 🚀 CTRL-O: open in nvim | 📋 CTRL-Y: copy path | ESC: exit"
 
-preview_mode_file="/tmp/fzf_preview_mode_$$"
-echo "preview" >"$preview_mode_file"
-
-if [[ "$NO_PREVIEW" == true ]]; then
-    selection=$(fd --type f --hidden --exclude .git |
-        fzf --tmux 95%,85% \
-            --header="$header" \
-            --prompt="Select file 📁 " \
-            --bind "ctrl-y:execute-silent(echo {} | clipcopy)" \
-            --expect=ctrl-o)
-else
-    selection=$(fd --type f --hidden --exclude .git |
-        fzf --tmux 95%,85% \
-            --header="$header" \
-            --prompt="Select file 📁 " \
-            --preview="
-                file={}
-                mode=\$(cat $preview_mode_file 2>/dev/null || echo 'preview')
-                if [[ \"\$mode\" == \"details\" ]]; then
-                    echo '╔══════════════════════════════════════╗'
-                    echo '║         📁 FILE DETAILS              ║'
-                    echo '╚══════════════════════════════════════╝'
-                    echo '📍 Path: \$file'
-                    echo '📏 Size: \$(du -h \"\$file\" 2>/dev/null | cut -f1)'
-                    echo '🗓️  Modified: \$(stat -c \"%y\" \"\$file\" 2>/dev/null | cut -d. -f1)'
-                    echo '🔒 Permissions: \$(stat -c \"%A\" \"\$file\" 2>/dev/null)'
-                    echo '👤 Owner: \$(stat -c \"%U:%G\" \"\$file\" 2>/dev/null)'
-                    echo ''
-                    echo '🔍 File Type:'
-                    file \"\$file\" 2>/dev/null || echo '❌ Cannot determine file type'
-                    echo ''
-                    echo '📁 Full Path:'
-                    readlink -f \"\$file\"
-                    if file \"\$file\" | grep -q text; then
-                        echo ''
-                        echo '📝 Line Count:'
-                        wc -l \"\$file\" 2>/dev/null || echo '❌ Cannot count lines'
-                    fi
-                else
-                    bat --color=always --style=numbers,changes --line-range :500 \"\$file\" 2>/dev/null || cat \"\$file\" 2>/dev/null || echo '❌ Cannot preview file'
-                fi
-            " \
-            --preview-window=up:70%:wrap \
-            --bind "ctrl-t:execute-silent(
-                current=\$(cat $preview_mode_file 2>/dev/null || echo 'preview')
-                if [[ \"\$current\" == \"preview\" ]]; then
-                    echo 'details' > $preview_mode_file
-                else
-                    echo 'preview' > $preview_mode_file
-                fi
-            )+refresh-preview" \
-            --bind "ctrl-y:execute-silent(echo {} | clipcopy)" \
-            --expect=ctrl-o)
-fi
+selection=$(fd --type f --hidden --exclude .git |
+    fzf --tmux 95%,85% \
+        --header="$header" \
+        --prompt="Select file 📁 " \
+        --bind "ctrl-y:execute-silent(echo {} | clipcopy)" \
+        --expect=ctrl-o)
 
 rm -f "$preview_mode_file"
 
