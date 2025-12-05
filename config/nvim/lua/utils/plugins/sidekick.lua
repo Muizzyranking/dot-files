@@ -5,11 +5,13 @@ M.notify = Utils.notify.create({ title = "Sidekick" })
 
 ---@param state sidekick.cli.State[]
 local function kill_session(state)
+  local State = require("sidekick.cli.state")
   if not state or not state.session then
     M.notify.warn("No session to kill", vim.log.levels.WARN)
     return
   end
 
+  State.detach(state)
   local tool_name = state.tool.name
   require("sidekick.cli").close()
   if state.session.mux_session then
@@ -50,6 +52,18 @@ function M.kill_attached_session()
     local state = attached[idx]
     kill_session(state)
   end)
+end
+
+function M.kill_session(opts)
+  local Cli = require("sidekick.cli")
+  local Util = require("sidekick.util")
+
+  opts = opts or {}
+  Cli.select({
+    auto = true,
+    filter = Util.merge(opts.filter, { started = true }),
+    cb = kill_session,
+  })
 end
 
 return M
