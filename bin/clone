@@ -10,15 +10,6 @@ cleanup() {
 # Set up trap for cleanup
 trap cleanup INT TERM
 
-# Print messages in different colors
-print_message() {
-    case "$1" in
-    error) echo -e "\033[0;31mError: $2\033[0m" ;;
-    success) echo -e "\033[0;32mSuccess: $2\033[0m" ;;
-    info) echo -e "\033[0;34m$2\033[0m" ;;
-    esac
-}
-
 # Clone a repository
 clone_repo() {
     local repo="$1"
