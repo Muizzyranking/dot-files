@@ -34,12 +34,6 @@ Utils.map.create_abbrevs({
   buffer = buf,
   conds = { "lsp_keyword" },
 })
-Utils.word_cycle.add_filetype_cycles("python", {
-  { "True", "False" },
-  { "and", "or" },
-  { "def", "class" },
-  { "return", "yield" },
-})
 
 Utils.root.add_patterns({
   "manage.py",
