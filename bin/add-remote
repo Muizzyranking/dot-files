@@ -23,14 +23,6 @@ set_remote() {
     fi
 }
 
-print_message() {
-    case "$1" in
-    error) echo -e "\033[0;31mError: $2\033[0m" ;;
-    success) echo -e "\033[0;32mSuccess: $2\033[0m" ;;
-    info) echo -e "\033[0;34m$2\033[0m" ;;
-    esac
-}
-
 # Validate git installation
 if ! command -v git >/dev/null 2>&1; then
     print_message error "Git is not installed. Please install git first."
