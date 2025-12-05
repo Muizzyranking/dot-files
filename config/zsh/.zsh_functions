@@ -72,3 +72,10 @@ sudo-command-line() {
 }
 zle -N sudo-command-line
 bindkey "\e\e" sudo-command-line
+print_message() {
+    case "$1" in
+    error) echo -e "\033[0;31mError: $2\033[0m" ;;
+    success) echo -e "\033[0;32mSuccess: $2\033[0m" ;;
+    info) echo -e "\033[0;34m$2\033[0m" ;;
+    esac
+}
