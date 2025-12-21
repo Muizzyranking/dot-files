@@ -11,7 +11,7 @@ fdir() {
     local selected_dir
     selected_dir=$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse)
     if [ -n "$selected_dir" ]; then
-        cd "$selected_dir" || echo "Failed to change directory to $selected_dir"
+        \cd "$selected_dir" || echo "Failed to change directory to $selected_dir"
     fi
 }
 
@@ -72,10 +72,3 @@ sudo-command-line() {
 }
 zle -N sudo-command-line
 bindkey "\e\e" sudo-command-line
-print_message() {
-    case "$1" in
-    error) echo -e "\033[0;31mError: $2\033[0m" ;;
-    success) echo -e "\033[0;32mSuccess: $2\033[0m" ;;
-    info) echo -e "\033[0;34m$2\033[0m" ;;
-    esac
-}
