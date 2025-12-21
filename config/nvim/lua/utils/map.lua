@@ -339,6 +339,39 @@ function M.abbrev(abbrevs, opts)
   end
 end
 
+-----------------------------------
+-- Internal function to delete a single keymap
+---@param mapping table|string
+-----------------------------------
+local function del_keymap(mapping)
+  if type(mapping) == "string" then mapping = { [1] = mapping } end
+  local lhs = mapping[1]
+  if not lhs then return end
+  local modes = mapping.mode and Utils.ensure_list(mapping.mode) or { "n" }
+  local opts = {}
+  if mapping.buffer ~= nil then opts.buffer = mapping.buffer end
+  pcall(vim.keymap.del, modes, lhs, opts)
+  if mapping.icon then M.hide_from_wk({
+    { lhs, mode = modes, buffer = mapping.buffer },
+  }) end
+end
+
+---------------------------------------------------------------
+---Delete keymap(s) - handles single or multiple
+---@param mappings (map.KeymapOpts|string)|table[] Single mapping or array
+---@param opts? map.KeymapOpts Shared options for all mappings
+---------------------------------------------------------------
+function M.del(mappings, opts)
+  mappings = resolve_mappings(mappings)
+  opts = opts or {}
+
+  for _, map in ipairs(mappings) do
+    local mapping = type(map) == "string" and { [1] = map } or map
+    local merged = vim.tbl_deep_extend("force", {}, opts, mapping)
+    del_keymap(merged)
+  end
+end
+
 ---------------------------------------------------------------
 ---Add mappings to which-key without setting them
 ---@param mappings wk.Spec|wk.Spec[] # Which-key mapping definitions
