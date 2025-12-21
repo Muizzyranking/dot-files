@@ -9,124 +9,159 @@ setmetatable(M, {
   end,
 })
 
---- Table to track supported methods for LSP clients
-M._supports_method = {}
-
 local notify = Utils.notify.create({ title = "LSP" })
 
-----------------------------------------------------
---- Set up custom LSP handler for dynamic capability registration
---- Overrides the default client/registerCapability handler to trigger a User event
---- when new capabilities are registered for a client
-----------------------------------------------------
+---@class lsp.keymap.Handler
+---@field filter vim.lsp.get_clients.Filter
+---@field callback fun(client: vim.lsp.Client, buffer: number)
+---@field done table<string, boolean> -- tracks which buf:client combos have been handled
+
+local _handlers = {} ---@type lsp.keymap.Handler[]
+local did_setup = false
+
+---------------------------------------------------------------
+---Normalize LSP method names (add textDocument/ prefix if needed)
+---@param method string
+---@return string
+---------------------------------------------------------------
+local function normalize_method(method)
+  return method:find("/") and method or ("textDocument/" .. method)
+end
+
+---------------------------------------------------------------
+---Check if buffer has LSP client matching filter with capability
+---@param buf number
+---@param client vim.lsp.Client
+---@param filter vim.lsp.get_clients.Filter
+---@return boolean
+---------------------------------------------------------------
+local function matches_filter(buf, client, filter)
+  if filter.id and client.id ~= filter.id then return false end
+  if filter.name and client.name ~= filter.name then return false end
+  if filter.bufnr and buf ~= filter.bufnr then return false end
+
+  if filter.method then
+    local method = normalize_method(filter.method)
+    if not client.supports_method or not client.supports_method(method, { bufnr = buf }) then return false end
+  end
+
+  return true
+end
+
+---------------------------------------------------------------
+---Handle LSP callback execution for matching clients
+---@param filter vim.lsp.get_clients.Filter
+---------------------------------------------------------------
+local function handle(filter)
+  local handlers = vim.tbl_filter(function(h)
+    for k, v in pairs(filter) do
+      if h.filter[k] ~= nil and h.filter[k] ~= v then return false end
+    end
+    return true
+  end, _handlers)
+
+  if #handlers == 0 then return end
+
+  for _, state in ipairs(handlers) do
+    local f = vim.tbl_extend("force", vim.deepcopy(state.filter), filter)
+    local clients = Utils.lsp.get_clients(f)
+
+    for _, client in ipairs(clients) do
+      for buf in pairs(client.attached_buffers) do
+        local key = string.format("%d:%d", client.id, buf)
+
+        if not state.done[key] and matches_filter(buf, client, state.filter) then
+          state.done[key] = true
+
+          local ok, err = pcall(state.callback, client, buf)
+          if not ok then
+            notify.error(string.format("LSP callback error for %s (buf %d): %s", client.name, buf, err))
+          end
+        end
+      end
+    end
+  end
+end
+
+---------------------------------------------------------------
+---Setup LSP keymap handlers (autocmds for attach/detach)
+---------------------------------------------------------------
 function M.setup()
-  local register_capability = vim.lsp.handlers["client/registerCapability"]
-  ---@diagnostic disable-next-line: duplicate-set-field
-  vim.lsp.handlers["client/registerCapability"] = function(err, res, ctx)
-    ---@diagnostic disable-next-line: no-unknown
-    local ret = register_capability(err, res, ctx)
-    local client = vim.lsp.get_client_by_id(ctx.client_id)
-    if client then
-      for buffer in pairs(client.attached_buffers) do
-        Utils.autocmd.exec_user_event("LspDynamicCapability", {
-          data = { client_id = client.id, buffer = buffer },
-        })
-      end
-    end
-    return ret
-  end
-  M.on_attach(M._check_methods)
-  M.on_dynamic_capability(M._check_methods)
-end
+  if did_setup then return end
+  did_setup = true
 
-----------------------------------------------------
---- Register a callback for a specific LSP method support
---- @param method string The LSP method to check support for
---- @param fn function Callback function to execute when method is supported
---- @return number? Autocmd ID
-----------------------------------------------------
-function M.on_support_methods(method, fn)
-  M._supports_method[method] = M._supports_method[method] or setmetatable({}, { __mode = "k" })
+  local group = vim.api.nvim_create_augroup("utils.lsp.keymap", { clear = true })
+  Utils.autocmd.autocmd_augroup("utils.lsp.setup", {
+    {
+      events = { "LspAttach" },
+      callback = function(ev)
+        local client = vim.lsp.get_client_by_id(ev.data.client_id)
+        if not client then return end
 
-  return Utils.autocmd.on_user_event("LspSupportsMethod", function(args)
-    local client = vim.lsp.get_client_by_id(args.data.client_id)
-    local buffer = args.data.buffer ---@type number
-    if client and method == args.data.method then return fn(client, buffer) end
-  end)
-end
-
-----------------------------------------------------
---- Create an autocmd for handling dynamic LSP capabilities
---- @param fn function Callback function to execute when a dynamic capability is detected
---- @param opts? table Optional configuration for the autocmd
---- @return number? Autocmd ID
-----------------------------------------------------
-function M.on_dynamic_capability(fn, opts)
-  opts = opts or {}
-  return Utils.autocmd.on_user_event("LspDynamicCapability", function(args)
-    local client = vim.lsp.get_client_by_id(args.data.client_id)
-    local buffer = args.data.buffer ---@type number
-    if client then return fn(client, buffer) end
-  end, { group = opts.group })
-end
-
-----------------------------------------------------
---- Internal method to check and track supported LSP methods for clients
---- @param client vim.lsp.Client The LSP client
---- @param buffer number The buffer number
-----------------------------------------------------
-function M._check_methods(client, buffer)
-  -- don't trigger on invalid buffers
-  if not vim.api.nvim_buf_is_valid(buffer) then return end
-  -- don't trigger on non-listed buffers
-  if not vim.bo[buffer].buflisted then return end
-  -- don't trigger on nofile buffers
-  if vim.bo[buffer].buftype == "nofile" then return end
-  for method, clients in pairs(M._supports_method) do
-    clients[client] = clients[client] or {}
-    if not clients[client][buffer] then
-      if client.supports_method and client.supports_method(method, { bufnr = buffer }) then
-        clients[client][buffer] = true
-
-        Utils.autocmd.exec_user_event("LspSupportsMethod", {
-          data = { client_id = client.id, buffer = buffer, method = method },
-        })
-      end
-    end
-  end
-end
-
------------------------------------------------------------------
----@param events string|string[]
----@param on_attach fun(client:vim.lsp.Client, buffer:number)
----@param name string
----@return number
------------------------------------------------------------------
-function M.on_event(events, on_attach, name)
-  return vim.api.nvim_create_autocmd(events, {
-    callback = function(args)
-      local buffer = Utils.ensure_buf(args.buf)
-      local client = vim.lsp.get_client_by_id(args.data.client_id)
-      if client and (not name or client.name == name) then return on_attach(client, buffer) end
-    end,
+        vim.schedule(function()
+          handle({ id = ev.data.client_id, bufnr = ev.buf })
+        end)
+      end,
+    },
+    {
+      events = { "LspDetach" },
+      callback = function(ev)
+        local key = string.format("%d:%d", ev.data.client_id, ev.buf)
+        for _, state in ipairs(_handlers) do
+          state.done[key] = nil
+        end
+      end,
+    },
   })
 end
-----------------------------------------------------
--- Create auto command for LSP attach
----@param on_attach fun(client:vim.lsp.Client, buffer)
----@param name? string
-----------------------------------------------------
-function M.on_attach(on_attach, name)
-  return M.on_event("LspAttach", on_attach, name)
+
+---------------------------------------------------------------
+--- Register a callback to be executed when LSP client matches filter
+--- This is the core function that replaces on_attach, on_support_methods, etc.
+---@param filter vim.lsp.get_clients.Filter Filter can include:
+---  - id: client id
+---  - name: client name
+---  - bufnr: buffer number
+---  - method: LSP method (e.g., "textDocument/formatting", "formatting", "hover")
+---@param callback fun(client: vim.lsp.Client, buffer: number)
+---
+--- Examples:
+---   Utils.lsp.on({}, callback) -- on any LSP attach
+---   Utils.lsp.on({ name = "lua_ls" }, callback) -- on lua_ls attach
+---   Utils.lsp.on({ method = "formatting" }, callback) -- when formatting is supported
+--- Register a callback to be executed when LSP client matches filter
+---------------------------------------------------------------
+function M.on(filter, callback)
+  M.setup()
+  if filter.method then
+    filter = vim.deepcopy(filter)
+    filter.method = normalize_method(filter.method)
+  end
+  table.insert(_handlers, {
+    filter = filter,
+    callback = callback,
+    done = {},
+  })
+
+  handle(filter)
 end
 
-----------------------------------------------------
--- Create auto command for LSP attach
----@param on_detach fun(client:vim.lsp.Client, buffer)
----@param name? string
-----------------------------------------------------
-function M.on_detach(on_detach, name)
-  return M.on_event("LspDetach", on_detach, name)
+---------------------------------------------------------------
+---Register callback for a specific LSP server
+---@param server_name string
+---@param callback fun(client: vim.lsp.Client, buffer: number)
+---------------------------------------------------------------
+function M.on_server(server_name, callback)
+  M.on({ name = server_name }, callback)
+end
+
+---------------------------------------------------------------
+---Register callback for a specific LSP method/capability
+---@param method string LSP method (e.g., "formatting", "hover", "codeAction")
+---@param callback fun(client: vim.lsp.Client, buffer: number)
+---------------------------------------------------------------
+function M.on_method(method, callback)
+  M.on({ method = method }, callback)
 end
 
 ----------------------------------------------------
@@ -178,50 +213,27 @@ M.action = setmetatable({}, {
 })
 
 ----------------------------------------------------
---- Get the configuration for a specific LSP server
---- @param server string Name of the LSP server
---- @return table LSP server configuration
-----------------------------------------------------
-function M.get_config(server)
-  local ok, ret = pcall(require, "lspconfig.configs." .. server)
-  if ok then return ret end
-  return require("lspconfig.server_configurations." .. server)
-end
-
-----------------------------------------------------
 --- Check if a specific LSP method is supported
 --- @param buffer number Buffer number
 --- @param method string|string[] LSP method or array of methods to check
 --- @return boolean Whether the method(s) is supported
 ----------------------------------------------------
 function M.has(buffer, method)
-  -- Return false early for invalid inputs
   if not buffer or not method then return false end
-
-  -- Handle case where method is a table (array) of methods
   if Utils.type(method, "table") then
     for _, m in ipairs(method) do
       if M.has(buffer, m) then return true end
     end
     return false
   end
-
-  -- Ensure method is a string
   if type(method) ~= "string" then return false end
 
-  -- Get clients for the buffer
   local clients = M.get_clients({ bufnr = buffer })
   if not clients or #clients == 0 then return false end
-
-  -- Derive capability name directly by appending "Provider"
   local capability_name = method .. "Provider"
-
-  -- Check if any client has the capability
   for _, client in ipairs(clients) do
     if client and client.server_capabilities then
       local capability = client.server_capabilities[capability_name]
-
-      -- A capability might be boolean, or an object with configuration
       if capability ~= nil and capability ~= false then return true end
     end
   end
@@ -412,6 +424,40 @@ function M.goto_definition(opts)
       if #items > 1 then notify(string.format("Jumped to first definition (found %d total)", #items)) end
     end,
   })
+end
+
+---------------------------------------------------------------
+---Prepare keymap options for buffer-local LSP keymap
+---@param mapping map.KeymapOpts Original mapping with LSP fields
+---@param buf number Buffer number
+---@return map.KeymapOpts? opts Returns nil if keymap shouldn't be set
+---------------------------------------------------------------
+function M.map(mapping, buf)
+  local enabled = true
+  if type(mapping.enabled) == "function" then
+    enabled = mapping.enabled(buf)
+  elseif mapping.enabled ~= nil then
+    enabled = mapping.enabled
+  end
+  if not enabled then return nil end
+  if mapping.has then
+    local methods = type(mapping.has) == "string" and { mapping.has } or mapping.has
+    local has_capability = false
+    for _, method in ipairs(methods) do
+      if M.has(buf, method) then
+        has_capability = true
+        break
+      end
+    end
+    if not has_capability then return nil end
+  end
+  local opts = vim.tbl_extend("force", {}, mapping)
+  opts.buffer = buf
+  opts.lsp = nil
+  opts.has = nil
+  opts.enabled = nil
+
+  return opts
 end
 
 return M
