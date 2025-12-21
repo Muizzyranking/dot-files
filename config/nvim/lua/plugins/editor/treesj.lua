@@ -2,13 +2,8 @@ return {
   {
     "Wansmer/treesj",
     keys = {
-      {
-        "gs",
-        function()
-          require("treesj").toggle()
-        end,
-        desc = "Join/Split Lines",
-      },
+      -- stylua: ignore
+      {"gs", function() require("treesj").toggle() end, desc = "Join/Split Lines"},
     },
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     opts = {

@@ -91,150 +91,33 @@ return {
         actions = {},
         win = {
           input = {
-            keys = {
-              ["<C-h>"] = { "<c-s-w>", mode = { "i" }, expr = true, desc = "delete word" },
-            },
-
-            b = {
-              completion = false,
-            },
+            keys = { ["<C-h>"] = { "<c-s-w>", mode = { "i" }, expr = true, desc = "delete word" } },
+            b = { completion = false },
           },
-          list = {
-            keys = {},
-          },
+          list = { keys = {} },
         },
       },
     },
     keys = {
-      {
-        "z=",
-        function()
-          Snacks.picker.spelling()
-        end,
-        desc = "Spell suggestions",
-      },
-      {
-        "<leader>fb",
-        function()
-          Snacks.picker.buffers()
-        end,
-        desc = "Buffers",
-      },
-      {
-        "<leader>:",
-        function()
-          Snacks.picker.command_history({ layout = { preset = "code" } })
-        end,
-        desc = "Command History",
-      },
+      -- stylua: ignore start
+      {"z=", function() Snacks.picker.spelling() end, desc = "Spell suggestions"},
+      {"<leader>fb", function() Snacks.picker.buffers() end, desc = "Buffers"},
+      {"<leader>:", function() Snacks.picker.command_history({layout = {preset = "code"}}) end, desc = "Command History"},
+      {"<leader>fF", function() Snacks.picker.files({cwd = Utils.root()}) end, desc = "Find Files (Root Dir)"},
+      {"<leader>ff", function() Snacks.picker.files() end, desc = "Find Files (cwd)"},
+      {"<leader>fg", function() Snacks.picker.grep() end, desc = "Grep"},
+      {"<leader>sw", function() Snacks.picker.grep_word() end, mode = {"n", "x"}, desc = "Search word"},
+      {"<leader>fr", function() Snacks.picker.recent() end, desc = "Recent files"},
+      {"<leader>fR", function() Snacks.picker.recent({filter = {cwd = true}}) end, desc = "Recent files (cwd)"},
+      {"<leader>fp", function() Snacks.picker.projects({layout = {preview = false, preset = "drop"}}) end, desc = "Projects"},
+      {"<leader>fG", function() Snacks.picker.grep_buffers() end, desc = "Grep in Open Buffers"},
+      {"<leader>fd", function() Snacks.picker.diagnostics() end, desc = "Diagnostics"},
+      -- {"<leader>sh", function() Snacks.picker.help() end, desc = "Help Pages"},
+      {"<leader>si", function() Snacks.picker.icons() end, desc = "Icons"},
+      {"<leader>sk", function() Snacks.picker.keymaps({layout = {preset = "drop", preview = false}}) end, desc = "Keymaps"},
+      {"<leader>sm", function() Snacks.picker.man() end, desc = "Man Pages"},
       {
         "<leader>fc",
-        function()
-          Snacks.picker.files({ cwd = vim.fn.stdpath("config"), title = "Find Config Files" })
-        end,
-        desc = "Find Config File",
-      },
-      {
-        "<leader>fF",
-        function()
-          Snacks.picker.files({ cwd = Utils.root() })
-        end,
-        desc = "Find Files (Root Dir)",
-      },
-      {
-        "<leader>ff",
-        function()
-          Snacks.picker.files()
-        end,
-        desc = "Find Files (cwd)",
-      },
-      {
-        "<leader>fg",
-        function()
-          Snacks.picker.grep()
-        end,
-        desc = "Grep",
-      },
-      {
-        "<leader>sw",
-        function()
-          Snacks.picker.grep_word()
-        end,
-        mode = { "n", "x" },
-        desc = "Search word",
-      },
-      {
-        "<leader>fr",
-        function()
-          Snacks.picker.recent()
-        end,
-        desc = "Recent files",
-      },
-      {
-        "<leader>fR",
-        function()
-          Snacks.picker.recent({ filter = { cwd = true } })
-        end,
-        desc = "Recent files (cwd)",
-      },
-      {
-        "<leader>fp",
-        function()
-          Snacks.picker.projects({ layout = { preview = false, preset = "drop" } })
-        end,
-        desc = "Projects",
-      },
-      {
-        "<leader>fG",
-        function()
-          Snacks.picker.grep_buffers()
-        end,
-        desc = "Grep in Open Buffers",
-      },
-      {
-        '<leader>f"',
-        function()
-          Snacks.picker.registers()
-        end,
-        desc = "Registers",
-      },
-      {
-        "<leader>fd",
-        function()
-          Snacks.picker.diagnostics()
-        end,
-        desc = "Diagnostics",
-      },
-      -- {
-      --   "<leader>sh",
-      --   function()
-      --     Snacks.picker.help()
-      --   end,
-      --   desc = "Help Pages",
-      -- },
-      {
-        "<leader>si",
-        function()
-          Snacks.picker.icons()
-        end,
-        desc = "Icons",
-      },
-      {
-        "<leader>sk",
-        function()
-          Snacks.picker.keymaps({ layout = { preset = "drop", preview = false } })
-        end,
-        desc = "Keymaps",
-      },
-      {
-        "<leader>sm",
-        function()
-          Snacks.picker.man()
-        end,
-        desc = "Man Pages",
-      },
-      {
-        "<leader>fC",
         function()
           Snacks.picker.resume({ exclude = { "explorer", "notifications" } })
         end,
@@ -250,6 +133,7 @@ return {
         desc = "Colorschemes",
       },
     },
+    -- stylua: ignore end
   },
   {
     "folke/todo-comments.nvim",

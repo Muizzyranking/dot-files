@@ -11,12 +11,12 @@ return {
     ["'"] = { action = "closeopen", pair = "''", neigh_pattern = "[^%w\\][^%w]", register = { cr = false } },
   },
   config = function(_, opts)
-    Utils.toggle({
+    Utils.map.set({
       "<leader>up",
-      get_state = function()
+      get = function()
         return not vim.g.minipairs_disable
       end,
-      change_state = function(state)
+      set = function(state)
         vim.g.minipairs_disable = state
       end,
       name = "Mini Pairs",

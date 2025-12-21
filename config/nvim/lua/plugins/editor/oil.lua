@@ -8,14 +8,14 @@ return {
         function()
           require("oil").open_float()
         end,
-        desc = "File Browser (Oil)",
+        desc = "File Browser (CWD - Oil)",
       },
       {
         "_",
         function()
           require("oil").toggle_float(Utils.root())
         end,
-        desc = "File Browser (CWD - Oil)",
+        desc = "File Browser (Root - Oil)",
       },
     },
     opts = function()
@@ -38,9 +38,7 @@ return {
         default_file_explorer = true,
         delete_to_trash = true,
         skip_confirm_for_simple_edits = true,
-        columns = {
-          "icon",
-        },
+        columns = { "icon" },
         keymaps = {
           ["gd"] = {
             desc = "Toggle file detail view",
@@ -73,19 +71,13 @@ return {
           ["t"] = "actions.toggle_trash",
         },
         use_default_keymaps = false,
-        keymaps_help = {
-          border = "rounded",
-        },
+        keymaps_help = { border = "rounded" },
         view_options = {
           natural_order = true,
           case_insensitive = false,
-          sort = {
-            { "type", "asc" },
-            { "name", "asc" },
-          },
+          sort = { { "type", "asc" }, { "name", "asc" } },
         },
         float = {
-          -- Padding around the floating window
           padding = 0,
           max_width = 120,
           max_height = 32,
@@ -97,9 +89,7 @@ return {
         progress = {
           border = "rounded",
           minimized_border = "none",
-          win_options = {
-            winblend = 0,
-          },
+          win_options = { winblend = 0 },
         },
       }
     end,

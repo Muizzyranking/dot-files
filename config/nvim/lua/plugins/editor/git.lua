@@ -56,7 +56,8 @@ return {
           return gs[op]({ vim.fn.line("."), vim.fn.line("v") })
         end
       end
-      Utils.map.set_keymaps({
+      -- stylua: ignore start
+      Utils.map.set({
         {
           "]h",
           function()
@@ -79,84 +80,20 @@ return {
           end,
           desc = "Prev Hunk",
         },
-        {
-          "<leader>ghs",
-          gs.stage_hunk,
-          desc = "Stage Hunk",
-        },
-        {
-          "<leader>ghs",
-          gs_visual("stage_hunk"),
-          desc = "Stage Hunk",
-          mode = { "v" },
-        },
-        {
-          "<leader>ghr",
-          gs.reset_hunk,
-          desc = "Reset Hunk",
-          icon = { icon = "󰜉 " },
-        },
-        {
-          "<leader>ghr",
-          gs_visual("reset_hunk"),
-          desc = "Reset Hunk",
-          icon = { icon = "󰜉 " },
-          mode = { "v" },
-        },
-        {
-          "<leader>ghp",
-          gs.preview_hunk_inline,
-          desc = "Preview Hunk Inline",
-          icon = { icon = " " },
-        },
-        {
-          "<leader>ghu",
-          gs.undo_stage_hunk,
-          desc = "Undo Stage Hunk",
-          icon = { icon = " " },
-        },
-        {
-          "<leader>ghu",
-          gs_visual("undo_stage_hunk"),
-          desc = "Undo Stage Hunk",
-          icon = { icon = " " },
-          mode = { "v" },
-        },
-        {
-          "<leader>gs",
-          gs.stage_buffer,
-          desc = "Stage Buffer",
-          icon = { icon = " ", color = "green" },
-        },
-        {
-          "<leader>gr",
-          gs.reset_buffer,
-          desc = "Reset Buffer",
-          icon = { icon = " " },
-        },
-        {
-          "<leader>gB",
-          function()
-            gs.blame_line({ full = true })
-          end,
-          desc = "Blame Line",
-          icon = { icon = " " },
-        },
-        {
-          "<leader>gd",
-          gs.diffthis,
-          desc = "Diff this",
-          icon = { icon = " " },
-        },
-        {
-          "<leader>gD",
-          function()
-            gs.diffthis("~")
-          end,
-          desc = "Diff this ~",
-          icon = { icon = " " },
-        },
+        { "<leader>ghs", gs.stage_hunk, desc = "Stage Hunk" },
+        { "<leader>ghs", gs_visual("stage_hunk"), desc = "Stage Hunk", mode = { "v" } },
+        { "<leader>ghr", gs.reset_hunk, desc = "Reset Hunk", icon = { icon = "󰜉 " } },
+        { "<leader>ghr", gs_visual("reset_hunk"), desc = "Reset Hunk", icon = { icon = "󰜉 " }, mode = { "v" } },
+        { "<leader>ghp", gs.preview_hunk_inline, desc = "Preview Hunk Inline", icon = { icon = " " } },
+        { "<leader>ghu", gs.undo_stage_hunk, desc = "Undo Stage Hunk", icon = { icon = " " } },
+        { "<leader>ghu", gs_visual("undo_stage_hunk"), desc = "Undo Stage Hunk", icon = { icon = " " }, mode = { "v" } },
+        { "<leader>gs", gs.stage_buffer, desc = "Stage Buffer", icon = { icon = " ", color = "green" } },
+        { "<leader>gr", gs.reset_buffer, desc = "Reset Buffer", icon = { icon = " " } },
+        { "<leader>gB", function() gs.blame_line({ full = true }) end, desc = "Blame Line", icon = { icon = " " } },
+        { "<leader>gd", gs.diffthis, desc = "Diff this", icon = { icon = " " } },
+        { "<leader>gD", function() gs.diffthis("~") end, desc = "Diff this ~", icon = { icon = " " } },
       }, { buffer = buffer, icon = { icon = "󰊢 " } })
+      -- stylua: ignore end
     end,
   },
 }

@@ -14,6 +14,7 @@ return {
           local grug = require("grug-far")
           local ext = vim.bo.buftype == "" and vim.fn.expand("%:e")
           grug.open({
+            visualSelectionUsage = "operate-within-range",
             prefills = {
               filesFilter = ext and ext ~= "" and "*." .. ext or nil,
             },
@@ -41,15 +42,6 @@ return {
           })
         end,
         desc = "Search and Replace (in current file)",
-      },
-      {
-        "<leader>sR",
-        function()
-          local grug = require("grug-far")
-          grug.open({ visualSelectionUsage = "operate-winthin-range" })
-        end,
-        mode = { "n", "v" },
-        desc = "Search within range",
       },
     },
   },

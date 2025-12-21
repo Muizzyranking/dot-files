@@ -39,7 +39,6 @@ return {
           win = {
             list = {
               keys = {
-                ["b"] = "bookmark",
                 ["<c-c>"] = "",
                 ["s"] = "edit_vsplit",
                 ["S"] = "edit_split",

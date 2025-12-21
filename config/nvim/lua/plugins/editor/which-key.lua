@@ -62,7 +62,6 @@ return {
       function()
         require("which-key").show({ global = false })
       end,
-      -- icon = { icon = " ", color = "orange" },
       desc = "Buffer Keymaps (which-key)",
     },
   },
