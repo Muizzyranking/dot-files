@@ -52,12 +52,12 @@ return {
     lazy_load = false,
   },
   config = function(_, opts)
-    Utils.toggle({
+    Utils.map.set({
       "<leader>uh",
-      get_state = function(buf)
+      get = function(buf)
         return require("colorizer").is_buffer_attached(buf)
       end,
-      change_state = function(state, buf)
+      set = function(state, buf)
         require("colorizer")[state and "detach_from_buffer" or "attach_to_buffer"](buf)
       end,
       name = "Color highlight",
