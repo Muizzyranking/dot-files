@@ -19,6 +19,20 @@ local M = setmetatable({}, {
   end,
 })
 
+local notification_queue = {}
+local ready = false
+
+Utils.autocmd.on_very_lazy(function()
+  ready = true
+  vim.defer_fn(function()
+    for _, item in ipairs(notification_queue) do
+      M.notify(item.msg, item.opts)
+    end
+    notification_queue = {}
+  end, 100)
+  return true
+end, { once = true })
+
 ----------------------------------------------------------
 --- Wrapper function for Neovim's notification system
 ---@param msg string|table The message to be displayed in the notification
@@ -31,6 +45,10 @@ function M.notify(msg, opts)
     end)
   end
   opts = opts or {}
+  if not ready and not opts.now then
+    table.insert(notification_queue, { msg = msg, opts = opts })
+    return
+  end
   if type(msg) == "table" then
     msg = table.concat(
       vim.tbl_filter(function(line)
@@ -63,7 +81,7 @@ end
 ----------------------------------------------------------
 --- Creates a notification function with shared options
 ---@param shared_opts? table Shared options to merge with each notification (e.g., {title = "LSP"})
----@return table A callable table with notification methods (info, warn, error, etc.)
+---@return utils.notify A callable table with notification methods (info, warn, error, etc.)
 ----------------------------------------------------------
 function M.create(shared_opts)
   shared_opts = shared_opts or {}
