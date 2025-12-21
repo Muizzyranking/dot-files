@@ -24,7 +24,7 @@ return {
     {
       "<leader>cU",
       function()
-        require("conform").format({
+        Utils.format({
           buf = Utils.ensure_buf(0),
           formatters = { "ruff_fix" },
           timeout_ms = 3000,
