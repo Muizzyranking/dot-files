@@ -3,7 +3,7 @@ vim.bo.shiftwidth = 2
 vim.bo.tabstop = 2
 vim.b.autoformat = true
 
-Utils.map.create_abbrevs({
+Utils.map.abbrev({
   { "function", { "Function" } },
   { "local", { "loc", "Local" } },
   { "require", { "req", "Require" } },
@@ -12,7 +12,7 @@ Utils.map.create_abbrevs({
   conds = { "lsp_keyword" },
 })
 
-Utils.map.set_keymaps({
+Utils.map.set({
   {
     "<leader>sh",
     function()

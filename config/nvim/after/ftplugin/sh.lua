@@ -1,4 +1,4 @@
-Utils.map.set_keymaps({
+Utils.map.set({
   {
     "<leader>cb",
     [[<Cmd>normal! ggO#!/usr/bin/env bash<CR><Esc>]],

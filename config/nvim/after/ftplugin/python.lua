@@ -1,6 +1,6 @@
 local buf = Utils.ensure_buf()
 vim.b.autoformat = true
-Utils.map.set_keymaps({
+Utils.map.set({
   {
     "<leader>cb",
     [[<Cmd>normal! ggO#!/usr/bin/env python3<CR><Esc>]],
@@ -25,7 +25,7 @@ Utils.map.set_keymaps({
   },
 }, { buffer = buf })
 
-Utils.map.create_abbrevs({
+Utils.map.abbrev({
   { "True", { "true", "ture" } },
   { "False", { "false", "flase" } },
   { "class", { "Class", "calss" } },

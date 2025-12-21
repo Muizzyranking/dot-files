@@ -1,1 +1,1 @@
-Utils.root.add_file({ "composer.json", ".phpactor.json", ".phpactor.yml" })
+Utils.root.add_patterns({ "composer.json", ".phpactor.json", ".phpactor.yml" })

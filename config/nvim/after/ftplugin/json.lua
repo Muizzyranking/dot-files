@@ -1,5 +1,5 @@
 local buf = Utils.ensure_buf(0)
-Utils.map.set_keymaps({
+Utils.map.set({
   {
     "o",
     function()

@@ -1,5 +1,5 @@
 local buf = Utils.ensure_buf(0)
-Utils.map.create_abbrevs({
+Utils.map.abbrev({
   { "POST", { "post", "Post" } },
   { "GET", { "get", "Get" } },
   { "PATCH", { "patch", "Patch" } },
