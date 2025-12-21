@@ -40,6 +40,9 @@ opt.fillchars      = {
 }
 opt.wrap           = false -- Disable line wrapping
 opt.smoothscroll   = true -- Smooth scrolling
+opt.foldtext       = ""
+opt.foldlevel      = 99
+opt.foldmethod     = "indent"
 
 -----------------------------------------------------------
 -- Undo and Backup
