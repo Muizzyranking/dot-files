@@ -12,10 +12,6 @@ return {
             c_bs = { "<c-bs>", "<c-w>", mode = { "t", "i" }, desc = "delete word" },
             c_enter = { "<c-enter>", "<c-j>", mode = { "t", "i" }, desc = "new line" },
           },
-          nav = function(dir)
-            -- see lua/utils/smart_nav.lua
-            Utils.smart_nav.smart_navigate(dir)
-          end,
         },
         mux = { backend = "tmux", enabled = true },
       },
