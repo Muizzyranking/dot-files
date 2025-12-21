@@ -22,7 +22,6 @@ require("lazy").setup({
     { import = "plugins.ai.copilot" },
     { import = "plugins.ai.sidekick" },
     -- { import = "plugins.extras.neotest" },
-    { import = "plugins.extras.refactoring" },
     { import = "plugins.extras.kulala" },
     { import = "plugins" },
   },
