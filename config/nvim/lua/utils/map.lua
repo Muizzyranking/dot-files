@@ -4,8 +4,8 @@ local M = setmetatable({}, {
     return m.safe_keymap_set(mode, lhs, rhs, opts)
   end,
 })
-M._wk_maps = {}
-M._is_setup = false
+local wk_maps = {}
+local did_setup = false
 local deepcopy = vim.deepcopy
 
 ---------------------------------------------------------------
@@ -23,6 +23,28 @@ local function validate_keymap(mappings)
     return false
   end
   return true
+end
+
+---------------------------------------------------------------
+-- Resolve single mapping or array of mappings to array
+---@param mappings any
+---@return table[]
+---------------------------------------------------------------
+local function resolve_mappings(mappings)
+  if type(mappings) ~= "table" then return {} end
+  -- Single mapping: has [1] as string, or has keys but no [1]
+  if type(mappings[1]) == "string" or (mappings[1] == nil and next(mappings)) then return { mappings } end
+  -- Array of mappings
+  return mappings
+end
+
+---------------------------------------------------------------
+-- Check if a mapping is a toggle mapping
+---@param mapping table
+---@return boolean
+---------------------------------------------------------------
+local function is_toggle_mapping(mapping)
+  return vim.is_callable(mapping.get) and vim.is_callable(mapping.set)
 end
 
 ---------------------------------------------------------------
@@ -88,29 +110,29 @@ function M.auto_indent(keys, opts)
 end
 
 ---------------------------------------------------------------
----Set a single keymap with extended functionality
+-- Apply a single keymap
 ---@param mapping map.KeymapOpts
 ---------------------------------------------------------------
-function M.set_keymap(mapping)
+local function set_keymap(mapping)
   if vim.g.vscode then return end
-
   if not validate_keymap(mapping) then return end
-  local conds = Utils.ensure_list(mapping.conds)
+  if mapping.lsp or mapping.has then
+    local filter = mapping.lsp or {}
+    Utils.lsp.on(filter, function(_, buf)
+      local opts = Utils.lsp.map(mapping, buf)
+      if opts then M.set(opts) end
+    end)
+    return
+  end
 
-  if conds then
-    local conditions = Utils.ensure_list(mapping.conds)
-    for _, condition in ipairs(conditions) do
+  if mapping.conds then
+    for _, condition in ipairs(Utils.ensure_list(mapping.conds)) do
       if not Utils.evaluate(condition) then return end
     end
   end
-
   local lhs, rhs = mapping[1], mapping[2]
   local mode = (mapping.mode and Utils.ensure_list(mapping.mode)) or { "n" }
-
-  local opts = {
-    desc = Utils.ensure_string(mapping.desc, ""),
-  }
-
+  local opts = { desc = Utils.ensure_string(mapping.desc, "") }
   for _, field in ipairs({ "buffer", "silent", "remap", "expr" }) do
     if mapping[field] ~= nil then opts[field] = mapping[field] end
   end
@@ -130,17 +152,18 @@ function M.set_keymap(mapping)
 end
 
 ---------------------------------------------------------------
----@param mappings map.KeymapOpts[] # Keymap options
----@param opts? map.KeymapOpts #  Shared options for all mappings
+---Set a single keymap with extended functionality
+---@param mappings map.KeymapOpts|map.KeymapOpts[]
 ---------------------------------------------------------------
-function M.set_keymaps(mappings, opts)
-  if type(mappings) ~= "table" then return end
-  if type(mappings[1]) ~= "table" then mappings = { mappings } end
+function M.set(mappings, opts)
+  mappings = resolve_mappings(mappings)
   opts = opts or {}
+  if #mappings == 0 then return end
   for _, map in ipairs(mappings) do
-    local new_map = vim.tbl_deep_extend("force", {}, opts, map)
-    if opts.conds and map.conds then new_map.conds = vim.list_extend(vim.list_slice(opts.conds), map.conds) end
-    M.set_keymap(new_map)
+    local mapping = vim.tbl_deep_extend("force", {}, opts, map)
+    if mapping.conds and map.conds then mapping.conds = vim.list_extend(vim.list_slice(opts.conds or {}), map.conds) end
+    if is_toggle_mapping(mapping) then mapping = M.toggle(mapping) end
+    set_keymap(mapping)
   end
 end
 
@@ -380,9 +403,9 @@ function M.add_to_wk(mappings)
   if type(mappings) ~= "table" then return end
   if type(mappings[1]) ~= "table" then mappings = { mappings } end
   for _, map in ipairs(mappings) do
-    if type(map) == "table" then table.insert(M._wk_maps, map) end
+    if type(map) == "table" then table.insert(wk_maps, map) end
   end
-  if M._is_setup then Utils.autocmd.exec_user_event("KeymapSet") end
+  if did_setup then Utils.autocmd.exec_user_event("KeymapSet") end
 end
 
 ---------------------------------------------------------------
@@ -439,7 +462,7 @@ function M.reload_config(opts)
     return string.format("nohup %s > /dev/null 2>&1 & disown", cmd)
   end
 
-  M.set_keymap({
+  M.set({
     key,
     function()
       local cmd = build_cmd()
@@ -470,10 +493,10 @@ end
 ---Apply which-key mappings if available
 ---------------------------------------------------------------
 function M._apply_which_key()
-  if #M._wk_maps > 0 and Utils.is_loaded("which-key.nvim") then
+  if #wk_maps > 0 and Utils.is_loaded("which-key.nvim") then
     local wk = require("which-key")
-    local current_maps = deepcopy(M._wk_maps)
-    M._wk_maps = {}
+    local current_maps = deepcopy(wk_maps)
+    wk_maps = {}
     wk.add(current_maps)
   end
 end
@@ -481,7 +504,7 @@ end
 M.setup = function()
   Utils.on_load("which-key.nvim", function()
     M._apply_which_key()
-    M._is_setup = true
+    did_setup = true
 
     Utils.autocmd.on_user_event("KeymapSet", function()
       M._apply_which_key()
