@@ -6,49 +6,67 @@
       "newline": true,
       "segments": [
         {
-          "foreground": "#5f9fef",
+          "foreground": "#89B4FA",
           "properties": {
-            "folder_icon": "",
+            "folder_icon": "",
             "folder_separator_icon": "",
             "home_icon": "~",
             "style": "agnoster_full"
           },
           "style": "diamond",
           "template": "{{ .Path }} ",
-          "trailing_diamond": "<#5f9fef></>",
+          "trailing_diamond": "<#89B4FA></>",
           "type": "path"
         },
         {
-          "foreground": "#7aa2f7",
+          "foreground": "#89B4FA",
           "properties": {
             "branch_icon": " ",
             "fetch_status": true,
-            "fetch_upstream_icon": true,
-            "fetch_worktree_count": true
+            "fetch_upstream_icon": true
           },
           "style": "diamond",
-          "template": " <#9ece6a>{{ .UpstreamIcon }}{{ .HEAD }}</>{{if .BranchStatus }} {{ .BranchStatus }}{{ end }}{{ if .Working.Changed }} <#ff9e64>  {{ .Working.String }}</>{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }} |{{ end }}{{ if .Staging.Changed }} <#9ece6a>  {{ .Staging.String }}</>{{ end }}{{ if gt .StashCount 0 }}  {{ .StashCount }}{{ end }} ",
-          "type": "git",
-          "mapped_branches": {
-            "feat/*": "🚀 ",
-            "bug/*": "🐛 "
-          }
+          "template": " <#A6E3A1>{{ .UpstreamIcon }}{{ .HEAD }}</>{{if .BranchStatus }}{{ end }}{{ if .Working.Changed }} <#FAB387>  {{ .Working.String }}</>{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }}  |{{ end }}{{ if .Staging.Changed }} <#A6E3A1>  {{ .Staging.String }}</>{{ end }}{{ if gt .StashCount 0 }} <#F9E2AF>  {{ .StashCount }}</>{{ end }} ",
+          "type": "git"
         },
         {
           "type": "project",
           "style": "powerline",
-          "foreground": "#3b78ff",
+          "foreground": "#89B4FA",
           "template": " {{ if .Error }}{{ .Error }}{{ else }}{{ if .Version }} {{.Version}}{{ end }} {{ if .Name }}{{ .Name }}{{ end }}{{ end }} "
         },
         {
           "type": "python",
           "style": "powerline",
           "powerline_symbol": "",
-          "foreground": "#100e23",
-          "background": "#906cff",
+          "foreground": "#1E1E2E",
+          "background": "#89B4FA",
           "template": "  {{ .Full }} "
+        },
+        {
+          "type": "node",
+          "style": "powerline",
+          "foreground": "#A6E3A1",
+          "template": " <#A6E3A1> </> {{ .Full }} "
+        },
+        {
+          "type": "go",
+          "style": "powerline",
+          "foreground": "#89B4FA",
+          "template": " <#89B4FA>󰟓 </> {{ .Full }} "
+        },
+        {
+          "type": "rust",
+          "style": "powerline",
+          "foreground": "#FAB387",
+          "template": " <#FAB387> </> {{ .Full }} "
         }
       ],
+      "type": "prompt"
+    },
+    {
+      "alignment": "right",
+      "segments": [],
       "type": "prompt"
     },
     {
@@ -56,9 +74,9 @@
       "newline": true,
       "segments": [
         {
-          "foreground": "#3b78ff",
+          "foreground": "#89B4FA",
           "foreground_templates": [
-            "{{ if gt .Code 0 }}#f7768e{{ end }}"
+            "{{ if gt .Code 0 }}#F38BA8{{ end }}"
           ],
           "properties": {
             "always_enabled": true
@@ -74,8 +92,10 @@
   "console_title_template": "{{ .Folder }}",
   "transient_prompt": {
     "background": "transparent",
-    "foreground": "#3b78ff",
-    "newline": true,
+    "foreground": "#89B4FA",
+    "foreground_templates": [
+      "{{ if gt .Code 0 }}#F38BA8{{ end }}"
+    ],
     "template": " "
   },
   "version": 3
