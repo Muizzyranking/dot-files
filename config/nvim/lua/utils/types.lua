@@ -38,16 +38,17 @@
 ---@field expr? boolean # Whether the mapping is an expression
 ---@field icon? string|map.IconConfig # Icon for which-key integration
 ---@field conds? table<number, function|boolean> # Conditions for the mapping
+---@field lsp? table<string, string> # Conditions for the mapping
+---@field has? string|string[] # LSP capabilities required for the mapping
 
 ---@class toggle.Opts : map.KeymapOpts
 ---@field name string # Name of the toggle (required for notifications unless notify=false)
----@field get_state fun(buf?: number): boolean # Function that returns the current state
----@field change_state fun(state: boolean, buf?: number) # Function to change the state
+---@field get fun(buf?: number): boolean # Function that returns the current state
+---@field set fun(state: boolean, buf?: number) # Function to change the state
 ---@field icon? map.ToggleIconConfig # Icon configuration for different states
 ---@field color? map.ToggleColorConfig # Color configuration for different states
 ---@field notify? boolean # Whether to show notifications (default: true)
 ---@field set_key? boolean # Whether to set the keymap immediately (default: true)
----@field ui? boolean # (default: true)
 
 ---@class map.ReloadConfig
 ---@field cmd string # Command to reload/restart the configuration
