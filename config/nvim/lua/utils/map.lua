@@ -289,12 +289,12 @@ local DEFAULT_ABBREV_CONDS = {
 }
 
 -----------------------------------
--- create abbreviations
+-- Internal function to create a single abbreviation
 ---@param word string
 ---@param new_word string
 ---@param opts? map.AbbrevOpts
 -----------------------------------
-function M.create_abbrev(word, new_word, opts)
+local function set_abbrev(word, new_word, opts)
   if not word or not new_word then return end
   opts = opts or {}
   local mode = opts.mode or "ia"
@@ -325,20 +325,16 @@ end
 ---@param abbrevs map.Abbrevs[]
 ---@param opts? map.AbbrevOpts
 ---------------------------------------------------------------
-function M.create_abbrevs(abbrevs, opts)
+function M.abbrev(abbrevs, opts)
   if type(abbrevs) ~= "table" then return end
-
   opts = opts or {}
-
   for _, abbrev in ipairs(abbrevs) do
     local right_word = abbrev[1]
     local wrong_words = Utils.ensure_list(abbrev[2])
     local abbrev_opts = abbrev[3] or {}
-
     local merged_opts = vim.tbl_deep_extend("force", {}, opts, abbrev_opts)
-
     for _, wrong_word in ipairs(wrong_words) do
-      if type(wrong_word) == "string" then M.create_abbrev(wrong_word, right_word, merged_opts) end
+      if type(wrong_word) == "string" then set_abbrev(wrong_word, right_word, merged_opts) end
     end
   end
 end
