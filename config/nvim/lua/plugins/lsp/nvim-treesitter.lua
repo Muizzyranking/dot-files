@@ -71,7 +71,7 @@ return {
       local incr = opts.incremental_selection or {}
       opts.incremental_selection = nil
       local ts = require("nvim-treesitter")
-      if not Utils.is_executable("tree-sitter") then
+      if not Utils.is_executable("tree-sitter") and not vim.g.vscode then
         return Utils.notify.error({
           "**treesitter-main** requires the `tree-sitter` CLI executable to be installed.",
         })
@@ -88,7 +88,13 @@ return {
 
       vim.api.nvim_create_autocmd("FileType", {
         callback = function(ev)
-          if not vim.b[ev.buf].bigfile and Utils.treesitter.have(ev.match) then pcall(vim.treesitter.start) end
+          local ft = ev.match
+          if not Utils.treesitter.have(ft) then return end
+          if vim.b[ev.buf].bigfile then return end
+          pcall(vim.treesitter.start)
+          vim.opt.indentexpr = "v:lua.require('utils.treesitter').indentexpr()"
+          vim.o.foldmethod = "expr"
+          vim.o.foldexpr = "v:lua.require('utils.treesitter').foldexpr()"
         end,
       })
       Utils.treesitter.incr.attach(incr)
