@@ -133,7 +133,7 @@ autocmd.autocmd_augroup("Filetype autocmds", {
   {
     pattern = { "typescript", "typescriptreact", "javascript", "javascriptreact", "jsx", "tsx" },
     callback = function(event)
-      Utils.map.set_keymaps({
+      Utils.map.set({
         {
           "t",
           Utils.lang.js_ts.auto_add_async,

@@ -1,8 +1,8 @@
-Utils.map.create_abbrevs({
+Utils.map.abbrev({
   { "don't", "dont" },
   { "Don't", "Dont" },
   { "local", { "lcaol", "lcoal", "locla" } },
   { "share", { "saher", "sahre" } },
   { "blame", { "balme" } },
-  { "return", { "ret", "Return" } },
+  { "return", { "Return" } },
 }, {})
