@@ -1,7 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-# adds or updates the 'origin' remote of a git repository
 
 cleanup() {
     echo

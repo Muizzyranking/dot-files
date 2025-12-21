@@ -2,7 +2,7 @@
 
 is_git_repo() {
     if ! git -C "$1" rev-parse --is-inside-work-tree &>/dev/null; then
-        echo -e "\033[0;31mError: Not a git repository\033[0m"
+        print_message error "Not a git repository"
         exit 1
     fi
 }
@@ -10,7 +10,7 @@ is_git_repo() {
 get_remote_url() {
     local url
     if ! url=$(git -C "$1" remote get-url origin 2>/dev/null) || [ -z "$url" ]; then
-        echo -e "\033[0;31mError: No remote 'origin' found in repository\033[0m"
+        print_message error "No remote 'origin' found in repository"
         exit 1
     fi
     echo "$url"
@@ -20,7 +20,7 @@ get_current_branch() {
     local branch
     branch=$(git -C "$1" symbolic-ref --short HEAD 2>/dev/null)
     if [ $? -ne 0 ]; then
-        echo -e "\033[0;33mWarning: Could not determine current branch, using default branch\033[0m"
+        print_message warning "Could not determine current branch, using default branch"
         return 1
     fi
     echo "$branch"
@@ -60,33 +60,26 @@ if [ -z "$target_dir" ]; then
     target_dir="$(pwd)"
 else
     if [[ "$target_dir" = /* ]]; then
-        # Absolute path
         :
     else
-        # Relative path
         target_dir="$(pwd)/$target_dir"
     fi
     if [ ! -d "$target_dir" ]; then
-        echo "Error: Directory does not exist: $target_dir"
+        print_message error "Directory does not exist: $target_dir"
         exit 1
     fi
 fi
 
-# Verify it's a git repo
 is_git_repo "$target_dir"
 
-# Get the remote URL
 remote_url=$(get_remote_url "$target_dir")
 
-# Convert SSH URL to HTTPS format
 if [[ $remote_url == git@* ]]; then
     remote_url=$(echo "$remote_url" | sed 's/git@\(.*\):\(.*\)\.git/https:\/\/\1\/\2/')
 fi
 
-# Remove .git suffix if present
 remote_url=${remote_url%.git}
 
-# Add branch information if requested
 if [ "$show_branch" = true ]; then
     branch=$(get_current_branch "$target_dir")
     if [ $? -eq 0 ]; then
@@ -98,12 +91,11 @@ if [ "$show_branch" = true ]; then
             remote_url="${remote_url}/src/${branch}"
         else
             remote_url="${remote_url}/tree/${branch}"
-            echo -e "\033[0;33mWarning: Unknown git hosting service, using generic branch URL format\033[0m"
+            print_message warning "Please verify the URL format for your hosting service"
         fi
     fi
 fi
 
-# Open the URL in the default browser
 if is_wsl; then
     if command -v powershell.exe >/dev/null 2>&1; then
         powershell.exe -Command "Start-Process '$remote_url'"
