@@ -409,7 +409,7 @@ local function mark_as_conflict_buffer(bufnr)
   vim.b[bufnr].autoformat = false
   vim.b[bufnr].git_conflict = true
 
-  Utils.map.set_keymaps(keys, { buffer = bufnr, icon = { icon = "", color = "orange" } })
+  Utils.map.set(keys, { buffer = bufnr, icon = { icon = "", color = "orange" } })
 
   local conflicts = find_conflicts(bufnr)
   highlight_conflicts(bufnr, conflicts)
@@ -432,7 +432,7 @@ local function mark_as_resolved(bufnr)
   vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
 
   local keys = buffer_state[bufnr].keys
-  Utils.map.del_keymaps(keys, { buffer = bufnr, icon = { icon = "", color = "orange" } })
+  Utils.map.del(keys, { buffer = bufnr, icon = { icon = "", color = "orange" } })
   buffer_state[bufnr] = nil
 
   vim.api.nvim_exec_autocmds("BufEnter", { buffer = bufnr })

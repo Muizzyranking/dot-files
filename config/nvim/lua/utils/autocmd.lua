@@ -30,12 +30,12 @@ function M.autocmd_augroup(name, autocmds, events)
     opts.merge_events = nil
     local autocmd_events = opts.events or events
     opts.events = nil
-    if autocmd_events then
-      opts.group = group
-      M.create(autocmd_events, opts)
-    else
+    if not autocmd_events then
       Utils.notify.error("No events specified for autocmd in group: " .. name)
+      return
     end
+    opts.group = group
+    M.create(autocmd_events, opts)
   end
 end
 

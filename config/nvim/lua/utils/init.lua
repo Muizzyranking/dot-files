@@ -4,7 +4,6 @@
 ---@field bigfile utils.bigfile
 ---@field cmp utils.cmp
 ---@field discipline utils.discipline
----@field folds utils.folds
 ---@field format utils.format
 ---@field git utils.git
 ---@field hl utils.hl
@@ -335,5 +334,11 @@ local function _has_kitty_graphics_support(script_path)
 end
 
 M.has_kitty_graphics_support = M.memoize(_has_kitty_graphics_support)()
+
+---@param module string
+function M.ensure_require(module)
+  local ok, mod = pcall(require, module)
+  return ok and mod or nil
+end
 
 return M
