@@ -1,3 +1,5 @@
+#!/usr/bin/env zsh
+
 aliases() {
     alias | sed 's/=/ => /' | bat --language=bash --style=plain
 }
@@ -6,7 +8,6 @@ bak() {
     cp "$1" "$1.bak"
 }
 
-# find directory and cd into it
 fdir() {
     local selected_dir
     selected_dir=$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse)
@@ -58,10 +59,9 @@ f() {
             fzf --height 40% --layout reverse --info inline \
                 --nth 2.. --tac --no-sort --query "$*" \
                 --bind 'enter:become:echo {2..}'
-    ) && cd "$dir" || return
+    ) && \cd "$dir" || return
 }
 
-# sudo - press ESC twice to add sudo
 sudo-command-line() {
     [[ -z $BUFFER ]] && zle up-history
     if [[ $BUFFER == sudo\ * ]]; then

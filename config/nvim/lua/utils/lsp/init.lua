@@ -87,10 +87,10 @@ end
 ---Setup LSP keymap handlers (autocmds for attach/detach)
 ---------------------------------------------------------------
 function M.setup()
+  Utils.lsp.breadcrumb.setup()
   if did_setup then return end
   did_setup = true
 
-  local group = vim.api.nvim_create_augroup("utils.lsp.keymap", { clear = true })
   Utils.autocmd.autocmd_augroup("utils.lsp.setup", {
     {
       events = { "LspAttach" },
@@ -143,7 +143,12 @@ function M.on(filter, callback)
     done = {},
   })
 
-  handle(filter)
+  local clients = Utils.lsp.get_clients(filter)
+  if #clients > 0 then handle(filter) end
+end
+
+function M.on_attach(callback)
+  M.on({}, callback)
 end
 
 ---------------------------------------------------------------

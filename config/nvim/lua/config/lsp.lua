@@ -196,7 +196,7 @@ M.hooks = {
       for _, server in ipairs(opts.disable_for or {}) do
         disable_map[server] = true
       end
-      Utils.lsp.on_attach(function(client, buf)
+      Utils.lsp.on_attach(function(client, _)
         if disable_map[client.name] then client.server_capabilities.semanticTokensProvider = nil end
       end)
     end,
