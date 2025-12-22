@@ -58,6 +58,32 @@ M.keymaps = {
   },
   { "<leader>cl", "<cmd>LspInfo<cr>", desc = "Lsp Info", icon = { icon = " ", color = "blue" } },
   {
+    "<leader>cL",
+    function()
+      local buf = vim.api.nvim_get_current_buf()
+      local clients = vim.lsp.get_clients({ bufnr = buf })
+      if #clients == 0 then
+        Utils.notify.info("No LSP clients attached", { title = "LSP" })
+        return
+      end
+      vim.ui.select(clients, {
+        prompt = "Select LSP client to restart:",
+        format_item = function(client)
+          return client.name
+        end,
+      }, function(client)
+        if client then
+          vim.lsp.stop_client(client.id)
+          vim.defer_fn(function()
+            vim.cmd("edit")
+          end, 100)
+        end
+      end)
+    end,
+    desc = "Restart LSP",
+    icon = { icon = "󰜉 ", color = "orange" },
+  },
+  {
     "<leader>ca",
     vim.lsp.buf.code_action,
     desc = "Code Action",
@@ -88,16 +114,100 @@ M.keymaps = {
 }
 -- stylua: ignore end
 
+---@type table<string, fun(server_name: string, value: any): nil>
+M.option_handlers = {
+  keys = function(server_name, keys)
+    M._server_keys[server_name] = M._server_keys[server_name] or {}
+    vim.list_extend(M._server_keys[server_name], keys)
+  end,
+}
+
+-- Hooks: run after all configs are loaded
+---@class LspHook
+---@field opts table Whether this hook is enabled
+---@field fn fun(opts: table): nil Hook function that receives options
+
+---@type table<string, LspHook>
+M.hooks = {
+  register_keymaps = {
+    opts = { enabled = true },
+    fn = function()
+      for server_name, keys in pairs(M._server_keys) do
+        for _, key in ipairs(keys) do
+          local map_opts = vim.tbl_extend("force", {}, key)
+          Utils.map.set(map_opts, { lsp = { name = server_name } })
+        end
+      end
+    end,
+  },
+  enable_servers = {
+    opts = { enabled = true, delay = 0 },
+    fn = function(opts)
+      vim.defer_fn(function()
+        local servers_to_enable = {}
+        for server, enabled in pairs(M.lsp_servers) do
+          if enabled then table.insert(servers_to_enable, server) end
+        end
+
+        if #servers_to_enable > 0 then
+          local success, err = pcall(vim.lsp.enable, servers_to_enable, true)
+          if not success then
+            Utils.notify.error("Failed to enable LSP servers: " .. tostring(err), { title = "LSP" })
+          end
+        end
+      end, opts.delay or 0)
+    end,
+  },
+  setup_codelens = {
+    opts = { enabled = false, events = { "BufEnter", "CursorHold", "InsertLeave" } },
+    fn = function(opts)
+      Utils.lsp.on_method("textDocument/codeLens", function(_, buf)
+        vim.lsp.codelens.refresh({ bufnr = buf })
+        vim.api.nvim_create_autocmd(opts.events, {
+          buffer = buf,
+          callback = function()
+            vim.lsp.codelens.refresh({ bufnr = buf })
+          end,
+        })
+      end)
+    end,
+  },
+
+  setup_document_highlight = {
+    opts = { enabled = true, delay = 100 },
+    fn = function(opts)
+      if opts.delay then vim.opt.updatetime = opts.delay end
+      Utils.lsp.on_method("textDocument/documentHighlight", function(_, buf)
+        vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+          buffer = buf,
+          callback = vim.lsp.buf.document_highlight,
+        })
+        vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+          buffer = buf,
+          callback = vim.lsp.buf.clear_references,
+        })
+      end)
+    end,
+  },
+  setup_semantic_tokens = {
+    opts = { enabled = false, disable_for = { "lua_ls" } },
+    fn = function(opts)
+      local disable_map = {}
+      for _, server in ipairs(opts.disable_for or {}) do
+        disable_map[server] = true
+      end
+      Utils.lsp.on_attach(function(client, buf)
+        if disable_map[client.name] then client.server_capabilities.semanticTokensProvider = nil end
+      end)
+    end,
+  },
+}
+
 ---@param server_name string
 ---@param keys map.KeymapOpts[]
 function M.register_keys(server_name, keys)
-  M._server_keys[server_name] = keys
-end
-
----@param server_name string
----@return map.KeymapOpts[]
-function M.get_server_keys(server_name)
-  return M._server_keys[server_name] or {}
+  M._server_keys[server_name] = M._server_keys[server_name] or {}
+  vim.list_extend(M._server_keys[server_name], keys)
 end
 
 ---Check if a file is a Lua file
@@ -124,7 +234,11 @@ local function load_lsp_file(path, name)
     return nil
   end
   if not config then return nil end
-  if config.keys then M.register_keys(name, config.keys) end
+
+  for option, handler in pairs(M.option_handlers) do
+    if config[option] then handler(name, config[option]) end
+  end
+
   return config.enabled ~= false
 end
 
@@ -144,7 +258,7 @@ local function process_lsp_directory(path)
       local server_name = get_server_name(name)
       if server_name then
         local enabled = load_lsp_file(path .. "/" .. name, server_name)
-        if M.lsp_servers[server_name] == nil and enabled ~= nil then M.lsp_servers[server_name] = enabled end
+        if enabled ~= nil then M.lsp_servers[server_name] = enabled end
       end
     end
   end
@@ -155,6 +269,17 @@ function M.load_lsp_configs()
   local config_path = vim.fn.stdpath("config")
   process_lsp_directory(config_path .. "/lsp")
   process_lsp_directory(config_path .. "/after/lsp")
+end
+
+local function run_hooks()
+  for name, hook in pairs(M.hooks) do
+    local opts = hook.opts or {}
+    if opts.enabled ~= false then
+      opts.enabled = nil
+      local ok, err = pcall(hook.fn, opts)
+      if not ok then Utils.notify.error(string.format("Hook '%s' failed: %s", name, err), { title = "LSP Hooks" }) end
+    end
+  end
 end
 
 function M.setup()
@@ -178,26 +303,6 @@ function M.setup()
       return signs
     end)(),
   })
-  Utils.format.setup()
-  Utils.lsp.setup()
-  Utils.lsp.breadcrumb.setup()
-  Utils.map.del({ "gra", "grn", "grr", "gri", "grt" }, { mode = "n" })
-  Utils.map.set(M.keymaps, {})
-  M.load_lsp_configs()
-  for server_name, keys in pairs(M._server_keys) do
-    for _, key in ipairs(keys) do
-      local opts = vim.tbl_extend("force", {}, key)
-      Utils.map.set(opts, { lsp = { name = server_name } })
-    end
-  end
-  Utils.lsp.on_method("textDocument/foldingRange", function(_, buf)
-    local win = vim.api.nvim_get_current_win()
-    if vim.api.nvim_win_get_buf(win) == buf then
-      vim.wo[win].foldmethod = "expr"
-      vim.wo[win].foldexpr = "v:lua.vim.lsp.foldexpr()"
-    end
-  end)
-
   vim.lsp.config("*", {
     capabilities = {
       workspace = {
@@ -212,18 +317,12 @@ function M.setup()
       },
     },
   })
-
-  vim.defer_fn(function()
-    local servers_to_enable = {}
-    for server, enabled in pairs(M.lsp_servers) do
-      if enabled then table.insert(servers_to_enable, server) end
-    end
-
-    if #servers_to_enable > 0 then
-      local success, err = pcall(vim.lsp.enable, servers_to_enable, true)
-      if not success then Utils.notify.error("Failed to enable LSP servers: " .. tostring(err), { title = "LSP" }) end
-    end
-  end, 0)
+  Utils.format.setup()
+  Utils.lsp.setup()
+  Utils.map.del({ "gra", "grn", "grr", "gri", "grt" }, { mode = "n" })
+  Utils.map.set(M.keymaps, {})
+  M.load_lsp_configs()
+  run_hooks()
 end
 
 return M
