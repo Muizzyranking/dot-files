@@ -1,4 +1,5 @@
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+---@diagnostic disable-next-line: undefined-field
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
     "git",
@@ -13,33 +14,16 @@ vim.opt.rtp:prepend(vim.env.LAZY or lazypath)
 
 require("config.lazyfile").setup()
 
+vim.keymap.set("n", "<leader>l", ":Lazy")
+
 require("lazy").setup({
   spec = {
-    { import = "plugins.core" },
-    { import = "plugins.lsp" },
-    { import = "plugins.editor" },
-    { import = "plugins.ui" },
-    { import = "plugins.ai.copilot" },
-    { import = "plugins.ai.sidekick" },
-    -- { import = "plugins.extras.neotest" },
-    { import = "plugins.extras.kulala" },
     { import = "plugins" },
   },
-  defaults = {
-    lazy = true,
-  },
-  custom_keys = {},
-  install = {
-    colorscheme = { Utils.ui.colorscheme },
-  },
-  ui = {
-    size = { width = 0.9, height = 0.9 },
-    border = "rounded",
-  },
-  checker = {
-    enabled = false,
-    version = false,
-  },
+  defaults = { lazy = true },
+  ui = { size = { width = 0.9, height = 0.9 }, border = "rounded" },
+  checker = { enabled = false, version = false },
+  install = { colorscheme = { "rose-pine", "habamax" } },
   performance = {
     rtp = {
       disabled_plugins = {
@@ -57,7 +41,5 @@ require("lazy").setup({
       },
     },
   },
-  change_detection = {
-    notify = false,
-  },
+  change_detection = { notify = false },
 })
