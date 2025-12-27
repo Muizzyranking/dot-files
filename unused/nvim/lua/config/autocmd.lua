@@ -212,7 +212,7 @@ autocmd("TermOpen", {
 -----------------------------------------------------------
 autocmd.autocmd_augroup("toggle_rel_number", {
   {
-    events = { "BufEnter", "FocusGained", "InsertLeave", "WinEnter" },
+    events = { "FocusGained", "InsertLeave", "WinEnter" },
     pattern = "*",
     desc = "togger line number",
     callback = function()
@@ -224,7 +224,7 @@ autocmd.autocmd_augroup("toggle_rel_number", {
     end,
   },
   {
-    events = { "BufLeave", "FocusLost", "InsertEnter", "WinLeave" },
+    events = { "FocusLost", "InsertEnter", "WinLeave" },
     pattern = "*",
     desc = "togger line number",
     callback = function()
@@ -353,4 +353,6 @@ end, {
   nested = true,
 })
 
-require("utils.bigfile").setup()
+vim.schedule(function()
+  require("utils.bigfile").setup()
+end)

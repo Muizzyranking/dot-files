@@ -18,6 +18,7 @@ local settings = {
   },
 }
 return {
+  enabled = false,
   settings = {
     complete_function_calls = true,
     vtsls = {

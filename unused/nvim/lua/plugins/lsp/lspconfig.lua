@@ -29,6 +29,7 @@ return {
         "sqlls",
         "stylua",
         "tailwindcss-language-server",
+        "tsgo",
         "vtsls",
       })
     end,
