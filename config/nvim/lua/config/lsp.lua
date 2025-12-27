@@ -107,6 +107,7 @@ M.lsps = {
     },
   },
   vtsls = {
+    enabled = false,
     keys = {
       {
         "gR",
@@ -155,10 +156,6 @@ M.lsps = {
       },
     },
   },
-}
-
-M.lsp_servers = {
-  "lua_ls",
 }
 
 M.keymaps = {
