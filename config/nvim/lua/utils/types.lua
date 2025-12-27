@@ -11,10 +11,6 @@
 ---@alias map.AbbrevConds
 ---| "lsp_keyword"
 
----@class map.IconConfig
----@field icon string # Icon character/text
----@field color string # Icon color
-
 ---@class map.ToggleIconConfig
 ---@field enabled? string # Icon when feature is enabled
 ---@field disabled? string # Icon when feature is disabled
@@ -22,33 +18,6 @@
 ---@class map.ToggleColorConfig
 ---@field enabled? string # Color when feature is enabled (e.g., "green")
 ---@field disabled? string # Color when feature is disabled (e.g., "yellow")
-
----@class map.ToggleOpts.IconConf
----@field enabled? string Icon to display when feature is enabled
----@field disabled? string Icon to display when feature is disabled
-
----@class map.KeymapOpts
----@field [1] string # The left-hand side of the mapping
----@field [2] string|function # The right-hand side of the mapping
----@field mode? map.KeymapMode|map.KeymapMode[] # Vim mode(s) for the mapping
----@field desc? string|function # Description of the mapping
----@field buffer? number # Buffer number for buffer-local mapping
----@field silent? boolean # Whether the mapping should be silent
----@field remap? boolean # Whether the mapping should be remappable
----@field expr? boolean # Whether the mapping is an expression
----@field icon? string|map.IconConfig # Icon for which-key integration
----@field conds? table<number, function|boolean> # Conditions for the mapping
----@field lsp? table<string, string> # Conditions for the mapping
----@field has? string|string[] # LSP capabilities required for the mapping
-
----@class toggle.Opts : map.KeymapOpts
----@field name string # Name of the toggle (required for notifications unless notify=false)
----@field get fun(buf?: number): boolean # Function that returns the current state
----@field set fun(state: boolean, buf?: number) # Function to change the state
----@field icon? map.ToggleIconConfig # Icon configuration for different states
----@field color? map.ToggleColorConfig # Color configuration for different states
----@field notify? boolean # Whether to show notifications (default: true)
----@field set_key? boolean # Whether to set the keymap immediately (default: true)
 
 ---@class map.ReloadConfig
 ---@field cmd string # Command to reload/restart the configuration
@@ -83,17 +52,6 @@
 ---@field desc? string # Description of the autocmd
 ---@field events? string|string[]
 
----@class utils.run_command_opts
----@field input? string
----@field trim? boolean
----@field callback? fun(output: string, success: boolean, exit_code: number)
-
----@class BigFileConfig
----@field size number File size threshold in bytes (default: 1.5MB)
----@field max_lines number Maximum line count threshold (default: 32768)
----@field avg_line_length number Average line length threshold (default: 1000)
----@field sample_lines number Number of lines to sample for avg calculation (default: 100)
-
 ---@class utils.git.WindowOpts
 ---@field height_frac number
 ---@field width_frac number
@@ -127,3 +85,28 @@
 
 ---@class utils.git.stageSessionState
 ---@field repos table<string, utils.git.stageState>
+
+---@class map.BaseMapping
+---@field [1] string # The left-hand side of the mapping
+---@field mode? map.KeymapMode|map.KeymapMode[]
+---@field desc? string|function
+---@field buffer? number|boolean
+---@field silent? boolean
+---@field remap? boolean
+---@field expr? boolean
+---@field icon? wk.Icon|string|fun():(wk.Icon|string)
+---@field lsp? table<string, string>
+---@field has? string|string[]
+---@field conds? table<number, function|boolean>
+
+---@class map.KeymapOpts : map.BaseMapping
+---@field [2] string|function # The right-hand side of the mapping
+
+---@class toggle.Opts : map.BaseMapping
+---@field name? string
+---@field get fun(buf?: number): boolean
+---@field set fun(state: boolean, buf?: number)
+---@field icon? map.ToggleIconConfig
+---@field color? map.ToggleColorConfig
+---@field notify? boolean
+---@field set_key? boolean

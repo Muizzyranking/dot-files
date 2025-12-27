@@ -22,7 +22,7 @@ local M = setmetatable({}, {
 local notification_queue = {}
 local ready = false
 
-Utils.autocmd.on_very_lazy(function()
+Utils.lazy.on_very_lazy(function()
   ready = true
   vim.defer_fn(function()
     for _, item in ipairs(notification_queue) do
@@ -64,7 +64,9 @@ function M.notify(msg, opts)
       local ok = pcall(function()
         vim.treesitter.language.add("markdown")
       end)
-      if not ok then pcall(require, "nvim-treesitter") end
+      if not ok then
+        pcall(require, "nvim-treesitter")
+      end
       vim.wo[win].conceallevel = 3
       vim.wo[win].concealcursor = ""
       vim.wo[win].spell = false
