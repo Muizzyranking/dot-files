@@ -12,13 +12,17 @@ local api = vim.api
 ---@return boolean Whether autoformat is enabled for the buffer.
 ----------------------------------------------------
 function M.enabled(buf)
-  buf = Utils.ensure_buf(buf)
-  if vim.b[buf].bigfile then return false end
+  buf = Utils.fn.ensure_buf(buf)
+  if vim.b[buf].bigfile then
+    return false
+  end
   local gaf = vim.g.autoformat
   local baf = vim.b[buf].autoformat
 
   -- If the buffer has a local value, use that
-  if baf ~= nil then return baf end
+  if baf ~= nil then
+    return baf
+  end
 
   -- Otherwise use the global value if set, or true by default
   return gaf == nil or gaf
@@ -30,14 +34,18 @@ end
 --- @param enable? boolean Explicitly enable or disable (optional)
 ----------------------------------------------------
 function M.toggle(buf, enable)
-  local current_buf = Utils.ensure_buf(buf)
-  if vim.b[current_buf].bigfile then return false end
+  local current_buf = Utils.fn.ensure_buf(buf)
+  if vim.b[current_buf].bigfile then
+    return false
+  end
 
   local gaf = vim.g.autoformat == nil or vim.g.autoformat
   local baf = vim.b[current_buf].autoformat
 
   if buf then
-    if enable == nil then enable = not M.enabled(current_buf) end
+    if enable == nil then
+      enable = not M.enabled(current_buf)
+    end
     vim.b[current_buf].autoformat = enable
   else
     if enable == nil then
@@ -49,7 +57,9 @@ function M.toggle(buf, enable)
     end
 
     vim.g.autoformat = enable
-    if not enable then vim.b[current_buf].autoformat = nil end
+    if not enable then
+      vim.b[current_buf].autoformat = nil
+    end
   end
 
   -- Show status
@@ -92,7 +102,6 @@ function M.setup()
     group = api.nvim_create_augroup("LazyFormat", { clear = true }),
     callback = function(event)
       if M.enabled() then
-        print("enabled")
         M.format({ bufnr = event.buf, force = true })
       end
     end,

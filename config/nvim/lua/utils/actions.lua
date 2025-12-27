@@ -11,13 +11,15 @@ local notify = Utils.notify.create({ title = "Options" })
 ---@param should_notify? boolean Whether to show a notification (default: true)
 -----------------------------------------------------------
 function M.toggle_file_executable(state, filepath, should_notify)
-  filepath = filepath or Utils.get_filepath()
+  filepath = filepath or Utils.fn.get_filepath()
   if not filepath or filepath == "" then
-    if should_notify ~= false then notify.warn("No file to change permissions for") end
+    if should_notify ~= false then
+      notify.warn("No file to change permissions for")
+    end
     return false
   end
   local flag = state and "-x" or "+x"
-  local success, output = Utils.run_command({ "chmod", flag, filepath }, { trim = true })
+  local success, output = Utils.fn.run_command({ "chmod", flag, filepath }, { trim = true })
   if should_notify ~= false then
     if success then
       local message = ("File made %s"):format(state and "unexecutable" or "executable")
@@ -33,7 +35,6 @@ end
 -- Duplicate the current line.
 -------------------------------------
 function M.duplicate_line()
-  if Utils.ignore_buftype() then return end
   local current_line = api.nvim_get_current_line()
   local cursor = api.nvim_win_get_cursor(0)
   api.nvim_buf_set_lines(0, cursor[1], cursor[1], false, { current_line })
@@ -44,7 +45,6 @@ end
 -- Duplicate the currently selected lines in visual mode.
 -------------------------------------
 function M.duplicate_selection()
-  if Utils.ignore_buftype() then return end
   local start_line = vim.fn.line("v")
   local end_line = vim.fn.line(".")
   if start_line > end_line then
@@ -55,24 +55,6 @@ function M.duplicate_selection()
   local new_cursor_line = math.min(end_line + #selected_lines, api.nvim_buf_line_count(0))
   api.nvim_feedkeys(api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
   api.nvim_win_set_cursor(0, { new_cursor_line, 0 })
-end
-
-local tmux_executed = false
-function M.toggle_tmux(state)
-  if not tmux_executed then
-    Utils.autocmd.exec_user_event("TmuxBarToggle")
-    tmux_executed = true
-  end
-
-  local status = state and "off" or "on"
-  local success, output = Utils.run_command({ "tmux", "set-option", "-g", "status", status }, { trim = true })
-  local notify_opts = { title = "Tmux" }
-  if success then
-    local bar_state = state and "Hide" or "Show"
-    Utils.notify(("%s Tmux Bar"):format(bar_state), notify_opts)
-  else
-    Utils.notify.warn("Error toggling tmux: " .. output, notify_opts)
-  end
 end
 
 local function is_in_indent()
