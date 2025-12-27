@@ -1,35 +1,30 @@
 ---@class utils.icons
 local M = {
   ui = {
-    Target = "󰀘 ",
-    ActiveLSP = " ",
-    File = "󰈚 ",
-  },
-  neotree = {
-    git = "󰊢 ",
+    dots = "󰇘",
+    folder = " ",
+    file = "󰈚 ",
+    target = "󰀘 ",
     buffer = "󰏚 ",
-    folder = " ",
+    collapsed = " ",
+    expanded = " ",
+  },
+  lsp = {
+    active = " ",
+  },
+  file = {
+    modified = "●",
+    file = "󰈚 ",
+    unmodified = "◯",
+    readonly = "",
+    saved = " ",
+    unsaved = "󰷬 ",
+    new = " ",
+    deleted = "",
+    renamed = "󰁕",
   },
   misc = {
-    dots = "󰇘",
-  },
-  formatters = {
-    prettierd = "",
-    prettier = "",
-    autopep8 = "",
-    djlint = "",
-    shfmt = "",
-    ["sql-formatter"] = "󰆼",
-    stylua = "",
-    fallback = "󰉼",
-    black = "",
-  },
-  dap = {
-    Stopped = { "󰁕 ", "DiagnosticWarn", "DapStoppedLine" },
-    Breakpoint = " ",
-    BreakpointCondition = " ",
-    BreakpointRejected = { " ", "DiagnosticError" },
-    LogPoint = ".>",
+    ActiveLSP = " ",
   },
   diagnostics = {
     Error = " ",
@@ -38,6 +33,7 @@ local M = {
     Info = " ",
   },
   git = {
+    logo = "󰊢 ",
     added = " ",
     modified = " ",
     removed = " ",
