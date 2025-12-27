@@ -1,4 +1,3 @@
--- copied from https://github.com/xyven1/neovim-config/blob/master/lua/config/lazyfile.lua
 local M = {}
 
 M.lazy_file_events = { "BufReadPost", "BufNewFile", "BufWritePre" }
