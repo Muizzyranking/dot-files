@@ -1,4 +1,4 @@
-local buf = Utils.ensure_buf()
+local buf = Utils.fn.ensure_buf()
 vim.b.autoformat = true
 Utils.map.set({
   {
@@ -17,7 +17,7 @@ Utils.map.set({
   },
   {
     "{",
-    Utils.lang.python.handle_brace,
+    Utils.lang.py.handle_brace,
     mode = "i",
     desc = "Insert f-string brace",
     noremap = true,

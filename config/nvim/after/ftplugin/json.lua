@@ -1,4 +1,4 @@
-local buf = Utils.ensure_buf(0)
+local buf = Utils.fn.ensure_buf(0)
 Utils.map.set({
   {
     "o",
