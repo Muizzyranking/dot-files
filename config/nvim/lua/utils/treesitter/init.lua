@@ -9,7 +9,7 @@ M.incr = {}
 ---@return boolean
 -------------------------------------------------
 function M.hl_is_active(buf)
-  buf = Utils.ensure_buf(buf)
+  buf = Utils.fn.ensure_buf(buf)
   return vim.treesitter.highlighter.active[buf] ~= nil
 end
 
@@ -19,11 +19,15 @@ end
 ---@return boolean
 -------------------------------------------------
 function M.is_active(buf)
-  buf = Utils.ensure_buf(buf)
-  if vim.treesitter.highlighter.active[buf] then return true end
+  buf = Utils.fn.ensure_buf(buf)
+  if vim.treesitter.highlighter.active[buf] then
+    return true
+  end
 
   -- `vim.treesitter.get_parser()` can be slow for big files
-  if not vim.b.bigfile and (pcall(vim.treesitter.get_parser, buf)) then return true end
+  if not vim.b.bigfile and (pcall(vim.treesitter.get_parser, buf)) then
+    return true
+  end
 
   -- File is big or cannot get parser for buf
   return false
@@ -57,14 +61,16 @@ end
 ---@return TSNode?
 ------------------------------------------------
 function M.find_node(types, opts)
-  if not M.is_active(opts and opts.bufnr) then return end
+  if not M.is_active(opts and opts.bufnr) then
+    return
+  end
 
   ---Check if given node type matches any of the types given in `types`
   ---@type fun(t: string): boolean?
   local check_type_match = vim.is_callable(types) and function(nt)
     return types(nt)
   end or function(nt)
-    types = Utils.ensure_list(types)
+    types = Utils.fn.ensure_list(types)
     return vim.iter(types):any(function(t)
       return nt:match(t)
     end)
@@ -73,7 +79,9 @@ function M.find_node(types, opts)
   local node = M.get_node(opts)
   while node do
     local nt = node:type() -- current node type
-    if check_type_match(nt) then return node end
+    if check_type_match(nt) then
+      return node
+    end
     node = node:parent()
   end
 end
@@ -101,7 +109,9 @@ end
 ---@return string?
 -----------------------------------------
 function M.have(ft)
-  if not ft or ft == "" then return nil end
+  if not ft or ft == "" then
+    return nil
+  end
   local lang = vim.treesitter.language.get_lang(ft)
   return lang and M.get_installed()[lang]
 end
@@ -119,10 +129,14 @@ end
 ---Ensure treesitter is active and parser is available
 ---@return boolean, number?, string?
 function M.incr.ensure_active()
-  local buf = Utils.ensure_buf(0)
-  if not M.is_active(buf) then return false end
+  local buf = Utils.fn.ensure_buf(0)
+  if not M.is_active(buf) then
+    return false
+  end
   local language = vim.treesitter.language.get_lang(vim.bo[buf].filetype)
-  if not language or not M.have(vim.bo[buf].filetype) then return false end
+  if not language or not M.have(vim.bo[buf].filetype) then
+    return false
+  end
   return true, buf, language
 end
 
@@ -141,14 +155,22 @@ function M.incr.attach(opts)
 
   local function map(mode, action, key_opts)
     local lhs = M.incr.keymaps[action]
-    if lhs == nil or lhs == "" then return end
+    if lhs == nil or lhs == "" then
+      return
+    end
     local rhs = incr[action]
-    if not rhs then return end
+    if not rhs then
+      return
+    end
     key_opts = key_opts or {}
-    if buffer then key_opts.buffer = buffer end
+    if buffer then
+      key_opts.buffer = buffer
+    end
     pcall(vim.keymap.set, mode, lhs, function()
       local success, buf, lang = M.incr.ensure_active()
-      if success then return rhs(buf, lang) end
+      if success then
+        return rhs(buf, lang)
+      end
     end, key_opts)
   end
 
@@ -162,7 +184,9 @@ function M.incr.detach(buf)
   local function unmap(mode, key)
     local opts = buf and { buffer = buf } or {}
     local lhs = M.incr.keymaps[key]
-    if lhs == nil or lhs == "" then return end
+    if lhs == nil or lhs == "" then
+      return
+    end
     pcall(vim.keymap.del, mode, lhs, opts)
   end
   unmap("n", "init_selection")

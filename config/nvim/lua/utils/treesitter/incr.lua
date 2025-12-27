@@ -77,7 +77,9 @@ end
 local StackManager = {}
 
 function StackManager.ensure_stack(buf)
-  if not nodes_stack[buf] then nodes_stack[buf] = {} end
+  if not nodes_stack[buf] then
+    nodes_stack[buf] = {}
+  end
 end
 
 function StackManager.push(buf, node)
@@ -86,12 +88,16 @@ function StackManager.push(buf, node)
 end
 
 function StackManager.pop(buf)
-  if not nodes_stack[buf] or #nodes_stack[buf] == 0 then return nil end
+  if not nodes_stack[buf] or #nodes_stack[buf] == 0 then
+    return nil
+  end
   return table.remove(nodes_stack[buf])
 end
 
 function StackManager.peek(buf)
-  if not nodes_stack[buf] or #nodes_stack[buf] == 0 then return nil end
+  if not nodes_stack[buf] or #nodes_stack[buf] == 0 then
+    return nil
+  end
   return nodes_stack[buf][#nodes_stack[buf]]
 end
 
@@ -115,7 +121,9 @@ local ParserUtils = {}
 ---@return vim.treesitter.LanguageTree?
 function ParserUtils.get_parser(buf, language)
   local has, parser = pcall(vim.treesitter.get_parser, buf, language)
-  if not has or not parser then return nil end
+  if not has or not parser then
+    return nil
+  end
   -- Parse visible range for performance
   local first, last = vim.fn.line("w0"), vim.fn.line("w$")
   parser:parse({ first - 1, last })
@@ -136,17 +144,23 @@ end
 ---@param root TSNode
 ---@return TSNode[]
 function ParserUtils.get_scopes(buf, language, root)
-  if not ParserUtils.has_query(language, "locals") then return {} end
+  if not ParserUtils.has_query(language, "locals") then
+    return {}
+  end
 
   local query = vim.treesitter.query.get(language, "locals")
-  if not query then return {} end
+  if not query then
+    return {}
+  end
 
   local result = {}
   local start, _, stop, _ = root:range()
 
   for _, match in query:iter_matches(root, buf, start, stop + 1) do
     for id, nodes in pairs(match) do
-      if query.captures[id] == "local.scope" then vim.list_extend(result, nodes) end
+      if query.captures[id] == "local.scope" then
+        vim.list_extend(result, nodes)
+      end
     end
   end
 
@@ -195,7 +209,9 @@ local MEANINGFUL_CONTAINERS = {
 ---@return boolean
 local function matches_any_pattern(node_type, patterns)
   for _, pattern in ipairs(patterns) do
-    if node_type:match(pattern) then return true end
+    if node_type:match(pattern) then
+      return true
+    end
   end
   return false
 end
@@ -205,7 +221,9 @@ end
 ---@return TSNode?
 function NodeUtils.find_initial(buf)
   local node = Utils.treesitter.get_node({ bufnr = buf })
-  if not node then return nil end
+  if not node then
+    return nil
+  end
 
   local node_type = node:type()
 
@@ -213,7 +231,9 @@ function NodeUtils.find_initial(buf)
   if matches_any_pattern(node_type, DELIMITER_PATTERNS) then
     local parent = node:parent()
     while parent do
-      if matches_any_pattern(parent:type(), MEANINGFUL_CONTAINERS) then return parent end
+      if matches_any_pattern(parent:type(), MEANINGFUL_CONTAINERS) then
+        return parent
+      end
       parent = parent:parent()
     end
   end
@@ -221,7 +241,9 @@ function NodeUtils.find_initial(buf)
   -- Handle identifiers in function contexts
   if node_type == "identifier" then
     local parent = node:parent()
-    if parent and parent:type():match("function") then return node end
+    if parent and parent:type():match("function") then
+      return node
+    end
   end
 
   return node
@@ -234,12 +256,16 @@ end
 ---@return TSNode?
 function NodeUtils.find_child(buf, language, current_range)
   local parser = ParserUtils.get_parser(buf, language)
-  if not parser then return nil end
+  if not parser then
+    return nil
+  end
 
   local current_node = parser:named_node_for_range(current_range:ts(), {
     ignore_injections = false,
   })
-  if not current_node then return nil end
+  if not current_node then
+    return nil
+  end
 
   local function find_smallest_child(node)
     for child in node:iter_children() do
@@ -276,7 +302,9 @@ local SelectionCore = {}
 ---@param parent_func fun(parser: vim.treesitter.LanguageTree, node: TSNode): TSNode?
 function SelectionCore.incremental(buf, language, parent_func)
   local parser = ParserUtils.get_parser(buf, language)
-  if not parser then return end
+  if not parser then
+    return
+  end
 
   local range = Range.visual()
   local node = nil
@@ -304,11 +332,9 @@ function SelectionCore.incremental(buf, language, parent_func)
   end
 end
 
----Parent node selection strategy
----@param parser vim.treesitter.LanguageTree
 ---@param node TSNode
 ---@return TSNode?
-function SelectionCore.parent_strategy(parser, node)
+function SelectionCore.parent_strategy(_, node)
   return node:parent()
 end
 
@@ -318,10 +344,14 @@ end
 ---@return fun(parser: vim.treesitter.LanguageTree, node: TSNode): TSNode?
 function SelectionCore.scope_strategy(buf, language)
   return function(parser, node)
-    if language ~= parser:lang() then return nil end -- Only handle root language scope
+    if language ~= parser:lang() then
+      return nil
+    end -- Only handle root language scope
 
     local scopes = ParserUtils.get_scopes(buf, language, parser:trees()[1]:root())
-    if #scopes == 0 then return nil end
+    if #scopes == 0 then
+      return nil
+    end
 
     local result = node:parent()
     while result and not vim.tbl_contains(scopes, result) do
@@ -342,7 +372,9 @@ end
 ---@param language string
 function M.init_selection(buf, language)
   local parser = ParserUtils.get_parser(buf, language)
-  if not parser then return end
+  if not parser then
+    return
+  end
 
   local node = NodeUtils.find_initial(buf)
   if node then
@@ -366,7 +398,6 @@ function M.scope_incremental(buf, language)
   SelectionCore.incremental(buf, language, SelectionCore.scope_strategy(buf, language))
 end
 
----Shrink selection to smaller node (proper decremental behavior)
 ---@param buf number
 ---@param language string
 function M.node_decremental(buf, language)
