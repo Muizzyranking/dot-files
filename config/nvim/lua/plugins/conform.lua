@@ -33,8 +33,7 @@ return {
     local biome_available = function(ctx)
       return vim.fs.root(ctx.dirname, { "biome.json", "biome.jsonc" }) ~= nil or vim.g.use_biome
     end
-    -- local use_biome = biome_available
-    local use_biome = biome_available
+    local use_biome = Utils.fn.memoize(biome_available)
     local opts = {
       notify_on_error = true,
       format_on_save = false,

@@ -78,6 +78,8 @@ return {
       { filter = { find = "changes;" }, opts = { skip = true } },
       { filter = { find = "indent" }, opts = { skip = true } },
       { filter = { find = "move" }, opts = { skip = true } },
+      { filter = { event = "cmdline", find = "^:IncRename" }, opts = { skip = true } },
+      { filter = { event = "msg_show", min_height = 20 }, opts = { enter = true }, view = "split" },
     },
     views = {
       mini = {
@@ -91,7 +93,12 @@ return {
       command_palette = true,
       long_message_to_split = true,
       lsp_doc_border = true,
-      inc_rename = true,
+      inc_rename = false,
+    },
+    cmdline = {
+      format = {
+        inc_rename = { icon = "", opts = { skip = true }, pattern = "^:%s*IncRename%s+" },
+      },
     },
   },
   keys = {

@@ -13,7 +13,7 @@ local notifier = {
     debug = " ",
     trace = " ",
   },
-  keep = function(notif)
+  keep = function()
     return vim.fn.getcmdpos() > 0
   end,
   style = "compact",
@@ -111,6 +111,15 @@ local explorer = {
 }
 local dashboard = {
   preset = {
+    header = [[
+
+  ███╗   ███╗██╗   ██╗██╗███████╗███████╗██╗   ██╗██████╗  █████╗ ███╗   ██╗██╗  ██╗██╗███╗   ██╗ ██████╗
+  ████╗ ████║██║   ██║██║╚══███╔╝╚══███╔╝╚██╗ ██╔╝██╔══██╗██╔══██╗████╗  ██║██║ ██╔╝██║████╗  ██║██╔════╝
+    ██╔████╔██║██║   ██║██║  ███╔╝   ███╔╝  ╚████╔╝ ██████╔╝███████║██╔██╗ ██║█████╔╝ ██║██╔██╗ ██║██║  ███╗
+    ██║╚██╔╝██║██║   ██║██║ ███╔╝   ███╔╝    ╚██╔╝  ██╔══██╗██╔══██║██║╚██╗██║██╔═██╗ ██║██║╚██╗██║██║   ██║
+    ██║ ╚═╝ ██║╚██████╔╝██║███████╗███████╗   ██║   ██║  ██║██║  ██║██║ ╚████║██║  ██╗██║██║ ╚████║╚██████╔╝
+  ╚═╝     ╚═╝ ╚═════╝ ╚═╝╚══════╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝
+]],
     keys = {
       -- stylua: ignore start
 			{ icon = " ", key = "n", desc = "New File", action = ":lua vim.cmd('enew')" },
@@ -191,11 +200,16 @@ local picker = {
       sort_lastused = true,
       hidden = false,
       ignore_filetype = {},
+      focus = "list",
       win = {
-        input = {
-          keys = { ["dd"] = "bufdelete", ["<c-x>"] = { "bufdelete", mode = { "n", "i" } } },
+        input = { keys = { ["dd"] = "bufdelete", ["<c-x>"] = { "bufdelete", mode = { "n", "i" } } } },
+        list = {
+          keys = {
+            ["dd"] = "bufdelete",
+            ["s"] = "edit_vsplit",
+            ["S"] = "edit_split",
+          },
         },
-        list = { keys = { ["dd"] = "bufdelete" } },
       },
       layout = { preset = "drop", preview = false },
     },
@@ -211,46 +225,53 @@ local picker = {
   actions = {},
   win = {
     input = {
-      keys = { ["<C-h>"] = { "<c-s-w>", mode = { "i" }, expr = true, desc = "delete word" } },
+      keys = {
+        ["<C-h>"] = { "<c-s-w>", mode = { "i" }, expr = true, desc = "delete word" },
+        ["s"] = "edit_vsplit",
+        ["S"] = "edit_split",
+      },
       b = { completion = false },
     },
     list = { keys = {} },
   },
 }
 return {
-  "folke/snacks.nvim",
-  lazy = false,
-  priority = 2000,
-  opts = {
-    explorer = {
-      on_show = function()
-        Snacks.notifier.hide()
-      end,
-    },
-    input = { enabled = true },
-    indent = indent,
-    dashboard = dashboard,
-    picker = picker,
-    notifier = notifier,
-    bigfile = { enabled = true },
-    image = { enabled = false },
-    quickfile = { enabled = true },
-    statuscolumn = { enabled = true },
-    words = { enabled = true },
-    scroll = { enabled = true },
-    lazygit = {
-      win = {
-        bo = { filetype = "lazygit" },
-        keys = { ["<C-h>"] = { "<c-s-w>", mode = { "i", "t" }, expr = true, desc = "delete word" } },
+  {
+    "folke/snacks.nvim",
+    lazy = false,
+    priority = 2000,
+    opts = {
+      explorer = {
+        on_show = function()
+          Snacks.notifier.hide()
+        end,
       },
-      config = {
-        git = { overrideGpg = true },
-        promptToReturnFromSubprocess = false,
+      input = { enabled = true },
+      indent = indent,
+      dashboard = dashboard,
+      picker = picker,
+      notifier = notifier,
+      bigfile = { enabled = true },
+      image = { enabled = false },
+      quickfile = { enabled = true },
+      statuscolumn = { enabled = true },
+      words = { enabled = true },
+      scroll = { enabled = true },
+      lazygit = {
+        win = {
+          bo = { filetype = "lazygit" },
+          keys = { ["<C-h>"] = { "<c-s-w>", mode = { "i", "t" }, expr = true, desc = "delete word" } },
+        },
+        config = {
+          git = { overrideGpg = true },
+          promptToReturnFromSubprocess = false,
+        },
+      },
+      styles = {
+        input = { keys = { i_c_h = { "<c-h>", "<c-s-w>", mode = "i", expr = true } } },
       },
     },
-    styles = { input = { keys = { i_c_h = { "<c-h>", "<c-s-w>", mode = "i", expr = true } } } },
-  },
-  keys = {
+    keys = {
     -- stylua: ignore start
     { "<leader>n", function() Snacks.notifier.show_history() end, desc = "Notification History" },
     { "<leader>un", function() Snacks.notifier.hide() end, desc = "Dismiss All Notifications" },
@@ -263,7 +284,7 @@ return {
       end,
       desc = "Spell suggestions",
     },
-    { "<leader>fb", function() Snacks.picker.buffers(function() vim.cmd("stopinsert") end) end, desc = "Buffers" },
+    { "<leader>fb", function() Snacks.picker.buffers({ on_show = function() vim.cmd("stopinsert") end }) end, desc = "Buffers" },
     {
       "<leader>:",
       function()
@@ -300,11 +321,41 @@ return {
       end,
       desc = "Explorer Snacks (root dir)",
     },
+    },
+    -- stylua: ignore end
+    config = function(_, opts)
+      local notify = vim.notify
+      require("snacks").setup(opts)
+      vim.notify = notify
+    end,
   },
-  -- stylua: ignore end
-  config = function(_, opts)
-    local notify = vim.notify
-    require("snacks").setup(opts)
-    vim.notify = notify
-  end,
+  {
+    "folke/which-key.nvim",
+    opts = {
+      spec = {
+        { "<leader>f", group = "file/find" },
+      },
+    },
+  },
+  {
+    "folke/trouble.nvim",
+    optional = true,
+    specs = {
+      "folke/snacks.nvim",
+      opts = function(_, opts)
+        return vim.tbl_deep_extend("force", opts or {}, {
+          picker = {
+            actions = require("trouble.sources.snacks").actions,
+            win = {
+              input = {
+                keys = {
+                  ["<c-t>"] = { "trouble_open", mode = { "n", "i" } },
+                },
+              },
+            },
+          },
+        })
+      end,
+    },
+  },
 }

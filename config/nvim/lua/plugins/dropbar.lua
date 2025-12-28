@@ -15,9 +15,7 @@ return {
           if vim.bo[buf].buftype == "terminal" then
             return { sources.terminal }
           end
-          return {
-            utils.source.fallback({ sources.lsp }),
-          }
+          return { utils.source.fallback({ sources.lsp }) }
         end,
       },
     })

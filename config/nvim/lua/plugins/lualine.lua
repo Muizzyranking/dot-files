@@ -61,7 +61,7 @@ local function get_lsps()
 end
 
 local function get_file_name()
-  local icon = Utils.icons.misc.File
+  local icon = Utils.icons.ui.file
   local path = Utils.fn.get_filepath(stbufnr())
   local file_icon = Utils.icons.file
 
@@ -81,12 +81,7 @@ local function get_file_name()
   local readonly_icon = vim.bo[stbufnr()].readonly and file_icon.readonly or ""
 
   local relative_path = path:gsub("^" .. vim.pesc(Utils.root()) .. "/", "")
-
-  local parts = {}
-  for part in relative_path:gmatch("([^/\\]+)") do
-    table.insert(parts, part)
-  end
-
+  local parts = vim.split(relative_path, "/", { plain = true })
   local display_path = ""
   if #parts > 1 then
     local dir_parts = {}
@@ -199,6 +194,67 @@ local copilot = {
     return { fg = colors[status.status] or colors[""] }
   end,
 }
+local function get_snacks()
+  local filetype = vim.bo.filetype
+  local title = filetype
+  local meta = ""
+
+  local picker = nil
+  if filetype == "snacks_picker_list" or filetype == "snacks_picker_input" then
+    picker = Snacks.picker.get()[1]
+  end
+
+  if filetype == "snacks_picker_list" then
+    title = "🍿 Explorer"
+    meta = vim.fn.fnamemodify(vim.fn.getcwd(), ":~")
+  elseif filetype == "snacks_picker_input" then
+    if picker then
+      local input = picker.input and picker.input:get() or ""
+      local count = #picker:items()
+      local picker_title = picker.title or ""
+      title = ("🍿 Picker (%s)"):format(picker_title)
+      meta = input ~= "" and (" " .. input .. ": " .. count .. " results") or (count .. " results")
+    else
+      title = "🍿 Picker"
+      meta = ""
+    end
+  end
+
+  return title, meta
+end
+
+local theme = {
+  normal = {
+    a = { fg = "#1a1b26", bg = "#f7768e", gui = "bold" },
+    b = { fg = "#c0caf5", bg = "#24283b" },
+    c = { fg = "#c0caf5", bg = "NONE" },
+  },
+  insert = {
+    a = { fg = "#1a1b26", bg = "#9ece6a", gui = "bold" },
+    b = { fg = "#c0caf5", bg = "#24283b" },
+    c = { fg = "#c0caf5", bg = "NONE" },
+  },
+  visual = {
+    a = { fg = "#1a1b26", bg = "#7aa2f7", gui = "bold" },
+    b = { fg = "#c0caf5", bg = "#24283b" },
+    c = { fg = "#c0caf5", bg = "NONE" },
+  },
+  replace = {
+    a = { fg = "#1a1b26", bg = "#ff9e64", gui = "bold" },
+    b = { fg = "#c0caf5", bg = "#24283b" },
+    c = { fg = "#c0caf5", bg = "NONE" },
+  },
+  command = {
+    a = { fg = "#1a1b26", bg = "#7dcfff", gui = "bold" },
+    b = { fg = "#c0caf5", bg = "#24283b" },
+    c = { fg = "#c0caf5", bg = "NONE" },
+  },
+  inactive = {
+    a = { fg = "#565f89", bg = "NONE" },
+    b = { fg = "#565f89", bg = "NONE" },
+    c = { fg = "#565f89", bg = "NONE" },
+  },
+}
 
 return {
   "nvim-lualine/lualine.nvim",
@@ -217,17 +273,13 @@ return {
     vim.o.laststatus = vim.g.lualine_laststatus
     return {
       options = {
+        theme = theme,
         icons_enabled = true,
-        theme = "auto",
         globalstatus = true,
         component_separators = { left = "", right = "" },
         section_separators = { left = "", right = "" },
 
-        disabled_filetypes = {
-          statusline = { "dashboard", "snacks_dashboard" },
-        },
-        winbar = { "" },
-        ignore_focus = { "" },
+        disabled_filetypes = { statusline = { "dashboard", "snacks_dashboard" } },
         always_divide_middle = false,
       },
       sections = {
@@ -270,13 +322,12 @@ return {
             get_buffers,
             color = function()
               local buffers = vim.fn.getbufinfo({ buflisted = 1 })
-              local has_modified = false
-              for _, buf in ipairs(buffers) do
-                if vim.bo[buf.bufnr].modified then
-                  has_modified = true
-                  break
-                end
-              end
+              local has_modified = vim.tbl_contains(
+                vim.tbl_map(function(buf)
+                  return vim.bo[buf.bufnr].modified
+                end, buffers),
+                true
+              )
               return has_modified and { fg = fg("DiagnosticWarn"), gui = "bold" } or { fg = fg("Comment") }
             end,
             on_click = function()
@@ -331,6 +382,26 @@ return {
             lualine_z = {},
           },
           filetypes = { "lazygit" },
+        },
+        {
+          sections = {
+            lualine_a = {
+              function()
+                local title, _ = get_snacks()
+                return title
+              end,
+            },
+            lualine_b = {
+              function()
+                local _, meta = get_snacks()
+                return meta
+              end,
+            },
+          },
+          filetypes = {
+            "snacks_picker_input",
+            "snacks_picker_list",
+          },
         },
       },
     }

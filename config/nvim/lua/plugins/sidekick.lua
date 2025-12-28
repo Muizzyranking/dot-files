@@ -1,6 +1,5 @@
 local notify = Utils.notify.create({ title = "Sidekick" })
 
----@param state sidekick.cli.State[]
 local function kill_session(state)
   local State = require("sidekick.cli.state")
   if not state or not state.session then
@@ -69,7 +68,7 @@ return {
   {
     "folke/sidekick.nvim",
     opts = {
-      nes = { enabled = false },
+      nes = { enabled = true },
       cli = {
         watch = true,
         win = {
@@ -85,6 +84,16 @@ return {
     },
     keys = {
       { "<leader>a", "", desc = "+ai", mode = { "n", "v" } },
+      {
+        "<tab>",
+        function()
+          if not require("sidekick").nes_jump_or_apply() then
+            return "<Tab>"
+          end
+        end,
+        expr = true,
+        desc = "Goto/Apply Next Edit Suggestion",
+      },
       {
         "<c-_>",
         function()
@@ -149,6 +158,27 @@ return {
     "nvim-lualine/lualine.nvim",
     optional = true,
     opts = function(_, opts)
+      local icons = {
+        Error = { " ", "DiagnosticError" },
+        Inactive = { " ", "MsgArea" },
+        Warning = { " ", "DiagnosticWarn" },
+        Normal = { Utils.icons.kinds.Copilot, "Special" },
+      }
+      table.insert(opts.sections.lualine_x, 2, {
+        function()
+          local status = require("sidekick.status").get()
+          return status and vim.tbl_get(icons, status.kind, 1)
+        end,
+        cond = function()
+          return require("sidekick.status").get() ~= nil
+        end,
+        color = function()
+          local status = require("sidekick.status").get()
+          local hl = status and (status.busy and "DiagnosticWarn" or vim.tbl_get(icons, status.kind, 2))
+          return { fg = Snacks.util.color(hl) }
+        end,
+      })
+
       table.insert(opts.sections.lualine_x, 2, {
         function()
           local status = require("sidekick.status").cli()
