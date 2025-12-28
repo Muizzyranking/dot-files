@@ -26,7 +26,7 @@
             "fetch_upstream_icon": true
           },
           "style": "diamond",
-          "template": " <#A6E3A1>{{ .UpstreamIcon }}{{ .HEAD }}</>{{if .BranchStatus }}{{ end }}{{ if .Working.Changed }} <#FAB387>  {{ .Working.String }}</>{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }}  |{{ end }}{{ if .Staging.Changed }} <#A6E3A1>  {{ .Staging.String }}</>{{ end }}{{ if gt .StashCount 0 }} <#F9E2AF>  {{ .StashCount }}</>{{ end }} ",
+          "template": " <#A6E3A1>{{ .UpstreamIcon }}{{ .HEAD }}</>{{if .BranchStatus }} <#F38BA8>{{ .BranchStatus }}</>{{ end }}{{ if .Working.Changed }} <#FAB387> {{ .Working.String }}</>{{ end }}{{ if and (.Working.Changed) (.Staging.Changed) }}  |{{ end }}{{ if .Staging.Changed }} <#A6E3A1>  {{ .Staging.String }}</>{{ end }}{{ if gt .StashCount 0 }} <#F9E2AF>  {{ .StashCount }}</>{{ end }} ",
           "type": "git"
         },
         {
