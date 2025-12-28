@@ -9,9 +9,8 @@ local lazy_autocmds = vim.fn.argc(-1) == 0
 
 local function try(fn, opts)
   opts = type(opts) == "string" and { msg = opts } or opts or {}
-  local msg = opts.msg
-  local error_handler = function(err)
-    msg = (msg and (msg .. "\n\n") or "") .. err
+  local ok, result = xpcall(fn, function(err)
+    local msg = opts.msg and (opts.msg .. "\n\n" .. err) or err
     if opts.on_error then
       opts.on_error(msg)
     else
@@ -20,20 +19,17 @@ local function try(fn, opts)
       end)
     end
     return err
-  end
-  local ok, result = xpcall(fn, error_handler)
+  end)
   return ok and result or nil
 end
 
 local function load(name)
-  local function _load(mod)
-    if require("lazy.core.cache").find(mod)[1] then
-      try(function()
-        require(mod)
-      end, { msg = "Failed loading " .. mod })
-    end
+  local mod = "config." .. name
+  if require("lazy.core.cache").find(mod)[1] then
+    try(function()
+      require(mod)
+    end, { msg = "Failed loading " .. mod })
   end
-  _load("config." .. name)
 end
 
 if not lazy_autocmds then
@@ -52,32 +48,10 @@ vim.api.nvim_create_autocmd("User", {
     load("lsp")
     Utils.map.setup()
     Utils.format.setup()
-    Utils.map.abbrev({
-      { "don't", "dont" },
-      { "Don't", "Dont" },
-      { "local", { "lcaol", "lcoal", "locla" } },
-      { "share", { "saher", "sahre" } },
-      { "blame", { "balme" } },
-      { "return", { "Return" } },
-    }, {})
-    vim.filetype.add({
-      extension = { rasi = "rasi", rofi = "rasi", wofi = "rasi", sh = "sh" },
-      filename = {
-        ["vifmrc"] = "vim",
-        [".gitconfig"] = "gitconfig",
-        [".gitignore"] = "gitignore",
-        [".gitignore_global"] = "gitignore",
-      },
-      pattern = {
-        [".*/waybar/config"] = "jsonc",
-        [".*/kitty/.+%.conf"] = "bash",
-        [".*/hypr/.+%.conf"] = "hyprlang",
-        ["%.env%.[%w_.-]+"] = "sh",
-        [".*git/config.*"] = "gitconfig",
-        [".*git/ignore.*"] = "gitignore",
-        [".*gitconfig.*"] = "gitconfig",
-        [".*gitignore.*"] = "gitignore",
-      },
-    })
+    load("filetypes")
+    vim.schedule(function()
+      load("abbrevations")
+    end)
   end,
 })
+vim.cmd.colorscheme("ember")
