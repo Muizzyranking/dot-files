@@ -141,26 +141,21 @@ vim.api.nvim_create_autocmd({ "FocusGained", "InsertLeave", "WinEnter" }, {
   group = cur_line_rel_num,
   pattern = "*",
   callback = function()
-    if vim.w.auto_cursorline then
-      vim.wo.cursorline = true
-      vim.w.auto_cursorline = nil
-    end
+    vim.wo.cursorline = true
     if vim.wo.number then
       vim.wo.relativenumber = true
     end
   end,
 })
+
 vim.api.nvim_create_autocmd({ "FocusLost", "InsertEnter", "WinLeave" }, {
   group = cur_line_rel_num,
   pattern = "*",
   callback = function()
-    if vim.w.auto_cursorline then
-      vim.wo.cursorline = true
-      vim.w.auto_cursorline = nil
-    end
     if vim.wo.number then
-      vim.wo.relativenumber = true
+      vim.wo.relativenumber = false
     end
+    vim.wo.cursorline = false
   end,
 })
 
