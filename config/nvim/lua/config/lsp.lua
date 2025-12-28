@@ -299,7 +299,7 @@ M.keymaps = {
 -- Hooks: run after all configs are loaded
 ---@class LspHook
 ---@field priority? number
----@field opts table Whether this hook is enabled
+---@field opts? table Whether this hook is enabled
 ---@field fn fun(opts: table): nil Hook function that receives options
 
 ---@type table<string, LspHook>
@@ -307,8 +307,10 @@ M.hooks = {
   setup_keymaps = {
     opts = { enabled = true },
     fn = function()
-      Utils.map.del({ "gra", "grn", "grr", "gri", "grt" }, { mode = "n" })
-      Utils.map.set(M.keymaps, {})
+      Utils.lsp.on_attach(function()
+        Utils.map.del({ "gra", "grn", "grr", "gri", "grt" }, { mode = "n", lsp = true })
+        Utils.map.set(M.keymaps, {})
+      end)
     end,
   },
   enable_servers = {
@@ -349,7 +351,15 @@ M.hooks = {
       end)
     end,
   },
-
+  setup_document_color = {
+    opts = { enabled = false },
+    fn = function(args)
+      local client = vim.lsp.get_client_by_id(args.data.client_id)
+      if client:supports_method("textDocument/documentColor") then
+        vim.lsp.document_color.enable(true, args.buf)
+      end
+    end,
+  },
   setup_document_highlight = {
     opts = { enabled = true, delay = 100 },
     fn = function(opts)
@@ -365,6 +375,18 @@ M.hooks = {
           buffer = buf,
           callback = vim.lsp.buf.clear_references,
         })
+      end)
+    end,
+  },
+  setup_folds = {
+    opts = { enabled = true },
+    fn = function()
+      Utils.lsp.on_method("textDocument/foldingRange", function(_, buf)
+        local win = vim.api.nvim_get_current_win()
+        if vim.api.nvim_win_get_buf(win) == buf then
+          vim.wo[win].foldmethod = "expr"
+          vim.wo[win].foldexpr = "v:lua.vim.lsp.foldexpr()"
+        end
       end)
     end,
   },
