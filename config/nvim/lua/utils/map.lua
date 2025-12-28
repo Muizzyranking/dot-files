@@ -387,9 +387,7 @@ end
 ---@param opts? table Shared options for all mappings
 ---------------------------------------------------------------
 function M.del(mappings, opts)
-  mappings = resolve_mappings(mappings)
   opts = opts or {}
-
   for _, map in ipairs(mappings) do
     local mapping = type(map) == "string" and { [1] = map } or map
     local merged = vim.tbl_deep_extend("force", {}, opts, mapping)
