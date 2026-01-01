@@ -215,4 +215,14 @@ function M.is_in_git_repo(notify)
   return success and output:match("true") ~= nil
 end
 
+--- use another filetype config in this filetype
+---@param filetype string
+function M.ft_config(filetype)
+  filetype = "ftplugin/" .. filetype .. ".lua"
+  if vim.fn.filereadable(vim.fn.stdpath("config") .. "/" .. filetype) == 1 then
+    vim.cmd("runtime " .. filetype)
+  end
+  Utils.notify.warn("No filetype config found for '" .. filetype .. "'")
+end
+
 return M
