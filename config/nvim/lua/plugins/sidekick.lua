@@ -68,7 +68,7 @@ return {
   {
     "folke/sidekick.nvim",
     opts = {
-      nes = { enabled = true },
+      nes = { enabled = false },
       cli = {
         watch = true,
         win = {
@@ -84,16 +84,16 @@ return {
     },
     keys = {
       { "<leader>a", "", desc = "+ai", mode = { "n", "v" } },
-      {
-        "<tab>",
-        function()
-          if not require("sidekick").nes_jump_or_apply() then
-            return "<Tab>"
-          end
-        end,
-        expr = true,
-        desc = "Goto/Apply Next Edit Suggestion",
-      },
+      -- {
+      --   "<tab>",
+      --   function()
+      --     if not require("sidekick").nes_jump_or_apply() then
+      --       return "<Tab>"
+      --     end
+      --   end,
+      --   expr = true,
+      --   desc = "Goto/Apply Next Edit Suggestion",
+      -- },
       {
         "<c-_>",
         function()

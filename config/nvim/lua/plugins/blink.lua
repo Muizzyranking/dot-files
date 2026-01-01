@@ -13,13 +13,6 @@ return {
       disable_ft = { "prompt" },
       keymap = {
         preset = "enter",
-        ["<tab>"] = {
-          "snippet_forward",
-          function()
-            return require("sidekick").nes_jump_or_apply()
-          end,
-          "fallback",
-        },
         -- I use <c-e> to go to the end of the line in insert mode
         ["<C-e>"] = {},
         -- a as in abort makes sense to me
