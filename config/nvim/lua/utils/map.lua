@@ -61,7 +61,16 @@ end
 ---@return boolean success Whether the mapping was set successfully
 ---------------------------------------------------------------
 function M.safe_keymap_set(mode, lhs, rhs, opts)
+  local keys = require("lazy.core.handler").handlers.keys
   local modes = Utils.fn.ensure_list(mode)
+
+  for _, m in ipairs(modes) do
+    ---@diagnostic disable-next-line: undefined-field
+    if keys.have and keys:have(lhs, m) then
+      return false
+    end
+  end
+
   opts = opts or {}
   opts.silent = opts.silent ~= false
   local ok = pcall(vim.keymap.set, modes, lhs, rhs, opts)
