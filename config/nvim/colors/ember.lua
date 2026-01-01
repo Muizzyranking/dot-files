@@ -142,7 +142,7 @@ hi("Typedef", { fg = colors.red_alt })
 hi("Special", { fg = colors.cyan })
 hi("SpecialChar", { fg = colors.cyan })
 hi("Tag", { fg = colors.blue })
-hi("Delimiter", { fg = colors.fg_dim })
+hi("Delimiter", { fg = colors.fg_dim, style = "NONE" })
 hi("SpecialComment", { fg = colors.fg_dimmer, style = "italic" })
 hi("Debug", { fg = colors.red })
 
@@ -179,6 +179,7 @@ hi("@method", { fg = colors.blue, style = "italic" })
 hi("@method.call", { fg = colors.blue, style = "italic" })
 
 hi("@constructor", { fg = colors.blue, style = "italic" })
+hi("@constructor.lua", { fg = colors.blue })
 hi("@parameter", { fg = colors.fg_bright, style = "italic" })
 
 hi("@keyword", { fg = colors.red, style = "italic" })
@@ -204,12 +205,13 @@ hi("@field", { fg = colors.fg })
 
 hi("@punctuation.delimiter", { fg = colors.fg_dim })
 hi("@punctuation.bracket", { fg = colors.fg_dim })
+hi("@punctuation.bracket.lua", { fg = colors.fg_dim })
 hi("@punctuation.special", { fg = colors.cyan })
 
 hi("@comment", { fg = colors.fg_dimmer, style = "italic" })
 hi("@tag", { fg = colors.red, style = "italic" })
 hi("@tag.attribute", { fg = colors.purple })
-hi("@tag.delimiter", { fg = colors.fg_dim })
+hi("@tag.delimiter", { fg = colors.fg_dim, style = "NONE" })
 
 -- Additional language-specific
 hi("@namespace", { fg = colors.cyan })
@@ -283,7 +285,6 @@ hi("RainbowDelimiterBlue", { fg = colors.blue })
 hi("RainbowDelimiterGreen", { fg = colors.magenta })
 hi("RainbowDelimiterViolet", { fg = colors.purple })
 hi("RainbowDelimiterCyan", { fg = colors.cyan })
-
 -- Todo comments
 hi("TodoBgFIX", { fg = "#1a1b26", bg = colors.error, style = "bold" })
 hi("TodoBgHACK", { fg = "#1a1b26", bg = colors.warning, style = "bold" })
