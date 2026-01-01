@@ -44,6 +44,10 @@ return {
   },
   {
     "christoomey/vim-tmux-navigator",
+    cond = function()
+      return Utils.fn.is_in_tmux()
+    end,
+    event = "VeryLazy",
     cmd = {
       "TmuxNavigateLeft",
       "TmuxNavigateDown",
@@ -59,20 +63,20 @@ return {
       { "<c-l>", "<cmd><C-U>TmuxNavigateRight<cr>" },
       { "<c-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>" },
     },
-    {
-      "Wansmer/treesj",
-      keys = {
+  },
+  {
+    "Wansmer/treesj",
+    keys = {
         -- stylua: ignore
         { "gs", function() require("treesj").toggle() end, desc = "Join/Split Lines" },
-      },
-      dependencies = { "nvim-treesitter/nvim-treesitter" },
-      opts = {
-        use_default_keymaps = false,
-        max_join_length = 120,
-        cursor_behavior = "hold",
-        notify = true,
-        dot_repeat = true,
-      },
+    },
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    opts = {
+      use_default_keymaps = false,
+      max_join_length = 120,
+      cursor_behavior = "hold",
+      notify = true,
+      dot_repeat = true,
     },
   },
   {

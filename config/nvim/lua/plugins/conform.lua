@@ -58,6 +58,7 @@ return {
         },
         black = { append_args = { "--line-length", "85" } },
         djlint = { append_args = { "--indent", "2" } },
+        ruff = require("conform.formatters.ruff_format"),
       },
       formatters_by_ft = {
         yaml = { "prettierd", "biome" },
@@ -69,11 +70,7 @@ return {
         go = { "goimports", "gofumpt" },
         http = { "kulala-fmt" },
         ["markdown"] = { "markdownlint-cli2", "markdown-toc" },
-        ["markdown.mdx"] = {
-          -- "prettier",
-          "markdownlint-cli2",
-          "markdown-toc",
-        },
+        ["markdown.mdx"] = { "markdownlint-cli2", "markdown-toc" },
         ["json"] = { "jq" },
         ["jsonc"] = { "jq" },
       },
