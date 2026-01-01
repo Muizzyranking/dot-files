@@ -40,8 +40,10 @@ local function matches_filter(buf, client, filter)
 
   if filter.method then
     local method = normalize_method(filter.method)
-    if not client.supports_method or not client.supports_method(method, { bufnr = buf }) then
-      return false
+    if not client:supports_method(method, { bufnr = buf }) then
+      if not client.supports_method or not client.supports_method(method, { bufnr = buf }) then
+        return false
+      end
     end
   end
 
@@ -339,7 +341,9 @@ function M.stop(name)
 
   local success = true
   for _, client in ipairs(clients) do
-    local ok, err = pcall(vim.lsp.stop_client, client.id)
+    local ok, err = pcall(function()
+      client:stop(true)
+    end)
     if not ok then
       notify.error(string.format("Failed to stop server '%s' (id: %d): %s", name, client.id, err))
       success = false
@@ -420,6 +424,10 @@ function M.goto_definition(opts)
         return
       end
 
+      if #items > 1 then
+        Snacks.picker.lsp_definitions()
+      end
+
       -- Get the first definition
       local item = items[1]
       local filename = item.filename
@@ -461,12 +469,7 @@ function M.goto_definition(opts)
         vim.cmd("edit " .. filename)
         pcall(vim.api.nvim_win_set_cursor, 0, { lnum, col - 1 })
       end
-
       vim.cmd("normal! zz")
-
-      if #items > 1 then
-        notify(string.format("Jumped to first definition (found %d total)", #items))
-      end
     end,
   })
 end

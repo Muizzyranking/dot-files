@@ -99,7 +99,7 @@ end
 
 function M.setup()
   api.nvim_create_autocmd("BufWritePre", {
-    group = api.nvim_create_augroup("LazyFormat", { clear = true }),
+    group = api.nvim_create_augroup("utils.format", { clear = true }),
     callback = function(event)
       if M.enabled() then
         M.format({ bufnr = event.buf, force = true })

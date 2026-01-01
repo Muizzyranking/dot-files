@@ -127,8 +127,9 @@ end
 -- Find project root based on patterns
 ---@param buf number the buffer number
 ---@param patterns string[]|string patterns to search for
+---@param stop? string directory to stop searching at
 ---------------------------------------------------------------
-function M.find_pattern_root(buf, patterns)
+function M.find_pattern_root(buf, patterns, stop)
   patterns = Utils.fn.ensure_list(patterns) ---@type string[]
   buf = Utils.fn.ensure_buf(buf)
   local path = M.get_buffer_path(buf) or vim.uv.cwd()
@@ -159,7 +160,7 @@ function M.find_pattern_root(buf, patterns)
   end, {
     path = path,
     upward = true,
-    stop = uv.os_homedir(),
+    stop = stop or uv.os_homedir(),
   })[1]
   return pattern and vim.fs.dirname(pattern) or nil
 end
