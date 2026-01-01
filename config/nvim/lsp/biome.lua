@@ -14,8 +14,8 @@ return {
     "html",
     "javascript",
     "javascriptreact",
-    "json",
-    "jsonc",
+    -- "json",
+    -- "jsonc",
     "svelte",
     "typescript",
     "typescript.tsx",
@@ -30,19 +30,11 @@ return {
       return
     end
     local project_root = vim.fs.root(bufnr, root_markers) or vim.fn.getcwd()
-    local filename = vim.api.nvim_buf_get_name(bufnr)
     local biome_config_files = { "biome.json", "biome.jsonc" }
-    local is_buffer_using_biome = vim.fs.find(biome_config_files, {
-      path = filename,
-      type = "file",
-      limit = 1,
-      upward = true,
-      stop = vim.fs.dirname(project_root),
-    })[1]
-    if not is_buffer_using_biome then
+    local biome_root = Utils.root.find_pattern_root(bufnr, biome_config_files, vim.fs.dirname(project_root))
+    if not biome_root then
       return
     end
-
     on_dir(project_root)
   end,
 }
