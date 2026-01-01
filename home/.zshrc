@@ -41,6 +41,10 @@ fpath+=("${ZDOTDIR:-~}/.zsh_functions")
 autoload -Uz compinit
 compinit
 
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey '^x^e' edit-command-line
+
 # Case-insensitive completion
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 zstyle ':completion:*' menu select
