@@ -1,3 +1,115 @@
+local function get_unsaved_buffers()
+  local buffers = {}
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].modified then
+      local name = vim.api.nvim_buf_get_name(buf)
+      local display_name = name
+      if name == "" then
+        display_name = "[No Name]"
+      else
+        display_name = vim.fn.fnamemodify(name, ":~:.")
+      end
+      table.insert(buffers, {
+        buf = buf,
+        text = display_name,
+        filename = name,
+        idx = buf,
+      })
+    end
+  end
+  return buffers
+end
+
+local function unsaved_buffers_picker()
+  local initial_buffers = get_unsaved_buffers()
+  if #initial_buffers == 0 then
+    vim.notify("No unsaved buffers", vim.log.levels.INFO)
+    return
+  end
+
+  return Snacks.picker({
+    title = "Unsaved Buffers",
+    finder = function()
+      return get_unsaved_buffers()
+    end,
+    format = function(item)
+      local ret = {}
+      local icon, icon_hl = Snacks.util.icon(item.filename)
+      ret[#ret + 1] = { icon .. " ", icon_hl }
+      ret[#ret + 1] = { item.text }
+      return ret
+    end,
+    actions = {
+      confirm = function(picker, item)
+        picker:close()
+        if not item then
+          return
+        end
+        vim.api.nvim_set_current_buf(item.buf)
+      end,
+      save = function(picker, item)
+        if not item then
+          return
+        end
+        local success = pcall(function()
+          vim.api.nvim_buf_call(item.buf, function()
+            vim.cmd("write")
+          end)
+        end)
+        if success then
+          vim.notify("Saved: " .. item.text, vim.log.levels.INFO)
+          picker:find({
+            on_done = function()
+              if picker:count() == 0 then
+                picker:close()
+                vim.notify("All buffers saved!", vim.log.levels.INFO)
+              end
+            end,
+          })
+        else
+          vim.notify("Failed to save: " .. item.text, vim.log.levels.ERROR)
+        end
+      end,
+      save_all = function(picker)
+        local buffers = get_unsaved_buffers()
+        local saved_count = 0
+        for _, buf_item in ipairs(buffers) do
+          local success = pcall(function()
+            vim.api.nvim_buf_call(buf_item.buf, function()
+              vim.cmd("write")
+            end)
+          end)
+          if success then
+            saved_count = saved_count + 1
+          end
+        end
+        vim.notify("Saved " .. saved_count .. " buffer(s)", vim.log.levels.INFO)
+        -- Refresh the picker
+        picker:find({
+          on_done = function()
+            if picker:count() == 0 then
+              picker:close()
+            end
+          end,
+        })
+      end,
+    },
+    ---@diagnostic disable-next-line: assign-type-mismatch
+    layout = { preset = "drop", preview = false },
+    on_show = function()
+      vim.cmd("stopinsert")
+    end,
+    win = {
+      input = {
+        keys = {
+          ["<c-s>"] = { "save", mode = { "n", "i" } },
+          ["<c-a>"] = { "save_all", mode = { "n", "i" } },
+        },
+      },
+    },
+  })
+end
+
 local notifier = {
   timeout = 3000,
   width = { min = 40, max = 0.4 },
@@ -15,6 +127,15 @@ local notifier = {
   },
   keep = function()
     return vim.fn.getcmdpos() > 0
+  end,
+  filter = function(notif)
+    local ignores = { "^client.supports_method is deprecated" }
+    return not vim.iter(ignores):any(
+      ---@param pat string
+      function(pat)
+        return string.find(notif.msg, pat) ~= nil
+      end
+    )
   end,
   style = "compact",
   top_down = false,
@@ -285,6 +406,7 @@ return {
       desc = "Spell suggestions",
     },
     { "<leader>fb", function() Snacks.picker.buffers({ on_show = function() vim.cmd("stopinsert") end }) end, desc = "Buffers" },
+    { "<leader>fB", function() unsaved_buffers_picker() end, desc = "Buffers" },
     {
       "<leader>:",
       function()
