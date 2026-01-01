@@ -140,7 +140,11 @@ local cur_line_rel_num = augroup("toggle_rel_number")
 vim.api.nvim_create_autocmd({ "FocusGained", "InsertLeave", "WinEnter" }, {
   group = cur_line_rel_num,
   pattern = "*",
-  callback = function()
+  callback = function(event)
+    local exclude = { "snacks_dashboard" }
+    if vim.tbl_contains(exclude, vim.bo[event.buf].filetype) then
+      return
+    end
     vim.wo.cursorline = true
     if vim.wo.number then
       vim.wo.relativenumber = true
@@ -151,7 +155,11 @@ vim.api.nvim_create_autocmd({ "FocusGained", "InsertLeave", "WinEnter" }, {
 vim.api.nvim_create_autocmd({ "FocusLost", "InsertEnter", "WinLeave" }, {
   group = cur_line_rel_num,
   pattern = "*",
-  callback = function()
+  callback = function(event)
+    local exclude = { "snacks_dashboard" }
+    if vim.tbl_contains(exclude, vim.bo[event.buf].filetype) then
+      return
+    end
     if vim.wo.number then
       vim.wo.relativenumber = false
     end

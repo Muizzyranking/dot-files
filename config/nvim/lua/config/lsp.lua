@@ -45,6 +45,7 @@ M.lsps = {
       { "<leader>ch", "<cmd>LspClangdSwitchSourceHeader<cr>", desc = "Switch between source/header" },
     },
   },
+  jsonls = {},
   emmet_language_server = {},
   eslint = {
     keys = {
@@ -91,6 +92,7 @@ M.lsps = {
     },
   },
   tsgo = {
+    enabled = false,
     keys = {
       {
         "<leader>ci",
@@ -107,7 +109,7 @@ M.lsps = {
     },
   },
   vtsls = {
-    enabled = false,
+    enabled = true,
     keys = {
       {
         "gR",
@@ -130,27 +132,13 @@ M.lsps = {
       --   end,
       --   icon = { icon = "󰺲" },
       -- },
-      {
-        "<leader>ci",
-        Utils.lsp.action["source.addMissingImports.ts"],
-        desc = "Add missing imports",
-      },
-      {
-        "<leader>cu",
-        Utils.lsp.action["source.removeUnused.ts"],
-        desc = "Remove unused imports",
-      },
-      {
-        "<leader>cD",
-        Utils.lsp.action["source.fixAll.ts"],
-        desc = "Fix all diagnostics",
-      },
+      { "<leader>ci", Utils.lsp.action["source.addMissingImports.ts"], desc = "Add missing imports" },
+      { "<leader>cu", Utils.lsp.action["source.removeUnused.ts"], desc = "Remove unused imports" },
+      { "<leader>cD", Utils.lsp.action["source.fixAll.ts"], desc = "Fix all diagnostics" },
       {
         "<leader>cV",
         function()
-          Utils.lsp.execute({
-            command = "typescript.selectTypeScriptVersion",
-          })
+          Utils.lsp.execute({ command = "typescript.selectTypeScriptVersion" })
         end,
         desc = "Select TS workspace version",
       },
@@ -204,7 +192,6 @@ M.keymaps = {
     desc = "Lsp Symbols",
     has = "documentSymbol",
   },
-
   {
     "<c-k>",
     function()
@@ -236,7 +223,14 @@ M.keymaps = {
     icon = { icon = "󰆏 ", color = "blue" },
     mode = { "n", "x" },
   },
-  { "<leader>cl", "<cmd>LspInfo<cr>", desc = "Lsp Info", icon = { icon = " ", color = "blue" } },
+  {
+    "<leader>cl",
+    function()
+      vim.cmd.checkhealth("vim.lsp")
+    end,
+    desc = "Lsp Info",
+    icon = { icon = " ", color = "blue" },
+  },
   {
     "<leader>cL",
     function()
@@ -253,7 +247,7 @@ M.keymaps = {
         end,
       }, function(client)
         if client then
-          vim.lsp.stop_client(client.id)
+          Utils.lsp.restart(client.name)
           vim.defer_fn(function()
             vim.cmd("edit")
           end, 100)
@@ -299,7 +293,7 @@ M.keymaps = {
 -- Hooks: run after all configs are loaded
 ---@class LspHook
 ---@field priority? number
----@field opts? table Whether this hook is enabled
+---@field opts? table
 ---@field fn fun(opts: table): nil Hook function that receives options
 
 ---@type table<string, LspHook>
@@ -352,12 +346,13 @@ M.hooks = {
     end,
   },
   setup_document_color = {
-    opts = { enabled = false },
-    fn = function(args)
-      local client = vim.lsp.get_client_by_id(args.data.client_id)
-      if client:supports_method("textDocument/documentColor") then
-        vim.lsp.document_color.enable(true, args.buf)
-      end
+    opts = { enabled = true },
+    fn = function()
+      Utils.lsp.on_method("textDocument/documentColor", function(_, buf)
+        if vim.lsp.document_color ~= nil then
+          vim.lsp.document_color.enable(true, buf)
+        end
+      end)
     end,
   },
   setup_document_highlight = {
@@ -391,7 +386,7 @@ M.hooks = {
     end,
   },
   setup_semantic_tokens = {
-    opts = { enabled = false, disable_for = { "lua_ls" } },
+    opts = { enabled = true, disable_for = { "lua_ls" } },
     fn = function(opts)
       local disable_map = {}
       for _, server in ipairs(opts.disable_for or {}) do

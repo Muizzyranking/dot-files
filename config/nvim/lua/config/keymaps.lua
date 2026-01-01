@@ -1,4 +1,4 @@
-local set = vim.keymap.set
+local set = Utils.map
 vim.keymap.set("n", "m", "<nop>", {})
 
 ------------------------
@@ -92,12 +92,12 @@ end, { silent = true })
 
 set("i", "<C-b>", function()
   vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>I", true, false, true), "n", true)
-end, { desc = "Go to beginning of line" }) -- Go to beginning of line in insert
+end, { desc = "Go to beginning of line" })
 
 set("i", "<C-e>", function()
   vim.cmd.normal({ "$", bang = true })
   vim.cmd("startinsert!")
-end, { desc = "Go to end of line" }) -- Go to end of line in insert
+end, { desc = "Go to end of line" })
 
 local function snippet_aware_map(modes, lhs, rhs, opts)
   opts = opts or {}
@@ -165,6 +165,21 @@ end
 
 local maps = {
   { "<leader>l", "<cmd>Lazy<cr>", desc = "Lazy" },
+  {
+    "<leader>ux",
+    function()
+      vim
+        .iter(vim.api.nvim_list_wins())
+        :filter(function(win)
+          return vim.api.nvim_win_get_config(win).relative ~= ""
+        end)
+        :each(function(win)
+          vim.api.nvim_win_close(win, true)
+        end)
+    end,
+    desc = "Close floating windows",
+    icon = { icon = "󰅖 ", color = "red" },
+  },
   {
     "<leader>ur",
     "<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>",
@@ -249,7 +264,7 @@ local git_maps = {
 Utils.map.set(git_maps, {
   silent = true,
   icon = { icon = " ", color = "orange" },
-  conds = {},
+  conds = { Utils.fn.is_in_git_repo },
 })
 
 ------------------------------------
