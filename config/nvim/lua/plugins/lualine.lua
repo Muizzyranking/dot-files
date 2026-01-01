@@ -403,6 +403,27 @@ return {
             "snacks_picker_list",
           },
         },
+        {
+          sections = {
+            lualine_a = { mode },
+            lualine_b = {
+              {
+                function()
+                  local attached = require("sidekick.cli.state").get({ attached = true })
+                  if #attached == 0 then
+                    return
+                  end
+                  local tool_name = attached[1].tool.name or "Sidekick"
+                  return " " .. tool_name
+                end,
+              },
+            },
+            lualine_z = {},
+          },
+          filetypes = {
+            "sidekick_terminal",
+          },
+        },
       },
     }
   end,
