@@ -1,5 +1,6 @@
 local lsp = vim.lsp
 
+local biome_config_files = { "biome.json", "biome.jsonc" }
 local eslint_config_files = {
   ".eslintrc",
   ".eslintrc.js",
@@ -50,6 +51,14 @@ return {
     end
 
     local project_root = vim.fs.root(bufnr, root_markers) or vim.fn.getcwd()
+    local biome_root = Utils.root.find_pattern_root(bufnr, biome_config_files, vim.fs.dirname(project_root))
+    if biome_root then
+      return -- Don't attach ESLint if Biome config exists
+    end
+    local eslint_root = Utils.root.find_pattern_root(bufnr, eslint_config_files, vim.fs.dirname(project_root))
+    if not eslint_root then
+      return -- Don't attach if no ESLint config
+    end
     on_dir(project_root)
   end,
   settings = {
