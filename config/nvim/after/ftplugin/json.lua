@@ -19,3 +19,4 @@ Utils.map.set({
 
 vim.bo[buf].shiftwidth = 2
 vim.bo[buf].tabstop = 2
+vim.opt_local.conceallevel = 0
