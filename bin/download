@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Description: Downloads a file from a URL using curl or wget with progress indication.
+# Usage: download <URL> [output_filename]
+
+set -e
+
+if [ -z "$1" ] || [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
+    echo "Usage: $(basename "$0") <URL> [output_filename]"
+    exit 1
+fi
+
+URL="$1"
+# If $2 is provided use it, else extract from URL
+FILENAME="${2:-$(basename "$URL")}"
+
+# Fallback filename if URL ends in slash
+if [ -z "$FILENAME" ]; then
+    FILENAME="downloaded_file"
+fi
+
+echo "Downloading: $URL -> $FILENAME"
+
+if command -v curl >/dev/null 2>&1; then
+    # curl -L (follow redirects) -# (progress bar) -o (output)
+    curl -L -# "$URL" -o "$FILENAME"
+elif command -v wget >/dev/null 2>&1; then
+    # wget -O (output) --show-progress
+    wget --show-progress -O "$FILENAME" "$URL"
+else
+    echo "Error: Neither curl nor wget is installed."
+    exit 1
+fi
+
+if [ $? -eq 0 ]; then
+    echo "Download complete: $(pwd)/$FILENAME"
+else
+    echo "Download failed!"
+    exit 1
+fi
