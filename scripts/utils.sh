@@ -1,28 +1,84 @@
 #!/bin/bash
 
-# Colors
-RED='\033[0;31m'
-YELLOW='\033[0;33m'
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+# --- Colors ---
+export RED='\033[0;31m'
+export GREEN='\033[0;32m'
+export YELLOW='\033[0;33m'
+export BLUE='\033[0;34m'
+export MAGENTA='\033[0;35m'
+export CYAN='\033[0;36m'
+export NC='\033[0m' # No Color
 
-# Print message with color based on type
+export DOTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export STATE_FILE="$HOME/.fedora_setup_state"
+
+# --- Logging ---
 print_message() {
-    case "$1" in
-    error) echo -e "${RED}$2${NC}" ;;
-    warning) echo -e "${YELLOW}$2${NC}" ;;
-    success) echo -e "${GREEN}$2${NC}" ;;
-    info) echo -e "${BLUE}$2${NC}" ;;
-    *) echo "$2" ;;
+    local type="$1"
+    local msg="$2"
+    case "$type" in
+    info) echo -e "${BLUE}[INFO]${NC} $msg" ;;
+    success) echo -e "${GREEN}[SUCCESS]${NC} $msg" ;;
+    warning) echo -e "${YELLOW}[WARNING]${NC} $msg" ;;
+    error) echo -e "${RED}[ERROR]${NC} $msg" ;;
+    step) echo -e "${MAGENTA}[STEP]${NC} $msg" ;;
+    *) echo -e "$msg" ;;
     esac
 }
 
+# --- State Management ---
+is_step_complete() {
+    local step="$1"
+    if [[ -f "$STATE_FILE" ]] && grep -q "^$step$" "$STATE_FILE"; then
+        return 0
+    fi
+    return 1
+}
+
+mark_step_complete() {
+    local step="$1"
+    echo "$step" >>"$STATE_FILE"
+}
+
+clear_state() {
+    rm -f "$STATE_FILE"
+}
+
+# --- System Checks ---
+check_fedora() {
+    if ! grep -q "Fedora" /etc/os-release; then
+        print_message error "This script is designed for Fedora Linux only."
+        exit 1
+    fi
+}
+
+check_internet() {
+    if ! ping -c 1 google.com >/dev/null 2>&1; then
+        print_message error "No internet connection detected."
+        exit 1
+    fi
+}
+
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+request_reboot() {
+    print_message warning "A system reboot is required to continue."
+    read -rp "Reboot now? (y/n): " choice
+    if [[ "$choice" =~ ^[Yy]$ ]]; then
+        print_message info "Rebooting..."
+        sudo reboot
+    else
+        print_message info "Please reboot manually and run the script again to continue."
+        exit 0
+    fi
+}
+
+# --- Package Management ---
 is_package_installed() {
     local package="$1"
-    if command -v "$package" &>/dev/null; then
-        return 0
-    elif rpm -q "$package" &>/dev/null; then
+    if rpm -q "$package" &>/dev/null; then
         return 0
     fi
     return 1
@@ -30,107 +86,71 @@ is_package_installed() {
 
 install_package() {
     local package="$1"
-
-    # Check if the package is already installed
     if is_package_installed "$package"; then
-        print_message warning "Package $package already installed, skipping..."
+        print_message success "$package is already installed."
+        return 0
+    fi
+
+    print_message info "Installing package: $package..."
+    if sudo dnf install -y "$package"; then
+        print_message success "Installed $package"
         return 0
     else
-        # Attempt to install the package
-        print_message info "Installing package $package..."
-        if sudo dnf install -y -q "$package"; then
-            print_message success "Successfully installed package $package."
-            return 0
-        fi
-        if ! is_package_installed "$package"; then
-            print_message error "Package $package installation verification failed."
-            return 1
-        fi
+        print_message error "Failed to install $package"
+        return 1
     fi
 }
 
 install_packages() {
     local packages=("$@")
-    local failed_packages=()
+    local failed=()
 
-    for package in "${packages[@]}"; do
-        if ! install_package "$package"; then
-            failed_packages+=("$package")
+    for pkg in "${packages[@]}"; do
+        if ! install_package "$pkg"; then
+            failed+=("$pkg")
         fi
     done
 
-    if [[ ${#failed_packages[@]} -gt 0 ]]; then
-        print_message error "Failed to install: ${failed_packages[*]}"
+    if [[ ${#failed[@]} -gt 0 ]]; then
+        print_message error "Failed to install: ${failed[*]}"
         return 1
     fi
-
-    return 0
 }
 
-safe_git_clone() {
-    local repo="$1"
-    local dest="$2"
-    local max_attempts="${3:-3}"
-    local attempt=0
-
-    # Create parent directory if it doesn't exist
-    mkdir -p "$(dirname "$dest")"
-
-    while ((attempt < max_attempts)); do
-        if git clone --depth=1 --filter=blob:none --quiet "$repo" "$dest" 2>/dev/null; then
-            print_message success "Successfully cloned $repo"
-            return 0
-        fi
-        ((attempt++))
-        if ((attempt < max_attempts)); then
-            print_message warning "Git clone failed (attempt $attempt/$max_attempts), retrying..."
-            sleep 2
-        fi
-    done
-
-    print_message error "Failed to clone $repo after $max_attempts attempts"
-    return 1
-}
-
-safe_download() {
-    local url="$1"
-    local dest="$2"
-    local max_attempts="${3:-3}"
-    local attempt=0
-
-    while ((attempt < max_attempts)); do
-        if curl -fsSL --connect-timeout 30 --max-time 300 "$url" -o "$dest"; then
-            print_message success "Successfully downloaded $url"
-            return 0
-        fi
-        ((attempt++))
-        if ((attempt < max_attempts)); then
-            print_message warning "Download failed (attempt $attempt/$max_attempts), retrying..."
-            sleep 2
-        fi
-    done
-
-    print_message error "Failed to download $url after $max_attempts attempts"
-    return 1
-}
-
-command_exists() {
-    command -v "$1" >/dev/null 2>&1
-}
-
-add_repo() {
-    local repo_name="$1"
-    local repo_url="$2"
-    local repo_file="/etc/yum.repos.d/${repo_name}.repo"
-
-    if [[ -f "$repo_file" ]]; then
-        print_message warning "Repository $repo_name already exists, skipping..."
+install_flatpak() {
+    local app="$1"
+    if flatpak list --app | grep -q "$app"; then
+        print_message success "Flatpak $app is already installed."
         return 0
     fi
 
-    print_message info "Adding repository $repo_name..."
-    echo "$repo_url" | sudo tee "$repo_file" >/dev/null
+    print_message info "Installing Flatpak: $app..."
+    flatpak install flathub "$app" -y
+}
 
+enable_copr() {
+    local repo="$1"
+    print_message info "Enabling COPR repository: $repo..."
+    sudo dnf copr enable -y "$repo"
+}
+
+add_repo() {
+    local name="$1"
+    local source="$2"
+    local file="/etc/yum.repos.d/${name}.repo"
+
+    if [[ -f "$file" ]]; then
+        print_message success "Repository $name already exists."
+        return 0
+    fi
+
+    print_message info "Adding repository $name..."
+
+    if [[ "$source" =~ ^https?://.*\.repo$ ]]; then
+        sudo dnf config-manager --add-repo "$source"
+    else
+        echo "$source" | sudo tee "$file" >/dev/null
+    fi
     if [[ -f "$repo_file" ]]; then
         print_message success "Repository $repo_name added successfully."
         return 0
@@ -140,39 +160,29 @@ add_repo() {
     fi
 }
 
-enable_copr() {
-    local copr_repo="$1"
+# --- File Operations ---
+safe_git_clone() {
+    local repo="$1"
+    local dest="$2"
 
-    if sudo dnf copr list --enabled | grep -q "$copr_repo"; then
-        print_message warning "COPR repository $copr_repo already enabled, skipping..."
+    if [[ -d "$dest" ]]; then
+        if [[ -d "$dest/.git" ]]; then
+            print_message info "Updating existing repository at $dest..."
+            git -C "$dest" pull --quiet
+        else
+            print_message warning "Directory $dest exists but is not a git repo."
+        fi
         return 0
     fi
 
-    print_message info "Enabling COPR repository $copr_repo..."
-    if sudo dnf copr enable "$copr_repo" -y; then
-        print_message success "COPR repository $copr_repo enabled successfully."
-        return 0
-    else
-        print_message error "Failed to enable COPR repository $copr_repo."
-        return 1
-    fi
+    print_message info "Cloning $repo..."
+    git clone --depth=1 --filter=blob:none --quiet "$repo" "$dest"
 }
 
-check_system_requirements() {
-    print_message info "Checking system requirements..."
+safe_download() {
+    local url="$1"
+    local dest="$2"
 
-    # Check if running Fedora
-    if ! grep -q "Fedora" /etc/os-release; then
-        print_message error "This script is designed for Fedora Linux only."
-        return 1
-    fi
-
-    # Check internet connectivity
-    if ! ping -c 1 google.com >/dev/null 2>&1; then
-        print_message error "No internet connection detected."
-        return 1
-    fi
-
-    print_message success "System requirements check passed."
-    return 0
+    print_message info "Downloading $url..."
+    curl -fL --connect-timeout 30 --max-time 300 "$url" -o "$dest"
 }

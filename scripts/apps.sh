@@ -1,161 +1,63 @@
 #!/bin/bash
+
 set -euo pipefail
 
-script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$script_dir/utils.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/utils.sh"
 
-print_message info "Installing applications and themes..."
+check_fedora
+check_internet
 
-# Install Firefox (if not already installed)
-print_message info "Installing Firefox..."
-install_package "firefox"
+print_message step "Installing Applications"
 
-# Install Google Chrome
-print_message info "Installing Google Chrome..."
-if ! is_package_installed "google-chrome-stable"; then
-    # Add Google Chrome repository
-    if [[ ! -f /etc/yum.repos.d/google-chrome.repo ]]; then
-        add_repo "google-chrome" "[google-chrome]
+if ! is_step_complete "apps_browsers"; then
+    print_message info "Installing Browsers..."
+
+    # Chrome
+    add_repo "google-chrome" "[google-chrome]
         name=google-chrome
         baseurl=https://dl.google.com/linux/chrome/rpm/stable/x86_64
         enabled=1
         gpgcheck=1
         gpgkey=https://dl.google.com/linux/linux_signing_key.pub"
-        sudo rpm --import https://dl.google.com/linux/linux_signing_key.pub
-    fi
-
+    sudo rpm --import https://dl.google.com/linux/linux_signing_key.pub 2>/dev/null || true
     sudo dnf check-update
-    install_package "google-chrome-stable"
-else
-    print_message warning "Google Chrome is already installed, skipping."
-fi
-print_message info "Installing Visual Studio Code..."
+    install_package google-chrome-stable
 
-if ! is_package_installed "code"; then
-    # Add Microsoft repository
-    if [[ ! -f /etc/yum.repos.d/vscode.repo ]]; then
-        sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
-        add_repo "vscode" "[code]
-        name=Visual Studio Code
-        baseurl=https://packages.microsoft.com/yumrepos/vscode
-        enabled=1
-        autorefresh=1
-        type=rpm-md
-        gpgcheck=1
-        gpgkey=https://packages.microsoft.com/keys/microsoft.asc"
-    fi
-    
-    sudo dnf check-update
-    install_package "code"
-else
-    print_message warning "Visual Studio Code is already installed, skipping."
+    # Brave
+    sudo dnf config-manager --add-repo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo
+    sudo rpm --import https://brave-browser-rpm-release.s3.brave.com/brave-core.asc 2>/dev/null || true
+    install_package brave-browser
+
+    enable_copr "sneexy/zen-browser"
+    install_package zen-browser
+
+    mark_step_complete "apps_browsers"
 fi
 
-print_message info "Installing Zen Browser..."
-enable_copr "sneexy/zen-browser"
-install_package "zen-browser"
-
-# Install Catppuccin GTK theme
-print_message info "Installing Catppuccin GTK theme..."
-themes_dir="$HOME/.themes"
-mkdir -p "$themes_dir"
-
-catppuccin_theme_dir="$themes_dir/Catppuccin-Mocha"
-if [[ ! -d "$catppuccin_theme_dir" ]]; then
-    temp_dir=$(mktemp -d)
-    cd "$temp_dir"
-
-    if safe_download "https://github.com/catppuccin/gtk/releases/latest/download/Catppuccin-Mocha-Standard-Peach-Dark.zip" "catppuccin-gtk.zip"; then
-        unzip -q catppuccin-gtk.zip
-        mv Catppuccin-* "$catppuccin_theme_dir"
-        print_message success "Catppuccin GTK theme installed."
-    fi
-
-    cd - >/dev/null
-    rm -rf "$temp_dir"
-else
-    print_message warning "Catppuccin GTK theme already installed, skipping."
+if ! is_step_complete "apps_vscode"; then
+    print_message info "Installing VS Code..."
+    sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc 2>/dev/null || true
+    add_repo "vscode" "[code]
+    name=Visual Studio Code
+    baseurl=https://packages.microsoft.com/yumrepos/vscode
+    enabled=1
+    gpgcheck=1
+    gpgkey=https://packages.microsoft.com/keys/microsoft.asc"
+    install_package code
+    mark_step_complete "apps_vscode"
 fi
 
-# Install Catppuccin cursor theme
-print_message info "Installing Catppuccin cursor theme..."
-icon_dir="$HOME/.local/share/icons"
-mkdir -p "$icon_dir"
+if ! is_step_complete "apps_flatpak"; then
+    print_message info "Installing Flatpak Apps..."
 
-cursor_theme_dir="$icon_dir/catppuccin-mocha-peach-cursors"
-if [[ ! -d "$cursor_theme_dir" ]]; then
-    temp_dir=$(mktemp -d)
-    cd "$temp_dir"
+    apps=("com.spotify.Client" "com.discordapp.Discord")
 
-    if safe_download "https://github.com/catppuccin/cursors/releases/latest/download/catppuccin-mocha-peach-cursors.zip" "catppuccin-cursors.zip"; then
-        unzip -q catppuccin-cursors.zip
-        mv catppuccin-mocha-peach-cursors "$icon_dir/"
-        print_message success "Catppuccin cursor theme installed."
-    fi
+    for app in "${apps[@]}"; do
+        install_flatpak "$app"
+    done
 
-    cd - >/dev/null
-    rm -rf "$temp_dir"
-else
-    print_message warning "Catppuccin cursor theme already installed, skipping."
+    mark_step_complete "apps_flatpak"
 fi
 
-print_message info "Installing Reversal icon theme..."
-shopt -s nocaseglob nullglob
-reversal_dirs=("$icon_dir"/reversal*)
-shopt -u nocaseglob nullglob
-
-if [[ ${#reversal_dirs[@]} -eq 0 ]]; then
-    temp_dir=$(mktemp -d)
-    reversal_dir="$icon_dir/Reversal-icon-theme"
-    color_variant="orange"
-
-    if safe_git_clone "https://github.com/yeyushengfan258/Reversal-icon-theme" "$reversal_dir"; then
-        cd "$reversal_dir"
-        if [[ -x "./install.sh" ]]; then
-            ./install.sh -d "$icon_dir" "$color_variant" --unattended
-            print_message success "Reversal icon theme installed successfully"
-        else
-            print_message error "install.sh not found or not executable"
-        fi
-        cd - >/dev/null
-    else
-        print_message error "Failed to clone Reversal icon theme repository"
-    fi
-    rm -rf "$temp_dir"
-else
-    print_message warning "Reversal icon theme already installed, skipping."
-fi
-
-# Install additional applications via Flatpak
-print_message info "Installing Flatpak applications..."
-flatpak_apps=(
-    "com.discordapp.Discord"
-    "com.spotify.Client"
-)
-
-for app in "${flatpak_apps[@]}"; do
-    if ! flatpak list | grep -q "$app"; then
-        print_message info "Installing Flatpak app: $app"
-        flatpak install flathub "$app" -y
-    else
-        print_message warning "Flatpak app $app already installed, skipping."
-    fi
-done
-
-# Configure themes (basic configuration)
-print_message info "Configuring themes..."
-
-# Set GTK theme
-if command_exists "gsettings"; then
-    gsettings set org.gnome.desktop.interface gtk-theme "Catppuccin-Mocha"
-    gsettings set org.gnome.desktop.wm.preferences theme "Catppuccin-Mocha"
-    gsettings set org.gnome.desktop.interface cursor-theme "catppuccin-mocha-peach-cursors"
-    gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
-    gsettings set org.gnome.desktop.interface color-scheme "dark"
-    if [[ -d "$icon_dir/Reversal" ]]; then
-        gsettings set org.gnome.desktop.interface icon-theme "Reversal"
-    fi
-    print_message success "GTK and cursor themes configured."
-fi
-
-print_message success "Applications and themes installation completed."
+print_message success "Applications installation complete."
