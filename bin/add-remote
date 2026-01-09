@@ -1,26 +1,51 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Description: Adds or updates the 'origin' remote for a git repository.
+#              Initializes git if not present.
+# Usage: add-remote [repo_name]
+#        add-remote -h | --help
+
 set -euo pipefail
 
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+show_help() {
+    echo "Usage: $(basename "$0") [repo_name]"
+    echo
+    echo "Arguments:"
+    echo "  repo_name   The name of the repository (default: current directory name)"
+    echo
+    echo "Options:"
+    echo "  -h, --help  Show this help message"
+}
+
+print_message() {
+    local type="$1"
+    local message="$2"
+    case "$type" in
+        error) echo -e "${RED}Error: $message${NC}" ;;
+        success) echo -e "${GREEN}Success: $message${NC}" ;;
+        info) echo -e "${BLUE}$message${NC}" ;;
+        *) echo "$message" ;;
+    esac
+}
 
 cleanup() {
-    echo
-    print_message info "Script interrupted....."
-    exit 1
-}
-
-# Set up trap for cleanup
-trap cleanup INT TERM
-
-set_remote() {
-    local remote_name="origin"
-    local remote_url="$1"
-    local command="$2"
-    if [[ $remote_url =~ ^(https://|git@github) ]]; then
-        git remote "$command" "$remote_name" "$remote_url"
-    else
-        git remote "$command" "$remote_name" "git@github.com:muizzyranking/$remote_url.git"
+    # Only print if we are exiting abnormally
+    if [ $? -ne 0 ]; then
+        echo
+        print_message info "Script interrupted..."
     fi
 }
+trap cleanup INT TERM
+
+if [[ "${1:-}" == "-h" ]] || [[ "${1:-}" == "--help" ]]; then
+    show_help
+    exit 0
+fi
 
 # Validate git installation
 if ! command -v git >/dev/null 2>&1; then
@@ -28,6 +53,21 @@ if ! command -v git >/dev/null 2>&1; then
     exit 1
 fi
 
+set_remote() {
+    local remote_name="origin"
+    local remote_url="$1"
+    local command="$2"
+    
+    # Check if input looks like a full URL
+    if [[ $remote_url =~ ^(https://|git@github|git@gitlab) ]]; then
+        git remote "$command" "$remote_name" "$remote_url"
+    else
+        # Default to SSH github
+        git remote "$command" "$remote_name" "git@github.com:muizzyranking/$remote_url.git"
+    fi
+}
+
+# Git Init Check
 if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     print_message info "Not a git repository."
     read -r -p "Would you like to initialize a git repository here? (y/n): " init_choice
@@ -39,50 +79,51 @@ if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
             exit 1
         fi
     else
-        print_message info "Operation cancelled. Please run this script from within a git repository."
+        print_message info "Operation cancelled."
         exit 0
     fi
 fi
 
-# Get repository name from argument or current directory
+# Get repository name
+repo_name=""
 if [ $# -eq 0 ]; then
-    repo_name=$(basename "$(pwd)")
-    print_message info "No repository name provided. Current directory name is: $repo_name"
-    read -r -p "Do you want to use this as the repository name? (y/n): " use_dirname_choice
-    if [[ ! $use_dirname_choice =~ ^[Yy]$ ]]; then
-        print_message info "Operation cancelled. Please run the script again with a repository name."
+    current_dir=$(basename "$(pwd)")
+    print_message info "No repository name provided. Current directory: $current_dir"
+    read -r -p "Use '$current_dir' as repository name? (y/n): " use_dirname_choice
+    if [[ $use_dirname_choice =~ ^[Yy]$ ]]; then
+        repo_name="$current_dir"
+    else
+        print_message info "Please provide a repository name."
         exit 0
     fi
 else
     repo_name="$1"
 fi
 
+# Set Remote
 if git remote | grep -q "^origin$"; then
     print_message error "Remote 'origin' already exists."
-    print_message info "Current 'origin' URL: $(git remote get-url origin)"
+    print_message info "Current 'origin': $(git remote get-url origin)"
 
-    read -r -p "Do you want to update the existing 'origin' remote? (y/n): " update_choice
+    read -r -p "Update existing 'origin'? (y/n): " update_choice
     if [[ $update_choice =~ ^[Yy]$ ]]; then
         if set_remote "$repo_name" "set-url"; then
-            print_message success "Remote 'origin' updated successfully."
+            print_message success "Remote 'origin' updated."
         else
-            print_message error "Failed to update remote 'origin'."
+            print_message error "Failed to update remote."
             exit 1
         fi
-    else
-        print_message info "No changes made to remote 'origin'."
     fi
-
 else
     if set_remote "$repo_name" "add"; then
-        print_message success "Remote 'origin' added successfully."
+        print_message success "Remote 'origin' added."
     else
-        print_message error "Failed to add remote 'origin'."
+        print_message error "Failed to add remote."
         exit 1
     fi
 fi
 
-echo -e "\n"
+echo
 print_message info "Current remotes:"
-echo "==============================================================="
+echo "--------------------------------------------------------"
 git remote -v

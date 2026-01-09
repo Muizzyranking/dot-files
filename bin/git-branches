@@ -1,31 +1,42 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Description: Interactive git branch switcher and creator using fzf.
+# Usage: git-branches
+
+set -euo pipefail
+
+# Check dependencies
+if ! command -v fzf >/dev/null 2>&1; then
+    echo "Error: fzf is required."
+    exit 1
+fi
 
 if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     echo "❌ Error: Not inside a git repository"
     exit 1
 fi
 
-if [ -z "$TMUX" ]; then
-    echo "❌ Error: Not running inside a tmux session"
-    exit 1
-fi
-
+# Get branches
 git_branches=$(git branch --all --format='%(refname:short)')
+
+header="🌿 GIT BRANCHES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ENTER: Switch/Create | CTRL-C: Cancel"
 
 output=$(echo "$git_branches" | fzf --tmux 70% \
     --print-query \
     --reverse \
     --border \
-    --prompt="🌿 Checkout or Create > " \
-    --header="ENTER: Switch/Create | CTRL-C: Cancel" \
-    --preview="git log --oneline --graph --color=always {} | head -n 20")
+    --prompt=\"🌿 Checkout or Create > \"
+    --header=\"$header\"
+    --preview=\"git log --oneline --graph --color=always {} | head -n 20\")
 
 if [ -z "$output" ]; then exit 0; fi
 
 query=$(echo "$output" | head -1)
 selection=$(echo "$output" | tail -1)
 
-if [ "$query" == "$selection" ] && ! echo "$git_branches" | grep -q "^$selection$"; then
+# Handle case where selection equals query (happens when creating new branch)
+if [ "$query" == "$selection" ] && ! echo "$git_branches" | grep -q \"^$selection$\"; then
     selection=""
 fi
 
@@ -35,7 +46,8 @@ if [ -n "$selection" ]; then
         git checkout "$selection"
 
     elif [[ "$selection" == *"/"* ]]; then
-        local_name=$(echo "$selection" | sed 's/^[^\/]*\///')
+        # Handle remote branch
+        local_name=$(echo "$selection" | sed 's/^[^	]*\///')
         if git show-ref --verify --quiet "refs/heads/$local_name"; then
             echo "🔄 Switching to existing local branch '$local_name'..."
             git checkout "$local_name"

@@ -1,27 +1,73 @@
 #!/usr/bin/env bash
+# Description: Copies files from local storage to a remote server via SCP.
+# Usage: cp-remote [options] <path_to_file> <ip_address>
+#
+# Options:
+#   -r              Recursive copy (for directories)
+#   -u <user>       Remote username (default: ubuntu)
+#   -i <identity>   SSH identity file (default: ~/.ssh/id_rsa)
+#   -h, --help      Show help
+
 set -euo pipefail
-# copies files from local storage to a remote server
 
-if [ "$#" -lt 2 ] || [ "$#" -gt 3 ]; then
-    echo "Usage: $(basename "$0") PATH_TO_FILE IP"
+usage() {
+    echo "Usage: $(basename "$0") [options] <path_to_file> <ip_address>"
+    echo
+    echo "Options:"
+    echo "  -r              Recursive copy (required for directories)"
+    echo "  -u <user>       Remote username (default: ubuntu)"
+    echo "  -i <identity>   SSH identity file (default: ~/.ssh/id_rsa)"
+    echo "  -h, --help      Show this help message"
+}
+
+# Defaults
+RECURSIVE=""
+USERNAME="ubuntu"
+SSH_KEY="$HOME/.ssh/id_rsa"
+
+# Parse args
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -r)
+            RECURSIVE="-r"
+            shift
+            ;;
+        -u)
+            USERNAME="$2"
+            shift 2
+            ;;
+        -i)
+            SSH_KEY="$2"
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *)
+            # Stop parsing flags if we hit a non-flag
+            break
+            ;;
+    esac
+done
+
+if [ "$#" -ne 2 ]; then
+    usage
     exit 1
 fi
 
-# Check if the first argument is '-r'
-if [ "$1" == "-r" ]; then
-    RECURSIVE="-r"
-    shift # Remove the '-r' option from arguments
-else
-    RECURSIVE=""
-fi
+PATH_TO_FILE="$1"
+IP="$2"
 
-PATH_TO_FILE_OR_DIRECTORY=$1
-IP=$2
-USERNAME=ubuntu
-PATH_TO_SSH_KEY="$HOME/.ssh/id_rsa"
-
-if [ ! -e "$PATH_TO_FILE_OR_DIRECTORY" ]; then
-    echo "File or directory not found"
+if [ ! -e "$PATH_TO_FILE" ]; then
+    echo "Error: File or directory '$PATH_TO_FILE' not found."
     exit 1
 fi
-scp -o StrictHostKeyChecking=no -i "$PATH_TO_SSH_KEY" "$RECURSIVE" "$PATH_TO_FILE_OR_DIRECTORY" "$USERNAME@$IP":~/
+
+if [ -d "$PATH_TO_FILE" ] && [ -z "$RECURSIVE" ]; then
+    echo "Error: '$PATH_TO_FILE' is a directory. Use -r."
+    exit 1
+fi
+
+echo "Copying $PATH_TO_FILE to $USERNAME@$IP:~/"
+scp -o StrictHostKeyChecking=no -i "$SSH_KEY" $RECURSIVE "$PATH_TO_FILE" "$USERNAME@$IP":~/

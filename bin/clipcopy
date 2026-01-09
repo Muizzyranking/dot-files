@@ -1,15 +1,32 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Description: Cross-platform clipboard utility. Reads from stdin and copies to system clipboard.
+# Usage: echo "text" | clipcopy
+#        clipcopy < file.txt
 
-if command -v clip.exe >/dev/null 2>&1; then
-    clip.exe
-elif command -v wslclip >/dev/null 2>&1; then
-    wslclip
-elif command -v wl-copy >/dev/null 2>&1; then
-    wl-copy
-elif command -v xclip >/dev/null 2>&1; then
-    xclip -in -selection clipboard
-else
-    local path = "/tpm/copy/$(date +%s).log"
-    cat > $path
-    echo "No clipboard utility found, saved to $path" >&2
+# Log fallback location
+LOG_PATH="/tmp/clipcopy_$(date +%s).log"
+
+copy_to_clipboard() {
+    if command -v clip.exe >/dev/null 2>&1; then
+        clip.exe
+    elif command -v wl-copy >/dev/null 2>&1; then
+        wl-copy
+    elif command -v xclip >/dev/null 2>&1; then
+        xclip -in -selection clipboard
+    elif command -v pbcopy >/dev/null 2>&1; then
+        pbcopy
+    else
+        cat > "$LOG_PATH"
+        echo "No clipboard utility found. Content saved to $LOG_PATH" >&2
+        return 1
+    fi
+}
+
+# Check if there is input from stdin
+if [ -t 0 ]; then
+    echo "Usage: echo 'text' | $(basename "$0")"
+    echo "       $(basename "$0") < file.txt"
+    exit 1
 fi
+
+copy_to_clipboard

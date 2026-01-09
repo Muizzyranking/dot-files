@@ -1,78 +1,77 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Description: Restarts a running process or starts it if not running.
+# Usage: restart <process_name> [--detach|-d]
+# Example: restart waybar -d
 
-# Function to restart a process
-restart_process() {
-    local process_name="$1"
-    local detach_flag="$2"
+set -euo pipefail
 
-    if [ -z "$process_name" ]; then
-        echo "Usage: restart_process <process_name> [--detach|-d]"
-        return 1
-    fi
-
-    echo "Restarting $process_name..."
-
-    # Kill the process if it's running
-    if pgrep "$process_name" >/dev/null; then
-        echo "Killing existing $process_name processes..."
-        pkill "$process_name"
-        sleep 1
-
-        # Force kill if still running
-        if pgrep "$process_name" >/dev/null; then
-            echo "Force killing $process_name..."
-            pkill -9 "$process_name"
-            sleep 1
-        fi
-    else
-        echo "$process_name is not currently running"
-    fi
-
-    # Start the process
-    echo "Starting $process_name..."
-    if command -v "$process_name" >/dev/null; then
-        if [ "$detach_flag" = "--detach" ] || [ "$detach_flag" = "-d" ]; then
-            echo "Starting $process_name detached from terminal..."
-            nohup "$process_name" >/dev/null 2>&1 &
-            disown
-        else
-            "$process_name" &
-        fi
-        echo "$process_name started successfully"
-    else
-        echo "Error: $process_name command not found"
-        return 1
-    fi
+show_help() {
+    echo "Usage: $(basename "$0") <process_name> [--detach|-d]"
+    echo
+    echo "Options:"
+    echo "  --detach, -d   Start the process detached (nohup)"
+    echo "  -h, --help     Show this help message"
 }
 
-# Parse command line arguments
-process_name=""
-detach_flag=""
+if [[ "${1:-}" == "-h" ]] || [[ "${1:-}" == "--help" ]] || [ $# -eq 0 ]; then
+    show_help
+    exit 0
+fi
+
+PROCESS_NAME=""
+DETACH=false
 
 while [[ $# -gt 0 ]]; do
-    case $1 in
-    --detach | -d)
-        detach_flag="--detach"
-        shift
-        ;;
-    *)
-        if [ -z "$process_name" ]; then
-            process_name="$1"
-        else
-            echo "Error: Unknown argument '$1'"
-            exit 1
-        fi
-        shift
-        ;;
+    case "$1" in
+        --detach|-d)
+            DETACH=true
+            shift
+            ;;
+        *)
+            if [ -z "$PROCESS_NAME" ]; then
+                PROCESS_NAME="$1"
+            else
+                echo "Error: Multiple process names provided."
+                exit 1
+            fi
+            shift
+            ;;
     esac
 done
 
-# Example usage
-if [ -z "$process_name" ]; then
-    echo "Usage: $0 <process_name> [--detach|-d]"
-    echo "Example: $0 waybar"
-    echo "Example: $0 waybar --detach"
+if [ -z "$PROCESS_NAME" ]; then
+    echo "Error: Process name is required."
     exit 1
 fi
 
-restart_process "$process_name" "$detach_flag"
+echo "Process: $PROCESS_NAME"
+
+# Kill existing
+if pgrep -x "$PROCESS_NAME" >/dev/null; then
+    echo "Killing existing instances..."
+    pkill -x "$PROCESS_NAME"
+    sleep 1
+    if pgrep -x "$PROCESS_NAME" >/dev/null; then
+        echo "Force killing..."
+        pkill -9 -x "$PROCESS_NAME"
+        sleep 1
+    fi
+else
+    echo "Not currently running."
+fi
+
+# Start
+if ! command -v "$PROCESS_NAME" >/dev/null 2>&1; then
+    echo "Error: Command '$PROCESS_NAME' not found in PATH."
+    exit 1
+fi
+
+echo "Starting $PROCESS_NAME..."
+if [ "$DETACH" = true ]; then
+    nohup "$PROCESS_NAME" >/dev/null 2>&1 &
+    disown
+    echo "Started (detached)."
+else
+    "$PROCESS_NAME" &
+    echo "Started (background)."
+fi

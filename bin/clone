@@ -1,61 +1,74 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Description: Wrapper for git clone. Handles GitHub/HTTPS shortcuts and existing directory collisions.
+# Usage: clone <repo>
+#        clone -h | --help
+
 set -euo pipefail
 
-
 cleanup() {
-    echo
-    print_message info "Script interrupted....."
-    exit 1
+    if [ $? -ne 0 ]; then
+        echo
+        print_message info "Script interrupted..."
+    fi
 }
-
-# Set up trap for cleanup
 trap cleanup INT TERM
 
-# Clone a repository
-clone_repo() {
-    local repo="$1"
-    local repo_url
-    local repo_name
-
-    # Determine the actual repository URL
-    if [[ $repo =~ ^(https://|git@github) ]]; then
-        repo_url="$repo"
-    else
-        repo_url="git@github.com:muizzyranking/$repo.git"
-    fi
-
-    # Extract the repository name for collision checks
-    repo_name=$(basename "$repo_url" .git)
-
-    # Check if the directory for the repository already exists
-    if [[ -d $repo_name ]]; then
-        print_message error "Repository '$repo_name' already exists in the current directory."
-        read -r -p "Do you want to overwrite it? This will delete the existing directory. (y/n): " overwrite_choice
-        if [[ ! $overwrite_choice =~ ^[Yy]$ ]]; then
-            print_message info "Operation cancelled."
-            exit 0
-        fi
-        if command -v trash &>/dev/null; then
-            trash "$repo_name"
-            print_message success "Existing directory '$repo_name' moved to trash."
-        else
-            print_message error "'trash' command not found. Exiting."
-            exit 1
-        fi
-    fi
-
-    # Clone the repository
-    if git clone "$repo_url"; then
-        print_message success "Repository '$repo_name' cloned successfully."
-    else
-        print_message error "Failed to clone repository."
-        exit 1
-    fi
+show_help() {
+    echo "Usage: $(basename "$0") <repository>"
+    echo
+    echo "Arguments:"
+    echo "  repository  The repository URL or name (e.g., 'user/repo' or 'repo')"
+    echo "              If just a name is provided, defaults to 'git@github.com:muizzyranking/<name>.git'"
 }
 
+if [[ "${1:-}" == "-h" ]] || [[ "${1:-}" == "--help" ]]; then
+    show_help
+    exit 0
+fi
+
 if [ $# -eq 0 ]; then
-    echo "Usage: clone <repository>"
+    show_help
     exit 1
 fi
 
-clone_repo "$1"
+repo="$1"
+repo_url=""
+repo_name=""
+
+# Determine the actual repository URL
+if [[ $repo =~ ^(https://|git@github|git@gitlab) ]]; then
+    repo_url="$repo"
+else
+    repo_url="git@github.com:muizzyranking/$repo.git"
+fi
+
+# Extract the repository name for collision checks
+repo_name=$(basename "$repo_url" .git)
+
+# Check for existing directory
+if [[ -d $repo_name ]]; then
+    print_message error "Directory '$repo_name' already exists."
+    read -r -p "Overwrite it? (This will remove the existing directory) (y/n): " overwrite_choice
+    if [[ ! $overwrite_choice =~ ^[Yy]$ ]]; then
+        print_message info "Operation cancelled."
+        exit 0
+    fi
+
+    if command -v trash &>/dev/null; then
+        trash "$repo_name"
+        print_message success "Existing directory moved to trash."
+    else
+        rm -rf "$repo_name"
+        print_message success "Existing directory removed."
+    fi
+fi
+
+# Clone the repository
+echo "Cloning $repo_url..."
+if git clone "$repo_url"; then
+    print_message success "Repository '$repo_name' cloned successfully."
+else
+    print_message error "Failed to clone repository."
+    exit 1
+fi
+

@@ -1,12 +1,23 @@
 #!/usr/bin/env bash
+# Description: Interactive port manager to view and kill listening processes.
+# Usage: ports
+# Dependencies: ss, fzf, awk
+
+set -euo pipefail
+
+# Check dependencies
+for cmd in ss fzf awk; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+        echo "Error: '$cmd' is required but not installed."
+        exit 1
+    fi
+done
 
 while true; do
+    # Get port info
     port_info=$(ss -tulpn 2>/dev/null |
         awk 'NR>1 && $5 ~ /:[0-9]+$/ {
-            # Extract port number from Local Address:Port
             match($5, /:([0-9]+)$/, port)
-            
-            # Extract process info - look for users:((...)) pattern in entire line
             if (match($0, /users:\(\("([^"]+)",pid=([0-9]+)/, proc)) {
                 process = proc[1]
                 pid = proc[2]
@@ -17,133 +28,68 @@ while true; do
                 process = "no-access"
                 pid = "-"
             }
-            
-            # Format: PORT | PROTO | ADDRESS | PROCESS | PID | STATE
-            printf "%-6s | %-5s | %-21s | %-30s | %-8s | %s\n", 
+            printf "% -6s | % -5s | % -21s | % -30s | % -8s | %s\n", 
                 port[1], $1, $5, process, pid, $2
         }' | sort -n)
 
     if [[ -z "$port_info" ]]; then
-        echo "No listening ports found."
-        echo "Try running with sudo for system processes: sudo $(basename $0)"
+        echo "No listening ports found (or permission denied)."
+        echo "Try running with sudo."
         exit 0
     fi
 
-    # Combined header
     header="PORT   | PROTO | ADDRESS               | PROCESS                        | PID      | STATE
 ───────────────────────────────────────────────────────────────────────────────────────────────
 CTRL-K: kill | CTRL-F: force kill | CTRL-I: info | CTRL-L: lsof | CTRL-Y: copy port | CTRL-R: refresh | ESC: exit"
 
-    # Use fzf to select a port
     selection=$(echo "$port_info" |
         fzf --tmux 95%,85% \
             --header="$header" \
             --prompt="Select port > " \
-            --preview='
-                port=$(echo {} | awk -F"|" "{print \$1}" | xargs)
-                pid=$(echo {} | awk -F"|" "{print \$5}" | xargs)
-                process=$(echo {} | awk -F"|" "{print \$4}" | xargs)
-                
-                echo "=== PORT DETAILS ==="
-                echo "Port: $port"
-                echo "PID: $pid"
-                echo "Process: $process"
-                echo ""
+            --preview='\n                port=$(echo {} | awk -F"|" "{print $1}" | xargs)
+                pid=$(echo {} | awk -F"|" "{print $5}" | xargs)
                 
                 if [[ "$pid" != "-" && "$pid" != "" ]]; then
                     echo "=== PROCESS INFO ==="
-                    ps -p $pid -o pid,ppid,user,%cpu,%mem,vsz,rss,stat,start,time,command 2>/dev/null || echo "Process info unavailable"
+                    ps -p $pid -o pid,ppid,user,%cpu,%mem,vsz,rss,stat,start,time,command 2>/dev/null || echo "Info unavailable"
                     echo ""
-                    
-                    if [[ -d "/proc/$pid" ]]; then
-                        echo "=== WORKING DIRECTORY ==="
-                        readlink -f /proc/$pid/cwd 2>/dev/null || echo "Unable to read (may need sudo)"
-                        echo ""
-                        
-                        echo "=== COMMAND LINE ==="
-                        cat /proc/$pid/cmdline 2>/dev/null | tr "\0" " " || echo "Unable to read"
-                        echo ""
-                    fi
-                    
-                    echo "=== CONNECTIONS ON PORT $port ==="
-                    ss -tulpn 2>/dev/null | grep ":$port " || echo "No connections found"
+                    echo "=== CONNECTIONS ==="
+                    ss -tulpn 2>/dev/null | grep ":$port " || echo "No connections"
                 else
-                    echo "No process information available (may need sudo)"
+                    echo "No process info (try sudo)"
                 fi
             ' \
-            --preview-window=top:70%:wrap \
-            --bind "ctrl-r:reload(ss -tulpn 2>/dev/null | awk 'NR>1 && \$5 ~ /:[0-9]+\$/ {
-                match(\$5, /:([0-9]+)\$/, port)
-                if (match(\$0, /users:\\(\\(\"([^\"]+)\",pid=([0-9]+)/, proc)) {
-                    process = proc[1]
-                    pid = proc[2]
-                } else if (match(\$0, /pid=([0-9]+)/, proc)) {
-                    pid = proc[1]
-                    process = \"unknown\"
-                } else {
-                    process = \"no-access\"
-                    pid = \"-\"
-                }
-                printf \"%-6s | %-5s | %-21s | %-30s | %-8s | %s\\n\", 
-                    port[1], \$1, \$5, process, pid, \$2
-            }' | sort -n)" \
-            --bind "ctrl-y:execute-silent(echo {} | awk -F'|' '{print \$1}' | xargs | clipcopy)" \
-            --bind "ctrl-l:execute(echo {} | awk -F'|' '{port=\$1; gsub(/^[ \\t]+|[ \\t]+$/, \"\", port); system(\"lsof -i :\" port \" 2>/dev/null || echo No lsof information available\")}; read -p 'Press enter to continue...')" \
-            --bind "ctrl-i:execute(echo {} | awk -F'|' '{pid=\$5; gsub(/^[ \\t]+|[ \\t]+$/, \"\", pid); if (pid != \"-\" && pid != \"\") system(\"ps -p \" pid \" -o pid,ppid,user,%cpu,%mem,vsz,rss,stat,start,time,command 2>/dev/null || echo Process not found\") else print \"No process info\"}'; read -p 'Press enter to continue...')" \
+            --preview-window=top:40%:wrap \
+            --bind "ctrl-r:reload(ss -tulpn 2>/dev/null | awk 'NR>1 && $5 ~ /:[0-9]+\$/ {match($5, /:([0-9]+)\$/, port); if (match($0, /users:\(\(\"([^\"]+)\",pid=([0-9]+)/, proc)) {process=proc[1];pid=proc[2]} else if (match($0, /pid=([0-9]+)/, proc)) {pid=proc[1];process=\"unknown\"} else {process=\"no-access\";pid=\"-\"}; printf \"%-6s | %-5s | %-21s | %-30s | %-8s | %s\\n\", port[1], $1, $5, process, pid, $2}' | sort -n)" \
+            --bind "ctrl-y:execute-silent(echo {} | awk -F'|' '{print $1}' | xargs | clipcopy)" \
+            --bind "ctrl-l:execute(port=\$(echo {} | awk -F'|' '{print $1}' | xargs); echo 'lsof -i :'$port; lsof -i :$port 2>/dev/null || echo 'No info'; read -p 'Hit Enter...'")" \
+            --bind "ctrl-i:execute(pid=\$(echo {} | awk -F'|' '{print $5}' | xargs); if [[ \"$pid\" != \"-\" ]]; then ps -p $pid -f; else echo 'No PID'; fi; read -p 'Hit Enter...'")" \
             --expect=ctrl-k,ctrl-f)
 
-    # Parse the result
     key=$(echo "$selection" | head -1)
     selected_line=$(echo "$selection" | tail -1)
 
-    # Exit if nothing selected (ESC pressed)
-    if [[ -z "$selected_line" ]]; then
-        echo "Exiting..."
-        exit 0
-    fi
+    if [[ -z "$selected_line" ]]; then exit 0; fi
 
-    # Extract port and PID
     port=$(echo "$selected_line" | awk -F'|' '{print $1}' | xargs)
     pid=$(echo "$selected_line" | awk -F'|' '{print $5}' | xargs)
-    process=$(echo "$selected_line" | awk -F'|' '{print $4}' | xargs)
+
+    if [[ "$pid" == "-" || -z "$pid" ]]; then
+        echo "No PID available (try sudo)."
+        read -p "Press Enter..."
+        continue
+    fi
 
     case "$key" in
     ctrl-k)
-        if [[ "$pid" == "-" || -z "$pid" ]]; then
-            echo "No PID available for this port (may need sudo)"
-            read -p "Press enter to continue..."
-        else
-            echo "Killing process $process (PID: $pid) on port $port with SIGTERM..."
-            kill "$pid" 2>/dev/null
-            if [[ $? -eq 0 ]]; then
-                echo "✓ Process killed successfully"
-            else
-                echo "✗ Failed to kill process (may need sudo)"
-            fi
-            sleep 1
-        fi
+        echo "Killing PID $pid (SIGTERM)..."
+        kill "$pid" && echo "Success" || echo "Failed"
+        sleep 1
         ;;
     ctrl-f)
-        if [[ "$pid" == "-" || -z "$pid" ]]; then
-            echo "No PID available for this port (may need sudo)"
-            read -p "Press enter to continue..."
-        else
-            echo "⚠️  WARNING: Force kill process $process (PID: $pid) on port $port?"
-            echo "This will send SIGKILL (-9) which cannot be caught by the process."
-            read -p "Type 'yes' to confirm: " confirm
-            if [[ "$confirm" == "yes" ]]; then
-                kill -9 "$pid" 2>/dev/null
-                if [[ $? -eq 0 ]]; then
-                    echo "✓ Process force killed successfully"
-                else
-                    echo "✗ Failed to kill process (may need sudo)"
-                fi
-            else
-                echo "Cancelled."
-            fi
-            sleep 1
-        fi
+        echo "Force killing PID $pid (SIGKILL)..."
+        kill -9 "$pid" && echo "Success" || echo "Failed"
+        sleep 1
         ;;
-    *) ;;
     esac
 done

@@ -1,8 +1,27 @@
 #!/usr/bin/env bash
+# Description: Opens the current git repository's remote URL in the default browser.
+# Usage: open-repo [directory] [-b|--branch]
+
+set -euo pipefail
+
+# Colors
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+NC='\033[0m'
+
+print_message() {
+    local type="$1"
+    local message="$2"
+    case "$type" in
+        error) echo -e "${RED}Error: $message${NC}" ;;
+        warning) echo -e "${YELLOW}Warning: $message${NC}" ;;
+        *) echo "$message" ;;
+    esac
+}
 
 is_git_repo() {
     if ! git -C "$1" rev-parse --is-inside-work-tree &>/dev/null; then
-        print_message error "Not a git repository"
+        print_message error "Not a git repository: $1"
         exit 1
     fi
 }
@@ -10,7 +29,7 @@ is_git_repo() {
 get_remote_url() {
     local url
     if ! url=$(git -C "$1" remote get-url origin 2>/dev/null) || [ -z "$url" ]; then
-        print_message error "No remote 'origin' found in repository"
+        print_message error "No remote 'origin' found."
         exit 1
     fi
     echo "$url"
@@ -20,20 +39,37 @@ get_current_branch() {
     local branch
     branch=$(git -C "$1" symbolic-ref --short HEAD 2>/dev/null)
     if [ $? -ne 0 ]; then
-        print_message warning "Could not determine current branch, using default branch"
+        print_message warning "Could not determine current branch."
         return 1
     fi
     echo "$branch"
 }
 
-is_wsl() {
-    if [[ -n "${WSL_DISTRO_NAME}" ]] || [[ -n "${WSL_INTEROP}" ]] || [[ $(uname -r) == *microsoft* ]] || [[ $(uname -r) == *Microsoft* ]]; then
-        return 0
+open_url() {
+    local url="$1"
+    echo "Opening: $url"
+    
+    if grep -q Microsoft /proc/version 2>/dev/null || [[ "$(uname -r)" == *"microsoft"* ]]; then
+        # WSL
+        if command -v powershell.exe >/dev/null; then
+            powershell.exe -Command "Start-Process '$url'"
+        elif command -v wsl-open >/dev/null; then
+            wsl-open "$url"
+        else
+            print_message error "Cannot find way to open URL in WSL."
+            exit 1
+        fi
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        open "$url"
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        xdg-open "$url"
+    else
+        print_message error "Unsupported OS."
+        exit 1
     fi
-    return 1
 }
 
-# Process command line arguments
+# Args parsing
 show_branch=false
 target_dir=""
 
@@ -43,11 +79,15 @@ while [[ $# -gt 0 ]]; do
         show_branch=true
         shift
         ;;
+    -h | --help)
+        echo "Usage: $(basename "$0") [directory] [-b|--branch]"
+        exit 0
+        ;;
     *)
         if [ -z "$target_dir" ]; then
             target_dir="$1"
         else
-            echo "Error: Unexpected argument: $1"
+            print_message error "Unexpected argument: $1"
             exit 1
         fi
         shift
@@ -55,65 +95,41 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-# If no directory specified, use current directory
 if [ -z "$target_dir" ]; then
     target_dir="$(pwd)"
 else
-    if [[ "$target_dir" = /* ]]; then
-        :
-    else
+    # Resolve relative path
+    if [[ "$target_dir" != /* ]]; then
         target_dir="$(pwd)/$target_dir"
     fi
-    if [ ! -d "$target_dir" ]; then
-        print_message error "Directory does not exist: $target_dir"
-        exit 1
-    fi
+fi
+
+if [ ! -d "$target_dir" ]; then
+    print_message error "Directory not found: $target_dir"
+    exit 1
 fi
 
 is_git_repo "$target_dir"
-
 remote_url=$(get_remote_url "$target_dir")
 
+# Convert SSH to HTTPS
 if [[ $remote_url == git@* ]]; then
     remote_url=$(echo "$remote_url" | sed 's/git@\(.*\):\(.*\)\.git/https:\/\/\1\/\2/')
 fi
-
 remote_url=${remote_url%.git}
 
+# Append branch if requested
 if [ "$show_branch" = true ]; then
-    branch=$(get_current_branch "$target_dir")
-    if [ $? -eq 0 ]; then
+    branch=$(get_current_branch "$target_dir") || true
+    if [ -n "$branch" ]; then
         if [[ $remote_url == *"github.com"* ]]; then
             remote_url="${remote_url}/tree/${branch}"
         elif [[ $remote_url == *"gitlab.com"* ]]; then
             remote_url="${remote_url}/-/tree/${branch}"
         elif [[ $remote_url == *"bitbucket.org"* ]]; then
             remote_url="${remote_url}/src/${branch}"
-        else
-            remote_url="${remote_url}/tree/${branch}"
-            print_message warning "Please verify the URL format for your hosting service"
         fi
     fi
 fi
 
-if is_wsl; then
-    if command -v powershell.exe >/dev/null 2>&1; then
-        powershell.exe -Command "Start-Process '$remote_url'"
-    elif command -v cmd.exe >/dev/null 2>&1; then
-        cmd.exe /c start "$remote_url"
-    else
-        echo -e "\033[0;31mError: Cannot find Windows command to open URL in WSL\033[0m"
-        echo "URL: $remote_url"
-        exit 1
-    fi
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-    open "$remote_url"
-elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    xdg-open "$remote_url"
-elif [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "cygwin"* || "$OSTYPE" == "win32" ]]; then
-    start "$remote_url"
-else
-    echo "Unsupported operating system: $OSTYPE"
-    echo "URL: $remote_url"
-    exit 1
-fi
+open_url "$remote_url"

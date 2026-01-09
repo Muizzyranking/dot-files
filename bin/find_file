@@ -1,17 +1,41 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Description: Fuzzy find files in the current directory with preview and actions.
+# Usage: find_file
+# Keybinds:
+#   ENTER:  Print path
+#   CTRL-O: Open in $EDITOR (defaults to nvim)
+#   CTRL-Y: Copy path to clipboard
+
+set -euo pipefail
+
+# Dependencies check
+for cmd in fd fzf; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+        echo "Error: '$cmd' is required but not installed."
+        exit 1
+    fi
+done
+
+# Set preview command
+if command -v bat >/dev/null 2>&1; then
+    PREVIEW_CMD="bat --style=numbers --color=always --line-range :500 {}"
+else
+    PREVIEW_CMD="cat {}"
+fi
 
 header="📁 FILE FINDER
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📝 ENTER: echo path | 🚀 CTRL-O: open in nvim | 📋 CTRL-Y: copy path | ESC: exit"
+📝 ENTER: print path | 🚀 CTRL-O: open in editor | 📋 CTRL-Y: copy path | ESC: exit"
 
 selection=$(fd --type f --hidden --exclude .git |
     fzf --tmux 95%,85% \
         --header="$header" \
         --prompt="Select file 📁 " \
+        --preview="$PREVIEW_CMD" \
         --bind "ctrl-y:execute-silent(echo {} | clipcopy)" \
         --expect=ctrl-o)
 
-rm -f "$preview_mode_file"
+if [ -z "$selection" ]; then exit 0; fi
 
 key=$(echo "$selection" | head -1)
 selected_file=$(echo "$selection" | tail -1)
@@ -19,6 +43,10 @@ selected_file=$(echo "$selection" | tail -1)
 if [[ -z "$selected_file" ]]; then exit 0; fi
 
 case "$key" in
-ctrl-o) nvim "$selected_file" ;;
-*) echo "$selected_file" ;;
+ctrl-o) 
+    ${EDITOR:-nvim} "$selected_file"
+    ;;
+*)
+    echo "$selected_file"
+    ;;
 esac
