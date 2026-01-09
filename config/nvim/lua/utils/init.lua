@@ -1,5 +1,6 @@
 ---@class utils
 ---@field actions utils.actions
+---@field colors utils.colors
 ---@field fn utils.fn
 ---@field format utils.format
 ---@field hl utils.hl
