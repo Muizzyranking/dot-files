@@ -286,31 +286,11 @@ local layouts = {
       },
     },
   },
-  code = {
-    preview = false,
-    layout = {
-      backdrop = false,
-      row = math.floor((vim.o.lines - (math.floor(vim.o.lines * 0.8))) / 2),
-      width = 0.4,
-      min_width = 80,
-      height = 0.4,
-      border = "none",
-      box = "vertical",
-      {
-        win = "input",
-        height = 1,
-        border = "rounded",
-        title = "{title} {live} {flags}",
-        title_pos = "center",
-      },
-      { win = "list", border = "hpad" },
-      { win = "preview", title = "{preview}", border = "rounded" },
-    },
-  },
 }
 local picker = {
   prompt = " ",
   ui_select = true,
+  layout = { preset = "ivy" },
   sources = {
     explorer = explorer,
     files = {
@@ -407,13 +387,6 @@ return {
     },
     { "<leader>fb", function() Snacks.picker.buffers({ on_show = function() vim.cmd("stopinsert") end }) end, desc = "Buffers" },
     { "<leader>fB", function() unsaved_buffers_picker() end, desc = "Buffers" },
-    {
-      "<leader>:",
-      function()
-        Snacks.picker.command_history({ layout = { preset = "code" }, function() vim.cmd("stopinsert") end })
-      end,
-      desc = "Command History",
-    },
     { "<leader>ff", function() Snacks.picker.files() end, desc = "Find Files (cwd)" },
     { "<leader>fg", function() Snacks.picker.grep() end, desc = "Grep" },
     { "<leader>sw", function() Snacks.picker.grep_word() end, mode = { "n", "x" }, desc = "Search word" },
