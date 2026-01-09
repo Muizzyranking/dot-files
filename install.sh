@@ -2,14 +2,28 @@
 
 set -euo pipefail
 
+DOTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$DOTS_DIR/scripts/utils.sh"
+
 cleanup() {
     echo
     print_message info "Script interrupted....."
+    # Kill the sudo keep-alive background process if it exists
+    if [[ -n "${SUDO_KEEPALIVE_PID:-}" ]]; then
+        kill "$SUDO_KEEPALIVE_PID" 2>/dev/null || true
+    fi
     exit 1
 }
 
-# Set up trap for cleanup
 trap cleanup INT TERM
+
+print_banner() {
+    echo -e "${CYAN}"
+    echo "=================================================="
+    echo "       DOTFILES SETUP         "
+    echo "=================================================="
+    echo -e "${NC}"
+}
 
 check_sudo() {
     echo "This script requires sudo privileges for package installation."
@@ -43,121 +57,88 @@ check_sudo() {
     fi
 }
 
-print_banner() {
-    echo "================================================"
-    echo "  Automated Fedora development environment setup"
-    echo "================================================"
+show_menu() {
+    echo "Please select an option:"
+    echo "1) Full Installation (System + Apps + Dev + Hypr + Themes + Link)"
+    echo "2) System Setup Only (Repos, Codecs, Tweaks)"
+    echo "3) Applications Only (Browsers, VSCode, Flatpaks)"
+    echo "4) Development Tools Only"
+    echo "5) Hyprland Environment Only"
+    echo "6) Themes & Icons Only"
+    echo "7) Link Dotfiles Only"
+    echo "c) Clear Progress (Reset State)"
+    echo "q) Quit"
     echo
+    read -rp "Choice: " choice
 }
 
-show_usage() {
-    /usr/bin/cat <<EOF
-Usage: $0 [OPTIONS] [GROUPS...]
-
-GROUPS:
-    all         Install everything (dev + hypr + apps)
-    dev         Development tools (git, neovim, vscode, etc.)
-    hypr        Hyprland and Wayland ecosystem
-    apps        Applications (browsers, themes, cursors)
-    minimal     Basic development setup only
-
-OPTIONS:
-    -h, --help     Show this help message
-    -v, --version  Show version information
-
-EXAMPLES:
-    $0 all                    # Install everything
-    $0 dev apps              # Install dev tools and applications
-
-EOF
-}
-
-check_dependencies() {
-    dots_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-    if [[ ! -f "$dots_dir/scripts/utils.sh" ]]; then
-        echo "Utility script not found at $dots_dir/scripts/utils.sh"
-        exit 1
+run_step() {
+    local script="$1"
+    if [[ -f "$DOTS_DIR/scripts/$script" ]]; then
+        bash "$DOTS_DIR/scripts/$script"
+    elif [[ -f "$DOTS_DIR/$script" ]]; then
+        bash "$DOTS_DIR/$script"
+    else
+        print_message error "Script $script not found!"
     fi
-
-    # Source utils.sh
-    source "$dots_dir/scripts/utils.sh"
-}
-
-install() {
-    for group in "$@"; do
-        case $group in
-        all)
-            print_message info "Installing all components..."
-            bash "$dots_dir/scripts/dev.sh"
-            bash "$dots_dir/scripts/hypr.sh"
-            bash "$dots_dir/scripts/apps.sh"
-            if [[ -f "$dots_dir/link.sh" ]]; then
-                bash "$dots_dir/link.sh" all
-            fi
-            break
-            ;;
-        dev)
-            print_message info "Installing development tools..."
-            bash "$dots_dir/scripts/dev.sh"
-            if [[ -f "$dots_dir/link.sh" ]]; then
-                bash "$dots_dir/link.sh" kitty nvim bat lazygit zsh tmux
-            fi
-            ;;
-        hypr)
-            print_message info "Installing Hyprland environment..."
-            bash "$dots_dir/scripts/hypr.sh"
-            if [[ -f "$dots_dir/link.sh" ]]; then
-                bash "$dots_dir/link.sh" hypr Kvantum fastfetch rofi swaync waybar wlogout zsh
-            fi
-            ;;
-        apps)
-            print_message info "Installing applications..."
-            bash "$dots_dir/scripts/apps.sh"
-            ;;
-        *)
-            print_message error "Unknown group: $group"
-            ;;
-        esac
-    done
 }
 
 main() {
-    check_dependencies
-    GRPS=()
+    check_fedora
+    check_sudo
+    print_banner
 
-    while [[ $# -gt 0 ]]; do
-        case $1 in
-        -h | --help)
-            echo "help"
-            show_usage
+    if [[ -f "$STATE_FILE" ]]; then
+        print_message warning "Existing setup progress detected."
+        read -rp "Continue from where you left off? (y/n): " resume
+        if [[ "$resume" =~ ^[Yy]$ ]]; then
+            run_step "setup.sh"
+            run_step "apps.sh"
+            run_step "dev.sh"
+            run_step "hypr.sh"
+            run_step "themes.sh"
+            bash "$DOTS_DIR/link.sh"
+            print_message success "Installation resumed and completed."
             exit 0
-            ;;
-        all | dev | hypr | apps | minimal)
-            GRPS+=("$1")
-            shift
-            ;;
-        *)
-            print_message error "Unknown option: $1"
-            show_usage
-            exit 1
-            ;;
-        esac
-    done
-
-    if [[ ${#GRPS[@]} -eq 0 ]]; then
-        print_message error "No installation groups specified."
-        show_usage
-        exit 1
+        fi
     fi
 
-    print_banner
-    check_sudo
+    show_menu
 
-    print_message info "Starting installation process..."
-    bash "$dots_dir/scripts/setup.sh"
-    install "${GRPS[@]}"
-    print_message success "Installation completed successfully!"
+    case "$choice" in
+    1)
+        run_step "setup.sh"
+        run_step "apps.sh"
+        run_step "dev.sh"
+        run_step "hypr.sh"
+        run_step "themes.sh"
+        bash "$DOTS_DIR/link.sh"
+        ;;
+    2) run_step "setup.sh" ;;
+    3)
+        run_step "apps.sh"
+        bash "$DOTS_DIR/link.sh" vscode
+        ;;
+    4)
+        run_step "dev.sh"
+        bash "$DOTS_DIR/link.sh" nvim zsh tmux lazygit bat git
+        ;;
+    5)
+        run_step "hypr.sh"
+        bash "$DOTS_DIR/link.sh" hypr waybar rofi swaync wlogout kitty
+        ;;
+    6) run_step "themes.sh" ;;
+    7) bash "$DOTS_DIR/link.sh" ;;
+    c)
+        clear_state
+        print_message success "Progress state cleared."
+        ;;
+    q) exit 0 ;;
+    *) print_message error "Invalid choice." ;;
+    esac
+
+    print_message success "Operation completed."
 }
 
 main "$@"
+
