@@ -101,14 +101,6 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
-vim.api.nvim_create_autocmd({ "FileType" }, {
-  group = augroup("json_conceal"),
-  pattern = { "json", "jsonc", "json5" },
-  callback = function()
-    vim.opt_local.conceallevel = 0
-  end,
-})
-
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
   group = augroup("auto_create_dir"),
   callback = function(event)
@@ -193,4 +185,32 @@ vim.api.nvim_create_autocmd({ "InsertEnter", "CmdlineEnter" }, {
   callback = vim.schedule_wrap(function()
     vim.cmd.nohlsearch()
   end),
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "conf" },
+  callback = function(event)
+    local filepath = event.file
+    if filepath:match("/tmux/") or filepath:match("tmux%.conf") then
+      vim.bo.filetype = "tmux"
+    end
+  end,
+})
+
+vim.api.nvim_create_autocmd("BufEnter", {
+  pattern = { ".env", ".env.*", "*.zsh", "*.zsh.*", "*/swaync/*" },
+  callback = function(event)
+    -- disable diagnoistics because of noise
+    vim.diagnostic.enable(false, { bufnr = event.buf })
+  end,
+})
+
+vim.api.nvim_create_autocmd("WinClosed", {
+  nested = true,
+  group = augroup("jump_to_last_window"),
+  callback = function()
+    if vim.fn.expand("<amatch>") == vim.fn.win_getid() then
+      vim.cmd("wincmd p")
+    end
+  end,
 })
