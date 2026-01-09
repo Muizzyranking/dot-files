@@ -1,7 +1,6 @@
 local opt, o = vim.opt, vim.o
 
 -- stylua: ignore start
-vim.hl                            = vim.hl or vim.highlight
 vim.opt.clipboard                 = ""
 vim.g.mapleader                   = " "
 vim.g.maplocalleader              = ","

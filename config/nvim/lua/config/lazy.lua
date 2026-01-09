@@ -23,7 +23,7 @@ require("lazy").setup({
   defaults = { lazy = true },
   ui = { size = { width = 0.9, height = 0.9 }, border = "rounded" },
   checker = { enabled = false, version = false },
-  install = { colorscheme = { "rose-pine", "habamax" } },
+  install = { colorscheme = { "ember", "habamax" } },
   performance = {
     rtp = {
       disabled_plugins = {
