@@ -1,13 +1,22 @@
 local M = {}
+
+---@param ft string
+---@return table<string, any>
+local function r(ft)
+  local ok, module = pcall(require, "config.lsp.servers." .. ft)
+  return ok and module or {}
+end
+
 function M.setup()
-  local python = require("config.lsp.servers.python")
-  local typescript = require("config.lsp.servers.typescript")
+  local fts = { "python", "typescript" }
+  local ft_servers = {}
+  for _, ft in ipairs(fts) do
+    ft_servers = vim.tbl_extend("force", ft_servers, r(ft))
+  end
 
-  local list = vim.tbl_extend("force", {}, python, typescript)
+  local servers = { "bashls", "lua_ls", "html", "json_ls", "clangd", "emmet_language_server", "gopls" }
 
-  local servers = { "lua_ls", "html", "json_ls", "clangd", "emmet_language_server", "gopls" }
-
-  for server_name, server_opts in pairs(list) do
+  for server_name, server_opts in pairs(ft_servers) do
     if server_opts.enabled ~= false then
       table.insert(servers, server_name)
     end
@@ -23,4 +32,5 @@ function M.setup()
     end
   end
 end
+
 return M
