@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Usage: track [path]
+TARGET="${1:-.}"
+ABS_PATH=$(realpath "$TARGET")
+REPO_LIST="$HOME/.local/share/repos.txt"
+
+if [[ -d "$ABS_PATH/.git" ]]; then
+    mkdir -p "$(dirname "$REPO_LIST")"
+    if [[ -f "$REPO_LIST" ]]; then
+        touch "$REPO_LIST"
+    fi
+    grep -Fxq "$ABS_PATH" "$REPO_LIST" || echo "$ABS_PATH" >>"$REPO_LIST"
+    print_message info "Tracking: $ABS_PATH"
+else
+    echo "Error: Not a git repository."
+fi
