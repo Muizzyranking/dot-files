@@ -1,5 +1,9 @@
 #!/usr/bin/env zsh
 
+source ~/.config/zsh/utils.sh
+
+export REPO_LIST="$HOME/.local/share/repos.txt"
+
 aliases() {
     alias | sed 's/=/ => /' | bat --language=bash --style=plain
 }
@@ -12,7 +16,39 @@ fdir() {
     local selected_dir
     selected_dir=$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse)
     if [ -n "$selected_dir" ]; then
-        \cd "$selected_dir" || echo "Failed to change directory to $selected_dir"
+        builtin cd "$selected_dir" || echo "Failed to change directory to $selected_dir"
+    fi
+}
+
+find_repo() {
+    [[ ! -s "$REPO_LIST" ]] && print_message error "No tracked repos." && return 1
+
+    local selection
+    selection=$(grep . "$REPO_LIST" | while read -r p; do
+        [[ -d "$p" ]] && echo "$p"
+    done | fzf-tmux -p \
+        --height 40% --reverse --header "ENTER: cd | CTRL-T: tmux" \
+        --expect="ctrl-t")
+
+    local key=$(echo "$selection" | head -1)
+    local path=$(echo "$selection" | tail -1)
+
+    [[ -z "$path" ]] && return
+
+    if [[ "$key" == "ctrl-t" ]]; then
+        if command -v tmux &>/dev/null; then
+            local session_name=$(basename "$path" | tr . _)
+            tmux new-session -d -s "$session_name" -c "$path" 2>/dev/null
+            if [[ -n "$TMUX" ]]; then
+                tmux switch-client -t "$session_name"
+            else
+                tmux attach-session -t "$session_name"
+            fi
+        else
+            print_message error "Tmux not installed."
+        fi
+    else
+        builtin cd "$path"
     fi
 }
 
@@ -61,6 +97,15 @@ f() {
                 --bind 'enter:become:echo {2..}'
     ) && \cd "$dir" || return
 }
+
+chpwd_auto_track() {
+    if [[ -d ".git" ]]; then
+        track-git . > /dev/null
+    fi
+}
+
+autoload -U add-zsh-hook
+add-zsh-hook chpwd chpwd_auto_track
 
 sudo-command-line() {
     [[ -z $BUFFER ]] && zle up-history
