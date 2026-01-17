@@ -78,10 +78,31 @@ function M.safe_keymap_set(mode, lhs, rhs, opts)
 end
 
 ---------------------------------------------------------------
--- Apply a single keymap
 ---@param mapping map.KeymapOpts
 ---------------------------------------------------------------
 local function set_keymap(mapping)
+  local lhs, rhs = mapping[1], mapping[2]
+  local mode = (mapping.mode and Utils.fn.ensure_list(mapping.mode)) or { "n" }
+  local opts = {
+    desc = Utils.fn.ensure_string(mapping.desc, ""),
+    buffer = mapping.buffer,
+    silent = mapping.silent,
+    remap = mapping.remap,
+    expr = mapping.expr,
+  }
+  if M.safe_keymap_set(mode, lhs, rhs, opts) then
+    if mapping.icon then
+      M.add_to_wk({
+        { lhs, mode = mode, icon = mapping.icon, desc = mapping.desc or "", buffer = mapping.buffer },
+      })
+    end
+  end
+end
+
+---------------------------------------------------------------
+---@param mapping map.KeymapOpts
+---------------------------------------------------------------
+local function process_mapping(mapping)
   if vim.g.vscode then
     return
   end
@@ -100,34 +121,12 @@ local function set_keymap(mapping)
     Utils.lsp.on(filter, function(_, buf)
       local opts = Utils.lsp.map(mapping, buf)
       if opts then
-        M.set(opts)
+        set_keymap(opts)
       end
     end)
     return
   end
-
-  local lhs, rhs = mapping[1], mapping[2]
-  local mode = (mapping.mode and Utils.fn.ensure_list(mapping.mode)) or { "n" }
-  local opts = { desc = Utils.fn.ensure_string(mapping.desc, "") }
-  for _, field in ipairs({ "buffer", "silent", "remap", "expr" }) do
-    if mapping[field] ~= nil then
-      opts[field] = mapping[field]
-    end
-  end
-  if not M.safe_keymap_set(mode, lhs, rhs, opts) then
-    return
-  end
-  if mapping.icon then
-    M.add_to_wk({
-      {
-        lhs,
-        mode = mode,
-        icon = mapping.icon,
-        desc = mapping.desc or "",
-        buffer = mapping.buffer,
-      },
-    })
-  end
+  set_keymap(mapping)
 end
 
 ---------------------------------------------------------------
@@ -148,7 +147,7 @@ function M.set(mappings, opts)
     if is_toggle_mapping(mapping) then
       mapping = M.toggle(mapping) or {}
     end
-    set_keymap(mapping)
+    process_mapping(mapping)
   end
 end
 
