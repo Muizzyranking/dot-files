@@ -22,15 +22,14 @@ if ! is_step_complete "apps_browsers"; then
         gpgkey=https://dl.google.com/linux/linux_signing_key.pub"
     sudo rpm --import https://dl.google.com/linux/linux_signing_key.pub 2>/dev/null || true
     sudo dnf check-update
-    install_package google-chrome-stable
 
     # Brave
     sudo dnf config-manager --add-repo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo
     sudo rpm --import https://brave-browser-rpm-release.s3.brave.com/brave-core.asc 2>/dev/null || true
-    install_package brave-browser
 
     enable_copr "sneexy/zen-browser"
-    install_package zen-browser
+    local browsers=("firefox" "google-chrome-stable" "brave-browser", "zen-browser")
+    install_packages "${browsers[@]}"
 
     mark_step_complete "apps_browsers"
 fi
@@ -48,10 +47,31 @@ if ! is_step_complete "apps_vscode"; then
     mark_step_complete "apps_vscode"
 fi
 
+if ! is_step_complete "commununication_apps"; then
+    print_message info "Installing Communication Applications..."
+
+    local dnf_apps=("thunderbird" "telegram-desktop")
+    local flatpak_apps=("com.slack.Slack", "com.discordapp.Discord")
+
+    install_packages "${dnf_apps[@]}"
+    install_flatpaks "${flatpak_apps[@]}"
+    mark_step_complete "commununication_apps"
+fi
+
+if ! is_step_complete "media"; then
+    print_message info "Installing Extra Applications..."
+    local dnf_apps=("vlc")
+    local flatpak_apps=("com.spotify.Client" "com.discordapp.Discord")
+
+    install_packages "${extra_apps[@]}"
+
+    mark_step_complete "media"
+fi
+
 if ! is_step_complete "apps_flatpak"; then
     print_message info "Installing Flatpak Apps..."
 
-    apps=("com.spotify.Client" "com.discordapp.Discord")
+    local apps=("com.spotify.Client" "com.discordapp.Discord")
 
     for app in "${apps[@]}"; do
         install_flatpak "$app"

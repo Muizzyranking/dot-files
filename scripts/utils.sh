@@ -101,21 +101,42 @@ install_package() {
     fi
 }
 
-install_packages() {
-    local packages=("$@")
+install_many() {
+    local install_func="$1"
+    local type="$2"
+    shift 2
+    local items=("$@")
     local failed=()
-
-    for pkg in "${packages[@]}"; do
-        if ! install_package "$pkg"; then
-            failed+=("$pkg")
+    for item in "${items[@]}"; do
+        if ! "$install_func" "$item"; then
+            failed+=("$item")
         fi
     done
-
     if [[ ${#failed[@]} -gt 0 ]]; then
-        print_message error "Failed to install: ${failed[*]}"
+        print_message error "Failed to install $type: ${failed[*]}"
         return 1
     fi
 }
+
+install_packages() {
+    install_many install_package "packages" "$@"
+}
+
+# install_packages() {
+#     local packages=("$@")
+#     local failed=()
+#
+#     for pkg in "${packages[@]}"; do
+#         if ! install_package "$pkg"; then
+#             failed+=("$pkg")
+#         fi
+#     done
+#
+#     if [[ ${#failed[@]} -gt 0 ]]; then
+#         print_message error "Failed to install: ${failed[*]}"
+#         return 1
+#     fi
+# }
 
 install_flatpak() {
     local app="$1"
@@ -127,6 +148,26 @@ install_flatpak() {
     print_message info "Installing Flatpak: $app..."
     flatpak install flathub "$app" -y
 }
+
+install_flatpaks() {
+    install_many install_flatpak "Flatpaks" "$@"
+}
+
+# install_flatpaks() {
+#     local apps=("$@")
+#     local failed=()
+#
+#     for app in "${apps[@]}"; do
+#         if ! install_flatpak "$app"; then
+#             failed+=("$app")
+#         fi
+#     done
+#
+#     if [[ ${#failed[@]} -gt 0 ]]; then
+#         print_message error "Failed to install Flatpaks: ${failed[*]}"
+#         return 1
+#     fi
+# }
 
 enable_copr() {
     local repo="$1"

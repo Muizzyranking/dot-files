@@ -12,16 +12,16 @@ if ! is_step_complete "dev_packages"; then
 
     core_pkgs=(
         "git" "gcc" "gcc-c++" "make" "cmake" "python3" "python3-pip"
-        "nodejs" "nodejs-npm" "golang" "rust" "cargo"
+        "nodejs" "nodejs-npm" "golang" "rustup" "cargo"
     )
 
     cli_tools=(
         "neovim" "zsh" "tmux" "ripgrep" "fd-find" "fzf"
         "tldr" "eza" "bat" "lazygit" "tree" "btop"
-        "wget" "curl" "jq" "yq"
+        "wget" "curl" "jq" "yq", "docker"
     )
 
-    sudo dnf install -y "${core_pkgs[@]}" "${cli_tools[@]}"
+    install_packages "${core_pkgs[@]}" "${cli_tools[@]}"
     mark_step_complete "dev_packages"
 fi
 
