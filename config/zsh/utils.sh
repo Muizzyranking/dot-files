@@ -22,3 +22,30 @@ print_message() {
     *) echo -e "$message" ;;
     esac
 }
+
+require() {
+    local missing=()
+    local cmd
+
+    for cmd in "$@"; do
+        if ! command -v "$cmd" >/dev/null 2>&1; then
+            missing+=("$cmd")
+        fi
+    done
+
+    if [[ ${#missing[@]} -gt 0 ]]; then
+        print_message warning "❌ Missing required dependencies:" >&2
+        printf "   - %s\n" "${missing[@]}" >&2
+        echo "" >&2
+        print_message info "Please install the missing dependencies and try again." >&2
+        return 1
+    fi
+
+    return 0
+}
+
+require_or_exit() {
+    if ! require "$@"; then
+        exit 1
+    fi
+}
