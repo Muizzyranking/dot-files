@@ -6,15 +6,12 @@
 #   CTRL-O: Open in $EDITOR (defaults to nvim)
 #   CTRL-Y: Copy path to clipboard
 
+source "$HOME/.config/zsh/utils.sh"
+
 set -euo pipefail
 
 # Dependencies check
-for cmd in fd fzf; do
-    if ! command -v "$cmd" >/dev/null 2>&1; then
-        echo "Error: '$cmd' is required but not installed."
-        exit 1
-    fi
-done
+require_or_exit fd fzf
 
 # Set preview command
 if command -v bat >/dev/null 2>&1; then
@@ -43,10 +40,11 @@ selected_file=$(echo "$selection" | tail -1)
 if [[ -z "$selected_file" ]]; then exit 0; fi
 
 case "$key" in
-ctrl-o) 
+ctrl-o)
     ${EDITOR:-nvim} "$selected_file"
     ;;
 *)
     echo "$selected_file"
     ;;
 esac
+

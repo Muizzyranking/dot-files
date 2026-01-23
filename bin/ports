@@ -3,15 +3,12 @@
 # Usage: ports
 # Dependencies: ss, fzf, awk
 
+source "$HOME/.config/zsh/utils.sh"
+
 set -euo pipefail
 
 # Check dependencies
-for cmd in ss fzf awk; do
-    if ! command -v "$cmd" >/dev/null 2>&1; then
-        echo "Error: '$cmd' is required but not installed."
-        exit 1
-    fi
-done
+require_or_exit ss fzf awk
 
 while true; do
     # Get port info
@@ -28,7 +25,7 @@ while true; do
                 process = "no-access"
                 pid = "-"
             }
-            printf "% -6s | % -5s | % -21s | % -30s | % -8s | %s\n", 
+            printf "%-6s | %-5s | %-21s | %-30s | %-8s | %s\n", 
                 port[1], $1, $5, process, pid, $2
         }' | sort -n)
 
@@ -46,8 +43,9 @@ CTRL-K: kill | CTRL-F: force kill | CTRL-I: info | CTRL-L: lsof | CTRL-Y: copy p
         fzf --tmux 95%,85% \
             --header="$header" \
             --prompt="Select port > " \
-            --preview='\n                port=$(echo {} | awk -F"|" "{print $1}" | xargs)
-                pid=$(echo {} | awk -F"|" "{print $5}" | xargs)
+            --preview='
+                port=$(echo {} | awk -F"|" "{print \$1}" | xargs)
+                pid=$(echo {} | awk -F"|" "{print \$5}" | xargs)
                 
                 if [[ "$pid" != "-" && "$pid" != "" ]]; then
                     echo "=== PROCESS INFO ==="
@@ -60,10 +58,10 @@ CTRL-K: kill | CTRL-F: force kill | CTRL-I: info | CTRL-L: lsof | CTRL-Y: copy p
                 fi
             ' \
             --preview-window=top:40%:wrap \
-            --bind "ctrl-r:reload(ss -tulpn 2>/dev/null | awk 'NR>1 && $5 ~ /:[0-9]+\$/ {match($5, /:([0-9]+)\$/, port); if (match($0, /users:\(\(\"([^\"]+)\",pid=([0-9]+)/, proc)) {process=proc[1];pid=proc[2]} else if (match($0, /pid=([0-9]+)/, proc)) {pid=proc[1];process=\"unknown\"} else {process=\"no-access\";pid=\"-\"}; printf \"%-6s | %-5s | %-21s | %-30s | %-8s | %s\\n\", port[1], $1, $5, process, pid, $2}' | sort -n)" \
-            --bind "ctrl-y:execute-silent(echo {} | awk -F'|' '{print $1}' | xargs | clipcopy)" \
-            --bind "ctrl-l:execute(port=\$(echo {} | awk -F'|' '{print $1}' | xargs); echo 'lsof -i :'$port; lsof -i :$port 2>/dev/null || echo 'No info'; read -p 'Hit Enter...'")" \
-            --bind "ctrl-i:execute(pid=\$(echo {} | awk -F'|' '{print $5}' | xargs); if [[ \"$pid\" != \"-\" ]]; then ps -p $pid -f; else echo 'No PID'; fi; read -p 'Hit Enter...'")" \
+            --bind 'ctrl-r:reload(ss -tulpn 2>/dev/null | awk '"'"'NR>1 && $5 ~ /:[0-9]+$/ {match($5, /:([0-9]+)$/, port); if (match($0, /users:\(\("([^"]+)",pid=([0-9]+)/, proc)) {process=proc[1];pid=proc[2]} else if (match($0, /pid=([0-9]+)/, proc)) {pid=proc[1];process="unknown"} else {process="no-access";pid="-"}; printf "%-6s | %-5s | %-21s | %-30s | %-8s | %s\n", port[1], $1, $5, process, pid, $2}'"'"' | sort -n)' \
+            --bind "ctrl-y:execute-silent(echo {} | awk -F'|' '{print \$1}' | xargs | clipcopy)" \
+            --bind "ctrl-l:execute(port=\$(echo {} | awk -F'|' '{print \$1}' | xargs); echo 'lsof -i :'\$port; lsof -i :\$port 2>/dev/null || echo 'No info'; read -p 'Hit Enter...')" \
+            --bind "ctrl-i:execute(pid=\$(echo {} | awk -F'|' '{print \$5}' | xargs); if [[ \"\$pid\" != \"-\" ]]; then ps -p \$pid -f; else echo 'No PID'; fi; read -p 'Hit Enter...')" \
             --expect=ctrl-k,ctrl-f)
 
     key=$(echo "$selection" | head -1)

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Usage: track [path]
+source "$HOME/.config/zsh/utils.sh"
 TARGET="${1:-.}"
 ABS_PATH=$(realpath "$TARGET")
 REPO_LIST="$HOME/.local/share/repos.txt"

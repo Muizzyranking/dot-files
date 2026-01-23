@@ -4,20 +4,7 @@
 
 set -euo pipefail
 
-# Colors
-RED='\033[0;31m'
-YELLOW='\033[0;33m'
-NC='\033[0m'
-
-print_message() {
-    local type="$1"
-    local message="$2"
-    case "$type" in
-        error) echo -e "${RED}Error: $message${NC}" ;;
-        warning) echo -e "${YELLOW}Warning: $message${NC}" ;;
-        *) echo "$message" ;;
-    esac
-}
+source "$HOME/.config/zsh/utils.sh"
 
 is_git_repo() {
     if ! git -C "$1" rev-parse --is-inside-work-tree &>/dev/null; then
@@ -48,7 +35,7 @@ get_current_branch() {
 open_url() {
     local url="$1"
     echo "Opening: $url"
-    
+
     if grep -q Microsoft /proc/version 2>/dev/null || [[ "$(uname -r)" == *"microsoft"* ]]; then
         # WSL
         if command -v powershell.exe >/dev/null; then
@@ -133,3 +120,4 @@ if [ "$show_branch" = true ]; then
 fi
 
 open_url "$remote_url"
+

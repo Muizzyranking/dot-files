@@ -3,6 +3,8 @@
 # Usage: clone <repo>
 #        clone -h | --help
 
+source "$HOME/.config/zsh/utils.sh"
+
 set -euo pipefail
 REPO_LIST="$HOME/.local/share/repos.txt"
 

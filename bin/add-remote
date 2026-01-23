@@ -4,13 +4,9 @@
 # Usage: add-remote [repo_name]
 #        add-remote -h | --help
 
-set -euo pipefail
+source "$HOME/.config/zsh/utils.sh"
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+set -euo pipefail
 
 show_help() {
     echo "Usage: $(basename "$0") [repo_name]"
@@ -20,17 +16,6 @@ show_help() {
     echo
     echo "Options:"
     echo "  -h, --help  Show this help message"
-}
-
-print_message() {
-    local type="$1"
-    local message="$2"
-    case "$type" in
-        error) echo -e "${RED}Error: $message${NC}" ;;
-        success) echo -e "${GREEN}Success: $message${NC}" ;;
-        info) echo -e "${BLUE}$message${NC}" ;;
-        *) echo "$message" ;;
-    esac
 }
 
 cleanup() {
@@ -57,7 +42,7 @@ set_remote() {
     local remote_name="origin"
     local remote_url="$1"
     local command="$2"
-    
+
     # Check if input looks like a full URL
     if [[ $remote_url =~ ^(https://|git@github|git@gitlab) ]]; then
         git remote "$command" "$remote_name" "$remote_url"
@@ -127,3 +112,4 @@ echo
 print_message info "Current remotes:"
 echo "--------------------------------------------------------"
 git remote -v
+

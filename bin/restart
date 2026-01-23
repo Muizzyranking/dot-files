@@ -2,6 +2,7 @@
 # Description: Restarts a running process or starts it if not running.
 # Usage: restart <process_name> [--detach|-d]
 # Example: restart waybar -d
+source "$HOME/.config/zsh/utils.sh"
 
 set -euo pipefail
 
@@ -23,24 +24,29 @@ DETACH=false
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --detach|-d)
-            DETACH=true
-            shift
-            ;;
-        *)
-            if [ -z "$PROCESS_NAME" ]; then
-                PROCESS_NAME="$1"
-            else
-                echo "Error: Multiple process names provided."
-                exit 1
-            fi
-            shift
-            ;;
+    --detach | -d)
+        DETACH=true
+        shift
+        ;;
+    *)
+        if [ -z "$PROCESS_NAME" ]; then
+            PROCESS_NAME="$1"
+        else
+            echo "Error: Multiple process names provided."
+            exit 1
+        fi
+        shift
+        ;;
     esac
 done
 
 if [ -z "$PROCESS_NAME" ]; then
     echo "Error: Process name is required."
+    exit 1
+fi
+
+if ! require "$PROCESS_NAME"; then
+    print_message error "Required command '$PROCESS_NAME' is not available."
     exit 1
 fi
 
@@ -75,3 +81,4 @@ else
     "$PROCESS_NAME" &
     echo "Started (background)."
 fi
+

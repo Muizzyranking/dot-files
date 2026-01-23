@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Usage: unclone <folder>
+source "$HOME/.config/zsh/utils.sh"
 TARGET="$1"
 ABS_PATH=$(realpath "$TARGET")
 REPO_LIST="$HOME/.local/share/repos.txt"
 
 sed -i "\|^$ABS_PATH$|d" "$REPO_LIST"
 
-command -v trash &>/dev/null && trash "$TARGET" || rm -rf "$TARGET"
+require trash && trash "$TARGET" || rm -rf "$TARGET"
 echo "Uncloned: $TARGET"

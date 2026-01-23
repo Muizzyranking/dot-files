@@ -26,9 +26,9 @@ output=$(echo "$git_branches" | fzf --tmux 70% \
     --print-query \
     --reverse \
     --border \
-    --prompt=\"🌿 Checkout or Create > \"
-    --header=\"$header\"
-    --preview=\"git log --oneline --graph --color=always {} | head -n 20\")
+    --prompt="🌿 Checkout or Create > " \
+    --header="$header" \
+    --preview="git log --oneline --graph --color=always {} | head -n 20")
 
 if [ -z "$output" ]; then exit 0; fi
 

@@ -1,69 +1,42 @@
 #!/usr/bin/env bash
+
+source "$HOME/.config/zsh/utils.sh"
 # Description: Interactive process viewer and manager using fzf.
 # Usage: procs
 # Dependencies: fzf, ps
 
 set -euo pipefail
 
-if ! command -v fzf >/dev/null 2>&1;
-    then
-    echo "Error: fzf is required."
-    exit 1
-fi
-
-FILTER_MODE="user"
+require_or_exit fzf ps lsof
 
 get_processes() {
-    local filter=$1
     local fmt="pid,ppid,user,%cpu,%mem,vsz,rss,stat,start,time,comm,args"
-    
-    case "$filter" in
-    "user")
-        ps -u "$(whoami)" -o "$fmt" --sort=-%cpu
-        ;;
-    "all")
-        ps -e -o "$fmt" --sort=-%cpu
-        ;;
-    "high-cpu")
-        ps -u "$(whoami)" -o "$fmt" --sort=-%cpu | awk 'NR==1 || $4 > 1.0'
-        ;;
-    "high-mem")
-        ps -u "$(whoami)" -o "$fmt" --sort=-%mem | awk 'NR==1 || $5 > 1.0'
-        ;;
-    esac | awk '
-        NR==1 { next } # Skip ps header, we build our own or rely on fzf preview logic for details? 
-                       # Actually original script formatted it nicely. Let\'s keep similar formatting.
+    ps -u "$(whoami)" -o "$fmt" --sort=-%cpu | awk '
+        NR==1 { next }
         {
-            # $1=PID, $2=PPID, $3=USER, $4=CPU, $5=MEM, $6=VSZ, $7=RSS, $8=STAT, $9=START, $10=TIME, $11=COMM, $12...=ARGS
-            # We want: PID | CPU | MEM | VSZ | RSS | STAT | START | TIME | COMMAND
-            # Reconstruct command from $11 onwards
             cmd = substr($0, index($0,$11))
-            printf "% -8s | % -6s | % -6s | % -10s | % -8s | % -5s | % -8s | % -10s | %s\n",
+            printf "%-8s | %-6s | %-6s | %-10s | %-8s | %-5s | %-8s | %-10s | %s\n",
                 $1, $4, $5, $6, $7, $8, $9, $10, cmd
         }'
 }
 
 while true; do
-    process_info=$(get_processes "$FILTER_MODE")
+    process_info=$(get_processes)
 
     if [[ -z "$process_info" ]]; then
-        echo "No processes found (Filter: $FILTER_MODE)"
-        if [[ "$FILTER_MODE" != "all" ]]; then
-            FILTER_MODE="all"
-            continue
-        fi
+        echo "No processes found"
         exit 0
     fi
 
     header="PID      | CPU%   | MEM%   | VSZ        | RSS      | STAT  | START    | TIME       | COMMAND
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💀 CTRL-K: kill | ⚡ CTRL-F: force kill | 📂 CTRL-O: open files | 📋 CTRL-Y: copy PID | 🔄 CTRL-R: refresh | 🔀 CTRL-T: filter [$FILTER_MODE]"
+💀 CTRL-K: kill | ⚡ CTRL-F: force kill | 📂 CTRL-O: open files | 📋 CTRL-Y: copy PID | 🔄 CTRL-R: refresh"
 
     selection=$(echo "$process_info" |
         fzf --tmux 95%,85% \
             --header="$header" \
             --prompt="Select process > " \
-            --preview=' 
+            --preview='
                 pid=$(echo {} | awk -F"|" "{print \$1}" | xargs)
                 if [[ -n "$pid" ]]; then
                     echo "=== DETAILS ==="
@@ -74,18 +47,9 @@ while true; do
                 fi
             ' \
             --preview-window=up:60%:wrap \
-            --bind "ctrl-r:reload($(declare -f get_processes); get_processes '$FILTER_MODE')" \
-            --bind "ctrl-t:reload(
-                case '$FILTER_MODE' in
-                    'user') FILTER_MODE='high-cpu' ;;
-                    'high-cpu') FILTER_MODE='high-mem' ;;
-                    'high-mem') FILTER_MODE='all' ;;
-                    *) FILTER_MODE='user' ;;
-                esac
-                $(declare -f get_processes); get_processes \$FILTER_MODE
-            )" \
+            --bind "ctrl-r:reload(ps -u \$(whoami) -o pid,ppid,user,%cpu,%mem,vsz,rss,stat,start,time,comm,args --sort=-%cpu | awk 'NR==1 { next } { cmd = substr(\$0, index(\$0,\$11)); printf \"%-8s | %-6s | %-6s | %-10s | %-8s | %-5s | %-8s | %-10s | %s\\n\", \$1, \$4, \$5, \$6, \$7, \$8, \$9, \$10, cmd }')" \
             --bind "ctrl-y:execute-silent(echo {} | awk -F'|' '{print \$1}' | xargs | clipcopy)" \
-            --bind "ctrl-o:execute(pid=\$(echo {} | awk -F'|' '{print \$1}' | xargs); echo 'lsof -p '\$pid; lsof -p \$pid | less; read -p 'Hit Enter...'")" \
+            --bind "ctrl-o:execute(pid=\$(echo {} | awk -F'|' '{print \$1}' | xargs); lsof -p \$pid 2>/dev/null | less)" \
             --expect=ctrl-k,ctrl-f)
 
     key=$(echo "$selection" | head -1)
@@ -97,11 +61,15 @@ while true; do
 
     case "$key" in
     ctrl-k)
-        kill "$pid" 2>/dev/null
+        echo "Killing PID $pid (SIGTERM)..."
+        kill "$pid" 2>/dev/null && echo "✅ Success" || echo "❌ Failed"
         ;;
     ctrl-f)
-        kill -9 "$pid" 2>/dev/null
+        echo "Force killing PID $pid (SIGKILL)..."
+        kill -9 "$pid" 2>/dev/null && echo "✅ Success" || echo "❌ Failed"
         ;;
     esac
+
     sleep 0.5
 done
+
