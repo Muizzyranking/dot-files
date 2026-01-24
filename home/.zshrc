@@ -98,20 +98,18 @@ bindkey '^[[B' history-substring-search-down
 # ============================================
 config_dir="$HOME/.config/zsh"
 
-# Load environment variables
-if [ -f "$config_dir/.zshenv" ]; then
-    source "$config_dir/.zshenv"
-fi
+load(){
+    local filename="$1"
+    local full_path="$config_dir/$filename"
+    if [ -f "$full_path" ]; then
+        source "$full_path"
+    fi
+}
 
-# Load aliases
-if [ -f "$config_dir/.zsh_alaises" ]; then
-    source "$config_dir/.zsh_alaises"
-fi
+load ".zshenv"
+load ".zsh_alaises"
+load ".zsh_functions"
 
-# functions
-if [ -f "$config_dir/.zsh_functions" ]; then
-    source "$config_dir/.zsh_functions"
-fi
 
 # ============================================
 # Tool Integrations
