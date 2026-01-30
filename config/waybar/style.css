@@ -2,322 +2,180 @@
 
 * {
   all: unset;
-  font-family: "JetBrainsMono Nerd Font", "Iosevka Nerd Font", monospace;
+  font-family: "JetBrainsMono Nerd Font", monospace;
   font-size: 11px;
   font-weight: 500;
-  min-height: 12px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 4px;
+  transition: all 0.2s ease;
 }
 
 window#waybar {
   background: transparent;
   color: @text;
-  border-radius: 10px;
-  box-shadow: 0 3px 16px alpha(black, 0.3);
+  padding: 4px 0;
 }
 
 tooltip {
-  background: alpha(@mantle, 0.98);
-  border: 1px solid @surface1;
+  background: alpha(@surface, 0.95);
+  border: 1px solid @border;
   border-radius: 6px;
   color: @text;
-  box-shadow: 0 3px 10px alpha(black, 0.4);
-  padding: 6px 8px;
-  font-size: 10px;
+  padding: 8px 12px;
+  font-size: 11px;
 }
 
-tooltip label {
-  color: @text;
+/* Base module styling */
+#custom-os,
+#custom-power,
+#workspaces,
+#window,
+#clock,
+#mpris,
+#custom-swaync,
+#custom-reveal-icon,
+#cpu,
+#memory,
+#disk,
+#network,
+#bluetooth,
+#pleaseaudio,
+#pulseaudio,
+#battery,
+#privacy,
+#power-profiles-daemon,
+#tray {
+  background: alpha(@surface, 0.8);
+  border: 1px solid alpha(@border, 0.5);
+  padding: 0 12px;
+  margin: 0 4px;
+  border-radius: 5px;
 }
 
-.module {
-  background: alpha(@surface0, 0.6);
-  color: @subtext1;
-  border-radius: 4px;
-  border: 1px solid alpha(@surface1, 0.4);
-  min-height: 16px;
-}
-
+/* Left section */
 #custom-os {
-  background: alpha(@blue, 0.8);
-  color: @base;
-  font-size: 12px;
-  border-radius: 4px;
-  padding: 0 20px;
-  margin: 2px 3px;
-  min-height: 16px;
-}
-
-#custom-os:hover {
-  background: @blue;
+  background: @accent;
+  color: @bg;
+  font-size: 14px;
+  padding: 0 14px;
+  font-weight: 700;
+  margin-right: 8px;
 }
 
 #workspaces {
-  background: alpha(@surface0, 0.6);
-  border-radius: 4px;
-  border: 1px solid alpha(@surface1, 0.4);
-  border-radius: 4px;
-  padding: 4px 8px;
-  margin: 2px 3px;
-  min-height: 16px;
+  padding: 2px 4px;
 }
 
 #workspaces button {
-  color: @overlay1;
-  background: transparent;
-  border-radius: 4px;
-  padding: 3px 6px;
+  color: @text-dim;
   margin: 0 2px;
+  border-radius: 6px;
+  min-width: 24px;
   font-weight: 600;
-  min-width: 20px;
-  transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #workspaces button.active {
-  color: @base;
-  background: @mauve;
+  color: @accent;
+  background: alpha(@accent, 0.4);
+  padding: 0 15px;
 }
 
 #workspaces button:hover:not(.active) {
   color: @text;
-  background: alpha(@surface1, 0.8);
+  background: alpha(@hover, 0.8);
 }
 
-#window {
-  background: alpha(@surface0, 0.4);
-  color: @subtext0;
-  border-radius: 4px;
-  font-style: italic;
-  border: 1px solid alpha(@surface1, 0.3);
-  padding: 4px 8px;
-  margin: 2px 3px;
-  min-height: 16px;
-}
-
+/* Center section */
 #clock {
-  background: alpha(@surface0, 0.8);
+  font-weight: 600;
   color: @text;
-  font-size: 11px;
-  border: 1px solid alpha(@surface1, 0.6);
-  min-height: 16px;
-  border-radius: 4px;
-  padding: 4px 8px;
-  margin: 2px 3px;
-  min-height: 16px;
-}
-
-#clock:hover {
-  background: alpha(@surface1, 0.8);
-  color: @lavender;
-}
-
-#custom-spotify,
-#mpris {
-  background: alpha(@surface0, 0.6);
-  color: @green;
-  border: none;
-  font-size: 11px;
-  border-radius: 4px;
-  padding: 4px 8px;
-  margin: 2px 3px;
-  min-height: 16px;
-}
-
-#custom-spotify {
-  color: @green;
-}
-
-#custom-spotify:hover,
-#mpris:hover {
-  background: alpha(@green, 0.2);
-  color: @green;
-}
-
-#privacy,
-#custom-swaync {
-  background: alpha(@surface0, 0.6);
-  font-size: 11px;
-  color: @yellow;
-  border: none;
-  border-radius: 4px;
-  padding: 4px 8px;
-  margin: 2px 3px;
-  min-height: 16px;
-}
-
-#custom-swaync {
-  color: @peach;
-}
-
-#custom-updates {
-  color: @red;
-}
-
-#privacy:hover,
-#custom-swaync:hover,
-#custom-updates:hover {
-  background: alpha(@surface1, 0.8);
-}
-
-#cpu,
-#custom-reveal-icon,
-#memory,
-#disk,
-#temperature {
-  background: alpha(@surface0, 0.6);
-  border: none;
-  border-radius: 4px;
-  padding: 4px 8px;
-  margin: 2px 3px;
-  font-size: 11px;
-  font-weight: 500;
-  min-height: 16px;
+  padding: 0 16px;
 }
 
 #cpu {
-  color: @red;
+  color: @primary;
 }
 
 #memory {
-  color: @green;
-}
-
-#disk {
-  color: @blue;
-}
-
-#temperature {
-  color: @peach;
-}
-
-#temperature.critical {
-  color: @red;
-  background: alpha(@red, 0.2);
-}
-
-#cpu:hover,
-#memory:hover,
-#disk:hover,
-#temperature:hover {
-  background: alpha(@surface1, 0.8);
-}
-
-/* Connectivity Group */
-#tray,
-#network,
-#bluetooth,
-#pulseaudio {
-  background: alpha(@surface0, 0.6);
-  border: none;
-  border-radius: 4px;
-  padding: 4px 8px;
-  margin: 2px 3px;
-  font-size: 11px;
-  min-height: 16px;
+  color: @secondary;
 }
 
 #network {
-  color: @teal;
+  color: @tertiary;
 }
 
 #network.disconnected {
-  color: @overlay1;
-}
-
-#bluetooth {
-  color: @sapphire;
-}
-
-#bluetooth.disabled {
-  color: @overlay1;
+  color: @text-dim;
 }
 
 #pulseaudio {
-  color: @peach;
-}
-
-#pulseaudio.muted {
-  color: @overlay1;
-}
-
-#tray {
   color: @text;
 }
 
-#tray > .passive {
-  -gtk-icon-effect: dim;
-}
-
-#tray > .needs-attention {
-  -gtk-icon-effect: highlight;
-  background: alpha(@red, 0.2);
-}
-
-#network:hover,
-#bluetooth:hover,
-#pulseaudio:hover,
-#tray:hover {
-  background: alpha(@surface1, 0.8);
-}
-
-#battery,
-#power-profiles-daemon,
-#backlight {
-  background: alpha(@surface0, 0.6);
-  border: none;
-  border-radius: 4px;
-  padding: 4px 8px;
-  margin: 2px 3px;
-  font-size: 11px;
-  min-height: 16px;
+#pulseaudio.muted {
+  color: @text-dim;
 }
 
 #battery {
-  color: @green;
+  color: @success;
+}
+
+#mpris {
+  color: @success;
+  border: none;
+  font-size: 11px;
+  padding: 4px 8px;
 }
 
 #battery.warning {
-  color: @yellow;
+  color: @warning;
 }
 
 #battery.critical {
-  color: @red;
-  background: alpha(@red, 0.2);
-  animation: battery-blink 1s ease-in-out infinite;
+  color: @critical;
+  animation: blink 1s ease infinite;
 }
 
-@keyframes battery-blink {
-  100% {
-    opacity: 1;
-  }
+@keyframes blink {
   50% {
-    opacity: 0.7;
+    opacity: 0.5;
   }
 }
 
-#power-profiles-daemon {
-  color: @mauve;
+#custom-swaync {
+  color: @text;
 }
 
-#backlight {
-  color: @yellow;
+#custom-power {
+  color: @critical;
 }
 
+#tray {
+  padding: 0 8px;
+}
+
+/* Hover effects */
+#custom-os:hover,
+#custom-power:hover,
+#workspaces:hover,
+#window:hover,
+#clock:hover,
+#mpris:hover,
+#cpu:hover,
+#memory:hover,
+#network:hover,
+#pulseaudio:hover,
 #battery:hover,
-#power-profiles-daemon:hover,
-#backlight:hover {
-  background: alpha(@surface1, 0.8);
+#custom-swaync:hover,
+#custom-reveal-icon:hover,
+#bluetooth:hover,
+#tray:hover {
+  background: alpha(@hover, 0.9);
+  border-color: @border-hover;
 }
 
-.module:hover {
-  box-shadow: 0 3px 10px alpha(black, 0.2); /* Slightly reduced shadow */
+#custom-os:hover {
+  background: @accent-hover;
 }
 
-#group-media:hover .module,
-#group-system:hover .module,
-#group-hardware:hover .module,
-#group-connectivity:hover .module,
-#group-session:hover .module {
-  background: alpha(@surface1, 0.7);
+#custom-reveal-icon {
+  transition: all 0.3s ease;
 }

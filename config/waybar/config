@@ -1,47 +1,37 @@
 {
   "layer": "top",
   "position": "top",
-  "margin": "5",
+  "height": 24,
+  "margin": "6 10 0 10",
   "reload_style_on_change": true,
   "modules-left": [
     "custom/os",
     "clock",
-    "group/media"
+    "group/media",
+    "privacy"
   ],
   "modules-center": [
     "hyprland/workspaces"
   ],
   "modules-right": [
-    "group/hardware",
+    "tray",
     "group/system",
     "group/connectivity",
-    "group/session"
+    "group/power",
+    "custom/swaync"
   ],
   "group/media": {
     "modules": [
-      "custom/spotify",
       "mpris"
-    ],
-    "orientation": "horizontal",
-    "drawer": {
-      "transition-duration": 300,
-      "children-class": "media-drawer",
-      "transition-left-to-right": false
-    }
-  },
-  "group/system": {
-    "modules": [
-      "custom/swaync"
     ],
     "orientation": "horizontal"
   },
-  "group/hardware": {
+  "group/system": {
     "modules": [
       "custom/reveal-icon",
       "cpu",
       "memory",
-      "disk",
-      "temperature"
+      "disk"
     ],
     "orientation": "horizontal",
     "drawer": {
@@ -53,35 +43,31 @@
   },
   "group/connectivity": {
     "modules": [
-      "tray",
       "network",
       "bluetooth",
       "pulseaudio"
     ],
     "orientation": "horizontal"
   },
-  "group/session": {
+  "group/power": {
     "modules": [
       "battery",
       "power-profiles-daemon",
-      "backlight"
+      "custom/power"
     ],
     "orientation": "horizontal",
     "drawer": {
       "transition-duration": 300,
-      "children-class": "session-drawer",
-      "transition-left-to-right": false
+      "children-class": "hardware-drawer",
+      "transition-left-to-right": true,
+      "click-to-reveal": true
     }
   },
   "custom/os": {
-    "format": "󰮤",
+    "format": "󰣇",
     "tooltip": true,
     "tooltip-format": "System Menu",
-    "on-click": "sh $HOME/.config/hypr/scripts/wlogout.sh"
-  },
-  "custom/reveal-icon": {
-    "format": "",
-    "tooltip": false
+    "on-click": "run_cmd rofi -show drun -modi drun -config ~/.config/rofi/waybar-app.rasi"
   },
   "hyprland/workspaces": {
     "active-only": false,
@@ -109,12 +95,22 @@
   "hyprland/window": {
     "format": "{class}",
     "separate-outputs": true,
-    "max-length": 25,
+    "max-length": 30,
     "tooltip": true,
     "tooltip-format": "{title}"
   },
+  "custom/reveal-icon": {
+    "format": "",
+    "tooltip": false
+  },
+  "custom/power": {
+    "format": "",
+    "tooltip": false,
+    "tooltip-format": "System Menu",
+    "on-click": "run_cmd ~/.config/hypr/scripts/powermenu.sh"
+  },
   "clock": {
-    "format": "<span color='#b4befe'> </span> {:%I:%M %p  %A, %b %d}",
+    "format": "{:%H:%M  %a %d %b}",
     "format-alt": "{:%A, %B %d, %Y}",
     "tooltip-format": "<tt><small>{calendar}</small></tt>",
     "calendar": {
@@ -123,7 +119,7 @@
       "weeks-pos": "right",
       "on-scroll": 1,
       "format": {
-        "months": "<span color='#cba6f7'><b>{}</b></span>",
+        "months": "<span color='#a6e3a1'><b>{}</b></span>",
         "days": "<span color='#cdd6f4'><b>{}</b></span>",
         "weeks": "<span color='#7f849c'><b>W{}</b></span>",
         "weekdays": "<span color='#f9e2af'><b>{}</b></span>",
@@ -134,77 +130,34 @@
       "on-click-right": "mode"
     }
   },
-  "custom/spotify": {
-    "exec": "playerctl --player=spotify metadata --format '{{ status }}::{{ artist }} - {{ title }}' 2>/dev/null | awk -F'::' '{ if ($1 == \"Playing\") {icon=\"▶\"} else if ($1 == \"Paused\") {icon=\"⏸\"} else {icon=\"⏹\"}; print icon \" \" $2 }' || echo ''",
-    "format": "{}  ",
-    "return-type": "",
-    "interval": 1,
-    "max-length": 35,
-    "on-click": "playerctl --player=spotify play-pause",
-    "on-scroll-up": "playerctl --player=spotify previous",
-    "on-scroll-down": "playerctl --player=spotify next",
-    "tooltip": true,
-    "tooltip-format": "Spotify: {}"
-  },
   "mpris": {
-    "format": "{player_icon}",
-    "format-paused": "{status_icon}",
-    "player-icons": {
-      "default": "",
-      "mpv": "󰐹",
-      "firefox": "",
-      "vlc": "󰕼"
-    },
+    "format": "{status_icon} {dynamic}",
     "status-icons": {
-      "paused": "",
-      "playing": "",
-      "stopped": ""
+      "paused": "",
+      "playing": "",
+      "stopped": ""
     },
-    "ignored-players": [
-      "spotify"
-    ],
+    "max-length": 30,
     "on-click": "playerctl play-pause",
     "on-click-right": "playerctl stop",
     "on-scroll-up": "playerctl previous",
     "on-scroll-down": "playerctl next",
     "tooltip": true,
-    "tooltip-format": "{dynamic}"
-  },
-  "privacy": {
-    "icon-size": 14,
-    "icon-spacing": 4,
-    "transition-duration": 250,
-    "modules": [
-      {
-        "type": "screenshare",
-        "tooltip": true,
-        "tooltip-icon-size": 16
-      },
-      {
-        "type": "audio-in",
-        "tooltip": true,
-        "tooltip-icon-size": 16
-      },
-      {
-        "type": "audio-out",
-        "tooltip": true,
-        "tooltip-icon-size": 16
-      }
-    ]
+    "tooltip-format": "{player}: {artist} - {title}"
   },
   "custom/swaync": {
     "tooltip": true,
     "tooltip-format": "Notifications",
-    "format": "{icon} {}",
+    "format": "{icon}",
     "format-icons": {
-      "notification": "<span foreground='red'><sup></sup></span>",
-      "none": "",
-      "dnd-notification": "<span foreground='red'><sup></sup></span>",
-      "dnd-none": "",
-      "inhibited-notification": "<span foreground='red'><sup></sup></span>",
-      "inhibited-none": "",
-      "dnd-inhibited-notification": "<span foreground='red'><sup></sup></span>",
-      "dnd-inhibited-none": ""
+      "notification": "<span foreground='#f38ba8'></span>",
+      "none": "<span foreground='#f38ba8'></span>",
+      "dnd-notification": "<span foreground='#f38ba8'></span>",
+      "dnd-none": "<span foreground='#f38ba8'></span>",
+      "inhibited-notification": "<span foreground='#f38ba8'></span>",
+      "inhibited-none": "",
+      "dnd-inhibited-notification": "<span foreground='#f38ba8'></span>",
+      "dnd-inhibited-none": ""
     },
     "return-type": "json",
     "exec-if": "which swaync-client",
@@ -214,49 +167,28 @@
     "escape": true
   },
   "cpu": {
-    "format": "󰘚 {usage}󱉸",
+    "format": "󰘚 {usage}%",
     "interval": 3,
     "on-click": "kitty --title 'System Monitor' -e btop",
     "tooltip": true,
-    "tooltip-format": "CPU Usage: {usage}%\nLoad: {load}"
+    "tooltip-format": "CPU: {usage}%"
   },
   "memory": {
     "format": "󰾆 {percentage}%",
     "interval": 5,
     "on-click": "kitty --title 'System Monitor' -e btop",
     "tooltip": true,
-    "tooltip-format": "RAM: {used:0.1f}GB / {total:0.1f}GB\nUsage: {percentage}%\nSwap: {swapUsed:0.1f}GB / {swapTotal:0.1f}GB"
-  },
-  "disk": {
-    "format": "󰆼 {percentage_used}%",
-    "path": "/",
-    "interval": 30,
-    "tooltip": true,
-    "tooltip-format": "Disk Usage: {used} / {total}\nFree: {free} ({percentage_free}%)"
-  },
-  "temperature": {
-    "critical-threshold": 80,
-    "format": "{icon} {temperatureC}°C",
-    "format-icons": [
-      "",
-      "",
-      "",
-      ""
-    ],
-    "interval": 5,
-    "tooltip": true,
-    "tooltip-format": "Temperature: {temperatureC}°C ({temperatureF}°F)"
+    "tooltip-format": "RAM: {used:0.1f}GB / {total:0.1f}GB"
   },
   "network": {
-    "format-wifi": "{icon} {signalStrength}%",
+    "format-wifi": "{icon}",
     "format-ethernet": " ",
-    "format-linked": " ",
-    "format-disconnected": "󰤯 ",
-    "tooltip-format": "Network: {essid}\nIP: {ipaddr}\nStrength: {signalStrength}%\n⬇ {bandwidthDownBytes} ⬆ {bandwidthUpBytes}",
-    "tooltip-format-ethernet": "Ethernet\nIP: {ipaddr}\n⬇ {bandwidthDownBytes} ⬆ {bandwidthUpBytes}",
+    "format-linked": "",
+    "format-disconnected": "󰤮",
+    "tooltip-format": "{essid} - {signalStrength}%\n{ipaddr}",
+    "tooltip-format-ethernet": "Ethernet\n{ipaddr}",
     "tooltip-format-disconnected": "Disconnected",
-    "on-click": "nmgui",
-    "on-click-right": "bash -c $HOME/.config/hypr/scripts/airplane.sh",
+    "on-click": "run_cmd nmgui",
     "interval": 5,
     "format-icons": [
       "󰤯",
@@ -266,57 +198,16 @@
       "󰤨"
     ]
   },
-  "bluetooth": {
-    "format": "{icon}",
-    "format-icons": "",
-    "format-disabled": "󰂳",
-    "format-connected": "{icon} {device_alias}",
-    "tooltip-format": "Bluetooth: {status}",
-    "tooltip-format-connected": "Bluetooth: Connected\n{device_enumerate}",
-    "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
-    "tooltip-format-enumerate-connected-battery": "{device_alias}\t{device_address}\t{device_battery_percentage}%",
-    "on-click": "blueman-manager",
-    "on-click-right": "rfkill toggle bluetooth"
-  },
-  "pulseaudio": {
-    "format": "{icon}  {volume}%",
-    "format-muted": "󰝟  {volume}%",
-    "format-icons": {
-      "default": [
-        "",
-        "",
-        "󰕾",
-        "󰕾",
-        "󰕾",
-        "",
-        "",
-        ""
-      ]
-    },
-    "scroll-step": 2,
-    "on-click": "pavucontrol",
-    "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
-    "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+",
-    "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-",
-    "tooltip": true,
-    "tooltip-format": "Audio: {volume}%\nDevice: {desc}"
-  },
   "battery": {
-    "interval": 1,
-    "align": 0,
-    "rotate": 0,
-    "full-at": 100,
-    "design-capacity": false,
+    "interval": 10,
     "states": {
       "warning": 30,
       "critical": 15
     },
     "format": "{icon} {capacity}%",
-    "format-charging": " {capacity}%",
+    "format-charging": "󰂄 {capacity}%",
     "format-plugged": "󱘖 {capacity}%",
-    "format-alt-click": "click",
-    "format-full": "{icon} Full",
-    "format-alt": "{icon} {time}",
+    "format-full": "󰁹 {capacity}%",
     "format-icons": [
       "󰂎",
       "󰁺",
@@ -330,9 +221,26 @@
       "󰂂",
       "󰁹"
     ],
-    "format-time": "{H}h {M}min",
     "tooltip": true,
-    "tooltip-format": "Battery: {capacity}%\nTime: {time}\nHealth: {health}%\nPower: {power}W"
+    "tooltip-format": "{capacity}% - {time}"
+  },
+  "tray": {
+    "icon-size": 14,
+    "spacing": 8,
+    "show-passive-items": true,
+    "tooltip": true
+  },
+  "bluetooth": {
+    "format": "{icon}",
+    "format-icons": "",
+    "format-disabled": "󰂳",
+    "format-connected": "{icon} {device_alias}",
+    "tooltip-format": "Bluetooth: {status}",
+    "tooltip-format-connected": "Bluetooth: Connected\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+    "tooltip-format-enumerate-connected-battery": "{device_alias}\t{device_address}\t{device_battery_percentage}%",
+    "on-click": "run_cmd blueman-manager",
+    "on-click-right": "rfkill toggle bluetooth"
   },
   "power-profiles-daemon": {
     "format": "{icon}",
@@ -357,9 +265,49 @@
     "tooltip": true,
     "tooltip-format": "Brightness: {percent}%"
   },
-  "tray": {
-    "icon-size": 11,
-    "spacing": 6,
-    "tooltip": true
+  "pulseaudio": {
+    "format": "{icon}  {volume}%",
+    "format-muted": "󰝟  {volume}%",
+    "format-icons": {
+      "default": [
+        "",
+        "",
+        "󰕾",
+        "󰕾",
+        "󰕾",
+        "",
+        "",
+        ""
+      ]
+    },
+    "scroll-step": 2,
+    "on-click": "pavucontrol",
+    "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+    "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+",
+    "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-",
+    "tooltip": true,
+    "tooltip-format": "Audio: {volume}%\nDevice: {desc}"
+  },
+  "privacy": {
+    "icon-size": 14,
+    "icon-spacing": 4,
+    "transition-duration": 250,
+    "modules": [
+      {
+        "type": "screenshare",
+        "tooltip": true,
+        "tooltip-icon-size": 16
+      },
+      {
+        "type": "audio-in",
+        "tooltip": true,
+        "tooltip-icon-size": 16
+      },
+      {
+        "type": "audio-out",
+        "tooltip": true,
+        "tooltip-icon-size": 16
+      }
+    ]
   }
 }
