@@ -57,6 +57,9 @@ return {
         "ron",
         "php",
         "phpdoc",
+        "qml",
+        "qmldir",
+        "qmljs",
       },
       incremental_selection = {
         keymaps = {

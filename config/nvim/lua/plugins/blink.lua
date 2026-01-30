@@ -68,9 +68,7 @@ return {
     config = function(_, opts)
       local disabled_filetypes = opts.disable_ft or {}
       opts.enabled = function()
-        return not vim.tbl_contains(disabled_filetypes, vim.bo.filetype)
-          and vim.b.completion ~= false
-          and not vim.b.bigfile
+        return not vim.tbl_contains(disabled_filetypes, vim.bo.filetype) and vim.b.completion ~= false
       end
       opts.disable_ft = nil
 

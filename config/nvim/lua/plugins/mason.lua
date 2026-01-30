@@ -27,6 +27,7 @@ return {
       "shfmt",
       "jq",
       "stylua",
+      "qmlls",
     },
   },
   config = function(_, opts)

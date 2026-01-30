@@ -353,7 +353,7 @@ return {
       picker = picker,
       notifier = notifier,
       bigfile = { enabled = true },
-      image = { enabled = false },
+      image = { enabled = true },
       quickfile = { enabled = true },
       statuscolumn = { enabled = true },
       words = { enabled = true },
