@@ -91,10 +91,6 @@
   background: transparent;
 }
 
-.blank-window {
-  background: alpha(@base, 0.25);
-}
-
 /* Inline reply styling */
 .inline-reply {
   margin-top: 8px;
