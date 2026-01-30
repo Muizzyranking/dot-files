@@ -1,0 +1,24 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+    echo "Usage: $0 <command> [arguments]"
+    exit 1
+fi
+
+CMD=$1
+shift
+
+if ! command -v "$CMD" >/dev/null 2>&1; then
+    echo "Error: Command '$CMD' not found."
+    exit 1
+fi
+
+PID=$(pgrep -x "$CMD")
+
+if [ -n "$PID" ]; then
+    echo "'$CMD' is running (PID: $PID). Closing it..."
+    pkill -x "$CMD"
+else
+    echo "'$CMD' is not running. Starting it..."
+    "$CMD" "$@"
+fi
