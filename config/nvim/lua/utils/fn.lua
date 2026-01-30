@@ -218,9 +218,18 @@ end
 --- use another filetype config in this filetype
 ---@param filetype string
 function M.ft_config(filetype)
-  filetype = "ftplugin/" .. filetype .. ".lua"
-  if vim.fn.filereadable(vim.fn.stdpath("config") .. "/" .. filetype) == 1 then
-    vim.cmd("runtime " .. filetype)
+  filetype = filetype .. ".lua"
+  local config_path = vim.fn.stdpath("config")
+  local after = "after/ftplugin/" .. filetype
+  local ftplugin = "ftplugin/" .. filetype
+
+  if vim.fn.filereadable(config_path .. "/" .. after) == 1 then
+    vim.cmd("runtime " .. after)
+    return
+  end
+  if vim.fn.filereadable(config_path .. "/" .. ftplugin) == 1 then
+    vim.cmd("runtime " .. ftplugin)
+    return
   end
   Utils.notify.warn("No filetype config found for '" .. filetype .. "'")
 end
