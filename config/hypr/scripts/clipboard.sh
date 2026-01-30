@@ -6,15 +6,13 @@ while true; do
     # Remove numbers for display but keep full entries for lookup
     formatted_entries=$(echo "$clipboard_entries" | awk '{$1=""; print substr($0,2)}')
 
-    # Let the user select an entry
     selection=$(echo "$formatted_entries" | rofi -i -dmenu \
         -kb-custom-1 "Control-Delete" \
         -kb-custom-2 "Alt-Delete" \
         -config ~/.config/rofi/clipboard.rasi -p " ")
 
-    # Check exit status of rofi
     case "$?" in
-    1) # User pressed Escape
+    1) # esc
         exit
         ;;
     0)
