@@ -1,0 +1,22 @@
+/* Gruvbox Dark Theme */
+@define-color bg #282828;
+@define-color surface #3c3836;
+@define-color hover #504945;
+
+@define-color border #665c54;
+@define-color border-hover #a89984;
+
+@define-color text #ebdbb2;
+@define-color text-dim #d5c4a1;
+
+@define-color accent #83a598;
+@define-color accent-subtle #83a598;
+@define-color accent-hover #6f8a80;
+
+@define-color primary #fb4934;
+@define-color secondary #b8bb26;
+@define-color tertiary #8ec07c;
+
+@define-color success #b8bb26;
+@define-color warning #fabd2f;
+@define-color critical #fb4934;

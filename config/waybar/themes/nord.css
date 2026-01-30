@@ -1,0 +1,22 @@
+/* Nord Theme */
+@define-color bg #2e3440;
+@define-color surface #3b4252;
+@define-color hover #434c5e;
+
+@define-color border #4c566a;
+@define-color border-hover #81a1c1;
+
+@define-color text #eceff4;
+@define-color text-dim #d8dee9;
+
+@define-color accent #88c0d0;
+@define-color accent-subtle #88c0d0;
+@define-color accent-hover #7bb3c3;
+
+@define-color primary #bf616a;
+@define-color secondary #a3be8c;
+@define-color tertiary #81a1c1;
+
+@define-color success #a3be8c;
+@define-color warning #ebcb8b;
+@define-color critical #bf616a;

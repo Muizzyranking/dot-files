@@ -1,0 +1,22 @@
+/* Dracula Theme */
+@define-color bg #282a36;
+@define-color surface #44475a;
+@define-color hover #6272a4;
+
+@define-color border #6272a4;
+@define-color border-hover #8be9fd;
+
+@define-color text #f8f8f2;
+@define-color text-dim #d0d0d0;
+
+@define-color accent #bd93f9;
+@define-color accent-subtle #bd93f9;
+@define-color accent-hover #a97fe6;
+
+@define-color primary #ff79c6;
+@define-color secondary #50fa7b;
+@define-color tertiary #8be9fd;
+
+@define-color success #50fa7b;
+@define-color warning #f1fa8c;
+@define-color critical #ff5555;
