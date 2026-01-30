@@ -1,0 +1,29 @@
+{
+  "name": "Catppuccin",
+  "colors": {
+    "background": "#1e1e2e",
+    "foreground": "#cdd6f4",
+    "black": "#45475a",
+    "red": "#f38ba8",
+    "green": "#a6e3a1",
+    "yellow": "#f9e2af",
+    "blue": "#89b4fa",
+    "magenta": "#f5c2e7",
+    "cyan": "#94e2d5",
+    "white": "#bac2de",
+    "accent": "#89b4fa",
+    "surface": "#313244",
+    "overlay": "#6c7086"
+  },
+  "wallpaper": "~/Pictures/wallpapers/3d-model.jpg",
+  "gtk_theme": "catppuccin-mocha-blue-standard+default",
+  "icon_theme": "Reversal",
+  "cursor_theme": "catppuccin-mocha-blue-cursors",
+  "cursor_size": 24,
+  "kvantum_theme": "Catppuccin-Mocha-Blue",
+  "dark_mode": 1,
+  "font": "JetBrainsMono Nerd Font 10",
+  "apps": {
+    "kitty": "tokyonight-night.conf"
+  }
+}

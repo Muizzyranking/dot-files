@@ -1,0 +1,25 @@
+{
+  "name": "Rose Pine",
+  "colors": {
+    "background": "#191724",
+    "foreground": "#e0def4",
+    "black": "#26233a",
+    "red": "#eb6f92",
+    "green": "#9ccfd8",
+    "yellow": "#f6c177",
+    "blue": "#31748f",
+    "magenta": "#c4a7e7",
+    "cyan": "#ebbcba",
+    "white": "#e0def4",
+    "accent": "#c4a7e7",
+    "surface": "#1f1d2e",
+    "overlay": "#26233a"
+  },
+  "wallpaper": "~/Pictures/wallpapers/rose-pine.png",
+  "gtk_theme": "rose-pine-gtk",
+  "icon_theme": "rose-pine-icons",
+  "cursor_theme": "catppuccin-mocha-dark-cursors",
+  "cursor_size": 24,
+  "kvantum_theme": "",
+  "dark_mode": 1
+}

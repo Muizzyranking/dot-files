@@ -1,0 +1,25 @@
+ {
+  "name": "Gruvbox Dark",
+  "colors": {
+    "background": "#282828",
+    "foreground": "#ebdbb2",
+    "black": "#282828",
+    "red": "#cc241d",
+    "green": "#98971a",
+    "yellow": "#d79921",
+    "blue": "#458588",
+    "magenta": "#b16286",
+    "cyan": "#689d6a",
+    "white": "#a89984",
+    "accent": "#d65d0e",
+    "surface": "#3c3836",
+    "overlay": "#504945"
+  },
+  "wallpaper": "~/Pictures/wallpapers/gruvbox.png",
+  "gtk_theme": "Adwaita-dark",
+  "icon_theme": "Reversal",
+  "cursor_theme": "catppuccin-mocha-dark-cursors",
+  "cursor_size": 24,
+  "kvantum_theme": "",
+  "dark_mode": 1
+}
