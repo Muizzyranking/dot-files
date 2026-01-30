@@ -33,7 +33,7 @@ while true; do
 💀 CTRL-K: kill | ⚡ CTRL-F: force kill | 📂 CTRL-O: open files | 📋 CTRL-Y: copy PID | 🔄 CTRL-R: refresh"
 
     selection=$(echo "$process_info" |
-        fzf --tmux 95%,85% \
+        fzf --tmux 95%,85% --reverse \
             --header="$header" \
             --prompt="Select process > " \
             --preview='

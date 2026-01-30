@@ -40,7 +40,7 @@ while true; do
 CTRL-K: kill | CTRL-F: force kill | CTRL-I: info | CTRL-L: lsof | CTRL-Y: copy port | CTRL-R: refresh | ESC: exit"
 
     selection=$(echo "$port_info" |
-        fzf --tmux 95%,85% \
+        fzf --tmux 95%,85% --reverse \
             --header="$header" \
             --prompt="Select port > " \
             --preview='
