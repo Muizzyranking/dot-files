@@ -15,15 +15,14 @@ configuration {
 
 @theme "~/.config/rofi/theme/catppuccin.rasi"
 
-
 window {
-    width: 20%;
-    height: 0;
-    border: 2px;
+    width: 55%;
+    height: 60%;
+    border: 1px;
     border-color: @border-col;
     background-color: @bg-col;
-    border-radius: 8px;
-    padding: 6px;
+    border-radius: 12px;
+    padding: 15px;
 }
 
 mainbox {
@@ -31,7 +30,7 @@ mainbox {
     orientation: vertical;
     children: [ "inputbar", "listview" ];
     spacing: 10px;
-    padding: 10px;
+    padding: 5px;
 }
 
 mode-switcher {
@@ -78,50 +77,55 @@ entry {
     text-color: @fg-col;
     background-color: @bg-col-light;
     border-radius: 8px;
-    placeholder: "";
+    placeholder: "Search applications...";
 }
 
 listview {
     border: 0px;
     padding: 0;
     margin: 0;
-    columns: 1;
-    lines: 5;
+    columns: 6;
+    lines: 4;
     background-color: transparent;
-    scrollbar: false;
-    spacing: 5px;
+    scrollbar: true;
+    spacing: 8px;
     border-radius: 8px;
+    flow: horizontal;
+    fixed-columns: true;
 }
 
 scrollbar {
-    width: 4px;
+    width: 3px;
     border: 0;
-    handle-width: 4px;
+    handle-width: 3px;
     handle-color: @blue;
-    padding: 5px;
-    margin: 0 5px;
-    border-radius: 5px;
+    padding: 0;
+    margin: 0 0 0 8px;
+    border-radius: 3px;
     background-color: @bg-col-light;
 }
 
 element {
-    padding: 10px;
+    padding: 8px;
     background-color: transparent;
     text-color: @fg-col;
-    border-radius: 8px;
-    spacing: 10px;
-    margin: 1px 0;
+    border-radius: 10px;
+    spacing: 0px;
+    margin: 0;
+    orientation: vertical;
 }
 
 element-icon {
-    size: 25px;
-    vertical-align: 0.5;
+    size: 36px;
     horizontal-align: 0.5;
-    margin: 0 8px 0 0;
+    vertical-align: 0.5;
+    margin: 0 0 6px 0;
 }
 
 element-text {
+    horizontal-align: 0.5;
     vertical-align: 0.5;
+    font: "JetBrainsMono Nerd Font 9";
 }
 
 element selected {

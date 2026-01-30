@@ -1,19 +1,20 @@
 configuration {
     show-icons: false;
+    drun-display-format: "{name}";
     disable-history: false;
     click-to-exit: true;
-    dpi: 1;
+    location: 0;
 }
 
 @theme "~/.config/rofi/theme/catppuccin.rasi"
 
 window {
-    width: 300px;
+    width: 50%;
     border: 1px;
     border-color: @border-col;
     background-color: @bg-col;
     border-radius: 12px;
-    padding: 25px;
+    padding: 20px;
     location: center;
     anchor: center;
 }
@@ -22,15 +23,24 @@ mainbox {
     background-color: transparent;
     orientation: vertical;
     children: [ "listview" ];
-    spacing: 20px;
+    spacing: 15px;
+}
+
+textbox {
+    padding: 10px;
+    text-color: @blue;
+    background-color: @bg-col-light;
+    border-radius: 8px;
+    horizontal-align: 0.5;
+    vertical-align: 0.5;
 }
 
 listview {
     border: 0px;
     padding: 0;
     margin: 0;
-    columns: 1;
-    lines: 2;
+    columns: 6;
+    lines: 1;
     background-color: transparent;
     spacing: 15px;
     cycle: true;
@@ -39,21 +49,38 @@ listview {
 }
 
 element {
-    padding: 12px 15px;
+    padding: 15px;
     background-color: @bg-col-light;
     text-color: @fg-col;
-    border-radius: 8px;
-    orientation: horizontal;
+    border-radius: 10px;
+    orientation: vertical;
 }
 
 element-text {
     horizontal-align: 0.5;
     vertical-align: 0.5;
-    font: "JetBrainsMono Nerd Font 9";
+    font: "JetBrainsMono Nerd Font 11";
     expand: true;
 }
 
 element selected {
     background-color: @lavender;
     text-color: @bg-col;
+}
+
+inputbar {
+    enabled: true;
+    children: [ "prompt" ];
+    background-color: transparent;
+    padding: 0 0 10px 0;
+}
+
+prompt {
+    background-color: @blue;
+    padding: 12px;
+    text-color: @bg-col;
+    border-radius: 8px;
+    horizontal-align: 0.5;
+    vertical-align: 0.5;
+    font-weight: bold;
 }
