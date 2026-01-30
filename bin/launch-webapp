@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+    echo "Usage: webapp <url>"
+     1
+fi
+
+command="google-chrome-stable"
+
+if ! command -v $command &> /dev/null; then
+    echo "$command could not be found. Please install Google Chrome."
+    exit 1
+fi
+
+exec uwsm-app -- $command --app="$1" "${@:2}"
