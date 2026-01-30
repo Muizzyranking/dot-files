@@ -24,8 +24,7 @@ function M.is_active(buf)
     return true
   end
 
-  -- `vim.treesitter.get_parser()` can be slow for big files
-  if not vim.b.bigfile and (pcall(vim.treesitter.get_parser, buf)) then
+  if pcall(vim.treesitter.get_parser, buf) then
     return true
   end
 
