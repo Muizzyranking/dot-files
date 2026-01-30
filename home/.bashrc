@@ -16,3 +16,4 @@ tns() {
 
 eval "$(starship init bash)"
 export STARSHIP_CONFIG=~/.config/bash/starship.toml
+. "$HOME/.cargo/env"
