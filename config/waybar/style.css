@@ -25,6 +25,7 @@ tooltip {
 
 /* Base module styling */
 #custom-os,
+#backlight,
 #custom-power,
 #workspaces,
 #window,
@@ -154,6 +155,7 @@ tooltip {
 
 /* Hover effects */
 #custom-os:hover,
+#backlight:hover,
 #custom-power:hover,
 #workspaces:hover,
 #window:hover,
