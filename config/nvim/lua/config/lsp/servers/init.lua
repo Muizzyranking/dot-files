@@ -14,7 +14,7 @@ function M.setup()
     ft_servers = vim.tbl_extend("force", ft_servers, r(ft))
   end
 
-  local servers = { "bashls", "lua_ls", "html", "json_ls", "clangd", "emmet_language_server", "gopls" }
+  local servers = { "bashls", "lua_ls", "html", "jsonls", "clangd", "emmet_language_server", "gopls", "qmlls" }
 
   for server_name, server_opts in pairs(ft_servers) do
     if server_opts.enabled ~= false then
