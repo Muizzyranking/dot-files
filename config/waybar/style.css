@@ -25,6 +25,7 @@ tooltip {
 
 /* Base module styling */
 #custom-os,
+#custom-spotify,
 #backlight,
 #custom-power,
 #workspaces,
@@ -147,6 +148,11 @@ tooltip {
 
 #custom-power {
   color: @critical;
+}
+
+#custom-spotify {
+  background: @success;
+  color: @bg;
 }
 
 #tray {

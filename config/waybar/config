@@ -22,7 +22,7 @@
   ],
   "group/media": {
     "modules": [
-      "mpris"
+      "custom/spotify"
     ],
     "orientation": "horizontal"
   },
@@ -263,7 +263,6 @@
       "󰃝",
       "󰃟",
       "󰃠"
-
     ],
     "on-scroll-up": "brightnessctl set 5%+",
     "on-scroll-down": "brightnessctl set 5%-",
@@ -314,5 +313,13 @@
         "tooltip-icon-size": 16
       }
     ]
+  },
+  "custom/spotify": {
+    "exec": "/usr/bin/python $HOME/.config/waybar/modules/media.py --player spotify",
+    "format": "{} ",
+    "return-type": "json",
+    "on-click": "playerctl play-pause",
+    "on-scroll-up": "playerctl previous",
+    "on-scroll-down": "playerctl next"
   }
 }
