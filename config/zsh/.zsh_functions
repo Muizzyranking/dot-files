@@ -20,35 +20,47 @@ fdir() {
     fi
 }
 
+_repos() {
+    while read -r p; do
+        [[ -d "$p" ]] && echo "$p"
+    done < "$REPO_LIST"
+}
+
 find_repo() {
     [[ ! -s "$REPO_LIST" ]] && print_message error "No tracked repos." && return 1
 
-    local selection
-    selection=$(grep . "$REPO_LIST" | while read -r p; do
-        [[ -d "$p" ]] && echo "$p"
-    done | fzf-tmux -p \
-        --height 40% --reverse --header "ENTER: cd | CTRL-T: tmux" \
-        --expect="ctrl-t")
+    local selection key repo
 
-    local key=$(echo "$selection" | head -1)
-    local file=$(echo "$selection" | tail -1)
+    selection=$(
+        fzf-tmux -p \
+            --height 40% --reverse \
+            --header "ENTER: cd | CTRL-T: tmux | CTRL-D: delete" \
+            --expect="ctrl-t" \
+            --bind "ctrl-d:execute-silent(
+                (grep -Fxv {} \"$REPO_LIST\" > \"$REPO_LIST.tmp\" && mv \"$REPO_LIST.tmp\" \"$REPO_LIST\") || true
+            )+reload(
+                (while read -r p; do [[ -d \"\$p\" ]] && echo \"\$p\"; done < \"$REPO_LIST\") || true
+            )" \
+            < <(_repos)
+    )
 
-    [[ -z "$file" ]] && return
+    key=$(echo "$selection" | head -1)
+    repo=$(echo "$selection" | tail -1)
+
+    [[ -z "$repo" ]] && return
 
     if [[ "$key" == "ctrl-t" ]]; then
         if command -v tmux &>/dev/null; then
-            local session_name=$(basename "$file" | tr . _)
-            tmux new-session -d -s "$session_name" -c "$file" 2>/dev/null
-            if [[ -n "$TMUX" ]]; then
-                tmux switch-client -t "$session_name"
-            else
-                tmux attach-session -t "$session_name"
-            fi
+            local session_name
+            session_name=$(basename "$repo" | tr . _)
+            tmux new-session -d -s "$session_name" -c "$repo" 2>/dev/null
+            [[ -n "$TMUX" ]] && tmux switch-client -t "$session_name" \
+                             || tmux attach-session -t "$session_name"
         else
             print_message error "Tmux not installed."
         fi
     else
-        cd "$file"
+        cd "$repo"
     fi
 }
 
