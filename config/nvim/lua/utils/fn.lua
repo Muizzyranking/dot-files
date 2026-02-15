@@ -172,36 +172,6 @@ function M.run_command(cmd, opts)
   return success, output
 end
 
-----------------------------------------------------
---- Find existing window containing the target file
---- @param filename string The file path to search for
---- @return number|nil Window handle if found
-----------------------------------------------------
-function M.find_win_with_file(filename)
-  local target_buf = vim.fn.bufnr(filename)
-  if target_buf == -1 then
-    return nil
-  end
-
-  for _, win in ipairs(vim.api.nvim_list_wins()) do
-    if vim.api.nvim_win_get_buf(win) == target_buf then
-      return win
-    end
-  end
-
-  return nil
-end
-
----@param option string
----@param value any
----@param buf? number
-function M.set_buf_option(option, value, buf)
-  buf = M.ensure_buf(buf)
-  pcall(function()
-    vim.bo[buf][option] = value
-  end)
-end
-
 function M.is_in_git_repo(notify)
   notify = notify or false
   local success, output = M.run_command({ "git", "rev-parse", "--is-inside-work-tree" }, {
@@ -216,12 +186,12 @@ function M.is_in_git_repo(notify)
 end
 
 --- use another filetype config in this filetype
----@param filetype string
-function M.ft_config(filetype)
-  filetype = filetype .. ".lua"
+---@param ft string
+function M.ft_config(ft)
+  ft = ft .. ".lua"
   local config_path = vim.fn.stdpath("config")
-  local after = "after/ftplugin/" .. filetype
-  local ftplugin = "ftplugin/" .. filetype
+  local after = "after/ftplugin/" .. ft
+  local ftplugin = "ftplugin/" .. ft
 
   if vim.fn.filereadable(config_path .. "/" .. after) == 1 then
     vim.cmd("runtime " .. after)
@@ -231,7 +201,7 @@ function M.ft_config(filetype)
     vim.cmd("runtime " .. ftplugin)
     return
   end
-  Utils.notify.warn("No filetype config found for '" .. filetype .. "'")
+  Utils.notify.warn("No filetype config found for '" .. ft .. "'")
 end
 
 return M
