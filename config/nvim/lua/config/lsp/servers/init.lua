@@ -1,27 +1,43 @@
 local M = {}
 
+---@type string[]
+M.default_servers = {
+  "bashls",
+  "lua_ls",
+  "html",
+  "jsonls",
+  "clangd",
+  "emmet_language_server",
+  "gopls",
+  "qmlls",
+}
+
+---@type string[]
+M.ft_modules = { "python", "typescript" }
+
 ---@param ft string
 ---@return table<string, any>
-local function r(ft)
-  local ok, module = pcall(require, "config.lsp.servers." .. ft)
-  return ok and module or {}
+local function load_ft(ft)
+  local ok, mod = pcall(require, "config.lsp.servers." .. ft)
+  if not ok then
+    Utils.notify.warn(string.format("Failed to load server config for '%s': %s", ft, mod), { title = "LSP Registry" })
+    return {}
+  end
+  return mod
 end
 
 function M.setup()
-  local fts = { "python", "typescript" }
-  local ft_servers = {}
-  for _, ft in ipairs(fts) do
-    ft_servers = vim.tbl_extend("force", ft_servers, r(ft))
-  end
+  local servers = vim.deepcopy(M.default_servers)
 
-  local servers = { "bashls", "lua_ls", "html", "jsonls", "clangd", "emmet_language_server", "gopls", "qmlls" }
-
-  for server_name, server_opts in pairs(ft_servers) do
-    if server_opts.enabled ~= false then
-      table.insert(servers, server_name)
-    end
-    if server_opts.keys then
-      Utils.map.set(server_opts.keys, { lsp = { name = server_name } })
+  for _, ft in ipairs(M.ft_modules) do
+    local ft_servers = load_ft(ft)
+    for server_name, server_opts in pairs(ft_servers) do
+      if server_opts.enabled ~= false then
+        table.insert(servers, server_name)
+      end
+      if server_opts.keys then
+        Utils.map.set(server_opts.keys, { lsp = { name = server_name } })
+      end
     end
   end
 

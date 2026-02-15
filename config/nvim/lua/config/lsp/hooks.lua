@@ -1,4 +1,3 @@
--- lua/config/lsp/hooks.lua
 local M = {}
 
 ---@class LspHook
