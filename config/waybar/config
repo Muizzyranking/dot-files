@@ -14,6 +14,7 @@
     "hyprland/workspaces"
   ],
   "modules-right": [
+    "keyboard-state",
     "tray",
     "group/system",
     "group/connectivity",
@@ -111,11 +112,11 @@
     "on-click": "run_cmd ~/.config/hypr/scripts/powermenu.sh"
   },
   "clock": {
-    "format": "{:%H:%M  %a %d %b}",
-    "format-alt": "{:%A, %B %d, %Y}",
-    "tooltip-format": "<tt><small>{calendar}</small></tt>",
+    "format": "{:L%I:%M  %a %d %b}",
+    "format-alt": "{:%I:%M %A, %d %B}",
+    "tooltip-format": "<tt>{calendar}</tt>",
     "calendar": {
-      "mode": "year",
+      "mode": "month",
       "mode-mon-col": 3,
       "weeks-pos": "right",
       "on-scroll": 1,
@@ -320,6 +321,19 @@
     "return-type": "json",
     "on-click": "playerctl play-pause",
     "on-scroll-up": "playerctl previous",
-    "on-scroll-down": "playerctl next"
+    "on-scroll-down": "playerctl next",
+    "max-length": 20
+  },
+  "keyboard-state": {
+    "numlock": true,
+    "capslock": true,
+    "format": {
+      "numlock": "N {icon}",
+      "capslock": "C {icon}"
+    },
+    "format-icons": {
+      "locked": "",
+      "unlocked": ""
+    }
   }
 }
