@@ -1,6 +1,15 @@
 local set = Utils.map
 vim.keymap.set("n", "m", "<nop>", {})
 
+local function feedkeys(key)
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(key, true, false, true), "n", true)
+end
+
+local function esc_feedkeys(key)
+  key = "<Esc>" .. key
+  feedkeys(key)
+end
+
 ------------------------
 -- moving chunks of text/code
 ------------------------
@@ -87,16 +96,15 @@ set("n", "<leader>`", "<cmd>e #<cr>", { desc = "Switch to Other Buffer" })
 -- editing
 ------------------------
 set("i", "<C-Enter>", function()
-  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>o", true, false, true), "n", true)
+  esc_feedkeys("o")
 end, { silent = true })
 
 set("i", "<C-b>", function()
-  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>I", true, false, true), "n", true)
+  esc_feedkeys("I")
 end, { desc = "Go to beginning of line" })
 
 set("i", "<C-e>", function()
-  vim.cmd.normal({ "$", bang = true })
-  vim.cmd("startinsert!")
+  esc_feedkeys("A")
 end, { desc = "Go to end of line" })
 
 local function snippet_aware_map(modes, lhs, rhs, opts)
@@ -162,6 +170,9 @@ end, { expr = true, desc = "Stop snippet and escape" })
 for _, key in pairs({ "<UP>", "<DOWN>", "<LEFT>", "<RIGHT>" }) do
   set("n", key, "<nop>", { desc = "Disable " .. key })
 end
+
+set("n", "]p", ":put<CR>", { desc = "Paste on the line below" })
+set("n", "[p", ":put!<CR>", { desc = "Paste on the line above" })
 
 local maps = {
   { "<leader>l", "<cmd>Lazy<cr>", desc = "Lazy" },
