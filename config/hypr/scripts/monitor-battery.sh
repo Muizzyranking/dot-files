@@ -6,13 +6,12 @@ BATTERY_CRITICAL=10
 BATTERY_VERY_CRITICAL=5
 BATTERY_SUSPEND=2
 
-while true
-do
+while true; do
     # Get battery percentage and status using cat
     battery_info=$(acpi -b)
     battery_level=$(echo "$battery_info" | grep -P -o '[0-9]+(?=%)')
     battery_status=$(echo "$battery_info" | grep -P -o '(Charging|Discharging)')
-    
+
     if [ "$battery_status" = "Discharging" ]; then
         if [ "$battery_level" -le $BATTERY_SUSPEND ]; then
             notify-send -u critical "Battery Critical" "Battery level is ${battery_level}%! Suspending..."
@@ -28,11 +27,11 @@ do
             notify-send -u normal "Battery Low" "Battery level is ${battery_level}%"
             sleep_time=10
         else
-            sleep_time=30 
+            sleep_time=30
         fi
     else
-        sleep_time=30 
+        sleep_time=30
     fi
-    
+
     sleep "$sleep_time"
 done
