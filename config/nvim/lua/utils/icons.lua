@@ -8,6 +8,8 @@ local M = {
     buffer = "󰏚 ",
     collapsed = " ",
     expanded = " ",
+    enabled = "  ",
+    disabled = "  ",
   },
   lsp = {
     active = " ",

@@ -117,7 +117,7 @@ local function process_mapping(mapping)
     end
   end
   if mapping.lsp or mapping.has then
-    local filter = mapping.lsp or {}
+    local filter = (type(mapping.lsp) == "table" and mapping.lsp) or {}
     Utils.lsp.on(filter, function(_, buf)
       local opts = Utils.lsp.map(mapping, buf)
       if opts then
@@ -130,7 +130,7 @@ local function process_mapping(mapping)
 end
 
 ---------------------------------------------------------------
----Set a single keymap with extended functionality
+--- Set a keymap(s)
 ---@param mappings map.KeymapOpts|map.KeymapOpts[]|toggle.Opts|toggle.Opts[]
 ---------------------------------------------------------------
 function M.set(mappings, opts)
@@ -163,11 +163,12 @@ Toggle.__index = Toggle
 ---@param mapping toggle.Opts
 ---@return map.Toggle
 function Toggle:new(mapping)
+  local ui_icons = Utils.icons.ui
   return setmetatable({
     mapping = mapping,
     icons = {
-      enabled = (mapping.icon and mapping.icon.enabled) or "  ",
-      disabled = (mapping.icon and mapping.icon.disabled) or "  ",
+      enabled = (mapping.icon and mapping.icon.enabled) or ui_icons.enabled,
+      disabled = (mapping.icon and mapping.icon.disabled) or ui_icons.disabled,
     },
     color = {
       enabled = (mapping.color and mapping.color.enabled) or "green",
@@ -291,8 +292,7 @@ function M.toggle(mapping)
   if not toggle:is_valid() then
     return nil
   end
-  local key = toggle:to_keymap()
-  return key
+  return toggle:to_keymap()
 end
 
 local DEFAULT_ABBREV_CONDS = {
@@ -381,12 +381,20 @@ local function del_keymap(mapping)
   if mapping.buffer ~= nil then
     opts.buffer = mapping.buffer
   end
-  pcall(vim.keymap.del, modes, lhs, opts)
   if mapping.icon then
     M.hide_from_wk({
       { lhs, mode = modes, buffer = mapping.buffer },
     })
   end
+  if mapping.lsp or mapping.has then
+    local filter = (type(mapping.lsp) == "table" and mapping.lsp) or {}
+    Utils.lsp.on(filter, function(_, buf)
+      opts.buffer = buf
+      pcall(vim.keymap.del, modes, lhs, opts)
+    end)
+    return
+  end
+  pcall(vim.keymap.del, modes, lhs, opts)
 end
 
 ---------------------------------------------------------------
