@@ -26,7 +26,7 @@ header="📁 FILE FINDER
 
 selection=$(fd --type f --hidden --exclude .git |
     fzf --tmux 95%,85% \
-        --header="$header" \
+        --header="$header" --reverse \
         --prompt="Select file 📁 " \
         --preview="$PREVIEW_CMD" \
         --bind "ctrl-y:execute-silent(echo {} | clipcopy)" \
