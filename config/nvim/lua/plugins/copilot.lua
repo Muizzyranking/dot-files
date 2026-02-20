@@ -5,13 +5,6 @@ return {
     build = ":Copilot auth",
     event = "BufReadPost",
     opts = {
-      should_attach = function()
-        if vim.b.bigfile then
-          return false
-        end
-
-        return true
-      end,
       suggestion = { enabled = false },
       panel = { enabled = false },
       filetypes = {
@@ -21,10 +14,10 @@ return {
         sh = function()
           local filename = vim.fs.basename(Utils.fn.get_filepath())
           if
-              string.match(filename, "^%.env")
-              or string.match(filename, "^%.env.*")
-              or string.match(filename, "^%.secret.*")
-              or string.match(filename, "^%id_rsa.*")
+            string.match(filename, "^%.env")
+            or string.match(filename, "^%.env.*")
+            or string.match(filename, "^%.secret.*")
+            or string.match(filename, "^%id_rsa.*")
           then
             return false
           end
@@ -33,7 +26,7 @@ return {
       },
     },
     config = function(_, opts)
-      require('copilot').setup(opts)
+      require("copilot").setup(opts)
     end,
   },
   {

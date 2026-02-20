@@ -197,6 +197,16 @@ local explorer = {
     Snacks.notifier.hide()
   end,
   on_close = function() end,
+  format = function(item, picker)
+    -- show changed icon for modified buffers in explorer
+    local ret = require("snacks.picker.format").file(item, picker)
+    local item_path = Snacks.picker.util.path(item)
+    local bufnr = vim.fn.bufnr(item_path)
+    if bufnr ~= -1 and vim.bo[bufnr].modified then
+      table.insert(ret, { "●", hl = "DiagnosticWarn" })
+    end
+    return ret
+  end,
   layout = {
     layout = { position = "right" },
     preset = "sidebar",
@@ -217,7 +227,6 @@ local explorer = {
     file = { filename_only = true },
     severity = { pos = "right" },
   },
-  -- add icon to bookmarked files in explorer
   matcher = { sort_empty = false, fuzzy = true },
   actions = {},
   win = {
