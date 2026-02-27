@@ -86,8 +86,6 @@ link_item() {
     fi
 }
 
-# --- Specific Linkers ---
-
 link_config_folder() {
     local config_name="$1"
     link_item "$DOTS_DIR/config/$config_name" "$CONFIG_DIR/$config_name"
@@ -135,11 +133,6 @@ link_bash() {
     print_message info "Processing Bash configuration..."
     link_home_file ".bashrc"
 }
-
-# --- Main Logic ---
-
-# 1. Discover available configs
-available_configs=()
 while IFS= read -r config; do
     case "$config" in
     vscode | zsh | oh-my-posh) continue ;;
