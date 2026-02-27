@@ -9,11 +9,8 @@ mkdir -p "$CACHE_DIR"
 
 source "${SCRIPT_DIR}/defaults.sh"
 source "${SCRIPT_DIR}/qt.sh"
-source "${SCRIPT_DIR}/kitty.sh"
 source "${SCRIPT_DIR}/gtk.sh"
 source "${SCRIPT_DIR}/kvantum.sh"
-source "${SCRIPT_DIR}/hyprland.sh"
-source "${SCRIPT_DIR}/wallpaper.sh"
 
 # Function to apply theme
 apply_theme() {
@@ -28,7 +25,6 @@ apply_theme() {
     load_defaults
 
     THEME_NAME=$(jq -r '.name' "$THEME_FILE")
-    WALLPAPER=$(jq -r '.wallpaper' "$THEME_FILE")
     WALLPAPER="${WALLPAPER/#\~/$HOME}"
     GTK_THEME=$(jq -r ".gtk_theme // \"$DEFAULT_GTK\"" "$THEME_FILE")
     ICON_THEME=$(jq -r ".icon_theme // \"$DEFAULT_ICON\"" "$THEME_FILE")
@@ -50,9 +46,6 @@ apply_theme() {
     
     set_gtk_theme "$GTK_THEME" "$ICON_THEME" "$CURSOR_THEME" "$CURSOR_SIZE" "$DARK_MODE" "$FONT"
     set_kvantum_theme "$KVANTUM_THEME"
-    generate_kitty_theme "$THEME_FILE"
-    set_wallpaper "$WALLPAPER"
-    generate_hyprland_colors "$THEME_FILE" "$THEME_NAME" "$FONT"
 
     echo "$THEME_FILE" >"$CACHE_DIR/current_theme"
     

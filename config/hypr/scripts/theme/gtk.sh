@@ -50,8 +50,8 @@ EOFGTK4
     if command -v gsettings &>/dev/null; then
         gsettings set org.gnome.desktop.interface gtk-theme "$gtk_theme" 2>/dev/null
         gsettings set org.gnome.desktop.interface icon-theme "$icon_theme" 2>/dev/null
-        gsettings set org.gnome.desktop.interface cursor-theme "$cursor_theme" 2>/dev/null
-        gsettings set org.gnome.desktop.interface cursor-size "$cursor_size" 2>/dev/null
+        # gsettings set org.gnome.desktop.interface cursor-theme "$cursor_theme" 2>/dev/null
+        # gsettings set org.gnome.desktop.interface cursor-size "$cursor_size" 2>/dev/null
         gsettings set org.gnome.desktop.interface color-scheme "prefer-dark" 2>/dev/null
         gsettings set org.gnome.desktop.interface font-name "$font" 2>/dev/null
         gsettings set org.gnome.desktop.interface monospace-font-name "$font" 2>/dev/null
