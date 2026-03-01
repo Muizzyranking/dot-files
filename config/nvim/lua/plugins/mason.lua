@@ -28,6 +28,9 @@ return {
       "jq",
       "stylua",
       "qmlls",
+      "rust-analyzer",
+      "codelldb",
+      "bacon",
     },
   },
   config = function(_, opts)
