@@ -9,7 +9,6 @@ M.default_servers = {
   "clangd",
   "emmet_language_server",
   "gopls",
-  "qmlls",
 }
 
 ---@type string[]
