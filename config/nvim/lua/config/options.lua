@@ -72,7 +72,6 @@ opt.spell                         = false
 opt.pumblend                      = 0
 opt.winblend                      = 0
 opt.pumheight                     = 10
-opt.indentexpr                    = "v:lua.require('utils.treesitter').indentexpr()"
 -- opt.conceallevel = 2 -- Hide * markup for bold and italic, but not markers with substitutions
 --stylua: ignore end
 vim.api.nvim_create_autocmd("FileType", {

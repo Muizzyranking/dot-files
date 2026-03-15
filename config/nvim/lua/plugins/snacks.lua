@@ -213,7 +213,7 @@ local explorer = {
     hidden = { "input" },
     auto_hide = { "input" },
   },
-  include = { "*.zsh*", ".env" },
+  include = { "*.zsh*", ".env.*", ".env", ".gitignore", ".dockerignore" },
   -- exclude = { "node_modules", "venv", ".venv" },
   supports_live = true,
   tree = true,

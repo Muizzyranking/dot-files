@@ -295,7 +295,9 @@ function M.setup()
   })
   vim.api.nvim_create_autocmd({ "DirChanged" }, {
     group = group,
-    M.clear_cache(),
+    callback = function()
+      M.clear_cache()
+    end,
   })
   vim.api.nvim_create_autocmd({ "BufWritePost" }, {
     group = group,

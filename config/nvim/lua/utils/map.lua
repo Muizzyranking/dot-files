@@ -386,14 +386,6 @@ local function del_keymap(mapping)
       { lhs, mode = modes, buffer = mapping.buffer },
     })
   end
-  if mapping.lsp or mapping.has then
-    local filter = (type(mapping.lsp) == "table" and mapping.lsp) or {}
-    Utils.lsp.on(filter, function(_, buf)
-      opts.buffer = buf
-      pcall(vim.keymap.del, modes, lhs, opts)
-    end)
-    return
-  end
   pcall(vim.keymap.del, modes, lhs, opts)
 end
 
