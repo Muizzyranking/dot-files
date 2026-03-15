@@ -26,7 +26,7 @@ return {
     },
   },
   tsgo = {
-    enabled = false,
+    enabled = true,
     keys = {
       {
         "<leader>ci",
@@ -43,7 +43,7 @@ return {
     },
   },
   vtsls = {
-    enabled = true,
+    enabled = false,
     keys = {
       {
         "gR",
