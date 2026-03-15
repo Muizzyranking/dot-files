@@ -119,7 +119,9 @@ vim.api.nvim_create_autocmd("FileType", {
     Utils.map.set({
       {
         "t",
-        Utils.lang.ts.auto_add_async,
+        function()
+          Utils.lang.auto_add_async({ "arrow_function", "function_declaration", "function" })
+        end,
         mode = "i",
         desc = "Auto add async",
         buffer = event.buf,

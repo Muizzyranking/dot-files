@@ -23,6 +23,14 @@ Utils.map.set({
     noremap = true,
     silent = true,
   },
+  {
+    "t",
+    function()
+      Utils.lang.auto_add_async({ "function_definition" })
+    end,
+    mode = "i",
+    desc = "Auto add async",
+  },
 }, { buffer = buf })
 
 Utils.map.abbrev({
