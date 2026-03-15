@@ -48,3 +48,5 @@ Utils.root.add_patterns({
   "Pipfile",
   "pyrightconfig.json",
 })
+
+Utils.lang.py.activate_venv(buf)
