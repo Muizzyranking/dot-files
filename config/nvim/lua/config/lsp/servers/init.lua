@@ -5,6 +5,7 @@ M.default_servers = {
   "bashls",
   "lua_ls",
   "html",
+  "cssls",
   "jsonls",
   "clangd",
   "emmet_language_server",
