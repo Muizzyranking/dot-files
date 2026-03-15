@@ -231,6 +231,15 @@ local maps = {
     icon = { icon = " ", color = "green" },
     mode = { "n", "v" },
   },
+  {
+    "<leader>cA",
+    function()
+      Utils.actions.inspect_actions()
+    end,
+    desc = "Inspeact code actions",
+    icon = { icon = " ", color = "green" },
+    mode = { "n", "v" },
+  },
 }
 
 Utils.map.set(maps, { silent = true })

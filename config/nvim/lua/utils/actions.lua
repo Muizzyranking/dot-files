@@ -35,7 +35,7 @@ end
 -- Duplicate the current line.
 -------------------------------------
 function M.duplicate_line()
-  local buftype = api.nvim_buf_get_option(0, "buftype")
+  local buftype = api.nvim_get_option_value("buftype", { buf = 0 })
   if buftype ~= "" then
     return
   end
@@ -49,7 +49,7 @@ end
 -- Duplicate the currently selected lines in visual mode.
 -------------------------------------
 function M.duplicate_selection()
-  local buftype = api.nvim_buf_get_option(0, "buftype")
+  local buftype = api.nvim_get_option_value("buftype", { buf = 0 })
   if buftype ~= "" then
     return
   end
@@ -128,6 +128,55 @@ function M.smart_shift_tab()
   else
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<S-Tab>", true, false, true), "n", false)
   end
+end
+
+function M.inspect_actions()
+  local clients = vim.lsp.get_clients({ bufnr = 0 })
+  if #clients == 0 then
+    vim.notify("No LSP clients attached", vim.log.levels.WARN)
+    return
+  end
+
+  local encoding = clients[1].offset_encoding or "utf-16"
+  local params = vim.lsp.util.make_range_params(0, encoding)
+
+  -- replaces deprecated get_line_diagnostics
+  local cursor = vim.api.nvim_win_get_cursor(0)
+  local diagnostics = vim.diagnostic.get(0, { lnum = cursor[1] - 1 })
+
+  params.context = {
+    diagnostics = diagnostics,
+    triggerKind = 2,
+  }
+
+  vim.lsp.buf_request_all(0, "textDocument/codeAction", params, function(results)
+    local actions = {}
+    for client_id, result in pairs(results) do
+      local client = vim.lsp.get_client_by_id(client_id)
+      for _, action in ipairs(result.result or {}) do
+        table.insert(actions, {
+          client = client and client.name or "unknown",
+          title = action.title,
+          kind = action.kind or "nil",
+        })
+      end
+    end
+
+    if #actions == 0 then
+      vim.notify("No code actions available", vim.log.levels.WARN)
+      return
+    end
+
+    local lines = { "Available Code Actions:", "" }
+    for _, a in ipairs(actions) do
+      table.insert(lines, string.format("  client : %s", a.client))
+      table.insert(lines, string.format("  title  : %s", a.title))
+      table.insert(lines, string.format("  kind   : %s", a.kind))
+      table.insert(lines, "")
+    end
+
+    vim.notify(table.concat(lines, "\n"), vim.log.levels.INFO)
+  end)
 end
 
 return M
