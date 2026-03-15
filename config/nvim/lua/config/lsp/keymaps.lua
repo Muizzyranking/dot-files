@@ -143,7 +143,9 @@ local keys = {
 
 local M = {}
 function M.setup()
-  Utils.map.del({ "gra", "grn", "grr", "gri", "grt" }, { mode = "n", lsp = true })
+  Utils.lsp.on_attach(function()
+    Utils.map.del({ "gra", "grn", "grr", "gri", "grt" })
+  end)
   Utils.map.set(keys, { lsp = true })
 end
 
