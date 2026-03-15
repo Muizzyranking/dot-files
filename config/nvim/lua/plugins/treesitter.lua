@@ -71,8 +71,7 @@ return {
       },
     },
     config = function(_, opts)
-      local incr = opts.incremental_selection or {}
-      opts.incremental_selection = nil
+      Utils.treesitter.setup(opts)
       local ts = require("nvim-treesitter")
       ts.setup()
       local install = vim.tbl_filter(function(lang)
@@ -89,15 +88,13 @@ return {
           if not Utils.treesitter.have(ft) then
             return
           end
-          if vim.b[ev.buf].bigfile then
-            return
-          end
           pcall(vim.treesitter.start)
-          vim.opt.indentexpr = "v:lua.require('utils.treesitter').indentexpr()"
+          if vim.bo[ev.buf].indentexpr == "" then
+            vim.opt_local.indentexpr = "v:lua.require('utils.treesitter').indentexpr()"
+          end
           vim.o.foldmethod = "expr"
           vim.o.foldexpr = "v:lua.require('utils.treesitter').foldexpr()"
         end,
-        Utils.treesitter.incr.attach(incr),
       })
     end,
   },

@@ -2,6 +2,20 @@
 local M = {}
 M.incr = {}
 
+M.incr.keymaps = {
+  init_selection = nil,
+  node_incremental = nil,
+  scope_incremental = nil,
+  node_decremental = nil,
+}
+
+function M.setup(opts)
+  opts = opts or {}
+  M.incr.keymaps =
+    vim.tbl_extend("force", M.incr.keymaps, (opts.incremental_selection and opts.incremental_selection.keymaps) or {})
+  M.incr.attach()
+end
+
 -------------------------------------------------
 ---Only checks whether treesitter highlighting is active in `buf`
 ---Should be faster than `M.is_active()`
@@ -139,18 +153,8 @@ function M.incr.ensure_active()
   return true, buf, language
 end
 
-M.incr.keymaps = {
-  init_selection = nil,
-  node_incremental = nil,
-  scope_incremental = nil,
-  node_decremental = nil,
-}
-
-function M.incr.attach(opts)
+function M.incr.attach()
   local incr = require("utils.treesitter.incr")
-  opts = opts or {}
-  local buffer = opts.buffer or nil
-  M.incr.keymaps = vim.tbl_extend("force", {}, opts.keymaps or {})
 
   local function map(mode, action, key_opts)
     local lhs = M.incr.keymaps[action]
@@ -162,9 +166,6 @@ function M.incr.attach(opts)
       return
     end
     key_opts = key_opts or {}
-    if buffer then
-      key_opts.buffer = buffer
-    end
     pcall(vim.keymap.set, mode, lhs, function()
       local success, buf, lang = M.incr.ensure_active()
       if success then
