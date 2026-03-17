@@ -2,19 +2,12 @@
 
 set -euo pipefail
 
-# --- Setup ---
 DOTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="$HOME/.config"
 BACKUP_DIR="$HOME/config_backup"
 BACKUP_TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 
-# Source utils if available
-if [[ -f "$DOTS_DIR/scripts/utils.sh" ]]; then
-    source "$DOTS_DIR/scripts/utils.sh"
-else
-    # Fallback print_message if utils missing
-    print_message() { echo "$2"; }
-fi
+source "$DOTS_DIR/scripts/utils.sh"
 
 cleanup() {
     echo
@@ -22,8 +15,6 @@ cleanup() {
     exit 1
 }
 trap cleanup INT TERM
-
-# --- Helpers ---
 
 ensure_dir() {
     local dir="$1"
@@ -40,15 +31,15 @@ ensure_dir() {
 backup_item() {
     local target="$1"
     local name
-    name=$(basename "$target")
+    name="$(basename "$target")"
     local backup_name="${name}.bk-${BACKUP_TIMESTAMP}"
 
     ensure_dir "$BACKUP_DIR"
 
     if mv "$target" "$BACKUP_DIR/$backup_name"; then
-        print_message warning "Backed up existing $target to $BACKUP_DIR/$backup_name"
+        print_message warning "Backed up: $target → $BACKUP_DIR/$backup_name"
     else
-        print_message error "Failed to backup $target"
+        print_message error "Failed to backup: $target"
         return 1
     fi
 }
@@ -64,12 +55,12 @@ link_item() {
 
     if [[ -L "$target" ]]; then
         local current_link
-        current_link=$(readlink "$target")
+        current_link="$(readlink "$target")"
         if [[ "$current_link" == "$source" ]]; then
             print_message info "Skipping: $target already links to $source"
             return 0
         else
-            print_message warning "Relinking: $target (was $current_link)"
+            print_message warning "Relinking: $target (was → $current_link)"
             unlink "$target"
         fi
     elif [[ -e "$target" ]]; then
@@ -79,9 +70,9 @@ link_item() {
     ensure_dir "$(dirname "$target")"
 
     if ln -s "$source" "$target"; then
-        print_message success "Linked: $source -> $target"
+        print_message success "Linked: $source → $target"
     else
-        print_message error "Failed to link $target"
+        print_message error "Failed to link: $target"
         return 1
     fi
 }
@@ -107,18 +98,13 @@ link_vscode() {
 
 link_git() {
     print_message info "Processing Git configuration..."
-    
-    # Check for ~/.gitconfig
-    local global_git_config="$CONFIG_DIR/.gitconfig"
-    if [[ -f "$global_git_config" ]]; then
-        print_message warning "Found .gitconfig in home config directory."
-        if backup_item "$global_git_config"; then
-            print_message success "Backed up .gitconfig to allow git config to work properly"
-        else
-            print_message error "Failed to backup .gitconfig, git config may not work correctly"
-        fi
+
+    local global_git_config="$HOME/.gitconfig"
+    if [[ -f "$global_git_config" && ! -L "$global_git_config" ]]; then
+        print_message warning "Found real .gitconfig at $global_git_config, backing up..."
+        backup_item "$global_git_config"
     fi
-    # Now link the git config
+
     link_config_folder "git"
 }
 
@@ -133,14 +119,28 @@ link_bash() {
     print_message info "Processing Bash configuration..."
     link_home_file ".bashrc"
 }
-while IFS= read -r config; do
-    case "$config" in
-    vscode | zsh | oh-my-posh) continue ;;
-    *) available_configs+=("$config") ;;
-    esac
-done < <(find "$DOTS_DIR/config" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
 
-tasks=()
+# --- Build available configs list ---
+# Configs that have dedicated handlers (skip from generic loop)
+SPECIAL_CONFIGS=("vscode" "zsh" "oh-my-posh" "git")
+SPECIAL_HOME_FILES=(".zshrc" ".bashrc")
+
+declare -a available_configs=()
+while IFS= read -r config; do
+    local_skip=false
+    for special in "${SPECIAL_CONFIGS[@]}"; do
+        if [[ "$config" == "$special" ]]; then
+            local_skip=true
+            break
+        fi
+    done
+    if ! $local_skip; then
+        available_configs+=("$config")
+    fi
+done < <(find "$DOTS_DIR/config" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null | sort)
+
+
+declare -a tasks=()
 want_all=false
 
 if [[ $# -eq 0 ]]; then
@@ -158,19 +158,33 @@ fi
 
 if $want_all; then
     tasks+=("${available_configs[@]}")
-    tasks+=("zsh" "bash" "vscode")
+    tasks+=("git" "zsh" "bash" "vscode")
 
     while IFS= read -r file; do
-        case "$file" in
-        .zshrc | .bashrc) continue ;;
-        *) tasks+=("$file") ;;
-        esac
-    done < <(find "$DOTS_DIR/home" -mindepth 1 -maxdepth 1 -printf '%f\n' | sort)
+        skip=false
+        for special in "${SPECIAL_HOME_FILES[@]}"; do
+            if [[ "$file" == "$special" ]]; then
+                skip=true
+                break
+            fi
+        done
+        if ! $skip; then
+            tasks+=("$file")
+        fi
+    done < <(find "$DOTS_DIR/home" -mindepth 1 -maxdepth 1 -printf '%f\n' 2>/dev/null | sort)
 fi
 
-# Deduplicate
-IFS=$'\n' sorted_unique_tasks=($(sort -u <<<"${tasks[*]}"))
-unset IFS
+declare -a sorted_unique_tasks=()
+declare -A seen=()
+for item in "${tasks[@]}"; do
+    if [[ -z "${seen[$item]+x}" ]]; then
+        sorted_unique_tasks+=("$item")
+        seen[$item]=1
+    fi
+done
+
+setup_logging
+print_header "Linking dotfiles"
 
 for item in "${sorted_unique_tasks[@]}"; do
     case "$item" in
