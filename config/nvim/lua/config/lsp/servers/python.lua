@@ -1,5 +1,6 @@
 return {
   ty = {
+    enabled = false,
     keys = {
       {
         "<leader>ci",
@@ -17,7 +18,7 @@ return {
     },
   },
   basedpyright = {
-    enabled = false,
+    enabled = true,
     keys = {
       {
         "<leader>ci",
