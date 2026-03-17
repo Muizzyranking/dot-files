@@ -1,109 +1,80 @@
 #!/bin/bash
+# setup.sh - Post-install setup: rustup, TPM, zsh
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/utils.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
 
-check_fedora
-check_internet
+setup_rustup() {
+    print_section "Setting up Rust (rustup)"
 
-print_message step "Starting Initial System Setup"
-
-# 1. Repositories
-if ! is_step_complete "setup_repos"; then
-    print_message info "Configuring Repositories..."
-
-    fedora_version=$(rpm -E %fedora)
-    print_message info "Detected Fedora version: $fedora_version"
-
-    if ! is_package_installed "rpmfusion-free-release"; then
-        sudo dnf install -y \
-            https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-"${fedora_version}".noarch.rpm \
-            https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-"${fedora_version}".noarch.rpm
+    if ! has_cmd rustup; then
+        print_message error "rustup not found, skipping Rust setup"
+        return 1
     fi
 
-    # Flathub
-    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-
-    # Terra
-    if ! dnf repolist all | grep -qw '^terra'; then
-        sudo dnf install -y --nogpgcheck --repofrompath "terra,https://repos.fyralabs.com/terra$(rpm -E %fedora)" terra-release
+    if has_cmd cargo; then
+        print_message info "Rust toolchain already initialized"
+    else
+        run_cmd "Installing stable Rust toolchain" rustup toolchain install stable
+        run_cmd "Setting stable as default" rustup default stable
     fi
 
-    # COPRs
-    enable_copr "atim/lazygit"
-    enable_copr "solopasha/hyprland"
-    enable_copr "erikreider/SwayNotificationCenter"
+    print_message success "Rust ready — $(rustc --version 2>/dev/null || echo 'version unknown')"
+}
 
-    sudo dnf makecache
-    mark_step_complete "setup_repos"
-fi
+setup_tpm() {
+    print_section "Setting up TPM (Tmux Plugin Manager)"
 
-# 2. Updates
-if ! is_step_complete "setup_update"; then
-    print_message info "Updating system..."
-    sudo dnf update -y
-    mark_step_complete "setup_update"
-    request_reboot
-fi
+    local tpm_dir="$HOME/.tmux/plugins/tpm"
 
-# 3. Multimedia
-if ! is_step_complete "setup_media"; then
-    print_message info "Installing Multimedia Codecs..."
+    if [[ -d "$tpm_dir" ]]; then
+        print_message info "TPM already installed at $tpm_dir"
+        return 0
+    fi
 
-    sudo dnf swap -y ffmpeg-free ffmpeg --allowerasing
+    run_cmd "Cloning TPM" \
+        git clone https://github.com/tmux-plugins/tpm "$tpm_dir"
 
-    install_packages \
-        gstreamer1-plugins-{bad-*,good-*,base} \
-        gstreamer1-plugin-openh264 gstreamer1-libav lame-* \
-        ffmpeg-libs libva libva-utils \
-        openh264 mozilla-openh264
+    print_message success "TPM installed at $tpm_dir"
+    print_message info "Press prefix + I inside tmux to install plugins"
+}
 
-    sudo dnf group install -y multimedia sound-and-video
+setup_zsh_default() {
+    print_section "Setting Zsh as default shell"
 
-    # Firefox Config
-    sudo dnf config-manager --set-enabled fedora-cisco-openh264
+    local zsh_path
+    zsh_path="$(command -v zsh 2>/dev/null || echo "")"
 
-    mark_step_complete "setup_media"
-fi
+    if [[ -z "$zsh_path" ]]; then
+        print_message warning "zsh not found, skipping shell change"
+        return 0
+    fi
 
-# 4. System Tweaks
-if ! is_step_complete "setup_tweaks"; then
-    print_message info "Applying System Tweaks..."
+    if [[ "$SHELL" == "$zsh_path" ]]; then
+        print_message info "zsh is already the default shell"
+        return 0
+    fi
 
-    # Speed up boot
-    sudo systemctl disable NetworkManager-wait-online.service 2>/dev/null || true
+    # Ensure zsh is in /etc/shells
+    if ! grep -qx "$zsh_path" /etc/shells; then
+        run_cmd "Adding zsh to /etc/shells" \
+            bash -c "echo '$zsh_path' | sudo tee -a /etc/shells"
+    fi
 
-    # Utilities
-    install_packages fuse fuse-libs p7zip p7zip-plugins unrar
+    run_cmd "Changing default shell to zsh" chsh -s "$zsh_path"
+    print_message success "Default shell changed to zsh (takes effect on next login)"
+}
 
-    mark_step_complete "setup_tweaks"
-fi
+main() {
+    setup_logging
+    print_header "Post-Install Setup"
 
-# 5. DNS (Cloudflare DoT)
-if ! is_step_complete "setup_dns"; then
-    print_message info "Configuring Encrypted DNS (Cloudflare)..."
+    setup_rustup
+    setup_tpm
+    setup_zsh_default
 
-    install_package dnsconfd
-    sudo systemctl disable --now systemd-resolved 2>/dev/null || true
-    sudo systemctl mask systemd-resolved 2>/dev/null || true
-    sudo systemctl enable --now dnsconfd
+    print_message success "Setup complete"
+}
 
-    sudo mkdir -p /etc/NetworkManager/conf.d
-    sudo tee /etc/NetworkManager/conf.d/global-dot.conf >/dev/null <<EOF
-[main]
-dns=dnsconfd
-
-[global-dns]
-resolve-mode=exclusive
-
-[global-dns-domain-*]
-servers=dns+tls://1.1.1.1#one.one.one.one
-EOF
-
-    sudo systemctl restart NetworkManager
-    mark_step_complete "setup_dns"
-fi
-
-print_message success "System Setup Complete."
+main "$@"
