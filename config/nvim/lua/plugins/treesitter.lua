@@ -89,9 +89,7 @@ return {
             return
           end
           pcall(vim.treesitter.start)
-          if vim.bo[ev.buf].indentexpr == "" then
-            vim.opt_local.indentexpr = "v:lua.require('utils.treesitter').indentexpr()"
-          end
+          vim.opt.indentexpr = "v:lua.require('utils.treesitter').indentexpr()"
           vim.o.foldmethod = "expr"
           vim.o.foldexpr = "v:lua.require('utils.treesitter').foldexpr()"
         end,
