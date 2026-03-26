@@ -120,8 +120,6 @@ link_bash() {
     link_home_file ".bashrc"
 }
 
-# --- Build available configs list ---
-# Configs that have dedicated handlers (skip from generic loop)
 SPECIAL_CONFIGS=("vscode" "zsh" "oh-my-posh" "git")
 SPECIAL_HOME_FILES=(".zshrc" ".bashrc")
 

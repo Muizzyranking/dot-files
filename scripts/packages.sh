@@ -1,5 +1,4 @@
 #!/bin/bash
-# packages.sh - Install all packages via pacman and yay
 
 set -euo pipefail
 

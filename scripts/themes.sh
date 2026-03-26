@@ -1,5 +1,4 @@
 #!/bin/bash
-# themes.sh - Apply themes, cursors, icons, and fonts
 
 set -euo pipefail
 

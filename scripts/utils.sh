@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# --- Colors ---
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -9,7 +8,6 @@ CYAN='\033[0;36m'
 BOLD='\033[1m'
 RESET='\033[0m'
 
-# --- Log setup ---
 LOG_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/dotfiles"
 LOG_FILE="$LOG_DIR/install-$(date +"%Y%m%d_%H%M%S").log"
 
@@ -19,7 +17,6 @@ setup_logging() {
     print_message info "Logging to: $LOG_FILE"
 }
 
-# --- Print + log ---
 print_message() {
     local level="$1"
     local msg="$2"
@@ -97,7 +94,6 @@ ask() {
     done
 }
 
-# Run a command, log it, and handle errors
 run_cmd() {
     local description="$1"
     shift
@@ -111,17 +107,14 @@ run_cmd() {
     fi
 }
 
-# Check if a command exists
 has_cmd() {
     command -v "$1" &>/dev/null
 }
 
-# Check if a package is installed via pacman
 pacman_has() {
     pacman -Qi "$1" &>/dev/null
 }
 
-# Check if a package is installed via yay (includes AUR)
 yay_has() {
     yay -Qi "$1" &>/dev/null
 }

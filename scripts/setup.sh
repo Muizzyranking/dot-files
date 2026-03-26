@@ -1,5 +1,4 @@
 #!/bin/bash
-# setup.sh - Post-install setup: rustup, TPM, zsh
 
 set -euo pipefail
 

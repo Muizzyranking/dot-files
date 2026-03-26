@@ -1,5 +1,4 @@
 #!/bin/bash
-# services.sh - Enable systemd services and configure user groups
 
 set -euo pipefail
 
@@ -38,13 +37,10 @@ main() {
     setup_logging
     print_header "Services & Groups"
 
-    # --- System services ---
     enable_service "bluetooth"
     enable_service "docker"
-    # enable_service "cups"
     # enable_service "sshd"
 
-    # --- Groups ---
     add_user_to_group "docker"
     # add_user_to_group "video"
     # add_user_to_group "input"
