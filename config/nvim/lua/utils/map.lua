@@ -9,7 +9,7 @@ local did_setup = false
 local deepcopy = vim.deepcopy
 
 ---------------------------------------------------------------
--- Validation functions
+-- keymap validation
 ---@param mappings map.KeymapOpts
 ---@return boolean success
 ---------------------------------------------------------------
@@ -40,7 +40,6 @@ local function resolve_mappings(mappings)
   if type(mappings[1]) == "string" or (mappings[1] == nil and next(mappings)) then
     return { mappings }
   end
-  -- Array of mappings
   return mappings
 end
 

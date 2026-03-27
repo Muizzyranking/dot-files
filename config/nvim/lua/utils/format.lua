@@ -16,13 +16,31 @@ function M.enabled(buf)
   local gaf = vim.g.autoformat
   local baf = vim.b[buf].autoformat
 
-  -- If the buffer has a local value, use that
   if baf ~= nil then
     return baf
   end
 
-  -- Otherwise use the global value if set, or true by default
   return gaf == nil or gaf
+end
+
+local function notify(buf)
+  local global_af = vim.g.autoformat == nil or vim.g.autoformat
+  local buf_af = vim.b[buf].autoformat
+  local enabled = M.enabled(buf)
+
+  local lines = {
+    "# Status",
+    ("- [%s] global **%s**"):format(global_af and "x" or " ", global_af and "enabled" or "disabled"),
+    ("- [%s] buffer **%s**"):format(
+      enabled and "x" or " ",
+      buf_af == nil and "inherit" or buf_af and "enabled" or "disabled"
+    ),
+  }
+
+  Utils.notify[enabled and "info" or "warn"](
+    lines,
+    { title = "AutoFormat (" .. (enabled and "enabled" or "disabled") .. ")" }
+  )
 end
 
 ----------------------------------------------------
@@ -55,24 +73,7 @@ function M.toggle(buf, enable)
     end
   end
 
-  -- Show status
-  local new_gaf = vim.g.autoformat == nil or vim.g.autoformat
-  local new_baf = vim.b[current_buf].autoformat
-  local enabled = M.enabled(current_buf)
-
-  local lines = {
-    "# Status",
-    ("- [%s] global **%s**"):format(new_gaf and "x" or " ", new_gaf and "enabled" or "disabled"),
-    ("- [%s] buffer **%s**"):format(
-      enabled and "x" or " ",
-      new_baf == nil and "inherit" or new_baf and "enabled" or "disabled"
-    ),
-  }
-
-  Utils.notify[enabled and "info" or "warn"](
-    lines,
-    { title = "AutoFormat (" .. (enabled and "enabled" or "disabled") .. ")" }
-  )
+  notify(current_buf)
 end
 
 ----------------------------------------------------

@@ -28,34 +28,31 @@ local function get_string_info(line, col)
     is_fstring = false,
     prefix_start = nil,
   }
-
   local i = 1
   while i <= col do
     local char = line:sub(i, i)
-
     if result.in_string then
       if char == "\\" then
         i = i + 2
-      elseif line:sub(i, i + #result.string_quote - 1) == result.string_quote then
+      elseif result.string_quote and line:sub(i, i + #result.string_quote - 1) == result.string_quote then
+        local quote_len = #result.string_quote
         result.in_string = false
         result.string_start = nil
         result.string_quote = nil
         result.is_fstring = false
         result.prefix_start = nil
-        i = i + #result.string_quote
+        i = i + quote_len
       else
         i = i + 1
       end
     elseif char == '"' or char == "'" then
       local triple = line:sub(i, i + 2)
       local quote = (triple == '"""' or triple == "'''") and triple or char
-
       local ps = i - 1
       while ps > 0 and line:sub(ps, ps):match("%a") do
         ps = ps - 1
       end
       ps = ps + 1
-
       local prefix = line:sub(ps, i - 1):lower()
       result.in_string = true
       result.string_quote = quote
@@ -67,7 +64,6 @@ local function get_string_info(line, col)
       i = i + 1
     end
   end
-
   return result
 end
 

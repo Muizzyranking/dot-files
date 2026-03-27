@@ -140,10 +140,10 @@ function M.inspect_actions()
   local encoding = clients[1].offset_encoding or "utf-16"
   local params = vim.lsp.util.make_range_params(0, encoding)
 
-  -- replaces deprecated get_line_diagnostics
   local cursor = vim.api.nvim_win_get_cursor(0)
   local diagnostics = vim.diagnostic.get(0, { lnum = cursor[1] - 1 })
 
+  ---@diagnostic disable-next-line: inject-field
   params.context = {
     diagnostics = diagnostics,
     triggerKind = 2,
