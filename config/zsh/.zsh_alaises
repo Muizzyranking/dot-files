@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 alias v='nvim'
-alias mvim='NVIM_APPNAME=my_nvim nvim'
-alias lv='NVIM_APPNAME=lazyvim nvim'
+alias mvim='NVIM_APPNAME=nv nv'
 alias cat='bat'
 alias tree='eza --tree --group-directories-first --git-ignore --color=always --icons=always'
 alias ls='eza --color=always --icons=always --group-directories-first'
@@ -34,10 +33,6 @@ alias .....='cd ../../../..'
 alias ......='cd ../../../../..'
 
 alias gg='lazygit'
-
-alias install='sudo dnf install -y'
-alias update='sudo dnf update -y'
-alias search='dnf search'
 
 alias nvimrc='$EDITOR $NVIMRC'
 alias tmuxrc='$EDITOR $TMUXRC'
