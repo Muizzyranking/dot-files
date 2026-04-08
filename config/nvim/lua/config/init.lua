@@ -23,13 +23,17 @@ local function try(fn, opts)
   return ok and result or nil
 end
 
-local function load(name)
-  local mod = "config." .. name
+local function load(mod)
   if require("lazy.core.cache").find(mod)[1] then
     try(function()
       require(mod)
     end, { msg = "Failed loading " .. mod })
   end
+end
+
+local function load_config(name)
+  local mod = "config." .. name
+  load(mod)
 end
 
 if not lazy_autocmds then
@@ -42,15 +46,15 @@ vim.api.nvim_create_autocmd("User", {
   pattern = "VeryLazy",
   callback = function()
     if lazy_autocmds then
-      load("autocmds")
+      load_config("autocmds")
     end
-    load("keymaps")
+    load_config("keymaps")
     load("lsp")
     Utils.map.setup()
     Utils.format.setup()
     load("filetypes")
     vim.schedule(function()
-      load("abbrevations")
+      load_config("abbrevations")
     end)
   end,
 })
