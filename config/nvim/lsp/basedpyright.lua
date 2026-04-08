@@ -35,7 +35,7 @@ return {
       })
 
       client.config.settings = new_settings
-      client.notify("workspace/didChangeConfiguration", { settings = new_settings })
+      client:notify("workspace/didChangeConfiguration", { settings = new_settings })
     end
     local augroup = vim.api.nvim_create_augroup("basedpyright_config_" .. bufnr, { clear = true })
     vim.api.nvim_create_autocmd("BufWritePost", {
