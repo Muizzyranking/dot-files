@@ -333,7 +333,7 @@ end
 ---@param name string
 ---@return boolean
 function M.stop(name)
-  local clients = M.get_clients(name)
+  local clients = M.get_clients({ name = name })
   if #clients == 0 then
     notify.warn(string.format("Server '%s' is not running", name))
     return false
@@ -376,7 +376,7 @@ end
 ---@return boolean
 function M.restart(name, bufnr)
   bufnr = Utils.fn.ensure_buf(bufnr)
-  local clients = M.get_clients(name)
+  local clients = M.get_clients({ name = name })
   if #clients == 0 then
     notify.warn(string.format("Server '%s' is not running, starting it instead", name))
     return M.start(name, bufnr)
