@@ -3,7 +3,6 @@
 ---@field colors utils.colors
 ---@field fn utils.fn
 ---@field format utils.format
----@field hl utils.hl
 ---@field icons utils.icons
 ---@field lang utils.lang
 ---@field lazy utils.lazy

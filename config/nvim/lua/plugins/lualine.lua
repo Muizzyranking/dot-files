@@ -1,5 +1,5 @@
 local function fg(name)
-  return Utils.hl.fg(name)
+  return Utils.fn.fg(name)
 end
 local stbufnr = function()
   return vim.api.nvim_win_get_buf(vim.g.statusline_winid or 0)

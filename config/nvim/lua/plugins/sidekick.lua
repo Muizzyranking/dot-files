@@ -167,7 +167,7 @@ return {
           return #require("sidekick.status").cli() > 0
         end,
         color = function()
-          return { fg = Utils.hl.fg("Special") }
+          return { fg = Utils.fn.fg("Special") }
         end,
       })
     end,

@@ -2,7 +2,6 @@ _G.Utils = require("utils")
 _G.P = function(...)
   vim.print(vim.inspect(...))
 end
-Utils.hl.setup()
 require("config.options")
 require("config.lazy")
 local lazy_autocmds = vim.fn.argc(-1) == 0

@@ -204,4 +204,23 @@ function M.ft_config(ft)
   Utils.notify.warn("No filetype config found for '" .. ft .. "'")
 end
 
+------------------------------------------------------------------------------
+-- Get the color of a highlight group
+---@param name string
+---@param ground? "fg"|"bg"
+---@return string?
+------------------------------------------------------------------------------
+function M.get_hl_color(name, ground)
+  ground = ground or "fg"
+  assert(ground == "fg" or ground == "bg", "ground must be 'fg' or 'bg'")
+  local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
+  local color = hl and (ground == "fg" and hl.fg or hl.bg)
+  return color and ("#%06x"):format(color) or nil
+end
+
+function M.fg(name)
+  return M.get_hl_color(name, "fg")
+end
+
+
 return M
