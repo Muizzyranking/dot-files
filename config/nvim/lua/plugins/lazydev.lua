@@ -7,7 +7,7 @@ return {
       library = {
         { path = "luvit-meta/library", words = { "vim%.uv" } },
         { path = "snacks.nvim", words = { "Snacks" } },
-        { path = "utils", words = { "Utils" } },
+        { path = "lua/utils", words = { "Utils" } },
       },
     },
   },

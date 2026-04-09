@@ -175,7 +175,6 @@ set("n", "]p", ":put<CR>", { desc = "Paste on the line below" })
 set("n", "[p", ":put!<CR>", { desc = "Paste on the line above" })
 
 local maps = {
-  { "<leader>l", "<cmd>Lazy<cr>", desc = "Lazy" },
   {
     "<leader>ux",
     function()

@@ -48,7 +48,7 @@ return {
   {
     "smjonas/inc-rename.nvim",
     cmd = "IncRename",
-    opts = {},
+    opts = { input_buffer_type = "snacks" },
   },
   {
     "saghen/blink.cmp",

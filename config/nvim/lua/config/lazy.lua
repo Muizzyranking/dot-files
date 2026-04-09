@@ -14,7 +14,7 @@ vim.opt.rtp:prepend(vim.env.LAZY or lazypath)
 
 require("config.lazyfile").setup()
 
-vim.keymap.set("n", "<leader>l", ":Lazy")
+vim.keymap.set("n", "<leader>L", ":Lazy")
 
 require("lazy").setup({
   spec = {

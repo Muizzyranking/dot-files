@@ -32,6 +32,14 @@ return {
         },
         opts = { skip = true },
       },
+      -- can't figure out the reason for this error
+      {
+        filter = {
+          event = "notify",
+          find = "LSP callback error for lua_ls",
+        },
+        opts = { skip = true },
+      },
       {
         filter = {
           event = "notify",

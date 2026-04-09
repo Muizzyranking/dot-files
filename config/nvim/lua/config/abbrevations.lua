@@ -5,4 +5,5 @@ Utils.map.abbrev({
   { "share", { "saher", "sahre" } },
   { "blame", { "balme" } },
   { "return", { "Return" } },
+  { "class", { "calss", "clss" } },
 }, {})

@@ -127,9 +127,10 @@ fi
 # UV
 eval "$(uv generate-shell-completion zsh)"
 
-# ============================================
 # Prompt (Oh My Posh)
-# ============================================
 eval "$(oh-my-posh init zsh --config "$HOME/.config/oh-my-posh/config.omp.json")"
+
+# the fuck
+eval $(thefuck --alias)
 
 export PATH=$PATH:/home/muizzyranking/.spicetify
