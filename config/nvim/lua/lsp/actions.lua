@@ -78,6 +78,7 @@ function M.get_running_servers()
         text = client.name .. " (id: " .. client.id .. ")",
         name = client.name,
         id = client.id,
+        bufnr = 0,
       })
     end
   end

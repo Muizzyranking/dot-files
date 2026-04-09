@@ -34,7 +34,7 @@ return {
     "<leader>cs",
     function()
       Snacks.picker.lsp_symbols({
-        layout = { preset = "code", preview = "main" },
+        layout = { preset = "vscode", preview = "main" },
         on_show = function()
           vim.cmd("stopinsert")
         end,
@@ -73,40 +73,6 @@ return {
     desc = "Yank diagnostic message on current line",
     icon = { icon = "󰆏 ", color = "blue" },
     mode = { "n", "x" },
-  },
-  {
-    "<leader>cl",
-    function()
-      vim.cmd.checkhealth("vim.lsp")
-    end,
-    desc = "Lsp Info",
-    icon = { icon = " ", color = "blue" },
-  },
-  {
-    "<leader>cL",
-    function()
-      local buf = vim.api.nvim_get_current_buf()
-      local clients = vim.lsp.get_clients({ bufnr = buf })
-      if #clients == 0 then
-        Utils.notify.info("No LSP clients attached", { title = "LSP" })
-        return
-      end
-      vim.ui.select(clients, {
-        prompt = "Select LSP client to restart:",
-        format_item = function(client)
-          return client.name
-        end,
-      }, function(client)
-        if client then
-          Utils.lsp.restart(client.name)
-          vim.defer_fn(function()
-            vim.cmd("edit")
-          end, 100)
-        end
-      end)
-    end,
-    desc = "Restart LSP",
-    icon = { icon = "󰜉 ", color = "orange" },
   },
   {
     "<leader>ca",

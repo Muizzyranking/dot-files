@@ -330,65 +330,40 @@ function M.server_is_valid(name)
   return true
 end
 
----@param name string
+---@param names string
 ---@return boolean
-function M.stop(name)
-  local clients = M.get_clients({ name = name })
-  if #clients == 0 then
-    notify.warn(string.format("Server '%s' is not running", name))
-    return false
-  end
-
-  local success = true
-  for _, client in ipairs(clients) do
-    local ok, err = pcall(function()
-      client:stop(true)
-    end)
-    if not ok then
-      notify.error(string.format("Failed to stop server '%s' (id: %d): %s", name, client.id, err))
-      success = false
+function M.stop(names)
+  names = type(names) == "string" and { names } or names
+  local ok, _ = pcall(function()
+    for _, name in ipairs(names) do
+      vim.cmd.lsp.stop(name)
     end
-  end
-
-  return success
-end
-
----@param name string
----@return boolean
-function M.start(name, bufnr)
-  bufnr = Utils.fn.ensure_buf(bufnr)
-  local existing = M.get_clients({ name = name, bufnr = bufnr })
-  if #existing > 0 then
-    notify.info(string.format("Server '%s' is already running on buffer %d", name, bufnr))
-    return true
-  end
-  local success, err = pcall(function()
-    vim.lsp.enable(name)
   end)
-  if not success then
-    notify.error(string.format("Failed to start server '%s': %s", name, err))
-    return false
-  end
-  return true
+  return ok
 end
 
----@param name string
+---@param names string
 ---@return boolean
-function M.restart(name, bufnr)
-  bufnr = Utils.fn.ensure_buf(bufnr)
-  local clients = M.get_clients({ name = name })
-  if #clients == 0 then
-    notify.warn(string.format("Server '%s' is not running, starting it instead", name))
-    return M.start(name, bufnr)
-  end
-  if not M.stop(name) then
-    return false
-  end
-  vim.defer_fn(function()
-    M.start(name, bufnr)
-    notify.info(string.format("Restarted server '%s'", name), { title = "LSP" })
-  end, 500)
-  return true
+function M.start(names)
+  names = type(names) == "string" and { names } or names
+  local ok, _ = pcall(function()
+    for _, name in ipairs(names) do
+      vim.cmd.lsp.enable(name)
+    end
+  end)
+  return ok
+end
+
+---@param names string|string[]
+---@return boolean
+function M.restart(names)
+  names = type(names) == "string" and { names } or names
+  local ok, _ = pcall(function()
+    for _, name in ipairs(names) do
+      vim.cmd.lsp.restart(name)
+    end
+  end)
+  return ok
 end
 
 local function find_win_with_file(filename)
