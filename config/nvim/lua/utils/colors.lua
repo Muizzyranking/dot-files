@@ -3,6 +3,7 @@ local M = {}
 
 ---@class ColorPalette
 ---@field fg string
+---@field foam string
 ---@field fg_bright string
 ---@field fg_dim string
 ---@field fg_dimmer string
@@ -38,6 +39,8 @@ end
 -- Define all highlight groups using the palette
 local function apply_highlights(c)
   -- Editor highlights
+  set_hl("WinBarNc", {})
+  set_hl("WInBar", {})
   set_hl("Normal", { fg = c.fg, bg = c.none })
   set_hl("NormalFloat", { fg = c.fg, bg = c.none })
   set_hl("FloatBorder", { fg = c.blue, bg = c.none })
@@ -125,10 +128,10 @@ local function apply_highlights(c)
   set_hl("Todo", { fg = c.bg_dark, bg = c.warning, bold = true })
 
   -- Treesitter
-  set_hl("@variable", { fg = c.fg })
+  set_hl("@variable", { fg = c.fg, italic = true })
   set_hl("@variable.builtin", { fg = c.red, italic = true })
   set_hl("@variable.parameter", { fg = c.fg_bright, italic = true })
-  set_hl("@variable.member", { fg = c.fg })
+  set_hl("@variable.member", { fg = c.foam })
   set_hl("@variable.member.lua", { fg = c.fg })
   set_hl("@constant", { fg = c.purple })
   set_hl("@constant.builtin", { fg = c.purple })
@@ -165,8 +168,8 @@ local function apply_highlights(c)
   set_hl("@type.builtin", { fg = c.red_alt })
   set_hl("@type.qualifier", { fg = c.red, italic = true })
   set_hl("@type.definition", { fg = c.red_alt })
-  set_hl("@property", { fg = c.fg })
-  set_hl("@field", { fg = c.fg })
+  set_hl("@property", { fg = c.foam, italic = true })
+  set_hl("@field", { fg = c.foam })
   set_hl("@punctuation.delimiter", { fg = c.fg_dim })
   set_hl("@punctuation.bracket", { fg = c.fg_dim })
   set_hl("@punctuation.bracket.lua", { fg = c.fg_dim })

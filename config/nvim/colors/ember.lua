@@ -1,6 +1,7 @@
 local colors_util = require("utils.colors")
 local palette = {
   fg = "#c0caf5",
+  foam = "#9ccfd8",
   fg_bright = "#d8e0f0",
   fg_dim = "#9aa5ce",
   fg_dimmer = "#565f89",
