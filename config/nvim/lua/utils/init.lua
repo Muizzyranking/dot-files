@@ -9,6 +9,7 @@
 ---@field lsp utils.lsp
 ---@field map utils.map
 ---@field notify utils.notify
+---@field picker utils.picker
 ---@field root utils.root
 ---@field treesitter utils.treesitter
 local M = {}
