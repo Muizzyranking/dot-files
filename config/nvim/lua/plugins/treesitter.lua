@@ -60,6 +60,7 @@ return {
         "qml",
         "qmldir",
         "qmljs",
+        "dockerfile",
       },
       incremental_selection = {
         keymaps = {

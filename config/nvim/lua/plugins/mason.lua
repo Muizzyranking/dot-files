@@ -32,6 +32,7 @@ return {
       "rust-analyzer",
       "codelldb",
       "bacon",
+      "docker-language-server",
     },
   },
   config = function(_, opts)
