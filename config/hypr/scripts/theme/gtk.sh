@@ -8,6 +8,12 @@ set_gtk_theme() {
     local dark_mode="$5"
     local font="$6"
 
+    # Convert dark_mode (1/0) to true/false for GTK settings
+    local gtk_dark="false"
+    if [ "$dark_mode" = "1" ] || [ "$dark_mode" = "true" ]; then
+        gtk_dark="true"
+    fi
+
     # Create GTK3 config directory
     mkdir -p ~/.config/gtk-3.0
 
@@ -27,7 +33,7 @@ gtk-enable-input-feedback-sounds=1
 gtk-xft-antialias=1
 gtk-xft-hinting=1
 gtk-xft-hintstyle=hintfull
-gtk-application-prefer-dark-theme=${dark_mode}
+gtk-application-prefer-dark-theme=${gtk_dark}
 EOFGTK3
 
     # Create GTK4 config directory
@@ -40,7 +46,7 @@ gtk-icon-theme-name=${icon_theme}
 gtk-font-name=${font}
 gtk-cursor-theme-name=${cursor_theme}
 gtk-cursor-theme-size=${cursor_size}
-gtk-application-prefer-dark-theme=${dark_mode}
+gtk-application-prefer-dark-theme=${gtk_dark}
 EOFGTK4
 
     # Generate Qt configs (depends on qt.sh)
@@ -50,9 +56,14 @@ EOFGTK4
     if command -v gsettings &>/dev/null; then
         gsettings set org.gnome.desktop.interface gtk-theme "$gtk_theme" 2>/dev/null
         gsettings set org.gnome.desktop.interface icon-theme "$icon_theme" 2>/dev/null
-        # gsettings set org.gnome.desktop.interface cursor-theme "$cursor_theme" 2>/dev/null
-        # gsettings set org.gnome.desktop.interface cursor-size "$cursor_size" 2>/dev/null
-        gsettings set org.gnome.desktop.interface color-scheme "prefer-dark" 2>/dev/null
+        
+        # Set color-scheme based on dark_mode
+        if [ "$dark_mode" = "1" ] || [ "$dark_mode" = "true" ]; then
+            gsettings set org.gnome.desktop.interface color-scheme "prefer-dark" 2>/dev/null
+        else
+            gsettings set org.gnome.desktop.interface color-scheme "default" 2>/dev/null
+        fi
+        
         gsettings set org.gnome.desktop.interface font-name "$font" 2>/dev/null
         gsettings set org.gnome.desktop.interface monospace-font-name "$font" 2>/dev/null
     fi

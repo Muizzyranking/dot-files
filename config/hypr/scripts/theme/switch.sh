@@ -12,6 +12,33 @@ source "${SCRIPT_DIR}/qt.sh"
 source "${SCRIPT_DIR}/gtk.sh"
 source "${SCRIPT_DIR}/kvantum.sh"
 
+resolve_theme_path() {
+    local input="$1"
+
+    # If it's already a valid file path, use it
+    if [ -f "$input" ]; then
+        echo "$input"
+        return 0
+    fi
+
+    # Try as name in theme dir with .json appended
+    local theme_path="${THEME_DIR}/${input}.json"
+    if [ -f "$theme_path" ]; then
+        echo "$theme_path"
+        return 0
+    fi
+
+    # Try as name without appending .json (in case user included it)
+    theme_path="${THEME_DIR}/${input}"
+    if [ -f "$theme_path" ]; then
+        echo "$theme_path"
+        return 0
+    fi
+
+    # Not found
+    return 1
+}
+
 # Function to apply theme
 apply_theme() {
     local THEME_FILE="$1"
@@ -43,17 +70,25 @@ apply_theme() {
     echo "FONT=\"$FONT\"" >"$CACHE_DIR/font.sh"
 
     echo "Applying theme: $THEME_NAME"
-    
+
     set_gtk_theme "$GTK_THEME" "$ICON_THEME" "$CURSOR_THEME" "$CURSOR_SIZE" "$DARK_MODE" "$FONT"
     set_kvantum_theme "$KVANTUM_THEME"
 
     echo "$THEME_FILE" >"$CACHE_DIR/current_theme"
-    
+
     echo "Theme applied successfully!"
 }
 
 if [ -n "$1" ]; then
-    apply_theme "$1"
+    RESOLVED_PATH=$(resolve_theme_path "$1")
+    if [ -n "$RESOLVED_PATH" ]; then
+        apply_theme "$RESOLVED_PATH"
+    else
+        echo "Theme not found: $1"
+        echo "Searched in: $THEME_DIR"
+        notify-send "Theme Error" "Theme not found: $1" -u critical
+        exit 1
+    fi
 else
     THEMES=$(find -L "$THEME_DIR" -name "*.json" -type f 2>/dev/null)
 
