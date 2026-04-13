@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-alias v='nvim'
+alias v='nv'
 alias mvim='NVIM_APPNAME=nv nv'
 alias cat='bat'
 alias tree='eza --tree --group-directories-first --git-ignore --color=always --icons=always'

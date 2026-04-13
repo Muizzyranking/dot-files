@@ -109,6 +109,7 @@ load(){
 load ".zshenv"
 load ".zsh_alaises"
 load ".zsh_functions"
+load "fahh.zsh"
 
 
 # ============================================
