@@ -1,53 +1,43 @@
-#!/usr/bin/env bash
-export PATH=~/.local/bin:$PATH
-export PATH=/snap/bin:$PATH
+#!/usr/bin/env zsh
+
+typeset -U path
+
+export PNPM_HOME="/home/muizzyranking/.local/share/pnpm"
+
+path=(
+    ~/.local/bin
+    ~/.cargo/bin
+    ~/.npm-global/bin
+    ~/bin/lua_ls/bin
+    /usr/local/go/bin
+    ~/.bun/bin
+    ~/.spicetify
+    ~/.opencode/bin
+    ~/dot-files/bin
+    /snap/bin
+    $PNPM_HOME
+    $path
+)
 
 export EDITOR=nvim
 export SUDO_EDITOR=$EDITOR
 
-dotfile_dir=~/dot-files
-# config_dir=${XDG_CONFIG_HOME:-$HOME/.config}
+export DOTFILES=~/dot-files
+export CONFIG=$DOTFILES/config
 
-#Config files
-export CONFIG=$dotfile_dir/config
-export NVIMRC=$dotfile_dir/config/nvim/
-export ZSHRC=$dotfile_dir/home/.zshrc
+export NVIMRC=$DOTFILES/config/nvim
+export ZSHRC=$DOTFILES/home/.zshrc
 export ZSHENV=$CONFIG/zsh/.zshenv
-export ALIASES=~$CONFIG/zsh/.zsh_alaises
+export ALIASES=$CONFIG/zsh/.zsh_aliases
 export TMUXRC=$CONFIG/tmux/tmux.conf
 
-export PATH=$HOME/.npm-global/bin:$PATH
-export PATH=$dotfile_dir/bin:$PATH
-export PATH=~/bin/lua_ls/bin:$PATH
-export PATH=$HOME/.local/bin:$PATH
-
-export PATH=$HOME/.cargo/bin:$PATH
-# export QT_QPA_PLATFORMTHEME=qt5ct
-export PATH=$PATH:/usr/local/go/bin
-
-[ -s "/home/muizzyranking/.bun/_bun" ] && source "/home/muizzyranking/.bun/_bun"
-
-# bun
 export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-
-export PATH=$PATH:/home/muizzyranking/.spicetify
-
+export PNPM_HOME="$HOME/.local/share/pnpm"
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
-# PNPM
-export PNPM_HOME="/home/muizzyranking/.local/share/pnpm"
-case ":$PATH:" in
-*":$PNPM_HOME:"*) ;;
-*) export PATH="$PNPM_HOME:$PATH" ;;
-esac
 
-# use snacks nvim lazygit-theme
-if [ -f "$HOME/.cache/nvim/lazygit-theme.yml" ]; then
+if [[ -f "$HOME/.cache/nvim/lazygit-theme.yml" ]]; then
     export LG_CONFIG_FILE="$HOME/.cache/nvim/lazygit-theme.yml"
 fi
-export PATH=$HOME/.npm-global/bin:$PATH
 
 export FZF_DEFAULT_OPTS="
 --color=fg:#c0caf5,bg:#1a1b26,hl:#bb9af7
@@ -60,6 +50,22 @@ export FZF_DEFAULT_OPTS="
 --pointer='▶'
 --marker='✓'
 "
-export PATH=/home/muizzyranking/.opencode/bin:$PATH
+[[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
+[[ -s "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
 
-. "$HOME/.cargo/env"
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+case ":$PATH:" in
+*":$PNPM_HOME:"*) ;;
+*) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+nvm() {
+    unset -f nvm node npm npx
+    [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
+    [[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion"
+    nvm "$@"
+}
+node() { nvm && node "$@" }
+npm() { nvm && npm "$@" }
+npx() { nvm && npx "$@" }
