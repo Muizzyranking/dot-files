@@ -7,7 +7,7 @@
       "segments": [
         {
           "foreground": "#89B4FA",
-          "properties": {
+          "options": {
             "folder_icon": "",
             "folder_separator_icon": "",
             "home_icon": "~",
@@ -20,7 +20,7 @@
         },
         {
           "foreground": "#89B4FA",
-          "properties": {
+          "options": {
             "branch_icon": " ",
             "fetch_status": true,
             "fetch_upstream_icon": true
@@ -78,7 +78,7 @@
           "foreground_templates": [
             "{{ if gt .Code 0 }}#F38BA8{{ end }}"
           ],
-          "properties": {
+          "options": {
             "always_enabled": true
           },
           "style": "plain",
