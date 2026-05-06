@@ -1,3 +1,4 @@
+---@type LspExtras
 return {
   keys = {
     {
