@@ -154,6 +154,7 @@ function M.incr.ensure_active()
 end
 
 function M.incr.attach()
+  ---@type utils.treesitter.incr
   local incr = require("utils.treesitter.incr")
 
   local function map(mode, action, key_opts)

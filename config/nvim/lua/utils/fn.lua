@@ -6,7 +6,7 @@ local M = {}
 ---@return boolean
 ---------------------------------------------------------------
 M.is_in_tmux = function()
-  return os.getenv("TMUX") ~= nil
+	return os.getenv("TMUX") ~= nil
 end
 
 -------------------------------------
@@ -15,11 +15,11 @@ end
 ---@return boolean
 -------------------------------------
 M.is_executable = function(path)
-  if path == "" then
-    return false
-  end
-  local ok, result = pcall(vim.fn.executable, path)
-  return ok and result == 1
+	if path == "" then
+		return false
+	end
+	local ok, result = pcall(vim.fn.executable, path)
+	return ok and result == 1
 end
 
 --------------------------------------------------------------
@@ -27,18 +27,18 @@ end
 ---@param path string path to normalize
 ---------------------------------------------------------------
 function M.norm(path)
-  if path:sub(1, 1) == "~" then
-    local home = vim.uv.os_homedir()
-    if home == nil then
-      return
-    end
-    if home:sub(-1) == "\\" or home:sub(-1) == "/" then
-      home = home:sub(1, -2)
-    end
-    path = home .. path:sub(2)
-  end
-  path = path:gsub("\\", "/"):gsub("/+", "/")
-  return path:sub(-1) == "/" and path:sub(1, -2) or path
+	if path:sub(1, 1) == "~" then
+		local home = vim.uv.os_homedir()
+		if home == nil then
+			return
+		end
+		if home:sub(-1) == "\\" or home:sub(-1) == "/" then
+			home = home:sub(1, -2)
+		end
+		path = home .. path:sub(2)
+	end
+	path = path:gsub("\\", "/"):gsub("/+", "/")
+	return path:sub(-1) == "/" and path:sub(1, -2) or path
 end
 
 local cache = {} ---@type table<(fun()), table<string, any>>
@@ -48,14 +48,14 @@ local cache = {} ---@type table<(fun()), table<string, any>>
 ---@return T
 ---------------------------------------
 function M.memoize(fn)
-  return function(...)
-    local key = vim.inspect({ ... })
-    cache[fn] = cache[fn] or {}
-    if cache[fn][key] == nil then
-      cache[fn][key] = fn(...)
-    end
-    return cache[fn][key]
-  end
+	return function(...)
+		local key = vim.inspect({ ... })
+		cache[fn] = cache[fn] or {}
+		if cache[fn][key] == nil then
+			cache[fn][key] = fn(...)
+		end
+		return cache[fn][key]
+	end
 end
 
 -----------------------------------------------------------------
@@ -66,15 +66,15 @@ end
 ---@return T[]
 -----------------------------------------------------------------
 function M.ensure_list(value, resolve)
-  resolve = resolve or false
-  if not value then
-    return {}
-  end
-  if resolve and type(value) == "function" then
-    value = value()
-  end
+	resolve = resolve or false
+	if not value then
+		return {}
+	end
+	if resolve and type(value) == "function" then
+		value = value()
+	end
 
-  return type(value) == "table" and value or { value }
+	return type(value) == "table" and value or { value }
 end
 
 ----------------------------------------------------------------
@@ -84,17 +84,17 @@ end
 ---@return string # The ensured string value
 -----------------------------------------------------------------
 function M.ensure_string(value, default)
-  if not value or value == "" then
-    return default or ""
-  end
-  if type(value) == "function" then
-    value = value()
-  end
-  if type(value) == "table" then
-    return table.concat(value, ", ")
-  end
-  value = type(value) == "string" and value or tostring(value)
-  return value ~= nil and value or default or ""
+	if not value or value == "" then
+		return default or ""
+	end
+	if type(value) == "function" then
+		value = value()
+	end
+	if type(value) == "table" then
+		return table.concat(value, ", ")
+	end
+	value = type(value) == "string" and value or tostring(value)
+	return value ~= nil and value or default or ""
 end
 
 -----------------------------------------------------------------
@@ -103,10 +103,10 @@ end
 ---@return number # The validated buffer number
 -----------------------------------------------------------------
 function M.ensure_buf(buf)
-  if not buf or buf == nil or buf == 0 or not vim.api.nvim_buf_is_valid(buf) then
-    buf = vim.api.nvim_get_current_buf()
-  end
-  return buf
+	if not buf or buf == nil or buf == 0 or not vim.api.nvim_buf_is_valid(buf) then
+		buf = vim.api.nvim_get_current_buf()
+	end
+	return buf
 end
 
 -----------------------------------------------------------------
@@ -114,8 +114,8 @@ end
 ---@return string # filename
 -----------------------------------------------------------------
 function M.get_filepath(buf)
-  buf = M.ensure_buf(buf)
-  return vim.api.nvim_buf_get_name(buf)
+	buf = M.ensure_buf(buf)
+	return vim.api.nvim_buf_get_name(buf)
 end
 
 ---------------------------------------------------------------
@@ -125,21 +125,21 @@ end
 ---@return boolean true if the resolved value is truthy (and matches expected_value if provided)
 ---------------------------------------------------------------
 function M.evaluate(value, expected_value)
-  if type(value) == "function" then
-    value = value()
-  end
+	if type(value) == "function" then
+		value = value()
+	end
 
-  if expected_value ~= nil then
-    if type(expected_value) == "function" then
-      expected_value = expected_value()
-    end
-    return value == expected_value
-  end
+	if expected_value ~= nil then
+		if type(expected_value) == "function" then
+			expected_value = expected_value()
+		end
+		return value == expected_value
+	end
 
-  if type(value) == "table" then
-    return next(value) ~= nil
-  end
-  return not not value
+	if type(value) == "table" then
+		return next(value) ~= nil
+	end
+	return not not value
 end
 
 ---@class RunCmdOpts
@@ -150,77 +150,58 @@ end
 ---@param cmd string|string[]|function
 ---@param opts RunCmdOpts?
 function M.run_command(cmd, opts)
-  opts = opts or {}
-  if type(cmd) == "function" then
-    cmd = cmd()
-  end
-  if not cmd or cmd == "" then
-    return false, "No command provided"
-  end
-  local ok, output = pcall(vim.fn.system, cmd, opts.input or "")
-  local success = vim.v.shell_error == 0 and ok
+	opts = opts or {}
+	if type(cmd) == "function" then
+		cmd = cmd()
+	end
+	if not cmd or cmd == "" then
+		return false, "No command provided"
+	end
+	local ok, output = pcall(vim.fn.system, cmd, opts.input or "")
+	local success = vim.v.shell_error == 0 and ok
 
-  if opts.trim then
-    output = vim.trim(output)
-  end
+	if opts.trim then
+		output = vim.trim(output)
+	end
 
-  if opts.callback then
-    if type(opts.callback) == "function" then
-      opts.callback(output, success, vim.v.shell_error)
-    end
-  end
-  return success, output
+	if opts.callback then
+		if type(opts.callback) == "function" then
+			opts.callback(output, success, vim.v.shell_error)
+		end
+	end
+	return success, output
 end
 
 function M.is_in_git_repo(notify)
-  notify = notify or false
-  local success, output = M.run_command({ "git", "rev-parse", "--is-inside-work-tree" }, {
-    trim = true,
-    callback = function(output, success, _)
-      if notify and not success then
-        Utils.notify.error("Failed to check git repository: " .. output)
-      end
-    end,
-  })
-  return success and output:match("true") ~= nil
+	notify = notify or false
+	local success, output = M.run_command({ "git", "rev-parse", "--is-inside-work-tree" }, {
+		trim = true,
+		callback = function(output, success, _)
+			if notify and not success then
+				Utils.notify.error("Failed to check git repository: " .. output)
+			end
+		end,
+	})
+	return success and output:match("true") ~= nil
 end
 
 --- use another filetype config in this filetype
 ---@param ft string
 function M.ft_config(ft)
-  ft = ft .. ".lua"
-  local config_path = vim.fn.stdpath("config")
-  local after = "after/ftplugin/" .. ft
-  local ftplugin = "ftplugin/" .. ft
+	ft = ft .. ".lua"
+	local config_path = vim.fn.stdpath("config")
+	local after = "after/ftplugin/" .. ft
+	local ftplugin = "ftplugin/" .. ft
 
-  if vim.fn.filereadable(config_path .. "/" .. after) == 1 then
-    vim.cmd("runtime " .. after)
-    return
-  end
-  if vim.fn.filereadable(config_path .. "/" .. ftplugin) == 1 then
-    vim.cmd("runtime " .. ftplugin)
-    return
-  end
-  Utils.notify.warn("No filetype config found for '" .. ft .. "'")
+	if vim.fn.filereadable(config_path .. "/" .. after) == 1 then
+		vim.cmd("runtime " .. after)
+		return
+	end
+	if vim.fn.filereadable(config_path .. "/" .. ftplugin) == 1 then
+		vim.cmd("runtime " .. ftplugin)
+		return
+	end
+	Utils.notify.warn("No filetype config found for '" .. ft .. "'")
 end
-
-------------------------------------------------------------------------------
--- Get the color of a highlight group
----@param name string
----@param ground? "fg"|"bg"
----@return string?
-------------------------------------------------------------------------------
-function M.get_hl_color(name, ground)
-  ground = ground or "fg"
-  assert(ground == "fg" or ground == "bg", "ground must be 'fg' or 'bg'")
-  local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
-  local color = hl and (ground == "fg" and hl.fg or hl.bg)
-  return color and ("#%06x"):format(color) or nil
-end
-
-function M.fg(name)
-  return M.get_hl_color(name, "fg")
-end
-
 
 return M

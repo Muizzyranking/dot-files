@@ -19,20 +19,20 @@ local M = setmetatable({}, {
   end,
 })
 
-local notification_queue = {}
-local ready = false
-
-Utils.lazy.on_very_lazy(function()
-  ready = true
-  vim.defer_fn(function()
-    for _, item in ipairs(notification_queue) do
-      M.notify(item.msg, item.opts)
-    end
-    notification_queue = {}
-  end, 100)
-  return true
-end, { once = true })
-
+-- local notification_queue = {}
+-- local ready = false
+--
+-- Pack.defer(function()
+--   ready = true
+--   vim.defer_fn(function()
+--     for _, item in ipairs(notification_queue) do
+--       M.notify(item.msg, item.opts)
+--     end
+--     notification_queue = {}
+--   end, 100)
+--   return true
+-- end)
+--
 ----------------------------------------------------------
 --- Wrapper function for Neovim's notification system
 ---@param msg string|table The message to be displayed in the notification
@@ -45,10 +45,6 @@ function M.notify(msg, opts)
     end)
   end
   opts = opts or {}
-  if not ready and not opts.now then
-    table.insert(notification_queue, { msg = msg, opts = opts })
-    return
-  end
   if type(msg) == "table" then
     msg = table.concat(
       vim.tbl_filter(function(line)
