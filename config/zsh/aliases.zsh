@@ -16,9 +16,7 @@ alias tree='eza --tree --group-directories-first --git-ignore --color=always --i
 
 alias cat='bat --paging=never'
 alias v='nv'
-alias mvim='NVIM_APPNAME=nv nv'
-
-alias rm='rm -i'
+alias v2='NVIM_APPNAME=nv12 nv'
 
 alias df='df -h'
 alias du='du -h'
