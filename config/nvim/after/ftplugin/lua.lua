@@ -17,7 +17,9 @@ Utils.map.set({
     "<leader>sh",
     function()
       local word = vim.fn.expand("<cword>")
-      local ok, _ = pcall(vim.cmd, "help " .. word)
+      local ok, _ = pcall(function()
+        vim.cmd.help(word)
+      end)
       if not ok then
         Utils.notify.warn("No help found for: " .. word)
         Snacks.picker.help()
