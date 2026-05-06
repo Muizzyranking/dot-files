@@ -1,4 +1,4 @@
-local colors_util = require("utils.colors")
+local colors = require("utils.colors")
 local palette = {
   fg = "#c0caf5",
   foam = "#9ccfd8",
@@ -26,4 +26,4 @@ local palette = {
   diff_text = "#352d3f",
   none = "NONE",
 }
-colors_util.setup(palette, "ember")
+colors.setup(palette, "custom")
