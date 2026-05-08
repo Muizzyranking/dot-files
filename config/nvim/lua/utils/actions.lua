@@ -131,8 +131,6 @@ function M.smart_shift_tab()
 end
 
 function M.inspect_actions()
-	local notify = Utils.notify.create({ title = "Code Actions" })
-
 	local clients = vim.lsp.get_clients({ bufnr = 0 })
 	if #clients == 0 then
 		notify.warn("No LSP clients attached")

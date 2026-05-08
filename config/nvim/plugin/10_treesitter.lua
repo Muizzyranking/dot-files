@@ -65,16 +65,13 @@ Pack.lazy("nvim-treesitter", {
 				"qmljs",
 				"dockerfile",
 			},
-			incremental_selection = {
-				keymaps = {
-					init_selection = "<CR>",
-					node_incremental = "<CR>",
-					scope_incremental = "<C-n>",
-					node_decremental = "<BS>",
-				},
-			},
 		}
-		Utils.treesitter.setup(opts)
+		Utils.treesitter.incr.attach({
+			init_selection = "<CR>",
+			node_incremental = "<CR>",
+			scope_incremental = "<C-n>",
+			node_decremental = "<BS>",
+		})
 		local ts = require("nvim-treesitter")
 		ts.setup()
 

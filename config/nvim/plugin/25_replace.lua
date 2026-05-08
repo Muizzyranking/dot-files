@@ -45,6 +45,13 @@ Pack.on_key({
 		transient = true,
 		visualSelectionUsage = "operate-within-range",
 	})
+	-- disable completion in grug far
+	vim.api.nvim_create_autocmd("FileType", {
+		pattern = { "grug-far", "grug-far-help", "grug-far-history" },
+		callback = function(ev)
+			vim.b[ev.buf].completion = false
+		end,
+	})
 end, "grug-far.nvim")
 
 Pack.on_key({

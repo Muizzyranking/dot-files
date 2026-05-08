@@ -3,18 +3,11 @@ local M = {}
 M.incr = {}
 
 M.incr.keymaps = {
-  init_selection = nil,
-  node_incremental = nil,
-  scope_incremental = nil,
-  node_decremental = nil,
+	init_selection = nil,
+	node_incremental = nil,
+	scope_incremental = nil,
+	node_decremental = nil,
 }
-
-function M.setup(opts)
-  opts = opts or {}
-  M.incr.keymaps =
-    vim.tbl_extend("force", M.incr.keymaps, (opts.incremental_selection and opts.incremental_selection.keymaps) or {})
-  M.incr.attach()
-end
 
 -------------------------------------------------
 ---Only checks whether treesitter highlighting is active in `buf`
@@ -23,8 +16,8 @@ end
 ---@return boolean
 -------------------------------------------------
 function M.hl_is_active(buf)
-  buf = Utils.fn.ensure_buf(buf)
-  return vim.treesitter.highlighter.active[buf] ~= nil
+	buf = Utils.fn.ensure_buf(buf)
+	return vim.treesitter.highlighter.active[buf] ~= nil
 end
 
 -------------------------------------------------
@@ -33,17 +26,17 @@ end
 ---@return boolean
 -------------------------------------------------
 function M.is_active(buf)
-  buf = Utils.fn.ensure_buf(buf)
-  if vim.treesitter.highlighter.active[buf] then
-    return true
-  end
+	buf = Utils.fn.ensure_buf(buf)
+	if vim.treesitter.highlighter.active[buf] then
+		return true
+	end
 
-  if pcall(vim.treesitter.get_parser, buf) then
-    return true
-  end
+	if pcall(vim.treesitter.get_parser, buf) then
+		return true
+	end
 
-  -- File is big or cannot get parser for buf
-  return false
+	-- File is big or cannot get parser for buf
+	return false
 end
 
 -------------------------------------------------
@@ -52,19 +45,19 @@ end
 ---@param opts vim.treesitter.get_node.Opts?
 -------------------------------------------------
 function M.get_node(opts)
-  opts = opts or {}
-  if opts.pos or opts.bufnr and opts.bufnr ~= 0 and opts.bufnr ~= vim.api.nvim_get_current_buf() then
-    return vim.treesitter.get_node(opts)
-  end
-  opts.pos = (function()
-    local cursor = opts and opts.pos or vim.api.nvim_win_get_cursor(0)
-    return {
-      cursor[1] - 1,
-      cursor[2] - (cursor[2] >= 1 and vim.startswith(vim.fn.mode(), "i") and 1 or 0),
-    }
-  end)()
+	opts = opts or {}
+	if opts.pos or opts.bufnr and opts.bufnr ~= 0 and opts.bufnr ~= vim.api.nvim_get_current_buf() then
+		return vim.treesitter.get_node(opts)
+	end
+	opts.pos = (function()
+		local cursor = opts and opts.pos or vim.api.nvim_win_get_cursor(0)
+		return {
+			cursor[1] - 1,
+			cursor[2] - (cursor[2] >= 1 and vim.startswith(vim.fn.mode(), "i") and 1 or 0),
+		}
+	end)()
 
-  return vim.treesitter.get_node(opts)
+	return vim.treesitter.get_node(opts)
 end
 
 ------------------------------------------------
@@ -74,29 +67,29 @@ end
 ---@return TSNode?
 ------------------------------------------------
 function M.find_node(types, opts)
-  if not M.is_active(opts and opts.bufnr) then
-    return
-  end
+	if not M.is_active(opts and opts.bufnr) then
+		return
+	end
 
-  ---Check if given node type matches any of the types given in `types`
-  ---@type fun(t: string): boolean?
-  local check_type_match = vim.is_callable(types) and function(nt)
-    return types(nt)
-  end or function(nt)
-    types = Utils.fn.ensure_list(types)
-    return vim.iter(types):any(function(t)
-      return nt:match(t)
-    end)
-  end
+	---Check if given node type matches any of the types given in `types`
+	---@type fun(t: string): boolean?
+	local check_type_match = vim.is_callable(types) and function(nt)
+		return types(nt)
+	end or function(nt)
+		types = Utils.fn.ensure_list(types)
+		return vim.iter(types):any(function(t)
+			return nt:match(t)
+		end)
+	end
 
-  local node = M.get_node(opts)
-  while node do
-    local nt = node:type() -- current node type
-    if check_type_match(nt) then
-      return node
-    end
-    node = node:parent()
-  end
+	local node = M.get_node(opts)
+	while node do
+		local nt = node:type() -- current node type
+		if check_type_match(nt) then
+			return node
+		end
+		node = node:parent()
+	end
 end
 
 M._installed = nil ---@type table<string,string>?
@@ -107,13 +100,13 @@ M._installed = nil ---@type table<string,string>?
 ---@return table<string,string>
 -----------------------------------------
 function M.get_installed(force)
-  if not M._installed or force then
-    M._installed = {}
-    for _, lang in ipairs(require("nvim-treesitter").get_installed("parsers")) do
-      M._installed[lang] = lang
-    end
-  end
-  return M._installed
+	if not M._installed or force then
+		M._installed = {}
+		for _, lang in ipairs(require("nvim-treesitter").get_installed("parsers")) do
+			M._installed[lang] = lang
+		end
+	end
+	return M._installed
 end
 
 -----------------------------------------
@@ -122,78 +115,80 @@ end
 ---@return string?
 -----------------------------------------
 function M.have(ft)
-  if not ft or ft == "" then
-    return nil
-  end
-  local lang = vim.treesitter.language.get_lang(ft)
-  return lang and M.get_installed()[lang]
+	if not ft or ft == "" then
+		return nil
+	end
+	local lang = vim.treesitter.language.get_lang(ft)
+	return lang and M.get_installed()[lang]
 end
 
 function M.foldexpr()
-  local buf = vim.api.nvim_get_current_buf()
-  return M.have(vim.bo[buf].filetype) and vim.treesitter.foldexpr() or "0"
+	local buf = vim.api.nvim_get_current_buf()
+	return M.have(vim.bo[buf].filetype) and vim.treesitter.foldexpr() or "0"
 end
 
 function M.indentexpr()
-  local buf = vim.api.nvim_get_current_buf()
-  return M.have(vim.bo[buf].filetype) and require("nvim-treesitter").indentexpr() or -1
+	local buf = vim.api.nvim_get_current_buf()
+	return M.have(vim.bo[buf].filetype) and require("nvim-treesitter").indentexpr() or -1
 end
 
 ---Ensure treesitter is active and parser is available
 ---@return boolean, number?, string?
 function M.incr.ensure_active()
-  local buf = Utils.fn.ensure_buf(0)
-  if not M.is_active(buf) then
-    return false
-  end
-  local language = vim.treesitter.language.get_lang(vim.bo[buf].filetype)
-  if not language or not M.have(vim.bo[buf].filetype) then
-    return false
-  end
-  return true, buf, language
+	local buf = Utils.fn.ensure_buf(0)
+	if not M.is_active(buf) then
+		return false
+	end
+	local language = vim.treesitter.language.get_lang(vim.bo[buf].filetype)
+	if not language or not M.have(vim.bo[buf].filetype) then
+		return false
+	end
+	return true, buf, language
 end
 
-function M.incr.attach()
-  ---@type utils.treesitter.incr
-  local incr = require("utils.treesitter.incr")
+function M.incr.attach(opts)
+	---@type utils.treesitter.incr
+	M.incr.keymaps = vim.tbl_extend("force", opts or {}, M.incr.keymaps)
 
-  local function map(mode, action, key_opts)
-    local lhs = M.incr.keymaps[action]
-    if lhs == nil or lhs == "" then
-      return
-    end
-    local rhs = incr[action]
-    if not rhs then
-      return
-    end
-    key_opts = key_opts or {}
-    pcall(vim.keymap.set, mode, lhs, function()
-      local success, buf, lang = M.incr.ensure_active()
-      if success then
-        return rhs(buf, lang)
-      end
-    end, key_opts)
-  end
+	local incr = require("utils.treesitter.incr")
 
-  map("n", "init_selection", { desc = "Init incremental selection" })
-  map("x", "node_incremental", { desc = "Node incremental" })
-  map("x", "scope_incremental", { desc = "Scope incremental" })
-  map("x", "node_decremental", { desc = "Node decremental" })
+	local function map(mode, action, key_opts)
+		local lhs = M.incr.keymaps[action]
+		if lhs == nil or lhs == "" then
+			return
+		end
+		local rhs = incr[action]
+		if not rhs then
+			return
+		end
+		key_opts = key_opts or {}
+		pcall(vim.keymap.set, mode, lhs, function()
+			local success, buf, lang = M.incr.ensure_active()
+			if success then
+				return rhs(buf, lang)
+			end
+		end, key_opts)
+	end
+
+	map("n", "init_selection", { desc = "Init incremental selection" })
+	map("x", "node_incremental", { desc = "Node incremental" })
+	map("x", "scope_incremental", { desc = "Scope incremental" })
+	map("x", "node_decremental", { desc = "Node decremental" })
 end
 
 function M.incr.detach(buf)
-  local function unmap(mode, key)
-    local opts = buf and { buffer = buf } or {}
-    local lhs = M.incr.keymaps[key]
-    if lhs == nil or lhs == "" then
-      return
-    end
-    pcall(vim.keymap.del, mode, lhs, opts)
-  end
-  unmap("n", "init_selection")
-  unmap("x", "node_incremental")
-  unmap("x", "scope_incremental")
-  unmap("x", "node_decremental")
+	local function unmap(mode, key)
+		local opts = buf and { buffer = buf } or {}
+		local lhs = M.incr.keymaps[key]
+		if lhs == nil or lhs == "" then
+			return
+		end
+		pcall(vim.keymap.del, mode, lhs, opts)
+	end
+	unmap("n", "init_selection")
+	unmap("x", "node_incremental")
+	unmap("x", "scope_incremental")
+	unmap("x", "node_decremental")
 end
 
 return M
