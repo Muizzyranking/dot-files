@@ -38,3 +38,5 @@ alias nvimrc='$EDITOR $NVIMRC'
 alias tmuxrc='$EDITOR $TMUXRC'
 
 alias ff='find_file'
+
+alias dbman='dbman.py'
