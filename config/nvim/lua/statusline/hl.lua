@@ -83,5 +83,5 @@ return {
 			group = augroup,
 			callback = setup_highlights,
 		})
-            end,
+	end,
 }

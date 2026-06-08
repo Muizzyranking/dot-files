@@ -90,7 +90,7 @@ function M.macro()
 	if reg == "" then
 		return ""
 	end
-	return string.format("%%#StatuslineMacro# 󰑋 @%s%%#StatuslineNC#", reg)
+	return string.format("%%#StatuslineMacro# @%s%%#StatuslineNC#", reg)
 end
 
 -- ===========================

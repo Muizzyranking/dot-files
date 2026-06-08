@@ -39,6 +39,7 @@ local M = {
 		added = " ",
 		modified = " ",
 		removed = " ",
+		branch = "",
 	},
 	kinds = {
 		Array = "󰅪 ",
