@@ -65,3 +65,5 @@ out/
 # Ignore all Django migration files except __init__.py
 **/migrations/*.py
 !**/migrations/__init__.py
+
+**/.claude/settings.local.json
