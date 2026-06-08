@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+big_timer() {
+  local input=$1
+  local total_secs=0
+  local FONT="big"
+
+  # Parse the input suffix
+  if [[ "$input" == *[sS] ]]; then
+    total_secs=${input%[sS]}
+  elif [[ "$input" == *[mM] ]]; then
+    total_secs=$(( ${input%[mM]} * 60 ))
+  elif [[ "$input" == *[hH] ]]; then
+    total_secs=$(( ${input%[hH]} * 3600 ))
+  elif [[ "$input" =~ ^[0-9]+$ ]]; then
+    total_secs=$(( input * 60 )) # default to mins
+  else
+    echo "Invalid format. Use something like: 30s, 3m, 7h"
+    return 1
+  fi
+
+  local secs=$total_secs
+  while [ $secs -gt 0 ]; do
+    clear
+    
+    # If total time is 1 hour or more, include hours in the display
+    if [ $total_secs -ge 3600 ]; then
+      printf '%02d:%02d:%02d\n' $((secs/3600)) $(( (secs%3600)/60 )) $((secs%60)) | figlet -f "$FONT" -c
+    else
+      printf '%02d:%02d\n' $((secs/60)) $((secs%60)) | figlet -f "$FONT" -c
+    fi
+    
+    sleep 1
+    ((secs--))
+  done
+
+  clear
+  echo "TIME'S UP!" | figlet -f "$FONT" -c
+}
+
+if [ $# -eq 0 ]; then
+  echo "Usage: $(basename "$0") <time>"
+  exit 1
+fi
+
+big_timer "$1"
