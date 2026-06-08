@@ -135,7 +135,7 @@ return {
 		icon = { icon = " ", color = "blue" },
 	},
 	{
-		"<leader>ls",
+		"<leader>lS",
 		function()
 			require("lsp.actions").stop_picker()
 		end,

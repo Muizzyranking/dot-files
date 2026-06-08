@@ -1,7 +1,7 @@
 ---@class LspExtras
 ---@field enabled? boolean
 ---@field keys? KeymapOpts[]
----@field on_attach? fun(client: table, bufnr: number)
+---@field on_attach? fun(client: vim.lsp.Client, bufnr: number)
 
 local config_dir = vim.fn.stdpath("config")
 local lsp_dir = config_dir .. "/lsp"
@@ -153,8 +153,8 @@ local function scan_servers()
 					end
 					if type(extras.on_attach) == "function" then
 						Utils.lsp.on_server(server_name, function(client, bufnr)
-              extras.on_attach(client, bufnr)
-            end)
+							extras.on_attach(client, bufnr)
+						end)
 					end
 				end
 			end
