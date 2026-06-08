@@ -25,6 +25,9 @@ local ensure_installed = {
 	"codelldb",
 	"bacon",
 	"kulala-fmt",
+	"vue-language-server",
+	"goimports",
+	"gofumpt",
 }
 
 Pack.on_changed("mason.nvim", function()

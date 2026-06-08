@@ -1,4 +1,3 @@
-local Utils = _G.Utils or require("utils")
 vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
 Pack.add({ src = "stevearc/conform.nvim" })
 
@@ -17,10 +16,9 @@ Pack.on_event({ "BufWritePre", "BufReadPost" }, function()
 		"vue",
 	}
 
-	local biome_available = function(ctx)
-		return vim.fs.root(ctx.dirname, { "biome.json", "biome.jsonc" }) ~= nil or vim.g.use_biome
-	end
-	local use_biome = Utils.fn.memoize(biome_available)
+	local use_biome = Utils.fn.memoize(function(ctx)
+		return vim.fs.root(ctx.dirname, { "biome.json", "biome.jsonc" }) ~= nil
+	end)
 
 	local opts = {
 		notify_on_error = true,
@@ -35,7 +33,8 @@ Pack.on_event({ "BufWritePre", "BufReadPost" }, function()
 			biome = {
 				require_cwd = true,
 				condition = function(_, ctx)
-					return use_biome(ctx) and vim.tbl_contains(biome_supported, vim.bo[ctx.buf].filetype)
+					local ft = vim.bo[ctx.buf].filetype
+					return use_biome(ctx) and vim.tbl_contains(biome_supported, ft)
 				end,
 			},
 			prettierd = {
@@ -73,6 +72,8 @@ Pack.on_event({ "BufWritePre", "BufReadPost" }, function()
 		"tsx",
 		"html",
 		"css",
+		"vue",
+		"svelte",
 	}
 	for _, ft in ipairs(use_prettier_or_biome) do
 		opts.formatters_by_ft[ft] = opts.formatters_by_ft[ft] or {}

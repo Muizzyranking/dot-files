@@ -114,7 +114,18 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
 
 vim.api.nvim_create_autocmd("FileType", {
 	group = augroup("js_ts"),
-	pattern = { "typescript", "typescriptreact", "javascript", "javascriptreact", "jsx", "tsx" },
+	pattern = {
+		"typescript",
+		"typescriptreact",
+		"javascript",
+		"javascriptreact",
+		"jsx",
+		"tsx",
+		"svelte",
+		"vue",
+		"css",
+		"html",
+	},
 	callback = function(event)
 		local buf = Utils.fn.ensure_buf(event.buf)
 		vim.bo[buf].shiftwidth = 2

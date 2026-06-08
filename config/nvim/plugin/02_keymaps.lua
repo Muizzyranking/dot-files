@@ -23,8 +23,8 @@ set("v", "<A-k>", ":m '<-2<cr>gv=gv", { desc = "Move Up" })
 ------------------------
 -- navigation
 ------------------------
-set({ "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
-set({ "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+set({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
+set({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
 set({ "n" }, "<C-h>", "<C-w>h", { desc = "Go to left window", remap = true })
 set({ "n" }, "<C-j>", "<C-w>j", { desc = "Go to lower window", remap = true })
 set({ "n" }, "<C-k>", "<C-w>k", { desc = "Go to upper window", remap = true })

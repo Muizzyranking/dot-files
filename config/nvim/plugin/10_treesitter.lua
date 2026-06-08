@@ -64,6 +64,7 @@ Pack.lazy("nvim-treesitter", {
 				"qmldir",
 				"qmljs",
 				"dockerfile",
+				"vue",
 			},
 		}
 		Utils.treesitter.incr.attach({
