@@ -1,4 +1,17 @@
-Pack.add({ src = "folke/snacks.nvim" })
+Pack.on_changed("fff.nvim", function()
+	require("fff.download").download_or_build_binary()
+end)
+
+Pack.add({
+	{ src = "folke/snacks.nvim" },
+	{
+		src = "dmtrKovalenko/fff.nvim",
+		name = "fff.nvim",
+		config = function()
+			require("fff").setup({})
+		end,
+	},
+})
 
 local notify = Utils.notify.create({ title = "Snacks" })
 
@@ -388,7 +401,8 @@ Pack.now(function()
 			desc = "Buffers",
 		},
 		{ "<leader>fB", unsaved_buffers_picker, desc = "Buffers" },
-		{ "<leader>ff", function() Snacks.picker.files() end, desc = "Find Files (cwd)" },
+		-- { "<leader>ff", function() Snacks.picker.files() end, desc = "Find Files (cwd)" },
+		{ "<leader>ff", function() require("plugins.fff.find_files") end, desc = "Find Files (cwd)" },
 		{ "<leader>fF", function() Snacks.picker.files({ cwd = Utils.root() }) end, desc = "Find Files (root)" },
 		{ "<leader>fg", function() Snacks.picker.grep() end, desc = "Grep" },
 		{ "<leader>sw", function() Snacks.picker.grep_word() end, mode = { "n", "x" }, desc = "Search word" },
