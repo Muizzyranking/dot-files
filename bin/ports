@@ -7,87 +7,228 @@ source "$HOME/.config/zsh/utils.sh"
 
 set -euo pipefail
 
-# Check dependencies
-require_or_exit ss fzf awk
+SCRIPT_PATH="${BASH_SOURCE[0]}"
 
-while true; do
-    # Get port info
-    port_info=$(ss -tulpn 2>/dev/null |
+usage() {
+    cat <<EOF
+Usage: ports
+
+Interactive port manager to view and kill listening processes.
+
+Internal modes:
+  ports --list
+  ports --preview <row>
+  ports --info <row>
+  ports --lsof <row>
+  ports --copy <row>
+EOF
+}
+
+trim() {
+    local value="$*"
+    value="${value#"${value%%[![:space:]]*}"}"
+    value="${value%"${value##*[![:space:]]}"}"
+    printf '%s' "$value"
+}
+
+row_field() {
+    local row="$1"
+    local field_index="$2"
+    local value
+
+    value=$(awk -F'|' -v field_index="$field_index" '{print $field_index}' <<<"$row")
+    trim "$value"
+}
+
+row_port() {
+    row_field "$1" 1
+}
+
+row_pid() {
+    row_field "$1" 5
+}
+
+list_ports() {
+    ss -tulpn 2>/dev/null |
         awk 'NR>1 && $5 ~ /:[0-9]+$/ {
             match($5, /:([0-9]+)$/, port)
+
             if (match($0, /users:\(\("([^"]+)",pid=([0-9]+)/, proc)) {
                 process = proc[1]
                 pid = proc[2]
             } else if (match($0, /pid=([0-9]+)/, proc)) {
-                pid = proc[1]
                 process = "unknown"
+                pid = proc[1]
             } else {
                 process = "no-access"
                 pid = "-"
             }
-            printf "%-6s | %-5s | %-21s | %-30s | %-8s | %s\n", 
-                port[1], $1, $5, process, pid, $2
-        }' | sort -n)
 
-    if [[ -z "$port_info" ]]; then
-        echo "No listening ports found (or permission denied)."
-        echo "Try running with sudo."
-        exit 0
+            printf "%-6s | %-5s | %-21s | %-30s | %-8s | %s\n",
+                port[1], $1, $5, process, pid, $2
+        }' |
+        sort -n
+}
+
+preview_port() {
+    local row="$*"
+    local port pid
+
+    port=$(row_port "$row")
+    pid=$(row_pid "$row")
+
+    if [[ "$pid" == "-" || -z "$pid" ]]; then
+        echo "No process info (try sudo)"
+        return
     fi
 
-    header="PORT   | PROTO | ADDRESS               | PROCESS                        | PID      | STATE
+    echo "=== PROCESS INFO ==="
+    ps -p "$pid" -o pid,ppid,user,%cpu,%mem,vsz,rss,stat,start,time,command 2>/dev/null ||
+        echo "Info unavailable"
+    echo
+    echo "=== CONNECTIONS ==="
+    ss -tulpn 2>/dev/null | grep ":$port " || echo "No connections"
+}
+
+show_process_info() {
+    local row="$*"
+    local pid
+
+    pid=$(row_pid "$row")
+    if [[ "$pid" == "-" || -z "$pid" ]]; then
+        echo "No PID available (try sudo)."
+        return
+    fi
+
+    ps -p "$pid" -f 2>/dev/null || echo "Info unavailable"
+}
+
+show_lsof() {
+    local row="$*"
+    local port
+
+    port=$(row_port "$row")
+    echo "lsof -i :$port"
+    lsof -i ":$port" 2>/dev/null || echo "No info"
+}
+
+copy_port() {
+    local row="$*"
+    local port
+
+    port=$(row_port "$row")
+    printf '%s' "$port" | clipcopy
+}
+
+pause() {
+    printf '\nPress Enter...'
+    read -r _
+}
+
+kill_selected_pid() {
+    local row="$1"
+    local signal="$2"
+    local label="$3"
+    local pid
+
+    pid=$(row_pid "$row")
+    if [[ "$pid" == "-" || -z "$pid" ]]; then
+        echo "No PID available (try sudo)."
+        pause
+        return
+    fi
+
+    echo "$label PID $pid..."
+    kill "$signal" "$pid" && echo "Success" || echo "Failed"
+    sleep 1
+}
+
+run_ui() {
+    require_or_exit ss fzf awk
+
+    local port_info header selection key selected_line script_cmd
+    script_cmd=$(printf '%q' "$SCRIPT_PATH")
+
+    while true; do
+        port_info=$(list_ports)
+
+        if [[ -z "$port_info" ]]; then
+            echo "No listening ports found (or permission denied)."
+            echo "Try running with sudo."
+            exit 0
+        fi
+
+        header="PORT   | PROTO | ADDRESS               | PROCESS                        | PID      | STATE
 ───────────────────────────────────────────────────────────────────────────────────────────────
 CTRL-K: kill | CTRL-F: force kill | CTRL-I: info | CTRL-L: lsof | CTRL-Y: copy port | CTRL-R: refresh | ESC: exit"
 
-    selection=$(echo "$port_info" |
-        fzf --tmux 95%,85% --reverse \
-            --header="$header" \
-            --prompt="Select port > " \
-            --preview='
-                port=$(echo {} | awk -F"|" "{print \$1}" | xargs)
-                pid=$(echo {} | awk -F"|" "{print \$5}" | xargs)
-                
-                if [[ "$pid" != "-" && "$pid" != "" ]]; then
-                    echo "=== PROCESS INFO ==="
-                    ps -p $pid -o pid,ppid,user,%cpu,%mem,vsz,rss,stat,start,time,command 2>/dev/null || echo "Info unavailable"
-                    echo ""
-                    echo "=== CONNECTIONS ==="
-                    ss -tulpn 2>/dev/null | grep ":$port " || echo "No connections"
-                else
-                    echo "No process info (try sudo)"
-                fi
-            ' \
-            --preview-window=top:40%:wrap \
-            --bind 'ctrl-r:reload(ss -tulpn 2>/dev/null | awk '"'"'NR>1 && $5 ~ /:[0-9]+$/ {match($5, /:([0-9]+)$/, port); if (match($0, /users:\(\("([^"]+)",pid=([0-9]+)/, proc)) {process=proc[1];pid=proc[2]} else if (match($0, /pid=([0-9]+)/, proc)) {pid=proc[1];process="unknown"} else {process="no-access";pid="-"}; printf "%-6s | %-5s | %-21s | %-30s | %-8s | %s\n", port[1], $1, $5, process, pid, $2}'"'"' | sort -n)' \
-            --bind "ctrl-y:execute-silent(echo {} | awk -F'|' '{print \$1}' | xargs | clipcopy)" \
-            --bind "ctrl-l:execute(port=\$(echo {} | awk -F'|' '{print \$1}' | xargs); echo 'lsof -i :'\$port; lsof -i :\$port 2>/dev/null || echo 'No info'; read -p 'Hit Enter...')" \
-            --bind "ctrl-i:execute(pid=\$(echo {} | awk -F'|' '{print \$5}' | xargs); if [[ \"\$pid\" != \"-\" ]]; then ps -p \$pid -f; else echo 'No PID'; fi; read -p 'Hit Enter...')" \
-            --expect=ctrl-k,ctrl-f)
+        selection=$(printf '%s\n' "$port_info" |
+            fzf --tmux 95%,85% --reverse \
+                --header="$header" \
+                --prompt="Select port > " \
+                --preview="$script_cmd --preview {}" \
+                --preview-window=top:40%:wrap \
+                --bind="ctrl-r:reload($script_cmd --list)" \
+                --bind="ctrl-y:execute-silent($script_cmd --copy {})" \
+                --bind="ctrl-l:execute($script_cmd --lsof {}; printf '\nPress Enter...'; read -r _)" \
+                --bind="ctrl-i:execute($script_cmd --info {}; printf '\nPress Enter...'; read -r _)" \
+                --expect=ctrl-k,ctrl-f || true)
 
-    key=$(echo "$selection" | head -1)
-    selected_line=$(echo "$selection" | tail -1)
+        if [[ -z "$selection" ]]; then
+            exit 0
+        fi
 
-    if [[ -z "$selected_line" ]]; then exit 0; fi
+        key=$(printf '%s\n' "$selection" | head -1)
+        selected_line=$(printf '%s\n' "$selection" | tail -1)
 
-    port=$(echo "$selected_line" | awk -F'|' '{print $1}' | xargs)
-    pid=$(echo "$selected_line" | awk -F'|' '{print $5}' | xargs)
+        if [[ -z "$selected_line" ]]; then
+            exit 0
+        fi
 
-    if [[ "$pid" == "-" || -z "$pid" ]]; then
-        echo "No PID available (try sudo)."
-        read -p "Press Enter..."
-        continue
-    fi
+        case "$key" in
+        ctrl-k)
+            kill_selected_pid "$selected_line" "-TERM" "Killing"
+            ;;
+        ctrl-f)
+            kill_selected_pid "$selected_line" "-KILL" "Force killing"
+            ;;
+        esac
+    done
+}
 
-    case "$key" in
-    ctrl-k)
-        echo "Killing PID $pid (SIGTERM)..."
-        kill "$pid" && echo "Success" || echo "Failed"
-        sleep 1
+main() {
+    case "${1:-}" in
+    --list)
+        require_or_exit ss awk
+        list_ports
         ;;
-    ctrl-f)
-        echo "Force killing PID $pid (SIGKILL)..."
-        kill -9 "$pid" && echo "Success" || echo "Failed"
-        sleep 1
+    --preview)
+        shift
+        preview_port "$*"
+        ;;
+    --info)
+        shift
+        show_process_info "$*"
+        ;;
+    --lsof)
+        shift
+        show_lsof "$*"
+        ;;
+    --copy)
+        shift
+        copy_port "$*"
+        ;;
+    -h | --help)
+        usage
+        ;;
+    "")
+        run_ui
+        ;;
+    *)
+        usage
+        exit 1
         ;;
     esac
-done
+}
+
+main "$@"

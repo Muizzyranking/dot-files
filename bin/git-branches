@@ -4,71 +4,105 @@
 
 set -euo pipefail
 
-# Check dependencies
-if ! command -v fzf >/dev/null 2>&1; then
-    echo "Error: fzf is required."
-    exit 1
-fi
+source "$HOME/.config/zsh/utils.sh"
+
+require_or_exit fzf
 
 if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     echo "❌ Error: Not inside a git repository"
     exit 1
 fi
 
+CREATE_OPTION="+ Create new branch"
+
+create_branch() {
+    local name="${1:-}"
+
+    while [ -z "$name" ]; do
+        read -r -p "Branch name: " name
+        name="${name#"${name%%[![:space:]]*}"}"
+        name="${name%"${name##*[![:space:]]}"}"
+    done
+
+    if git show-ref --verify --quiet "refs/heads/$name"; then
+        echo "🔄 Switching to existing local branch '$name'..."
+        git switch "$name"
+        return
+    fi
+
+    echo "✨ Creating and switching to '$name'..."
+    git switch -c "$name"
+    echo "✅ Created and switched to '$name'"
+}
+
+switch_branch() {
+    local branch="$1"
+
+    if git show-ref --verify --quiet "refs/heads/$branch"; then
+        echo "🔄 Switching to local branch '$branch'..."
+        git switch "$branch"
+        return
+    fi
+
+    if git show-ref --verify --quiet "refs/remotes/$branch"; then
+        local local_name="${branch#*/}"
+
+        if git show-ref --verify --quiet "refs/heads/$local_name"; then
+            echo "🔄 Switching to existing local branch '$local_name'..."
+            git switch "$local_name"
+        else
+            echo "☁️  Tracking remote branch '$branch' as '$local_name'..."
+            git switch --track "$branch"
+        fi
+        return
+    fi
+
+    echo "✨ Branch '$branch' does not exist."
+    read -r -p "Create new branch '$branch'? [Y/n] " reply
+    if [[ "$reply" =~ ^[Nn]$ ]]; then
+        echo "❌ Cancelled."
+        return
+    fi
+    create_branch "$branch"
+}
+
 # Get branches
-git_branches=$(git branch --all --format='%(refname:short)')
+git_branches=$(git branch --all --format='%(refname:short)' | sed 's#^remotes/##' | grep -vE '(^HEAD$|/HEAD$)' | awk '!seen[$0]++' || true)
+options=("$CREATE_OPTION")
+
+if [ -n "$git_branches" ]; then
+    while IFS= read -r branch; do
+        options+=("$branch")
+    done <<<"$git_branches"
+fi
 
 header="🌿 GIT BRANCHES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ENTER: Switch/Create | CTRL-C: Cancel"
 
-output=$(echo "$git_branches" | fzf --tmux 70% \
+output=$(printf '%s\n' "${options[@]}" | fzf --tmux 70% \
     --print-query \
     --reverse \
     --border \
-    --prompt="🌿 Checkout or Create > " \
+    --prompt="🌿 Branch > " \
     --header="$header" \
-    --preview="git log --oneline --graph --color=always {} | head -n 20")
+    --preview='
+        if [ {} = "+ Create new branch" ]; then
+            printf "Create a new branch from the current HEAD\n"
+        else
+            git log --oneline --graph --color=always {} 2>/dev/null | head -n 20
+        fi
+    ' || true)
 
 if [ -z "$output" ]; then exit 0; fi
 
-query=$(echo "$output" | head -1)
-selection=$(echo "$output" | tail -1)
+query=$(printf '%s\n' "$output" | head -1)
+selection=$(printf '%s\n' "$output" | tail -1)
 
-# Handle case where selection equals query (happens when creating new branch)
-if [ "$query" == "$selection" ] && ! echo "$git_branches" | grep -q \"^$selection$\"; then
-    selection=""
-fi
-
-if [ -n "$selection" ]; then
-    if git show-ref --verify --quiet "refs/heads/$selection"; then
-        echo "🔄 Switching to local branch '$selection'..."
-        git checkout "$selection"
-
-    elif [[ "$selection" == *"/"* ]]; then
-        # Handle remote branch
-        local_name=$(echo "$selection" | sed 's/^[^	]*\///')
-        if git show-ref --verify --quiet "refs/heads/$local_name"; then
-            echo "🔄 Switching to existing local branch '$local_name'..."
-            git checkout "$local_name"
-        else
-            echo "☁️  Tracking remote branch '$selection' as '$local_name'..."
-            git checkout --track "$selection"
-        fi
-
-    else
-        echo "🔄 Switching to '$selection'..."
-        git checkout "$selection"
-    fi
-
+if [ "$selection" = "$CREATE_OPTION" ]; then
+    create_branch
+elif [ -n "$selection" ]; then
+    switch_branch "$selection"
 elif [ -n "$query" ]; then
-    echo "✨ Branch '$query' does not exist."
-    read -p "Create new branch '$query'? [Y/n] " -n 1 -r
-    echo ""
-    if [[ $REPLY =~ ^[Yy]$ ]] || [[ -z $REPLY ]]; then
-        git checkout -b "$query"
-        echo "✅ Created and switched to '$query'"
-    else
-        echo "❌ Cancelled."
-    fi
+    switch_branch "$query"
 fi

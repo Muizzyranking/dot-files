@@ -120,4 +120,3 @@ if [ "$show_branch" = true ]; then
 fi
 
 open_url "$remote_url"
-
