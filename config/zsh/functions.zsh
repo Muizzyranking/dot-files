@@ -44,10 +44,10 @@ fdir() {
 
 f() {
     local dir
-    dir=$(zoxide query --list --score |
+    dir=$(zoxide query --list 2>/dev/null |
         fzf --height 40% --layout reverse --info inline \
-            --nth 2.. --tac --no-sort --query "$*" \
-        --bind 'enter:become:echo {2..}') || return
+            --nth 1.. --tac --no-sort --query "$*" \
+            --bind 'enter:become:echo {1}') || return
     [[ -n "$dir" ]] && cd "$dir"
 }
 

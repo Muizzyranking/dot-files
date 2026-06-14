@@ -55,9 +55,10 @@ fpath+=("$HOME/.zsh/completions" "${ZDOTDIR:-~}/.zsh_functions")
 
 autoload -Uz compinit
 
-# Cache compinit for speed
-if [[ -n ~/.zcompdump(#qN.mh+24) ]]; then
+local zcomp="$HOME/.zcompdump"
+if [[ ! -f "$zcomp" || -n "$zcomp"(#qN.mh+24) ]]; then
     compinit
+    [[ ! -f "$zcomp.zwc" || "$zcomp" -nt "$zcomp.zwc" ]] && zcompile "$zcomp"
 else
     compinit -C
 fi

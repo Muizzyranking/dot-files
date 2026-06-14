@@ -25,7 +25,7 @@ _pm_clone_url() {
 }
 
 _pm_default_file() {
-    local _path="$1" name="$2"                          # ← was: path
+    local _path="$1" name="$2"
     local candidates=( "$name.zsh" "$name.plugin.zsh" "$name.zsh-theme" "$name.sh" "zsh-$name.zsh" )
     for f in $candidates; do
         [[ -f "$_path/$f" ]] && { echo "$f"; return }
@@ -108,5 +108,23 @@ plugin_update() {
         else
             git -C "$_path" pull --ff-only -q 2>/dev/null && print "✓ updated ($behind commits)" || print "✗ failed"
         fi
+    done
+}
+
+plugin_remove() {
+    local name="$1"
+    local _path="${_plugin_registry[$name]}"
+    [[ -z "$_path" ]] && { print "plugin not loaded: $name"; return 1 }
+
+    rm -rf "$_path"
+    unset "_plugin_registry[$name]"
+    unset "_plugin_sources[$name]"
+    print "removed $name"
+}
+
+plugin_list() {
+    local name
+    for name in ${(k)_plugin_registry}; do
+        printf "  %-30s %s\n" "$name" "${_plugin_sources[$name]}"
     done
 }
