@@ -30,6 +30,7 @@ alias ga='git add'
 alias gc='git commit'
 alias gp='git push'
 alias gg='lazygit'
+alias gb='git-branches'
 
 alias ae='$EDITOR ~/.config/zsh/aliases.zsh'
 alias zshrc='$EDITOR $ZSHRC'
@@ -40,3 +41,4 @@ alias tmuxrc='$EDITOR $TMUXRC'
 alias ff='find_file'
 
 alias dbman='dbman.py'
+alias sshm='sshm.py'
