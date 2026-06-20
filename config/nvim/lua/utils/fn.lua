@@ -204,4 +204,15 @@ function M.ft_config(ft)
 	Utils.notify.warn("No filetype config found for '" .. ft .. "'")
 end
 
+function M.get_path(mod, ...)
+	local current = mod
+	for _, key in ipairs({ ... }) do
+		current = current[key]
+		if current == nil then
+			return nil
+		end
+	end
+	return current
+end
+
 return M
