@@ -1,6 +1,8 @@
 ---@type LspExtras
 return {
-	enabled = true,
+	enabled = function(settings)
+		return Utils.fn.get_path(settings, "lsp", "python", "server") == "basedpyright"
+	end,
 	keys = {
 		{
 			"<leader>ci",

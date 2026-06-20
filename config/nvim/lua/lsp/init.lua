@@ -1,5 +1,5 @@
 ---@class LspExtras
----@field enabled? boolean
+---@field enabled? boolean | fun(settings: Settings): boolean
 ---@field keys? KeymapOpts[]
 ---@field on_attach? fun(client: vim.lsp.Client, bufnr: number)
 
@@ -144,7 +144,22 @@ local function scan_servers()
 			local server_name = name:gsub("%.lua$", "")
 			local extras = load_server_extras(server_name)
 
-			if not extras or extras.enabled ~= false then
+			local function resolve_enabled(x)
+				if x == nil then
+					return true
+				end
+				if x.enabled == nil then
+					return true
+				end
+
+				local enabled = x.enabled
+				if type(enabled) == "function" then
+					return enabled(require("config.settings"))
+				end
+				return enabled
+			end
+
+			if resolve_enabled(extras) then
 				table.insert(servers, server_name)
 
 				if extras then

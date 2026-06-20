@@ -1,5 +1,7 @@
 return {
-	enabled = true,
+	enabled = function(settings)
+		return Utils.fn.get_path(settings, "lsp", "typescript", "server") == "tsgo"
+	end,
 	keys = {
 		{
 			"<leader>ci",

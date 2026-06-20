@@ -1,5 +1,7 @@
 return {
-	enabled = false,
+	enabled = function(settings)
+		return Utils.fn.get_path(settings, "lsp", "typescript", "server") == "vtsls"
+	end,
 	keys = {
 		{
 			"gR",
