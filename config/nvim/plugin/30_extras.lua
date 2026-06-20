@@ -45,22 +45,22 @@ end, "flash.nvim")
 
 Pack.defer(function()
 	require("persistence").setup()
-	local argc = vim.fn.argc()
-	local argv0 = argc > 0 and vim.fn.argv(0) or nil
-
-	if argv0 and vim.islist(argv0) then
-		argv0 = argv0[1]
-	end
-	---@diagnostic disable-next-line: param-type-mismatch
-	if argc == 0 or (argc == 1 and argv0 and vim.fn.isdirectory(argv0) == 1) then
-		require("persistence").load()
-		vim.schedule(function()
-			vim.api.nvim_exec_autocmds("FileType", {
-				buffer = vim.api.nvim_get_current_buf(),
-				modeline = false,
-			})
-		end)
-	end
+	-- local argc = vim.fn.argc()
+	-- local argv0 = argc > 0 and vim.fn.argv(0) or nil
+	--
+	-- if argv0 and vim.islist(argv0) then
+	-- 	argv0 = argv0[1]
+	-- end
+	-- ---@diagnostic disable-next-line: param-type-mismatch
+	-- if argc == 0 or (argc == 1 and argv0 and vim.fn.isdirectory(argv0) == 1) then
+	-- 	require("persistence").load()
+	-- 	vim.schedule(function()
+	-- 		vim.api.nvim_exec_autocmds("FileType", {
+	-- 			buffer = vim.api.nvim_get_current_buf(),
+	-- 			modeline = false,
+	-- 		})
+	-- 	end)
+	-- end
 	Utils.map.set({
 		{
 			"<leader>qs",
