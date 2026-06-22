@@ -60,7 +60,9 @@ def header(title):
 def load_config() -> dict:
     CONFIG_DIR.mkdir(exist_ok=True)
     if CONFIG_FILE.exists():
-        return json.loads(CONFIG_FILE.read_text())
+        content = CONFIG_FILE.read_text().strip()
+        if content:
+            return json.loads(content)
     return {}
 
 
@@ -186,9 +188,9 @@ def pg_create(name: str, port: int, force: bool):
             "type": "postgres",
             "container": container,
             "port": actual_port,
-            "user": PG_DEFAULT_USER,
+            "user": name,
             "password": PG_DEFAULT_PASSWORD,
-            "db": PG_DEFAULT_DB,
+            "db": name,
         }
         set_entry(name, entry)
         ok("Container started and tracked.")
@@ -208,11 +210,11 @@ def pg_create(name: str, port: int, force: bool):
             "--name",
             container,
             "-e",
-            f"POSTGRES_USER={PG_DEFAULT_USER}",
+            f"POSTGRES_USER={name}",
             "-e",
             f"POSTGRES_PASSWORD={PG_DEFAULT_PASSWORD}",
             "-e",
-            f"POSTGRES_DB={PG_DEFAULT_DB}",
+            f"POSTGRES_DB={name}",
             "-p",
             f"{port}:5432",
             "postgres:16-alpine",
@@ -228,9 +230,9 @@ def pg_create(name: str, port: int, force: bool):
         "type": "postgres",
         "container": container,
         "port": port,
-        "user": PG_DEFAULT_USER,
+        "user": name,
         "password": PG_DEFAULT_PASSWORD,
-        "db": PG_DEFAULT_DB,
+        "db": name,
     }
     set_entry(name, entry)
     ok(f"Container '{container}' is running.")
