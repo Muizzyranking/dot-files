@@ -16,6 +16,7 @@ PG_DEFAULT_PORT = 5432
 PG_DEFAULT_USER = "postgres"
 PG_DEFAULT_PASSWORD = "postgres"
 PG_DEFAULT_DB = "postgres"
+PG_DEFAULT_IMAGE = "postgres:16-alpine"
 
 REDIS_DEFAULT_PORT = 6379
 
@@ -151,7 +152,7 @@ def wait_healthy(container: str, timeout: int = 15) -> bool:
 
 
 # Postgres
-def pg_create(name: str, port: int, force: bool):
+def pg_create(name: str, port: int, force: bool, image: str = PG_DEFAULT_IMAGE):
     container = f"dbman-pg-{name}"
     header(f"Postgres  ›  {name}")
 
@@ -191,6 +192,7 @@ def pg_create(name: str, port: int, force: bool):
             "user": name,
             "password": PG_DEFAULT_PASSWORD,
             "db": name,
+            "image": image,
         }
         set_entry(name, entry)
         ok("Container started and tracked.")
@@ -202,6 +204,7 @@ def pg_create(name: str, port: int, force: bool):
         return
 
     info(f"Pulling & starting postgres container '{container}' on port {port}...")
+    info(f"Using image: {c(C.CYAN, image)}")
     r = run(
         [
             "docker",
@@ -217,7 +220,7 @@ def pg_create(name: str, port: int, force: bool):
             f"POSTGRES_DB={name}",
             "-p",
             f"{port}:5432",
-            "postgres:16-alpine",
+            image,
         ]
     )
     if r.returncode != 0:
@@ -233,6 +236,7 @@ def pg_create(name: str, port: int, force: bool):
         "user": name,
         "password": PG_DEFAULT_PASSWORD,
         "db": name,
+        "image": image,
     }
     set_entry(name, entry)
     ok(f"Container '{container}' is running.")
@@ -251,11 +255,13 @@ def pg_info(name: str):
     db = entry["db"]
     host = "localhost"
     container = entry["container"]
+    image = entry.get("image", PG_DEFAULT_IMAGE)
     running = docker_container_running(container)
     status = c(C.GREEN, "running") if running else c(C.YELLOW, "stopped")
 
     header(f"Postgres  ›  {name}  [{status}{C.BOLD}]")
     print(f"  {'Container':<18} {c(C.CYAN, container)}")
+    print(f"  {'Image':<18} {c(C.CYAN, image)}")
     print(f"  {'Host':<18} {c(C.WHITE, host)}")
     print(f"  {'Port':<18} {c(C.WHITE, str(port))}")
     print(f"  {'User':<18} {c(C.WHITE, user)}")
@@ -504,8 +510,11 @@ def list_all():
             else c(C.RED, "redis   ")
         )
         port = entry["port"]
+        image_info = ""
+        if entry["type"] == "postgres":
+            image_info = f"  {c(C.GRAY, entry.get('image', PG_DEFAULT_IMAGE))}"
         print(
-            f"  {kind}  {c(C.WHITE, name):<22} {status:<24}  port {c(C.YELLOW, str(port))}"
+            f"  {kind}  {c(C.WHITE, name):<22} {status:<24}  port {c(C.YELLOW, str(port))}{image_info}"
         )
     print()
 
@@ -616,12 +625,21 @@ def ui_create(kind: str):
     port = ui_prompt_port(default_port)
     if port is None:
         return
+
+    image = None
+    if kind == "postgres":
+        image = ui_prompt_text("Image", PG_DEFAULT_IMAGE)
+        if image is None:
+            return
+
     force = ui_prompt_confirm("Force-stop a container already using this port?", False)
     if force is None:
         return
 
     if kind == "postgres":
-        pg_create(name, port, force)
+        if not image:
+            image = PG_DEFAULT_IMAGE
+        pg_create(name, port, force, image)
     else:
         redis_create(name, port, force)
     ui_pause()
@@ -633,12 +651,16 @@ def ui_entry_label(name: str, entry: dict) -> str:
     running = docker_container_running(container)
     status = c(C.GREEN, "running") if running else c(C.GRAY, "stopped")
     kind_label = c(C.CYAN, "postgres") if kind == "postgres" else c(C.RED, "redis")
+    image_info = ""
+    if kind == "postgres":
+        img = entry.get("image", PG_DEFAULT_IMAGE)
+        image_info = f"  {c(C.GRAY, img)}"
     return (
         f"{kind_label:<18} "
         f"{c(C.WHITE, name):<28} "
         f"{status:<18} "
         f"port {c(C.YELLOW, str(entry['port'])):<10} "
-        f"{c(C.GRAY, container)}"
+        f"{c(C.GRAY, container)}{image_info}"
     )
 
 
@@ -746,6 +768,7 @@ def build_parser() -> argparse.ArgumentParser:
               dbman pg create myapp              # Postgres on default port 5432
               dbman pg create myapp -p 5433      # Postgres on custom port
               dbman pg create myapp -f           # Force-claim port 5432 if taken
+              dbman pg create myapp --image pgvector/pgvector:pg16
               dbman pg info myapp                # Show connection details & URLs
               dbman pg connect myapp             # Open psql shell
               dbman pg stop myapp                # Stop container
@@ -781,6 +804,11 @@ def build_parser() -> argparse.ArgumentParser:
                 "--force",
                 action="store_true",
                 help="Force-stop any container using the port",
+            )
+            sp.add_argument(
+                "--image",
+                default=PG_DEFAULT_IMAGE,
+                help=f"Postgres Docker image (default: {PG_DEFAULT_IMAGE})",
             )
 
     # redis
@@ -818,7 +846,7 @@ def main():
 
     if args.cmd == "pg":
         if args.pg_cmd == "create":
-            pg_create(args.name, args.port, args.force)
+            pg_create(args.name, args.port, args.force, args.image)
         elif args.pg_cmd in ("info", None):
             pg_info(args.name)
         elif args.pg_cmd == "connect":
