@@ -229,8 +229,8 @@ function Toggle:new(mapping)
 end
 
 function Toggle:notify(message, level, buf)
-		buf = Utils.fn.ensure_buf(buf)
-		Utils.notify[level](message, { title = self.mapping.desc, buffer = buf })
+	buf = Utils.fn.ensure_buf(buf)
+	Utils.notify[level](message, { title = self.mapping.desc, buffer = buf })
 end
 
 function Toggle:is_valid()
