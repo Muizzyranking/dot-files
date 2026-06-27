@@ -1,0 +1,9 @@
+{
+  "workspace": {
+    "library": [
+      "/usr/share/hypr/stubs",
+      "/usr/share/hyprland/lua/",
+      "$HOME/.local/share/hyprland/lua/"
+    ]
+  }
+}
