@@ -1,102 +1,192 @@
+---@class Statusline.Components
 local M = {}
 
 local utils = require("statusline.utils")
 
--- ===========================
--- show cmd
--- ===========================
-function M.showcmd()
-	if not Pack.has("noice.nvim") then
-		return ""
+---@param opts Statusline.ComponentOpts
+function M.new(opts)
+	local render = opts.render
+	if opts.cache then
+		render = utils.cache(opts.cache.events, render, { per_buf = opts.cache.per_buf })
 	end
-	---@diagnostic disable-next-line: undefined-field
-	if package.loaded["noice"] and require("noice").api.status.command.has() then
-		---@diagnostic disable-next-line: undefined-field
-		local display = require("noice").api.status.command.get()
-		return string.format("%%#StatuslineMacro# %s%%#StatuslineNC#", display)
-	end
+	return {
+		render = render,
+		hl = opts.hl,
+		fill = opts.fill,
+		sep = opts.sep,
+		raw = opts.raw,
+	}
 end
 
-M.sep = "%#StatuslineSep# │ %#StatuslineNC#"
+---Quick helper for plain filetype "labels" (Lazygit / Oil / Mason...).
+---Defaults to the dynamic mode color, like the old utils.pill did.
+---@param text string
+---@param opts? Statusline.LabelOpts
+---@return Statusline.Component
+function M.label(text, opts)
+	opts = opts or {}
+	return M.new({
+		render = function()
+			return text
+		end,
+		hl = opts.hl or "StatuslineModeNormal",
+		fill = opts.fill == nil or opts.fill,
+	})
+end
 
--- ===========================
+-- ============================================================
 -- mode
--- ===========================
----@return string
-function M.mode()
-	local raw = vim.api.nvim_get_mode().mode
-	local icon = Utils.icons.modes[raw] or Utils.icons.ui.Target
-	return utils.pill(icon)
-end
+-- ============================================================
+M.mode = M.new({
+	render = function()
+		local raw = vim.api.nvim_get_mode().mode
+		return Utils.icons.modes[raw] or Utils.icons.ui.Target
+	end,
+	fill = true,
+})
 
--- ===========================
--- git branch (from gitsigns)
--- ===========================
-function M.branch()
-	local branch = vim.b.gitsigns_head or vim.g.gitsigns_head
-	if not branch or branch == "" then
+-- ============================================================
+-- show cmd (noice)
+-- ============================================================
+M.showcmd = M.new({
+	hl = "StatuslineMacro",
+	render = function()
+		if not Pack.has("noice.nvim") then
+			return ""
+		end
+		---@diagnostic disable-next-line: undefined-field
+		if package.loaded["noice"] and require("noice").api.status.command.has() then
+			---@diagnostic disable-next-line: undefined-field
+			return require("noice").api.status.command.get()
+		end
 		return ""
-	end
-	local icon = (Utils and Utils.icons.git.branch) or ""
-	return string.format("%%#StatuslineBranch#%s %s%%#StatuslineNC#", icon, branch)
-end
+	end,
+})
 
--- ===========================
--- git diff (from gitsigns)
--- ===========================
-M.diff = utils.cache({
-	"BufEnter",
-	"BufWritePost",
-	{ event = "User", pattern = "GitSignsUpdate" },
-}, function()
-	local gs = vim.b.gitsigns_status_dict
-	if not gs then
-		return ""
-	end
-	local icons = (Utils and Utils.icons.git) or {}
+-- ============================================================
+-- git branch (gitsigns)
+-- ============================================================
+M.branch = M.new({
+	hl = "StatuslineBranch",
+	render = function()
+		local branch = vim.b.gitsigns_head or vim.g.gitsigns_head
+		if not branch or branch == "" then
+			return ""
+		end
+		local icon = (Utils and Utils.icons.git.branch) or ""
+		return string.format("%s %s", icon, branch)
+	end,
+})
 
-	local parts = {}
-	local added = gs.added or 0
-	local changed = gs.changed or 0
-	local removed = gs.removed or 0
+-- ============================================================
+-- git diff (gitsigns)
+-- ============================================================
+M.diff = M.new({
+	raw = true,
+	cache = {
+		events = { "BufEnter", "BufWritePost", { event = "User", pattern = "GitSignsUpdate" } },
+		per_buf = true,
+	},
+	render = function()
+		local gs = vim.b.gitsigns_status_dict
+		if not gs then
+			return ""
+		end
+		local icons = (Utils and Utils.icons.git) or {}
 
-	if added > 0 then
-		table.insert(parts, string.format("%%#StatuslineDiffAdd#%s%d%%#StatuslineNC#", icons.added or "+", added))
-	end
-	if changed > 0 then
-		table.insert(
-			parts,
-			string.format("%%#StatuslineDiffChange#%s%d%%#StatuslineNC#", icons.modified or "~", changed)
-		)
-	end
-	if removed > 0 then
-		table.insert(
-			parts,
-			string.format("%%#StatuslineDiffDelete#%s%d%%#StatuslineNC#", icons.removed or "-", removed)
-		)
-	end
+		local parts = {}
+		local added, changed, removed = gs.added or 0, gs.changed or 0, gs.removed or 0
 
-	if #parts == 0 then
-		return ""
-	end
-	return table.concat(parts, " ")
-end, { per_buf = true })
+		if added > 0 then
+			table.insert(parts, utils.wrap("StatuslineDiffAdd", string.format("%s%d", icons.added or "+", added)))
+		end
+		if changed > 0 then
+			table.insert(
+				parts,
+				utils.wrap("StatuslineDiffChange", string.format("%s%d", icons.modified or "~", changed))
+			)
+		end
+		if removed > 0 then
+			table.insert(
+				parts,
+				utils.wrap("StatuslineDiffDelete", string.format("%s%d", icons.removed or "-", removed))
+			)
+		end
 
--- ===========================
+		return table.concat(parts)
+	end,
+})
+
+-- ============================================================
 -- macro recording
--- ===========================
-function M.macro()
-	local reg = vim.fn.reg_recording()
-	if reg == "" then
-		return ""
+-- ============================================================
+local rec_timer, rec_blink = nil, false
+
+M.macro = M.new({
+	raw = true,
+	render = function()
+		local reg = vim.fn.reg_recording()
+		if reg == "" then
+			return ""
+		end
+		local dot_hl = rec_blink and "StatuslineRecording" or "StatuslineRecordingDim"
+		local dot_icon = rec_blink and "●" or "○"
+		return utils.wrap(dot_hl, dot_icon) .. utils.wrap("StatuslineMacro", "@" .. reg)
+	end,
+})
+
+function M.macro_setup()
+	local function set_timer()
+		local rec = vim.fn.reg_recording() ~= ""
+		if rec and not rec_timer then
+			rec_blink = true
+			rec_timer = vim.loop.new_timer()
+			if rec_timer then
+				rec_timer:start(
+					0,
+					500,
+					vim.schedule_wrap(function()
+						rec_blink = not rec_blink
+						vim.cmd.redrawstatus()
+					end)
+				)
+			end
+		elseif not rec and rec_timer then
+			rec_timer:stop()
+			rec_timer:close()
+			rec_timer = nil
+			rec_blink = false
+		end
 	end
-	return string.format("%%#StatuslineMacro# @%s%%#StatuslineNC#", reg)
+
+	vim.api.nvim_create_autocmd({ "RecordingEnter", "RecordingLeave" }, {
+		callback = function()
+			set_timer()
+			vim.cmd.redrawstatus()
+		end,
+	})
 end
 
--- ===========================
--- file name
--- ===========================
+-- ============================================================
+-- root
+-- ============================================================
+M.root = M.new({
+	hl = "StatuslineRoot",
+	render = function()
+		local root = Utils.root.get()
+		if not root then
+			return ""
+		end
+		return string.format("󱉭 %s", vim.fn.fnamemodify(root, ":t"))
+	end,
+	sep = { left = "", right = "" },
+	-- sep = { left = "", right = "" },
+	fill = true,
+})
 
+-- ============================================================
+-- file path
+-- ============================================================
 local function truncate_path(rel, max)
 	if #rel <= max then
 		return rel
@@ -113,104 +203,120 @@ local function truncate_path(rel, max)
 	return table.concat(short, "/") .. "/" .. name
 end
 
-M.filename = function()
-	local buf = vim.api.nvim_win_get_buf(vim.g.statusline_winid or 0)
+local function filepath_hl()
+	local buf = utils.stbuf()
 	local full = vim.api.nvim_buf_get_name(buf)
-	local cols = vim.o.columns
-
-	if full == "" then
-		return "%#StatuslineFilename# 󰈚 [No Name]%#StatuslineNC#"
+	if vim.bo[buf].modified then
+		return "StatuslineFilenameModified"
+	elseif full ~= "" and vim.fn.executable(full) == 1 then
+		return "StatuslineFilenameExec"
 	end
-
-	local name = vim.fn.fnamemodify(full, ":t")
-	local rel = vim.fn.fnamemodify(full, ":~:.")
-	local max_len = cols > 120 and 60 or cols > 80 and 40 or 20
-	local display = truncate_path(rel, max_len)
-
-	local icon = "󰈚"
-	local ok, MiniIcons = pcall(require, "mini.icons")
-	if ok then
-		local ic = MiniIcons.get("file", name)
-		if ic and ic ~= "" then
-			icon = ic
-		end
-	end
-
-	local modified = vim.bo[buf].modified
-	local readonly = vim.bo[buf].readonly or not vim.bo[buf].modifiable
-	local executable = full ~= "" and vim.fn.executable(full) == 1
-
-	local hl
-	if modified then
-		hl = "StatuslineFilenameModified"
-	elseif executable then
-		hl = "StatuslineFilenameExec"
-	else
-		hl = "StatuslineFilename"
-	end
-
-	local mod_icon = modified and " ●" or ""
-	local ro_icon = readonly and " 󰌾" or ""
-	local ex_icon = executable and " 󰒃" or ""
-
-	return string.format("%%#%s# %s %s%s%s%s%%#StatuslineNC#", hl, icon, display, mod_icon, ro_icon, ex_icon)
+	return "StatuslineFilename"
 end
 
--- ===========================
+M.filepath = M.new({
+	hl = filepath_hl,
+	fill = false,
+	render = function()
+		local buf = utils.stbuf()
+		local full = vim.api.nvim_buf_get_name(buf)
+		local cols = vim.o.columns
+
+		if full == "" then
+			return "󰈚 [No Name]"
+		end
+
+		local name = vim.fn.fnamemodify(full, ":t")
+		local rel = vim.fn.fnamemodify(full, ":~:.")
+		local max_len = cols > 120 and 60 or cols > 80 and 40 or 20
+		local display = truncate_path(rel, max_len)
+
+		local icon = "󰈚"
+		local ok, MiniIcons = pcall(require, "mini.icons")
+		if ok then
+			local ic = MiniIcons.get("file", name)
+			if ic and ic ~= "" then
+				icon = ic
+			end
+		end
+
+		local modified = vim.bo[buf].modified
+		local readonly = vim.bo[buf].readonly or not vim.bo[buf].modifiable
+		local executable = vim.fn.executable(full) == 1
+
+		local mod_icon = modified and " ●" or ""
+		local ro_icon = readonly and " 󰌾" or ""
+		local ex_icon = executable and " 󰒃" or ""
+
+		return string.format("%s %s%s%s%s", icon, display, mod_icon, ro_icon, ex_icon)
+	end,
+})
+
+-- ============================================================
 -- buffers
--- ===========================
-M.buffers = utils.cache({ "BufAdd", "BufDelete", "BufWipeout", "BufModifiedSet", "BufWritePost" }, function()
-	local listed = vim.fn.getbufinfo({ buflisted = 1 })
-	local count = #listed
-	if count == 0 then
-		return ""
-	end
-
-	local dirty = 0
-	for _, buf in ipairs(listed) do
-		if vim.bo[buf.bufnr].modified then
-			dirty = dirty + 1
+-- ============================================================
+M.buffers = M.new({
+	cache = { events = { "BufAdd", "BufDelete", "BufWipeout", "BufModifiedSet", "BufWritePost" } },
+	hl = function()
+		for _, buf in ipairs(vim.fn.getbufinfo({ buflisted = 1 })) do
+			if vim.bo[buf.bufnr].modified then
+				return "StatuslineBuffersDirty"
+			end
 		end
-	end
+		return "StatuslineBuffers"
+	end,
+	render = function()
+		local listed = vim.fn.getbufinfo({ buflisted = 1 })
+		local count = #listed
+		if count == 0 then
+			return ""
+		end
 
-	local icon = (Utils and Utils.icons.ui and Utils.icons.ui.buffer) or "󰓩"
-	local hl = dirty > 0 and "StatuslineBuffersDirty" or "StatuslineBuffers"
-	local dirt = dirty > 0 and string.format(" ● %d", dirty) or ""
+		local dirty = 0
+		for _, buf in ipairs(listed) do
+			if vim.bo[buf.bufnr].modified then
+				dirty = dirty + 1
+			end
+		end
 
-	return string.format("%%#%s# %s%d%s%%#StatuslineNC#", hl, icon, count, dirt)
-end)
+		local icon = (Utils and Utils.icons.ui and Utils.icons.ui.buffer) or "󰓩"
+		local dirt = dirty > 0 and string.format(" ● %d", dirty) or ""
+		return string.format("%s%d%s", icon, count, dirt)
+	end,
+})
 
--- ===========================
+-- ============================================================
 -- diagnostics
--- ===========================
-M.diagnostics = utils.cache({ "DiagnosticChanged", "BufEnter" }, function()
-	local buf = vim.api.nvim_win_get_buf(vim.g.statusline_winid or 0)
-	local icons = (Utils and Utils.icons.diagnostics) or {}
+-- ============================================================
+M.diagnostics = M.new({
+	raw = true,
+	cache = { events = { "DiagnosticChanged", "BufEnter" }, per_buf = true },
+	render = function()
+		local buf = utils.stbuf()
+		local icons = (Utils and Utils.icons.diagnostics) or {}
 
-	local items = {
-		{ sev = vim.diagnostic.severity.ERROR, hl = "StatuslineDiagError", icon = icons.Error or " " },
-		{ sev = vim.diagnostic.severity.WARN, hl = "StatuslineDiagWarn", icon = icons.Warn or " " },
-		{ sev = vim.diagnostic.severity.INFO, hl = "StatuslineDiagInfo", icon = icons.Info or " " },
-		{ sev = vim.diagnostic.severity.HINT, hl = "StatuslineDiagHint", icon = icons.Hint or "󰌶 " },
-	}
+		local items = {
+			{ sev = vim.diagnostic.severity.ERROR, hl = "StatuslineDiagError", icon = icons.Error },
+			{ sev = vim.diagnostic.severity.WARN, hl = "StatuslineDiagWarn", icon = icons.Warn },
+			{ sev = vim.diagnostic.severity.INFO, hl = "StatuslineDiagInfo", icon = icons.Info },
+			{ sev = vim.diagnostic.severity.HINT, hl = "StatuslineDiagHint", icon = icons.Hint },
+		}
 
-	local parts = {}
-	for _, item in ipairs(items) do
-		local n = #vim.diagnostic.get(buf, { severity = item.sev })
-		if n > 0 then
-			table.insert(parts, string.format("%%#%s#%s%d%%#StatuslineNC#", item.hl, item.icon, n))
+		local parts = {}
+		for _, item in ipairs(items) do
+			local n = #vim.diagnostic.get(buf, { severity = item.sev })
+			if n > 0 then
+				table.insert(parts, utils.wrap(item.hl, string.format("%s%d", item.icon, n)))
+			end
 		end
-	end
 
-	if #parts == 0 then
-		return ""
-	end
-	return table.concat(parts, " ")
-end, { per_buf = true })
+		return table.concat(parts, " ")
+	end,
+})
 
--- ===========================
+-- ============================================================
 -- LSP
--- ===========================
+-- ============================================================
 local function truncate_lsp(name)
 	if #name <= 10 then
 		return name
@@ -224,26 +330,30 @@ local function truncate_lsp(name)
 	return name
 end
 
-M.lsp = utils.cache({ "LspAttach", "LspDetach", "BufEnter" }, function()
-	if vim.o.columns <= 100 then
-		return ""
-	end
-	local clients = vim.lsp.get_clients({ bufnr = 0 })
-	local names = {}
-	for _, c in ipairs(clients) do
-		if c.name ~= "conform" and c.name ~= "copilot" then
-			table.insert(names, #clients > 2 and truncate_lsp(c.name) or c.name)
+M.lsp = M.new({
+	hl = "StatuslineLsp",
+	cache = { events = { "LspAttach", "LspDetach", "BufEnter" }, per_buf = true },
+	render = function()
+		if vim.o.columns <= 100 then
+			return ""
 		end
-	end
-	if #names == 0 then
-		return ""
-	end
-	return string.format("%%#StatuslineLsp# 󰄭 %s%%#StatuslineNC#", table.concat(names, ", "))
-end, { per_buf = true })
+		local clients = vim.lsp.get_clients({ bufnr = 0 })
+		local names = {}
+		for _, c in ipairs(clients) do
+			if c.name ~= "conform" and c.name ~= "copilot" then
+				table.insert(names, #clients > 2 and truncate_lsp(c.name) or c.name)
+			end
+		end
+		if #names == 0 then
+			return ""
+		end
+		return string.format("󰄭 %s", table.concat(names, ", "))
+	end,
+})
 
--- ===========================
+-- ============================================================
 -- copilot
--- ===========================
+-- ============================================================
 local copilot_icons = {
 	Normal = Utils.icons.kinds.Copilot,
 	Warning = "",
@@ -257,50 +367,68 @@ local copilot_hls = {
 	Error = "StatuslineCopilotError",
 }
 
-M.copilot = utils.cache({ "LspAttach", "LspDetach", "BufEnter" }, function()
-	if not package.loaded["copilot"] then
-		return ""
-	end
-	local ok, clients = pcall(vim.lsp.get_clients, { name = "copilot", bufnr = 0 })
-	if not ok or #clients == 0 then
-		return ""
-	end
+local function copilot_status()
 	local sok, status = pcall(function()
 		return require("copilot.status").data
 	end)
-	local s = (sok and status and status.status) or "Normal"
-	return string.format(
-		"%%#%s# %s%%#StatuslineNC#",
-		copilot_hls[s] or copilot_hls.Normal,
-		copilot_icons[s] or copilot_icons.Normal
-	)
-end)
-
--- ===========================
--- search count (visible when searching)
--- ===========================
-function M.searchcount()
-	if vim.v.hlsearch == 0 then
-		return ""
-	end
-	local ok, result = pcall(vim.fn.searchcount, { maxcount = 999, timeout = 50 })
-	if not ok or not result or result.total == 0 then
-		return ""
-	end
-	if result.incomplete == 1 then
-		return "%#StatuslineSearch#  ?/?%#StatuslineNC#"
-	end
-	return string.format("%%#StatuslineSearch#  %d/%d%%#StatuslineNC#", result.current, result.total)
+	return (sok and status and status.status) or "Normal"
 end
 
+M.copilot = M.new({
+	hl = function()
+		return copilot_hls[copilot_status()] or copilot_hls.Normal
+	end,
+	cache = { events = { "LspAttach", "LspDetach", "BufEnter" } },
+	render = function()
+		if not package.loaded["copilot"] then
+			return ""
+		end
+		local ok, clients = pcall(vim.lsp.get_clients, { name = "copilot", bufnr = 0 })
+		if not ok or #clients == 0 then
+			return ""
+		end
+		return copilot_icons[copilot_status()] or copilot_icons.Normal
+	end,
+})
+
+-- ============================================================
+-- search count
+-- ============================================================
+M.searchcount = M.new({
+	hl = "StatuslineSearch",
+	render = function()
+		if vim.v.hlsearch == 0 then
+			return ""
+		end
+		local ok, result = pcall(vim.fn.searchcount, { maxcount = 999, timeout = 50 })
+		if not ok or not result or result.total == 0 then
+			return ""
+		end
+		if result.incomplete == 1 then
+			return " ?/?"
+		end
+		return string.format(" %d/%d", result.current, result.total)
+	end,
+})
+
+-- ============================================================
+-- position bar
+-- ============================================================
 local bar_chars = { "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█" }
 
-function M.position()
-	local line = vim.fn.line(".")
-	local total = vim.fn.line("$")
-	local ratio = line / math.max(total, 1)
-	local bar = bar_chars[math.max(1, math.ceil(ratio * #bar_chars))]
-	return string.format("%%#StatuslinePosition# %s%%#StatuslineNC#", bar)
+M.position = M.new({
+	hl = "StatuslinePosition",
+	render = function()
+		local line = vim.fn.line(".")
+		local total = vim.fn.line("$")
+		local ratio = line / math.max(total, 1)
+		return bar_chars[math.max(1, math.ceil(ratio * #bar_chars))]
+	end,
+	fill = true,
+})
+
+function M.setup()
+	M.macro_setup()
 end
 
 return M
