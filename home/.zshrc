@@ -1,7 +1,5 @@
 #!/usr/bin/env zsh
 
-[[ -n "$ZPROF" ]] && zmodload zsh/zprof
-
 [[ -o interactive ]] || return
 
 ZSH_CONFIG="${ZSH_CONFIG:-$HOME/.config/zsh}"
@@ -67,5 +65,3 @@ path=(
 load "aliases.zsh"
 load "functions.zsh"
 # load "fahh.zsh"
-
-[[ -n "$ZPROF" ]] && zprof >| /tmp/zsh-profile.txt && print "Profile: /tmp/zsh-profile.txt"
