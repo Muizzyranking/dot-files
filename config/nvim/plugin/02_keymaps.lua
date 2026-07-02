@@ -122,8 +122,8 @@ end
 
 snippet_aware_map({ "n", "v", "x" }, "B", "^", { desc = "Go to beginning of line" })
 snippet_aware_map({ "n", "v", "x" }, "E", "$", { desc = "Go to end of line" })
-snippet_aware_map({ "v", "x" }, "p", '"_dp', {})
-snippet_aware_map({ "v", "x" }, "P", '"_dP', {})
+-- snippet_aware_map({ "v", "x" }, "p", '"_dp', {})
+-- snippet_aware_map({ "v", "x" }, "P", '"_dP', {})
 snippet_aware_map({ "n", "v", "x" }, "c", '"_c', {})
 snippet_aware_map({ "n" }, "C", '"_C', {})
 snippet_aware_map({ "n" }, "D", '"_D', {})

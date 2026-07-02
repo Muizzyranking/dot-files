@@ -124,6 +124,10 @@
       "rev": "135f40f1243cf73963d34cf4694f8587cc07bee9",
       "src": "https://github.com/mrcjkb/rustaceanvim"
     },
+    "smart-paste.nvim": {
+      "rev": "3571c3c74fd5d03ed37cb4a07f015663a8450fa8",
+      "src": "https://github.com/nemanjamalesija/smart-paste.nvim"
+    },
     "snacks.nvim": {
       "rev": "ad9ede6a9cddf16cedbd31b8932d6dcdee9b716e",
       "src": "https://github.com/folke/snacks.nvim"
