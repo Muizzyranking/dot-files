@@ -110,7 +110,7 @@ Pack.on_event({ "InsertEnter", "CmdlineEnter" }, function()
 			ghost_text = { enabled = true },
 		},
 	}
-	local disabled_filetypes = { "prompt" }
+	local disabled_filetypes = { "prompt", "oil" }
 	opts.enabled = function()
 		return not vim.tbl_contains(disabled_filetypes, vim.bo.filetype) and vim.b.completion ~= false
 	end
