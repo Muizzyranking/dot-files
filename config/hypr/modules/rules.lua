@@ -159,7 +159,7 @@ hl.window_rule({
 
 hl.window_rule({
 	match = { class = "^(slack|Slack|discord|chrome-web\\.whatsapp\\.com__-Default|org\\.telegram\\.desktop)$" },
-	workspace = "silent 8",
+	workspace = 8,
 })
 
 hl.workspace_rule({ workspace = "1", layout = "scrolling" })
