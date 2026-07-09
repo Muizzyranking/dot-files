@@ -11,25 +11,24 @@ PACMAN_PACKAGES=(
 
     # CLI tools
     "neovim" "zsh" "tmux" "ripgrep" "fd" "fzf" "tldr" "eza" "bat"
-    "lazygit" "tree" "btop" "wget" "curl" "jq" "docker"
+    "lazygit" "tree" "btop" "wget" "curl" "jq" "docker" "docker-compose"
 
     # Hyprland + wayland
-    "hyprland" "hyprpaper" "hyprlock" "hypridle" "xdg-desktop-portal-hyprland"
-    "rofi-wayland" "grim" "slurp" "swappy" "wl-clipboard"
+    "hyprland" "hyprlock" "hypridle" "xdg-desktop-portal-hyprland"
+    "grim" "slurp" "swappy" "wl-clipboard"
     "cliphist" "pamixer" "wireplumber" "playerctl" "brightnessctl" "polkit-gnome"
-    "blueman" "nautilus" "fastfetch" "wlogout" "udiskie" "acpi"
+    "blueman" "thunar" "fastfetch" "udiskie" "acpi"
 
     # Theming
     "qt5ct" "qt6ct" "kvantum" "pavucontrol"
+
+    "dms-shell"
 )
 
 AUR_PACKAGES=(
     # Apps
     "google-chrome" "firefox" "visual-studio-code-bin"
     "telegram-desktop" "slack-desktop" "discord" "spotify"
-
-    # CLI
-    "yq"
 
     # Fonts
     "ttf-jetbrains-mono-nerd" "ttf-maple-nerd-font"
@@ -40,7 +39,6 @@ AUR_PACKAGES=(
     "catppuccin-cursors-mocha-peach"
     "catppuccin-gtk-theme-mocha"
     "kvantum-theme-catppuccin-git"
-    "rose-pine-gtk-theme-full"
 )
 
 install_pacman_packages() {

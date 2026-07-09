@@ -43,7 +43,8 @@ setup_zsh_default() {
     print_section "Setting Zsh as default shell"
 
     local zsh_path
-    zsh_path="$(command -v zsh 2>/dev/null || echo "")"
+    zsh_path="$(command -v zsh 2>/dev/null || true)"
+    zsh_path="${zsh_path:-}"
 
     if [[ -z "$zsh_path" ]]; then
         print_message warning "zsh not found, skipping shell change"
@@ -56,12 +57,16 @@ setup_zsh_default() {
     fi
 
     # Ensure zsh is in /etc/shells
-    if ! grep -qx "$zsh_path" /etc/shells; then
+    if ! grep -qx "$zsh_path" /etc/shells 2>/dev/null; then
         run_cmd "Adding zsh to /etc/shells" \
-            bash -c "echo '$zsh_path' | sudo tee -a /etc/shells"
+            bash -c "echo '$zsh_path' | sudo tee -a /etc/shells >/dev/null"
     fi
 
-    run_cmd "Changing default shell to zsh" chsh -s "$zsh_path"
+    local current_user
+    current_user="$(id -un)"
+    run_cmd "Changing default shell to zsh" \
+        sudo usermod --shell "$zsh_path" "$current_user"
+
     print_message success "Default shell changed to zsh (takes effect on next login)"
 }
 
@@ -69,7 +74,7 @@ main() {
     setup_logging
     print_header "Post-Install Setup"
 
-    setup_rustup
+    # setup_rustup
     setup_tpm
     setup_zsh_default
 

@@ -7,6 +7,7 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 BOLD='\033[1m'
 RESET='\033[0m'
+WHITE='\033[37m'
 
 LOG_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/dotfiles"
 LOG_FILE="$LOG_DIR/install-$(date +"%Y%m%d_%H%M%S").log"
@@ -67,6 +68,39 @@ print_header() {
     print_message header "========================================"
     print_message header "  $msg"
     print_message header "========================================"
+    echo
+}
+
+print_section() {
+    local msg="$1"
+    local width=50
+    local padding=$(( (width - ${#msg} - 2) / 2 ))
+    local left_pad=$(( padding ))
+    local right_pad=$(( padding ))
+    
+    # Adjust for odd-length strings
+    if (( (${#msg} + 2) % 2 != 0 )); then
+        right_pad=$(( right_pad + 1 ))
+    fi
+
+    local line=""
+    for ((i=0; i<width; i++)); do
+        line+="─"
+    done
+
+    local left_space=""
+    local right_space=""
+    for ((i=0; i<left_pad; i++)); do
+        left_space+=" "
+    done
+    for ((i=0; i<right_pad; i++)); do
+        right_space+=" "
+    done
+
+    echo
+    echo -e "  ${BOLD}${BLUE}${line}${RESET}"
+    echo -e "  ${BOLD}${BLUE}│${left_space}${WHITE}${msg}${right_space}${BLUE}│${RESET}"
+    echo -e "  ${BOLD}${BLUE}${line}${RESET}"
     echo
 }
 
