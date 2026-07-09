@@ -1,78 +1,225 @@
 local mainMod = "SUPER"
 local scripts = os.getenv("HOME") .. "/.config/hypr/scripts"
 
-local function mod(key)
-	return mainMod .. " + " .. key
+local function layout_action(actions)
+	return function()
+		local workspace = hl.get_active_special_workspace() or hl.get_active_workspace()
+		if not workspace then
+			return
+		end
+
+		local layout = workspace.tiled_layout
+		local action = actions[layout] or actions.default
+
+		if action then
+			hl.dispatch(action)
+		end
+	end
 end
 
--- local function sMod(key)
--- 	return mod("SHIFT + " .. key)
--- end
---
--- function bind(key, ...)
--- 	hl.bind(mod(key), ...)
--- end
+local function copy(t)
+	local u = {}
+	for k, v in pairs(t) do
+		u[k] = v
+	end
+	return u
+end
 
--- apps
-hl.bind(mod("Return"), hl.dsp.exec_cmd(TERMINAL))
-hl.bind(mod("E"), hl.dsp.exec_cmd(FILEMANAGER))
-hl.bind(mod("B"), hl.dsp.exec_cmd(BROWSER))
+local binds = {
+	-- Apps
+	{ "Return", cmd = TERMINAL },
+	{ "E", cmd = FILEMANAGER },
+	{ "B", cmd = BROWSER },
 
--- hl.bind(mainMod .. " + F", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mod("Q"), hl.dsp.window.close(), { description = "Window: Close" })
-hl.bind(mod("F"), hl.dsp.layout("colresize +conf"))
+	-- Window management
+	{ "Q", action = hl.dsp.window.close(), description = "Window: Close" },
+	{
+		"F",
+		action = layout_action({
+			scrolling = hl.dsp.layout("colresize +conf"),
+			default = hl.dsp.window.float({ action = "toggle" }),
+		}),
+	},
 
-local directions = {
-	{ key = "Left", dir = "l" },
-	{ key = "Right", dir = "r" },
-	{ key = "Up", dir = "u" },
-	{ key = "Down", dir = "d" },
-	{ key = "H", dir = "l" },
-	{ key = "L", dir = "r" },
-	{ key = "K", dir = "u" },
-	{ key = "J", dir = "d" },
+	-- Focus directions
+	{ "Left", action = hl.dsp.focus({ direction = "l" }) },
+	{ "Right", action = hl.dsp.focus({ direction = "r" }) },
+	{ "Up", action = hl.dsp.focus({ direction = "u" }) },
+	{ "Down", action = hl.dsp.focus({ direction = "d" }) },
+	{ "H", action = hl.dsp.focus({ direction = "l" }) },
+	{ "L", action = hl.dsp.focus({ direction = "r" }) },
+	{ "K", action = hl.dsp.focus({ direction = "u" }) },
+	{ "J", action = hl.dsp.focus({ direction = "d" }) },
+
+	-- Move directions
+	{ "Left", sMod = true, action = hl.dsp.window.move({ direction = "l" }) },
+	{ "Right", sMod = true, action = hl.dsp.window.move({ direction = "r" }) },
+	{ "Up", sMod = true, action = hl.dsp.window.move({ direction = "u" }) },
+	{ "Down", sMod = true, action = hl.dsp.window.move({ direction = "d" }) },
+	{ "H", sMod = true, action = hl.dsp.window.move({ direction = "l" }) },
+	{ "L", sMod = true, action = hl.dsp.window.move({ direction = "r" }) },
+	{ "K", sMod = true, action = hl.dsp.window.move({ direction = "u" }) },
+	{ "J", sMod = true, action = hl.dsp.window.move({ direction = "d" }) },
+
+	-- First/last window
+	{ "Home", action = hl.dsp.focus({ window = "first" }) },
+	{ "End", action = hl.dsp.focus({ window = "last" }) },
+
+	-- Center window
+	{ "C", sMod = true, action = hl.dsp.window.center() },
+
+	-- Workspace focus
+	{ "1", action = hl.dsp.focus({ workspace = 1 }) },
+	{ "2", action = hl.dsp.focus({ workspace = 2 }) },
+	{ "3", action = hl.dsp.focus({ workspace = 3 }) },
+	{ "4", action = hl.dsp.focus({ workspace = 4 }) },
+	{ "5", action = hl.dsp.focus({ workspace = 5 }) },
+	{ "6", action = hl.dsp.focus({ workspace = 6 }) },
+	{ "7", action = hl.dsp.focus({ workspace = 7 }) },
+	{ "8", action = hl.dsp.focus({ workspace = 8 }) },
+	{ "9", action = hl.dsp.focus({ workspace = 9 }) },
+	{ "0", action = hl.dsp.focus({ workspace = 10 }) },
+
+	-- Workspace move
+	{ "1", sMod = true, action = hl.dsp.window.move({ workspace = 1 }) },
+	{ "2", sMod = true, action = hl.dsp.window.move({ workspace = 2 }) },
+	{ "3", sMod = true, action = hl.dsp.window.move({ workspace = 3 }) },
+	{ "4", sMod = true, action = hl.dsp.window.move({ workspace = 4 }) },
+	{ "5", sMod = true, action = hl.dsp.window.move({ workspace = 5 }) },
+	{ "6", sMod = true, action = hl.dsp.window.move({ workspace = 6 }) },
+	{ "7", sMod = true, action = hl.dsp.window.move({ workspace = 7 }) },
+	{ "8", sMod = true, action = hl.dsp.window.move({ workspace = 8 }) },
+	{ "9", sMod = true, action = hl.dsp.window.move({ workspace = 9 }) },
+	{ "0", sMod = true, action = hl.dsp.window.move({ workspace = 10 }) },
+
+	-- Scroll workspaces
+	{ "mouse_down", action = hl.dsp.focus({ workspace = "e-1" }) },
+	{ "mouse_up", action = hl.dsp.focus({ workspace = "e+1" }) },
+
+	-- Page Up/Down workspace navigation
+	{ "Page_Down", action = hl.dsp.focus({ workspace = "e+1" }) },
+	{ "Page_Up", action = hl.dsp.focus({ workspace = "e-1" }) },
+	{ "U", action = hl.dsp.focus({ workspace = "e-1" }) },
+	{ "I", action = hl.dsp.focus({ workspace = "e+1" }) },
+
+	-- Move to adjacent workspace (mod + CTRL)
+	{ "Down", ctrl = true, action = hl.dsp.window.move({ workspace = "e+1" }) },
+	{ "Up", ctrl = true, action = hl.dsp.window.move({ workspace = "e-1" }) },
+	{ "U", ctrl = true, action = hl.dsp.window.move({ workspace = "e-1" }) },
+	{ "I", ctrl = true, action = hl.dsp.window.move({ workspace = "e+1" }) },
+
+	-- Special workspace
+	{ "S", action = hl.dsp.workspace.toggle_special("magic") },
+	{ "S", sMod = true, action = hl.dsp.window.move({ workspace = "special:magic" }) },
+
+	-- Mouse binds
+	{ "mouse:272", action = hl.dsp.window.drag(), mouse = true },
+	{ "mouse:273", action = hl.dsp.window.resize(), mouse = true },
+
+	-- Resize submap
+	{ "R", sMod = true, action = hl.dsp.submap("resize") },
+
+	-- Quick resize
+	{ "Minus", action = hl.dsp.window.resize({ x = -20, y = 0, relative = true }), repeating = true },
+	{ "Equal", action = hl.dsp.window.resize({ x = 20, y = 0, relative = true }), repeating = true },
+
+	-- Screenshots
+	{ "Print", mod = false, cmd = "dms screenshot" },
+	{ "Print", mod = false, ctrl = true, cmd = "dms screenshot full" },
+	{ "Print", mod = false, alt = true, cmd = "dms screenshot window" },
+
+	-- DMS IPC calls
+	{ "DELETE", dms = "powermenu toggle" },
+	{ "space", dms = "spotlight toggle" },
+	{ "V", dms = "clipboard toggle" },
+	{ "M", dms = "processlist focusOrToggle" },
+	{ "comma", dms = "settings focusOrToggle" },
+	{ "N", dms = "notifications toggle" },
+	{ "N", sMod = true, dms = "notepad toggle" },
+	{ "L", alt = true, dms = "lock lock" },
+	{ "Delete", mod = false, ctrl = true, alt = true, cmd = "dms ipc call processlist focusOrToggle" },
+
+	-- Volume
+	{ "XF86AudioRaiseVolume", mod = false, cmd = scripts .. "/volume.sh --inc", locked = true, repeating = true },
+	{ "XF86AudioLowerVolume", mod = false, cmd = scripts .. "/volume.sh --dec", locked = true, repeating = true },
+	{ "XF86AudioMute", mod = false, cmd = scripts .. "/volume.sh --toggle", locked = true },
+
+	-- Media controls
+	{ "XF86AudioPlay", mod = false, cmd = "playerctl play-pause", locked = true },
+	{ "XF86AudioPrev", mod = false, cmd = "playerctl previous", locked = true },
+	{ "XF86AudioNext", mod = false, cmd = "playerctl next", locked = true },
+
+	-- Brightness
+	{
+		"XF86MonBrightnessUp",
+		mod = false,
+		cmd = 'dms ipc call brightness increment 5 ""',
+		locked = true,
+		repeating = true,
+	},
+	{
+		"XF86MonBrightnessDown",
+		mod = false,
+		cmd = 'dms ipc call brightness decrement 5 ""',
+		locked = true,
+		repeating = true,
+	},
+
+	-- Hypremoji
+	{ "period", cmd = "hypremoji" },
 }
 
-for _, d in ipairs(directions) do
-	hl.bind(mod(d.key), hl.dsp.focus({ direction = d.dir }))
-	hl.bind(mod("SHIFT + " .. d.key), hl.dsp.window.move({ direction = d.dir }))
+for _, b in ipairs(binds) do
+	local key = b[1]
+	local parts = {}
+
+	if b.mod ~= false then
+		if b.sMod == true then
+			table.insert(parts, mainMod .. " + SHIFT")
+		else
+			table.insert(parts, mainMod)
+		end
+	end
+
+	if b.ctrl == true then
+		table.insert(parts, "CTRL")
+	end
+	if b.alt == true then
+		table.insert(parts, "ALT")
+	end
+
+	table.insert(parts, key)
+
+	local keyStr = table.concat(parts, " + ")
+
+	-- Resolve action: dms > cmd > action
+	local action
+	if b.dms then
+		action = hl.dsp.exec_cmd("dms ipc call " .. b.dms)
+	elseif b.cmd then
+		action = hl.dsp.exec_cmd(b.cmd)
+	else
+		action = b.action
+	end
+
+	local opts = b.opts and copy(b.opts) or {}
+
+	if b.description ~= nil then
+		opts.description = b.description
+	end
+	if b.mouse == true then
+		opts.mouse = true
+	end
+	if b.repeating == true then
+		opts.repeating = true
+	end
+	if b.locked == true then
+		opts.locked = true
+	end
+
+	hl.bind(keyStr, action, opts)
 end
 
-hl.bind(mod("Home"), hl.dsp.focus({ window = "first" }))
-hl.bind(mod("End"), hl.dsp.focus({ window = "last" }))
-
--- Center window
-hl.bind(mod("SHIFT + C"), hl.dsp.window.center())
-
-for i = 1, 10 do
-	local key = i == 10 and "0" or tostring(i)
-	hl.bind(mod(key), hl.dsp.focus({ workspace = i }))
-	hl.bind(mod("SHIFT + " .. key), hl.dsp.window.move({ workspace = i }))
-end
-
--- Scroll through workspaces
-hl.bind(mod("mouse_down"), hl.dsp.focus({ workspace = "e-1" }))
-hl.bind(mod("mouse_up"), hl.dsp.focus({ workspace = "e+1" }))
-
--- Page Up/Down workspace navigation
-hl.bind(mod("Page_Down"), hl.dsp.focus({ workspace = "e+1" }))
-hl.bind(mod("Page_Up"), hl.dsp.focus({ workspace = "e-1" }))
-hl.bind(mod("U"), hl.dsp.focus({ workspace = "e-1" }))
-hl.bind(mod("I"), hl.dsp.focus({ workspace = "e+1" }))
-
--- Move to adjacent workspace
-hl.bind(mod("CTRL + Down"), hl.dsp.window.move({ workspace = "e+1" }))
-hl.bind(mod("CTRL + Up"), hl.dsp.window.move({ workspace = "e-1" }))
-hl.bind(mod("CTRL + U"), hl.dsp.window.move({ workspace = "e-1" }))
-hl.bind(mod("CTRL + I"), hl.dsp.window.move({ workspace = "e+1" }))
-
-hl.bind(mod("S"), hl.dsp.workspace.toggle_special("magic"))
-hl.bind(mod("SHIFT + S"), hl.dsp.window.move({ workspace = "special:magic" }))
-
-hl.bind(mod("mouse:272"), hl.dsp.window.drag(), { mouse = true })
-hl.bind(mod("mouse:273"), hl.dsp.window.resize(), { mouse = true })
-
-hl.bind(mainMod .. " + SHIFT + R", hl.dsp.submap("resize"))
 hl.define_submap("resize", function()
 	hl.bind("right", hl.dsp.window.resize({ x = 10, y = 0, relative = true }), { repeating = true })
 	hl.bind("left", hl.dsp.window.resize({ x = -10, y = 0, relative = true }), { repeating = true })
@@ -80,44 +227,3 @@ hl.define_submap("resize", function()
 	hl.bind("down", hl.dsp.window.resize({ x = 0, y = 10, relative = true }), { repeating = true })
 	hl.bind("escape", hl.dsp.submap("reset"))
 end)
-
-hl.bind(mod("Minus"), hl.dsp.window.resize({ x = -20, y = 0, relative = true }), { repeating = true })
-hl.bind(mod("Equal"), hl.dsp.window.resize({ x = 20, y = 0, relative = true }), { repeating = true })
-
-hl.bind("Print", hl.dsp.exec_cmd("dms screenshot"))
-hl.bind("CTRL + Print", hl.dsp.exec_cmd("dms screenshot full"))
-hl.bind("ALT + Print", hl.dsp.exec_cmd("dms screenshot window"))
-
-hl.bind(mod("DELETE"), hl.dsp.exec_cmd("dms ipc call powermenu toggle"))
-hl.bind(mod("space"), hl.dsp.exec_cmd("dms ipc call spotlight toggle"))
-hl.bind(mod("V"), hl.dsp.exec_cmd("dms ipc call clipboard toggle"))
-hl.bind(mod("M"), hl.dsp.exec_cmd("dms ipc call processlist focusOrToggle"))
-hl.bind(mod("comma"), hl.dsp.exec_cmd("dms ipc call settings focusOrToggle"))
-hl.bind(mod("N"), hl.dsp.exec_cmd("dms ipc call notifications toggle"))
-hl.bind(mod("SHIFT + N"), hl.dsp.exec_cmd("dms ipc call notepad toggle"))
-hl.bind(mod("ALT + L"), hl.dsp.exec_cmd("dms ipc call lock lock"))
-hl.bind("CTRL + ALT + Delete", hl.dsp.exec_cmd("dms ipc call processlist focusOrToggle"))
-
--- Volume
-hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd(scripts .. "/volume.sh --inc"), { locked = true, repeating = true })
-hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd(scripts .. "/volume.sh --dec"), { locked = true, repeating = true })
-hl.bind("XF86AudioMute", hl.dsp.exec_cmd(scripts .. "/volume.sh --toggle"), { locked = true })
-
--- Media controls
-hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
-hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
-hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })
-
--- Brightness
-hl.bind(
-	"XF86MonBrightnessUp",
-	hl.dsp.exec_cmd('dms ipc call brightness increment 5 ""'),
-	{ locked = true, repeating = true }
-)
-hl.bind(
-	"XF86MonBrightnessDown",
-	hl.dsp.exec_cmd('dms ipc call brightness decrement 5 ""'),
-	{ locked = true, repeating = true }
-)
-
-hl.bind(mod("period"), hl.dsp.exec_cmd("hypremoji"))
