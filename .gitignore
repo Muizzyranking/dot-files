@@ -8,3 +8,4 @@ config/gtk-4.0/gtk.css
 config/cava/shaders
 config/hypr/.initial_startup_done
 config/nvim/lua/utils/misc
+/config/hypr/dms
