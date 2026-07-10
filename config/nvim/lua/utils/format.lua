@@ -84,8 +84,6 @@ end
 ----------------------------------------------------
 function M.format(opts)
 	if Pack.has("conform.nvim") then
-		-- ensure conform is loaded
-		Pack.load("conform.nvim")
 		local ok, conform = pcall(require, "conform")
 		if ok then
 			conform.format(opts)
