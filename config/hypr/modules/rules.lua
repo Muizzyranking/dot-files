@@ -16,6 +16,7 @@ hl.window_rule({ match = { class = "^([Rr]ofi)$" }, tag = "+settings" })
 hl.window_rule({ match = { class = "^(btrfs-assistant)$" }, tag = "+settings" })
 hl.window_rule({ match = { class = "^(timeshift-gtk)$" }, tag = "+settings" })
 hl.window_rule({ match = { class = "^(com.network.manager)$" }, tag = "+settings" })
+hl.window_rule({ match = { class = "^thunar$", title = "^(Rename.*)$" }, tag = "+settings" })
 
 -- Projects tag
 hl.window_rule({ match = { class = "^(codium|codium-url-handler|VSCodium)$" }, tag = "+projects" })
