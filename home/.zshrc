@@ -44,7 +44,7 @@ nvm() {
 command -v uv &>/dev/null && eval "$(uv generate-shell-completion zsh)"
 command -v thefuck &>/dev/null && eval "$(thefuck --alias)"
 
-export PNPM_HOME="$HOME/.local/share/pnpm"
+export PNPM_HOME="/home/muizzyranking/.local/share/pnpm/bin"
 typeset -U path PATH
 
 path=(
@@ -65,5 +65,3 @@ path=(
 load "aliases.zsh"
 load "functions.zsh"
 # load "fahh.zsh"
-
-export PATH=$PATH:/home/muizzyranking/.spicetify
