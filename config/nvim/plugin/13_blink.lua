@@ -10,13 +10,13 @@ Pack.on_changed("copilot.lua", function()
 end)
 
 Pack.add({
-	{ src = "rafamadriz/friendly-snippets" },
-	{ src = "zbirenbaum/copilot.lua" },
-	{ src = "giuxtaposition/blink-cmp-copilot" },
-	{ src = "saghen/blink.cmp" },
+	"rafamadriz/friendly-snippets",
+	"zbirenbaum/copilot.lua",
+	"giuxtaposition/blink-cmp-copilot",
+	"saghen/blink.cmp",
 })
 
-Pack.on_event({ "BufReadPost" }, function()
+Pack.when({ event = "BufReadPost" }, function()
 	require("copilot").setup({
 		suggestion = { enabled = false },
 		panel = { enabled = false },
@@ -38,12 +38,9 @@ Pack.on_event({ "BufReadPost" }, function()
 			end,
 		},
 	})
-end, "copilot.lua")
+end)
 
-Pack.on_event({ "InsertEnter", "CmdlineEnter" }, function()
-	Pack.deps("copilot.lua", "blink.cmp")
-	Pack.deps("blink-cmp-copilot", "blink.cmp")
-	Pack.deps("friendly-snippets", "blink.cmp")
+Pack.when({ event = "InsertEnter", "CmdlineEnter" }, function()
 	local opts = {
 		keymap = {
 			preset = "enter",
@@ -110,7 +107,7 @@ Pack.on_event({ "InsertEnter", "CmdlineEnter" }, function()
 			ghost_text = { enabled = true },
 		},
 	}
-	local disabled_filetypes = { "prompt", "oil" }
+	local disabled_filetypes = { "prompt" }
 	opts.enabled = function()
 		return not vim.tbl_contains(disabled_filetypes, vim.bo.filetype) and vim.b.completion ~= false
 	end
@@ -135,4 +132,4 @@ Pack.on_event({ "InsertEnter", "CmdlineEnter" }, function()
 		end
 	end
 	require("blink.cmp").setup(opts)
-end, "blink.cmp")
+end)

@@ -1,11 +1,13 @@
-Pack.add({ src = "stevearc/oil.nvim" })
+Pack.add("stevearc/oil.nvim")
 
-Pack.on_key({
+local keys = {
     -- stylua: ignore start
       { "-", function() require("oil").open_float() end, desc = "File Browser (CWD - Oil)" },
       { "_", function() require("oil").toggle_float(Utils.root()) end, desc = "File Browser (Root - Oil)" },
 	-- stylua: ignore end
-}, function()
+}
+
+Pack.when({ keys = keys }, function()
 	local detail = false
 	local group = vim.api.nvim_create_augroup("oil_autocmd", { clear = true })
 	vim.api.nvim_create_autocmd("BufEnter", {
@@ -22,6 +24,12 @@ Pack.on_key({
 			if event.data.actions.type == "move" then
 				Snacks.rename.on_rename_file(event.data.actions.src_url, event.data.actions.dest_url)
 			end
+		end,
+	})
+	vim.api.nvim_create_autocmd("FileType", {
+		pattern = { "oil" },
+		callback = function(ev)
+			vim.b[ev.buf].completion = false
 		end,
 	})
 
@@ -87,4 +95,4 @@ Pack.on_key({
 			win_options = { winblend = 0 },
 		},
 	})
-end, "oil.nvim")
+end)

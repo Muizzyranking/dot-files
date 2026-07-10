@@ -1,7 +1,6 @@
-Pack.add({ src = "folke/noice.nvim" })
+Pack.add("folke/noice.nvim")
 
-Pack.on_lazy_file(function()
-	Pack.deps("nui.nvim", "noice.nvim")
+Pack.when({ lazy_file = true }, function()
 	require("noice").setup({
 		lsp = {
 			progress = { enabled = true, view = "mini" },
@@ -128,4 +127,4 @@ Pack.on_lazy_file(function()
 			mode = { "n" },
 		},
 	})
-end, "noice.nvim")
+end)

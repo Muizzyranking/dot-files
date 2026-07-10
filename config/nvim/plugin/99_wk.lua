@@ -1,4 +1,4 @@
-Pack.add({ src = "folke/which-key.nvim" })
+Pack.add("folke/which-key.nvim")
 
 Pack.defer(function()
 	require("which-key").setup({

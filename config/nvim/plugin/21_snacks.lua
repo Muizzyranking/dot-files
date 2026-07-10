@@ -1,6 +1,4 @@
-Pack.add({
-	{ src = "folke/snacks.nvim" },
-})
+Pack.add("folke/snacks.nvim")
 
 local notify = Utils.notify.create({ title = "Snacks" })
 
@@ -430,4 +428,4 @@ Pack.now(function()
 			desc = "find",
 		},
 	})
-end, "snacks.nvim")
+end)

@@ -1,6 +1,6 @@
-Pack.add({ src = "mistweaverco/kulala.nvim" })
+Pack.add("mistweaverco/kulala.nvim")
 
-Pack.on_ft({ "http" }, function()
+Pack.when({ ft = "http" }, function()
 	require("kulala").setup({
 		default_view = "headers_body",
 		winbar = true,
@@ -31,4 +31,4 @@ Pack.on_ft({ "http" }, function()
 		{ "<leader>Rn", "<cmd>lua require('kulala').jump_next()<cr>", desc = "Jump to next request", ft = "http" },
 		{ "]r", "<cmd>lua require('kulala').jump_next()<cr>", desc = "Jump to next request", ft = "http" },
 	})
-end, "kulala.nvim")
+end)

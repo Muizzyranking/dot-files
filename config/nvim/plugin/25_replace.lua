@@ -1,9 +1,6 @@
-Pack.add({
-	{ src = "MagicDuck/grug-far.nvim" },
-	{ src = "smjonas/inc-rename.nvim" },
-})
+Pack.add({ "MagicDuck/grug-far.nvim", "smjonas/inc-rename.nvim" })
 
-Pack.on_key({
+local keys = {
 	{
 		"<leader>sr",
 		function()
@@ -39,7 +36,9 @@ Pack.on_key({
 		end,
 		desc = "Search and Replace (in current file)",
 	},
-}, function()
+}
+
+Pack.when({ keys = keys }, function()
 	require("grug-far").setup({
 		headerMaxWidth = 80,
 		transient = true,
@@ -52,19 +51,21 @@ Pack.on_key({
 			vim.b[ev.buf].completion = false
 		end,
 	})
-end, "grug-far.nvim")
+end)
 
-Pack.on_key({
-	{
-		"<leader>cr",
-		function()
-			return ":IncRename" .. " " .. vim.fn.expand("<cword>")
-		end,
-		desc = "Rename",
-		icon = { icon = "󰑕 ", color = "orange" },
-		has = "rename", -- only set if lsp supports rename
-		expr = true,
-		silent = false,
+Pack.when({
+	keys = {
+		{
+			"<leader>cr",
+			function()
+				return ":IncRename" .. " " .. vim.fn.expand("<cword>")
+			end,
+			desc = "Rename",
+			icon = { icon = "󰑕 ", color = "orange" },
+			has = "rename",
+			expr = true,
+			silent = false,
+		},
 	},
 }, function()
 	require("inc_rename").setup({
@@ -73,4 +74,4 @@ Pack.on_key({
 		show_message = true,
 		save_in_cmdline_history = true,
 	})
-end, "inc-rename.nvim")
+end)

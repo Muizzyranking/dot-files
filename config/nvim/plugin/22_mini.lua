@@ -1,9 +1,9 @@
 Pack.add({
-	{ src = "echasnovski/mini.ai" },
-	{ src = "echasnovski/mini.align" },
-	{ src = "echasnovski/mini.pairs" },
-	{ src = "echasnovski/mini.surround" },
-	{ src = "echasnovski/mini.icons" },
+	"nvim-mini/mini.ai",
+	"nvim-mini/mini.align",
+	"nvim-mini/mini.pairs",
+	"nvim-mini/mini.surround",
+	"nvim-mini/mini.icons",
 })
 
 Pack.defer(function()
@@ -46,7 +46,7 @@ Pack.defer(function()
 		},
 	}
 	require("mini.ai").setup(opts)
-end, "mini.ai")
+end)
 
 Pack.defer(function()
 	local opts = {
@@ -114,16 +114,12 @@ Pack.defer(function()
 
 		return open(pair, neigh_pattern)
 	end
-end, "mini.pairs")
+end)
 
-Pack.on_event({ "BufReadPost", "BufNewFile" }, function()
-	local align = require("mini.align")
-	align.setup({
+Pack.when({ event = { "BufReadPost", "BufNewFile" } }, function()
+	require("mini.align").setup({
 		mappings = { start = "ga", start_with_preview = "gA" },
 	})
-end, "mini.align")
-
-Pack.on_event({ "BufReadPost", "BufNewFile" }, function()
 	require("mini.surround").setup({
 		mappings = {
 			add = "gza",
@@ -135,7 +131,7 @@ Pack.on_event({ "BufReadPost", "BufNewFile" }, function()
 			update_n_lines = "gzn",
 		},
 	})
-end, "mini.surround")
+end)
 
 Pack.now(function()
 	package.preload["nvim-web-devicons"] = function()
@@ -161,4 +157,4 @@ Pack.now(function()
 			gotmpl = { glyph = "󰟓", hl = "MiniIconsGrey" },
 		},
 	})
-end, "mini.icons")
+end)

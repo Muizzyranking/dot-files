@@ -1,5 +1,5 @@
-Pack.add({ src = "OXY2DEV/markview.nvim" })
+Pack.add("OXY2DEV/markview.nvim")
 
-Pack.on_ft({ "markdown" }, function()
+Pack.when({ ft = "markdown" }, function()
 	require("markview").setup()
-end, "markview.nvim")
+end)

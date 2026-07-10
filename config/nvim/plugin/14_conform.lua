@@ -1,7 +1,7 @@
 vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
-Pack.add({ src = "stevearc/conform.nvim" })
+Pack.add("stevearc/conform.nvim")
 
-Pack.on_event({ "BufWritePre", "BufReadPost" }, function()
+Pack.when({ event = { "BufWritePre", "BufReadPost" } }, function()
 	local biome_supported = {
 		"astro",
 		"css",
@@ -84,4 +84,4 @@ Pack.on_event({ "BufWritePre", "BufReadPost" }, function()
 	end
 
 	require("conform").setup(opts)
-end, "conform.nvim")
+end)

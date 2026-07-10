@@ -1,14 +1,14 @@
 Pack.add({
-	{ src = "Bekaboo/dropbar.nvim" },
-	{ src = "folke/flash.nvim" },
-	{ src = "folke/persistence.nvim" },
-	{ src = "christoomey/vim-tmux-navigator" },
-	{ src = "Wansmer/treesj" },
-	{ src = "HiPhish/rainbow-delimiters.nvim" },
-	{ src = "folke/todo-comments.nvim" },
+	"Bekaboo/dropbar.nvim",
+	"folke/flash.nvim",
+	"folke/persistence.nvim",
+	"christoomey/vim-tmux-navigator",
+	"Wansmer/treesj",
+	"HiPhish/rainbow-delimiters.nvim",
+	"folke/todo-comments.nvim",
 })
 
-Pack.on_event({ "LspAttach" }, function()
+Pack.when({ event = "LspAttach" }, function()
 	local dropbar = require("dropbar")
 	local sources = require("dropbar.sources")
 	local utils = require("dropbar.utils")
@@ -25,7 +25,7 @@ Pack.on_event({ "LspAttach" }, function()
 			end,
 		},
 	})
-end, "dropbar.nvim")
+end)
 
 Pack.defer(function()
 	require("flash").setup({
@@ -41,7 +41,7 @@ Pack.defer(function()
 		{ "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
 		-- stylua: ignore end
 	})
-end, "flash.nvim")
+end)
 
 Pack.defer(function()
 	require("persistence").setup()
@@ -84,7 +84,7 @@ Pack.defer(function()
 			desc = "Don't Save Current Session",
 		},
 	})
-end, "persistence.nvim")
+end)
 
 if Utils.fn.is_in_tmux() then
 	Pack.defer(function()
@@ -95,19 +95,20 @@ if Utils.fn.is_in_tmux() then
 			{ "<c-l>", "<cmd>TmuxNavigateRight<cr>" },
 			{ "<c-\\>", "<cmd>TmuxNavigatePrevious<cr>" },
 		})
-	end, "vim-tmux-navigator")
+	end)
 end
 
-Pack.on_key({
-	{
-		"gs",
-		function()
-			require("treesj").toggle()
-		end,
-		desc = "Join/Split Lines",
+Pack.when({
+	keys = {
+		{
+			"gs",
+			function()
+				require("treesj").toggle()
+			end,
+			desc = "Join/Split Lines",
+		},
 	},
 }, function()
-	Pack.deps("nvim-treesitter", "treesj")
 	require("treesj").setup({
 		use_default_keymaps = false,
 		max_join_length = 120,
@@ -115,17 +116,14 @@ Pack.on_key({
 		notify = true,
 		dot_repeat = true,
 	})
-end, "treesj")
+end)
 
-Pack.on_event({ "BufRead", "BufReadPre" }, function()
+Pack.when({ event = { "BufRead", "BufReadPre" } }, function()
 	require("rainbow-delimiters.setup").setup({ priority = { [""] = 110 } })
-end, "rainbow-delimiters.nvim")
+end)
 
-Pack.lazy("todo-comments.nvim", {
+Pack.when({
 	lazy_file = true,
-	config = function()
-		require("todo-comments").setup()
-	end,
 	keys = {
 		{
 			"]t",
@@ -144,4 +142,6 @@ Pack.lazy("todo-comments.nvim", {
 		{ "<leader>xt", "TodoTrouble<cr>", desc = "Todo (Trouble)" },
 		{ "<leader>xT", "TodoTrouble keywords=TODO,FIX,FIXME", desc = "Todo/Fix/Fixme (Trouble)" },
 	},
-})
+}, function()
+	require("todo-comments").setup()
+end)

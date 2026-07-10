@@ -1,6 +1,4 @@
-Pack.add({
-	src = "nemanjamalesija/smart-paste.nvim",
-	config = function()
-		require("smart-paste").setup({})
-	end,
-})
+Pack.add({ "nemanjamalesija/smart-paste.nvim" })
+Pack.now(function()
+	require("smart-paste").setup({})
+end)

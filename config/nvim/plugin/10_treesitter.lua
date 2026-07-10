@@ -1,110 +1,104 @@
+local parsers = {
+	"c",
+	"cpp",
+	"vim",
+	"vimdoc",
+	"query",
+	"python",
+	"toml",
+	"rst",
+	"regex",
+	"yaml",
+	"diff",
+	"jsdoc",
+	"luadoc",
+	"lua",
+	"luadoc",
+	"luap",
+	"python",
+	"ninja",
+	"rst",
+	"htmldjango",
+	"vim",
+	"xml",
+	"puppet",
+	"typescript",
+	"javascript",
+	"tsx",
+	"bash",
+	"hyprlang",
+	"rasi",
+	"git_config",
+	"cpp",
+	"go",
+	"gomod",
+	"gowork",
+	"gosum",
+	"html",
+	"css",
+	"http",
+	"graphql",
+	"json",
+	"json5",
+	"jsonc",
+	"rust",
+	"ron",
+	"php",
+	"phpdoc",
+	"qml",
+	"qmldir",
+	"qmljs",
+	"dockerfile",
+	"vue",
+}
 Pack.on_changed("nvim-treesitter", function()
 	vim.cmd("TSUpdate")
 end, "update")
 
 Pack.add({
-	{ src = "nvim-treesitter/nvim-treesitter", name = "nvim-treesitter" },
-	{ src = "windwp/nvim-ts-autotag" },
-	{ src = "nvim-treesitter/nvim-treesitter-textobjects" },
+	"https://github.com/nvim-treesitter/nvim-treesitter",
+	"https://github.com/windwp/nvim-ts-autotag",
+	"https://github.com/nvim-treesitter/nvim-treesitter-textobjects",
 })
 
-Pack.lazy("nvim-treesitter", {
-	lazy_file = true,
-	defer = true,
-	config = function()
-		local opts = {
-			ensure_installed = {
-				"c",
-				"cpp",
-				"vim",
-				"vimdoc",
-				"query",
-				"python",
-				"toml",
-				"rst",
-				"regex",
-				"yaml",
-				"diff",
-				"jsdoc",
-				"luadoc",
-				"lua",
-				"luadoc",
-				"luap",
-				"python",
-				"ninja",
-				"rst",
-				"htmldjango",
-				"vim",
-				"xml",
-				"puppet",
-				"typescript",
-				"javascript",
-				"tsx",
-				"bash",
-				"hyprlang",
-				"rasi",
-				"git_config",
-				"cpp",
-				"go",
-				"gomod",
-				"gowork",
-				"gosum",
-				"html",
-				"css",
-				"http",
-				"graphql",
-				"json",
-				"json5",
-				"jsonc",
-				"rust",
-				"ron",
-				"php",
-				"phpdoc",
-				"qml",
-				"qmldir",
-				"qmljs",
-				"dockerfile",
-				"vue",
-			},
-		}
-		Utils.treesitter.incr.attach({
-			init_selection = "<CR>",
-			node_incremental = "<CR>",
-			scope_incremental = "<C-n>",
-			node_decremental = "<BS>",
-		})
-		local ts = require("nvim-treesitter")
-		ts.setup()
+Pack.when({ lazy_file = true, defer = true }, function()
+	local opts = {
+		ensure_installed = parsers,
+	}
+	Utils.treesitter.incr.attach({
+		init_selection = "<CR>",
+		node_incremental = "<CR>",
+		scope_incremental = "<C-n>",
+		node_decremental = "<BS>",
+	})
+	local ts = require("nvim-treesitter")
+	ts.setup()
+	-- Only install parsers that are not already present.
+	local missing = vim.tbl_filter(function(lang)
+		return not Utils.treesitter.have(lang)
+	end, opts.ensure_installed or {})
+	if #missing > 0 then
+		ts.install(missing, { summary = true }):await(function()
+			Utils.treesitter.get_installed(true)
+		end)
+	end
+	vim.api.nvim_create_autocmd("FileType", {
+		callback = function(ev)
+			local ft = ev.match
+			if not Utils.treesitter.have(ft) then
+				return
+			end
+			pcall(vim.treesitter.start)
+			vim.opt.indentexpr = "v:lua.require('utils.treesitter').indentexpr()"
+			vim.o.foldmethod = "expr"
+			vim.o.foldexpr = "v:lua.require('utils.treesitter').foldexpr()"
+		end,
+	})
+end, "nvim-treesitter")
 
-		-- Only install parsers that are not already present.
-		local missing = vim.tbl_filter(function(lang)
-			return not Utils.treesitter.have(lang)
-		end, opts.ensure_installed or {})
-
-		if #missing > 0 then
-			ts.install(missing, { summary = true }):await(function()
-				Utils.treesitter.get_installed(true)
-			end)
-		end
-
-		vim.api.nvim_create_autocmd("FileType", {
-			callback = function(ev)
-				local ft = ev.match
-				if not Utils.treesitter.have(ft) then
-					return
-				end
-				pcall(vim.treesitter.start)
-				vim.opt.indentexpr = "v:lua.require('utils.treesitter').indentexpr()"
-				vim.o.foldmethod = "expr"
-				vim.o.foldexpr = "v:lua.require('utils.treesitter').foldexpr()"
-			end,
-		})
-	end,
-})
-
-Pack.on_lazy_file(function()
+Pack.when({ lazy_file = true }, function()
 	require("nvim-ts-autotag").setup()
-end, "nvim-ts-autotag")
+end)
 
 Pack.defer(function()
 	require("nvim-treesitter-textobjects").setup()
@@ -133,7 +127,6 @@ Pack.defer(function()
 			goto_next = { ["]o"] = "@conditional.outer" },
 			goto_previous = { ["[o"] = "@conditional.outer" },
 		}
-
 		local ret = {}
 		for method, keymaps in pairs(moves) do
 			for key, query in pairs(keymaps) do
@@ -141,7 +134,6 @@ Pack.defer(function()
 				desc = desc:sub(1, 1):upper() .. desc:sub(2)
 				desc = (key:sub(1, 1) == "[" and "Prev " or "Next ") .. desc
 				desc = desc .. (key:sub(2, 2) == key:sub(2, 2):upper() and " End" or " Start")
-
 				ret[#ret + 1] = {
 					key,
 					function()
@@ -159,4 +151,4 @@ Pack.defer(function()
 		return ret
 	end
 	Utils.map.set(keys())
-end, "nvim-treesitter-textobjects")
+end)

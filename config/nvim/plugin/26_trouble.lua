@@ -1,6 +1,6 @@
-Pack.add({ src = "folke/trouble.nvim" })
+Pack.add({ "folke/trouble.nvim" })
 
-Pack.on_key({
+local keys = {
 	{ "<leader>xX", "Trouble diagnostics toggle", desc = "Diagnostics (Trouble)" },
 	{ "<leader>xx", "Trouble diagnostics toggle filter.buf=0", desc = "Buffer Diagnostics (Trouble)" },
 	{ "<leader>xq", "Trouble quickfix toggle", desc = "Diagnostics (Trouble)" },
@@ -36,7 +36,9 @@ Pack.on_key({
 		end,
 		desc = "Next Trouble/Quickfix Item",
 	},
-}, function()
+}
+
+Pack.when({ keys = keys }, function()
 	require("trouble").setup({
 		use_diagnostic_signs = true,
 		modes = {
@@ -48,4 +50,4 @@ Pack.on_key({
 			},
 		},
 	})
-end, "trouble.nvim")
+end)

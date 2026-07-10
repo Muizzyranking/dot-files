@@ -176,12 +176,6 @@ set("n", "[p", ":put!<CR>", { desc = "Paste on the line above", silent = true })
 
 local maps = {
 	{
-		"<leader>P",
-		"<cmd>PackUI<cr>",
-		desc = "Plugin Manager UI",
-		icon = { icon = "📦", color = "orange" },
-	},
-	{
 		"<leader>ux",
 		function()
 			vim.iter(vim.api.nvim_list_wins())

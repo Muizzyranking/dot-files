@@ -1,10 +1,6 @@
-Pack.add({
-	{ src = "folke/lazydev.nvim" },
-	{ src = "Bilal2453/luvit-meta" },
-})
+Pack.add({ "folke/lazydev.nvim", "Bilal2453/luvit-meta" })
 
-Pack.on_ft({ "lua" }, function()
-	Pack.deps("luvit-meta", "lazydev.nvim")
+Pack.when({ ft = { "lua" } }, function()
 	require("lazydev").setup({
 		library = {
 			{ path = "luvit-meta/library", words = { "vim%.uv" } },
@@ -13,4 +9,4 @@ Pack.on_ft({ "lua" }, function()
 			{ path = "lua/utils", words = { "Utils" } },
 		},
 	})
-end, "lazydev.nvim")
+end)

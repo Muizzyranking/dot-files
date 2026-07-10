@@ -1,7 +1,7 @@
-Pack.add({ src = "lewis6991/gitsigns.nvim", name = "gitsigns" })
+Pack.add("lewis6991/gitsigns.nvim")
 
 if not Utils.fn.is_in_git_repo() then
-  return
+	return
 end
 
 local function close_diff_win(key)
@@ -32,7 +32,7 @@ local function close_diff_win(key)
 	return key
 end
 
-Pack.on_lazy_file(function()
+Pack.when({ lazy_file = true }, function()
 	require("gitsigns").setup({
 		signs = {
 			add = { text = "▎" },
@@ -107,4 +107,4 @@ Pack.on_lazy_file(function()
 			-- stylua: ignore end
 		end,
 	})
-end, "gitsigns")
+end)
