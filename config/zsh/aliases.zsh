@@ -15,7 +15,7 @@ alias lt='eza --tree --level=2 --color=always --icons=always'
 alias tree='eza --tree --group-directories-first --git-ignore --color=always --icons=always'
 
 alias cat='bat --paging=never'
-alias v='nv'
+alias v='nvim'
 
 alias df='df -h'
 alias du='du -h'
