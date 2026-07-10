@@ -9,7 +9,6 @@ end
 
 Pack.now(function()
 	require("lsp")
-	require("core.pack_ui")
 	require("statusline").setup()
 	vim.cmd.colorscheme("custom")
 end)
