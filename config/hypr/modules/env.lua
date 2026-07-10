@@ -2,7 +2,7 @@ _G.TERMINAL = "kitty"
 _G.FILEMANAGER = "thunar"
 _G.MENU = "hyprlauncher"
 _G.HOME_DIR = os.getenv("HOME")
-_G.BROWSER = "google-chrome-stable"
+_G.BROWSER = "firefox"
 _G.CURSOR = {
 	size = "24",
 	theme = "catppuccin-mocha-blue-cursors",
@@ -25,6 +25,7 @@ hl.env(
 )
 
 hl.env("XDG_MENU_PREFIX", "plasma-")
+hl.env("XCURSOR_THEME", CURSOR.theme)
 hl.env("XCURSOR_SIZE", CURSOR.size)
 hl.env("HYPRCURSOR_SIZE", CURSOR.size)
 hl.env("HYPRCURSOR_THEME", CURSOR.theme)

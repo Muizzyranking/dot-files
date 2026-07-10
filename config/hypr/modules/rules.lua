@@ -86,6 +86,7 @@ hl.window_rule({
 
 -- Tag-based floating
 hl.window_rule({ match = { tag = "settings" }, float = true, center = true })
+hl.window_rule({ match = { tag = "terminal" }, opacity = 1 })
 hl.window_rule({ match = { tag = "viewer" }, float = true, center = true })
 hl.window_rule({ match = { tag = "KooL-Settings" }, float = true, center = true })
 
@@ -160,6 +161,11 @@ hl.window_rule({
 hl.window_rule({
 	match = { class = "^(slack|Slack|discord|chrome-web\\.whatsapp\\.com__-Default|org\\.telegram\\.desktop)$" },
 	workspace = 8,
+})
+
+hl.layer_rule({
+	match = { namespace = "^dms:bar$" },
+	xray = true,
 })
 
 hl.workspace_rule({ workspace = "1", layout = "scrolling" })
