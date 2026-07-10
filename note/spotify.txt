@@ -1,0 +1,6 @@
+cursor issue: run with flags -> spotify --enable-features=UseOzonePlatform --ozone-platform=wayland
+
+
+add to /etc/spotify-flags.conf one per line
+--enable-features=UseOzonePlatform
+--ozone-platform=wayland

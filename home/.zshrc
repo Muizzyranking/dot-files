@@ -65,3 +65,5 @@ path=(
 load "aliases.zsh"
 load "functions.zsh"
 # load "fahh.zsh"
+
+export PATH=$PATH:/home/muizzyranking/.spicetify
