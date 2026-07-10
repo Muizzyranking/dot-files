@@ -1,5 +1,4 @@
 local mainMod = "SUPER"
-local scripts = os.getenv("HOME") .. "/.config/hypr/scripts"
 
 local function layout_action(actions)
 	return function()
@@ -39,6 +38,11 @@ local binds = {
 			scrolling = hl.dsp.layout("colresize +conf"),
 			default = hl.dsp.window.float({ action = "toggle" }),
 		}),
+	},
+	{
+		"F",
+		sMod = true,
+		action = hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }),
 	},
 
 	-- Focus directions
@@ -130,7 +134,8 @@ local binds = {
 
 	-- DMS IPC calls
 	{ "DELETE", dms = "powermenu toggle" },
-	{ "space", dms = "spotlight toggle" },
+	{ "SPACE", dms = "spotlight toggle" },
+	{ "SPACE", alt = true, mod = false, dms = "spotlight-bar toggle" },
 	{ "V", dms = "clipboard toggle" },
 	{ "M", dms = "processlist focusOrToggle" },
 	{ "comma", dms = "settings focusOrToggle" },
@@ -140,9 +145,9 @@ local binds = {
 	{ "Delete", mod = false, ctrl = true, alt = true, cmd = "dms ipc call processlist focusOrToggle" },
 
 	-- Volume
-	{ "XF86AudioRaiseVolume", mod = false, cmd = scripts .. "/volume.sh --inc", locked = true, repeating = true },
-	{ "XF86AudioLowerVolume", mod = false, cmd = scripts .. "/volume.sh --dec", locked = true, repeating = true },
-	{ "XF86AudioMute", mod = false, cmd = scripts .. "/volume.sh --toggle", locked = true },
+	{ "XF86AudioRaiseVolume", mod = false, dms = "audio increment 3", locked = true, repeating = true },
+	{ "XF86AudioLowerVolume", mod = false, dms = "audio decrement 3", locked = true, repeating = true },
+	{ "XF86AudioMute", mod = false, dms = "audio mute", locked = true },
 
 	-- Media controls
 	{ "XF86AudioPlay", mod = false, cmd = "playerctl play-pause", locked = true },
