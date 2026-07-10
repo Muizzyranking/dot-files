@@ -56,6 +56,11 @@ hl.window_rule({ match = { class = "^([Mm]pv|vlc)$" }, tag = "+multimedia_video"
 -- ============================================
 
 hl.window_rule({ match = { title = "^(Authentication Required)$" }, float = true, center = true })
+hl.window_rule({
+	match = { class = "^firefox$", title = "^Sign in – Google accounts — Mozilla Firefox$" },
+	float = true,
+	center = true,
+})
 
 hl.window_rule({
 	match = { class = "(codium|codium-url-handler|VSCodium)", title = "negative:(.*codium.*|.*VSCodium.*)" },

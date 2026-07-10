@@ -27,7 +27,7 @@ hl.gesture({
 	fingers = 4,
 	direction = "up",
 	action = function()
-		hl.dsp.layout({ msg = "colresize 1.0" })
+		hl.notification.create({ text = "I just swiped on my trackpad!", timeout = 5000, icon = "ok" })
 	end,
 })
 
@@ -36,6 +36,6 @@ hl.gesture({
 	fingers = 4,
 	direction = "down",
 	action = function()
-		hl.dsp.layout({ msg = "colresize 0.5" })
+		hl.notification.create({ text = "I just swiped on my trackpad!", timeout = 5000, icon = "ok" })
 	end,
 })
