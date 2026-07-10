@@ -6,7 +6,14 @@
 
 ## Showcase
 
-![image](https://muizzyranking.github.io/images/dot_images/nvim_shot.png)
+![image](https://muizzyranking.github.io/images/dot_images/home.png)
+
+<details>
+<summary>Nvim</summary>
+
+![image](https://muizzyranking.github.io/images/dot_images/nvim.png)
+
+</details>
 
 <details>
 <summary>Spotify</summary>
@@ -18,30 +25,8 @@
 <details>
 <summary>Home Screen</summary>
 
-![image](https://muizzyranking.github.io/images/dot_images/home_shot.png)
+![image](https://muizzyranking.github.io/images/dot_images/home_with_media.png)
 
-</details>
-
-<details>
-<summary>Rofi</summary>
-
-![image](https://muizzyranking.github.io/images/dot_images/rofi_shot.png)
-
-</details>
-
-<details>
-<summary>Waybar</summary>
-
-![image](https://muizzyranking.github.io/images/dot_images/waybar_1.png)
-
-![image](https://muizzyranking.github.io/images/dot_images/waybar_2.png)
-
-</details>
-
-<details>
-<summary>SDDM</summary>
-
-![image](https://muizzyranking.github.io/images/dot_images/sddm.png)
 </details>
 
 
@@ -51,13 +36,12 @@
 
 | Type               | Name                                                  |
 | ------------------ | ----------------------------------------------------- |
-| OS                 | [Fedora](https://fedoraproject.org/://archlinux.org/) |
+| OS                 | [Arch (btw)](https://archlinux.org/)                  |
 | Window Compositor  | [Hyprland](https://hyprland.org/)                     |
-| Bar                | [Waybar](https://github.com/Alexays/Waybar)           |
+| Bar                | [DMS](https://danklinux.com/)                         |
 | Terminal           | [kitty](https://github.com/kovidgoyal/kitty)          |
 | Shell              | zsh                                                   |
-| ZSH Plugin Manager | [Oh My zsh](https://ohmyz.sh/)                        |
-| ZSH Prompt         | [P10k](https://github.com/romkatv/powerlevel10k)      |
+| ZSH Prompt         | [OH My Posh](https://ohmyposh.dev/)                   |
 
 ### UI
 
@@ -73,29 +57,14 @@
 | Type                               | Name                                                                             |
 | ---------------------------------- | -------------------------------------------------------------------------------- |
 | Text Editor                        | [Neovim](https://neovim.io/)                                                     |
-| GTK File Manager                   | Nautilus                                                                         |
+| GTK File Manager                   | Thunar                                                                           |
 | Wallpaper Daemon                   | [swww](https://github.com/LGFae/swww)                                            |
 | Better ls                          | [eza](https://github.com/eza-community/eza)                                      |
 | Better cd                          | [zoxide](https://github.com/ajeetdsouza/zoxide)                                  |
-| App Launcher                       | [Rofi](https://github.com/davatorium/rofi)                                       |
-| Screenshot Utility                 | [grim](https://github.com/emersion/grim)                                         |
 | System Info                        | [fastfetch](https://github.com/fastfetch-cli/fastfetch)                          |
-| Notification Daemon/Control Center | [Sway Notification Center](https://github.com/ErikReider/SwayNotificationCenter) |
 | Audio Visualizer                   | [cava](https://github.com/karlstav/cava)                                         |
-| Lockscreen App                     | [hyprlock](https://github.com/hyprwm/hyprlock)                                   |
 | Idle Daemon                        | [hypridle](https://github.com/hyprwm/hypridle)                                   |
-| Power Menu App                     | [wlogout](https://github.com/ArtsyMacaw/wlogout)                                 |
-| WiFi Menu                          | [nmh](https://github.com/defname/rofi-iwd-wifi-menu)                             |
-| Bluetooth Manager                  | [Blueman](https://github.com/blueman-project/blueman)                            |
 
 ### Wallpapers
 
 Check out my wallpapers [repository](https://github.com/muizzyranking/images)
-
-## TODO
-
-- [ ] Improve installation script
-- [x] SDDM theme
-- [ ] Remove oh-my-zsh and use zsh plugins only
-- [ ] Change from powerlevel10k to ohMyPost
-- [x] Change gtk theme
