@@ -57,6 +57,11 @@ hl.window_rule({ match = { class = "^([Mm]pv|vlc)$" }, tag = "+multimedia_video"
 
 hl.window_rule({ match = { title = "^(Authentication Required)$" }, float = true, center = true })
 hl.window_rule({
+	match = { class = "^org.kde.plasma.emojier$" },
+	float = true,
+	size = { 800, 600 },
+})
+hl.window_rule({
 	match = { class = "^firefox$", title = "^Sign in – Google accounts — Mozilla Firefox$" },
 	float = true,
 	center = true,
@@ -121,6 +126,12 @@ hl.window_rule({
 hl.window_rule({
 	match = { class = "^(pavucontrol|org.pulseaudio.pavucontrol|com.saivert.pwvucontrol)$" },
 	center = true,
+})
+
+hl.window_rule({
+	match = { class = "^xdg-desktop-portal-gtk$", title = "^Open Folder$", float = true },
+	center = true,
+	size = { "monitor_w*0.6", "monitor_h*0.6" },
 })
 
 hl.window_rule({ match = { fullscreen = true }, idle_inhibit = "fullscreen" })

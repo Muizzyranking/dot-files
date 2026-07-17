@@ -171,7 +171,7 @@ local binds = {
 	},
 
 	-- Hypremoji
-	{ "period", cmd = "hypremoji" },
+	{ "period", cmd = "plasma-emojier" },
 }
 
 for _, b in ipairs(binds) do
