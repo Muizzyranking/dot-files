@@ -94,7 +94,7 @@ if Utils.fn.is_in_tmux() then
 			{ "<c-k>", "<cmd>TmuxNavigateUp<cr>" },
 			{ "<c-l>", "<cmd>TmuxNavigateRight<cr>" },
 			{ "<c-\\>", "<cmd>TmuxNavigatePrevious<cr>" },
-		})
+		}, { mode = "n" })
 	end)
 end
 
