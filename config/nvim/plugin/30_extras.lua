@@ -1,5 +1,4 @@
 Pack.add({
-	"Bekaboo/dropbar.nvim",
 	"folke/flash.nvim",
 	"folke/persistence.nvim",
 	"christoomey/vim-tmux-navigator",
@@ -7,25 +6,6 @@ Pack.add({
 	"HiPhish/rainbow-delimiters.nvim",
 	"folke/todo-comments.nvim",
 })
-
-Pack.when({ event = "LspAttach" }, function()
-	local dropbar = require("dropbar")
-	local sources = require("dropbar.sources")
-	local utils = require("dropbar.utils")
-	dropbar.setup({
-		bar = {
-			sources = function(buf, _)
-				if vim.bo[buf].ft == "markdown" then
-					return { sources.markdown }
-				end
-				if vim.bo[buf].buftype == "terminal" then
-					return { sources.terminal }
-				end
-				return { utils.source.fallback({ sources.lsp }) }
-			end,
-		},
-	})
-end)
 
 Pack.defer(function()
 	require("flash").setup({
