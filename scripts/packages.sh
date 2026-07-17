@@ -10,7 +10,7 @@ PACMAN_PACKAGES=(
     "npm" "go" "rustup"
 
     # CLI tools
-    "neovim" "zsh" "tmux" "ripgrep" "fd" "fzf" "tldr" "eza" "bat"
+    "neovim" "zsh" "tmux" "ripgrep" "fd" "fzf" "tldr" "eza" "bat" "cloc"
     "lazygit" "tree" "btop" "wget" "curl" "jq" "docker" "docker-compose"
 
     # Hyprland + wayland
