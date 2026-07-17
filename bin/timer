@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+source "$HOME/.config/zsh/utils.sh"
+
+set -euo pipefail
+
+require_or_exit figlet
+
 big_timer() {
   local input=$1
   local total_secs=0

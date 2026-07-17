@@ -15,6 +15,8 @@ cleanup() {
 }
 trap cleanup INT TERM
 
+require_or_exit git
+
 show_help() {
     echo "Usage: $(basename "$0") <repository>"
     echo

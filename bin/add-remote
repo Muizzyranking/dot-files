@@ -33,10 +33,7 @@ if [[ "${1:-}" == "-h" ]] || [[ "${1:-}" == "--help" ]]; then
 fi
 
 # Validate git installation
-if ! command -v git >/dev/null 2>&1; then
-    print_message error "Git is not installed. Please install git first."
-    exit 1
-fi
+require_or_exit git
 
 set_remote() {
     local remote_name="origin"

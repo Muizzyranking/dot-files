@@ -8,6 +8,9 @@
 #   -i <identity>   SSH identity file (default: ~/.ssh/id_rsa)
 #   -h, --help      Show help
 
+source "$HOME/.config/zsh/utils.sh"
+require_or_exit scp
+
 set -euo pipefail
 
 usage() {
