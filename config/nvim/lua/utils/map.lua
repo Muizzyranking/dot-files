@@ -124,6 +124,8 @@ end
 ---@return boolean success Whether the mapping was set successfully
 ---------------------------------------------------------------
 function M.safe_keymap_set(mode, lhs, rhs, opts)
+	opts = opts or {}
+	opts.silent = opts.silent ~= false
 	local ok = pcall(vim.keymap.set, mode, lhs, rhs, opts)
 	return ok
 end
