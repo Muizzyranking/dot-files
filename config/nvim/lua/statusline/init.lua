@@ -108,7 +108,7 @@ function M.setup()
 
 	vim.o.laststatus = 3
 	vim.o.cmdheight = 0
-	vim.o.statusline = "%{%v:lua.require'status.render'.render()%}"
+	vim.o.statusline = "%{%v:lua.require'statusline.render'.render()%}"
 
 	make_transparent()
 
