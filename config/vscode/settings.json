@@ -7,7 +7,7 @@
   "extensions.experimental.affinity": {
     "asvetliakov.vscode-neovim": 1
   },
-  "editor.fontFamily": "JetBrainsMono Nerd Font",
+  "editor.fontFamily": "Maple Mono NF",
   "editor.fontLigatures": true,
   "github.copilot.editor.enableAutoCompletions": true,
   "workbench.colorTheme": "One Dark Pro",
@@ -98,7 +98,6 @@
       }
     ]
   },
-  "vscode-neovim.neovimExecutablePaths.linux": "/home/muizzyranking/.local/bin/nv",
   "zenMode.centerLayout": false,
   "zenMode.hideLineNumbers": false,
   "vscode-neovim.compositeKeys": {
@@ -117,5 +116,17 @@
   "[jsonc]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "javascript.inlayHints.functionLikeReturnTypes.enabled": true
+  "javascript.inlayHints.functionLikeReturnTypes.enabled": true,
+  "workbench.startupEditor": "none",
+  "editor.fontSize": 12,
+  "json.schemaDownload.trustedDomains": {
+    "https://schemastore.azurewebsites.net/": true,
+    "https://raw.githubusercontent.com/microsoft/vscode/": true,
+    "https://raw.githubusercontent.com/devcontainers/spec/": true,
+    "https://www.schemastore.org/": true,
+    "https://json.schemastore.org/": true,
+    "https://json-schema.org/": true,
+    "https://developer.microsoft.com/json-schemas/": true,
+    "https://biomejs.dev": true
+  }
 }
