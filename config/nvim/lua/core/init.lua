@@ -18,3 +18,7 @@ Pack.defer(function()
 	Utils.format.setup()
 	require("statusline").setup()
 end)
+
+Pack.lazy_file(function()
+	require("breadcrumb").setup()
+end)

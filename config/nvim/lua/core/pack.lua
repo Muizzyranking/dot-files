@@ -174,6 +174,14 @@ function M.when(spec, fn, name)
 	end
 end
 
+function M.lazy_file(fn, name)
+	if name then
+		assert(M.has(name), string.format("[pack] lazyfile: '%s' is not registered", name))
+		mark_loaded(name)
+	end
+	watch_lazy_file(fn)
+end
+
 ---@param fn fun()
 ---@param name string?
 function M.now(fn, name)

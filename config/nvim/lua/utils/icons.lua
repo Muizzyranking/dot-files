@@ -99,7 +99,7 @@ local M = {
 		Unit = " ",
 
 		Text = "󰉿",
-		Function = "󰊕",
+		Function = "󰊕 ",
 
 		WhileStatement = "󰑖 ",
 
