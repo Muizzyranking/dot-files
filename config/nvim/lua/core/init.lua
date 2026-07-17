@@ -9,7 +9,6 @@ end
 
 Pack.now(function()
 	require("lsp")
-	require("statusline").setup()
 	vim.cmd.colorscheme("custom")
 end)
 
@@ -17,4 +16,5 @@ Pack.defer(function()
 	Utils.map.setup()
 	Utils.root.setup()
 	Utils.format.setup()
+	require("statusline").setup()
 end)
