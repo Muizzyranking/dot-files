@@ -298,4 +298,8 @@ function M.on_changed(name, fn, kind)
 	})
 end
 
+function M.update(names)
+	vim.pack.update(names, { force = true })
+end
+
 return M
