@@ -392,9 +392,9 @@ M.lsp = Component.new({
 -- ============================================================
 local copilot_icons = {
 	Normal = Utils.icons.kinds.Copilot,
-	Warning = "",
-	InProgress = "",
-	Error = "",
+	Warning = "",
+	InProgress = "",
+	Error = "",
 }
 
 local function copilot_status()
