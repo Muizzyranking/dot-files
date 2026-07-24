@@ -76,6 +76,7 @@ set("o", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result
 -- set("i", "jj", "<Esc>",     { desc = "Go to normal mode" }) -- esc with jj
 set("n", "<BS>", '"_ciw', { desc = "Change inner word" }) -- change word
 set({ "i", "c" }, "<c-h>", "<c-w>", { desc = "Delete word", silent = false })
+set({ "i", "c" }, "<c-bs>", "<c-w>", { desc = "Delete word", silent = false })
 set("v", "<S-Tab>", "<gv", { noremap = false, silent = true })
 set("v", "<Tab>", ">gv", { noremap = false, silent = true })
 set({ "n" }, "ciw", '"_ciw')
@@ -132,9 +133,7 @@ snippet_aware_map({ "n", "v", "x" }, "X", '"_X', {})
 
 local function auto_indent(keys)
 	keys = keys or { "i" }
-	local opts = { silent = true }
-	opts.expr = true
-	opts.desc = opts.desc or "Auto-indent on insert enter"
+	local opts = { silent = true, expr = true, desc = "Auto-indent on insert enter" }
 	for _, key in ipairs(keys) do
 		set("n", key, function()
 			return not vim.api.nvim_get_current_line():match("%g") and '"_cc' or key
@@ -171,8 +170,8 @@ for _, key in pairs({ "<UP>", "<DOWN>", "<LEFT>", "<RIGHT>" }) do
 	set("n", key, "<nop>", { desc = "Disable " .. key })
 end
 
-set("n", "]p", ":put<CR>", { desc = "Paste on the line below", silent = true })
-set("n", "[p", ":put!<CR>", { desc = "Paste on the line above", silent = true })
+-- set("n", "]p", ":put<CR>", { desc = "Paste on the line below", silent = true })
+-- set("n", "[p", ":put!<CR>", { desc = "Paste on the line above", silent = true })
 
 local maps = {
 	{

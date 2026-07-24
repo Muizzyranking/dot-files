@@ -1,4 +1,4 @@
 Pack.add({ "nemanjamalesija/smart-paste.nvim" })
-Pack.now(function()
+Pack.lazy_file(function()
 	require("smart-paste").setup({})
-end)
+end, "smart-paste.nvim")
