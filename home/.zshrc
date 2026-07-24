@@ -11,7 +11,7 @@ load() {
 
 load ".zshenv"
 load "options.zsh"
-load "keybindings.zsh"
+load "keybinds.zsh"
 load "plugin_manager.zsh"
 
 load_plugin "zsh-users/zsh-autosuggestions"
