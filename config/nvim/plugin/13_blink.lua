@@ -1,3 +1,14 @@
+Utils.map.set({
+	"<leader>ua",
+	get = function()
+		return vim.b.completion ~= false
+	end,
+	set = function(state)
+		vim.b.completion = not state
+	end,
+	name = "Auto completion",
+})
+
 Pack.on_changed("blink.cmp", function(params)
 	vim.notify("Building blink.cmp", vim.log.levels.INFO)
 	local obj = vim.system({ "cargo", "build", "--release" }, { cwd = params.path }):wait()

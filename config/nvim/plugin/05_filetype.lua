@@ -1,6 +1,7 @@
 vim.filetype.add({
 	extension = { rasi = "rasi", rofi = "rasi", wofi = "rasi", sh = "sh" },
 	filename = {
+		[".env"] = "sh",
 		["vifmrc"] = "vim",
 		[".gitconfig"] = "gitconfig",
 		[".gitignore"] = "gitignore",
