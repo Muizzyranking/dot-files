@@ -114,7 +114,7 @@ hl.window_rule({ match = { title = "^(.*dialog.*)$" }, float = true })
 hl.window_rule({ match = { class = "^(.*dialog.*)$" }, float = true })
 
 hl.window_rule({ match = { tag = "multimedia_video" }, no_blur = true })
-hl.window_rule({ match = { tag = "multimedia_video" }, opacity = 1.0 })
+hl.window_rule({ match = { tag = "multimedia_video" }, opacity = 10 })
 hl.window_rule({ match = { tag = "multimedia" }, no_blur = true })
 hl.window_rule({ match = { tag = "multimedia" }, opacity = 1.0 })
 
