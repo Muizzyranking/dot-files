@@ -33,7 +33,7 @@ local function needs_render_time_resolution(hl)
 end
 
 function Component:_classify_hl()
-	local hl = self.hl
+	local hl = self.hl or {}
 
 	if type(hl) == "table" and hl.dynamic then
 		self._kind = "dynamic"

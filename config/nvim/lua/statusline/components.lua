@@ -378,7 +378,7 @@ M.lsp = Component.new({
 			return ""
 		end
 		return {
-			{ text = string.format("󰄭 %s", table.concat(names, ", ")) },
+			{ text = string.format(" %s", table.concat(names, ", ")) },
 			{ text = " │", hl = "fg_dimmer" },
 		}
 	end, { per_buf = true }),
