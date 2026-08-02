@@ -1,0 +1,8 @@
+#compdef extract
+
+_extract() {
+    setopt localoptions extendedglob
+    _files -g '*.tar.bz2|*.tbz2|*.tar.gz|*.tgz|*.tar.xz|*.tar.zst|*.bz2|*.rar|*.gz|*.tar|*.zip|*.7z|*.deb'
+}
+
+_extract "$@"

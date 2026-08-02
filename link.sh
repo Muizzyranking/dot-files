@@ -108,11 +108,32 @@ link_git() {
     link_config_folder "git"
 }
 
+link_zsh_completions() {
+    local src_dir="$DOTS_DIR/config/zshcompletions"
+    local dest_dir="$HOME/.zsh/completions"
+
+    if [[ ! -d "$src_dir" ]]; then
+        print_message info "No zshcompletions directory found, skipping."
+        return 0
+    fi
+
+    ensure_dir "$dest_dir"
+
+    local file
+    for file in "$src_dir"/*; do
+        [[ -e "$file" ]] || continue
+        local basename
+        basename="$(basename "$file")"
+        link_item "$file" "$dest_dir/$basename"
+    done
+}
+
 link_zsh() {
     print_message info "Processing Zsh configuration..."
     link_home_file ".zshrc"
     link_config_folder "zsh"
     link_config_folder "oh-my-posh"
+    link_zsh_completions
 }
 
 link_bash() {
@@ -120,7 +141,7 @@ link_bash() {
     link_home_file ".bashrc"
 }
 
-SPECIAL_CONFIGS=("vscode" "zsh" "oh-my-posh" "git")
+SPECIAL_CONFIGS=("vscode" "zsh" "oh-my-posh" "git" "zshcompletions")
 SPECIAL_HOME_FILES=(".zshrc" ".bashrc")
 
 declare -a available_configs=()
