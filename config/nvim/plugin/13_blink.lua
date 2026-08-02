@@ -68,7 +68,7 @@ Pack.when({ event = "InsertEnter", "CmdlineEnter" }, function()
 		},
 		signature = { enabled = false },
 		sources = {
-			default = { "lsp", "copilot", "path", "snippets", "buffer" },
+			default = { "lazydev", "lsp", "copilot", "path", "snippets", "buffer" },
 			providers = {
 				copilot = {
 					name = "copilot",
@@ -76,6 +76,11 @@ Pack.when({ event = "InsertEnter", "CmdlineEnter" }, function()
 					kind = "Copilot",
 					score_offset = 100,
 					async = true,
+				},
+				lazydev = {
+					name = "LazyDev",
+					module = "lazydev.integrations.blink",
+					score_offset = 100,
 				},
 			},
 		},
