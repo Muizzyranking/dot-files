@@ -74,17 +74,40 @@ venv-create() {
 }
 
 up() {
-    local n="${1:-1}"
-    
-    [[ "$n" =~ ^[0-9]+$ ]] || { echo "Usage: up [number]"; return 1 }
-    [[ "$n" -eq 0 ]] && return 0
-    
+    local levels=1
     local target=""
-    for ((i=0; i<n; i++)); do
-        target="../$target"
+    
+    if [[ $# -gt 0 ]]; then
+        if [[ "$1" =~ ^[0-9]+$ ]]; then
+            levels="$1"
+            shift
+            target="$*"
+        else
+            levels=1
+            target="$*"
+        fi
+    fi
+    
+    [[ "$levels" -eq 0 && -z "$target" ]] && return 0
+    
+    local path=""
+    for ((i=0; i<levels; i++)); do
+        path="../$path"
     done
     
-    cd "$target" 2>/dev/null || { echo "Can't go up $n levels from here"; return 1 }
+    [[ -n "$target" ]] && path="$path$target"
+    
+    builtin cd "$path" 2>/dev/null || {
+        echo "up: can't reach '$path' from '$(pwd)'" >&2
+        return 1
+    }
+}
+
+reload_completions() {
+    local zcomp="$HOME/.zcompdump"
+    rm -f "$zcomp" "$zcomp.zwc"
+    compinit
+    print -P "%F{green}✓%f Completions reloaded."
 }
 
 alias u='up'

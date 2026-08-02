@@ -1,0 +1,18 @@
+#compdef up
+local count=1
+local path_arg_pos=2
+
+if [[ ${words[2]} =~ ^[0-9]+$ ]]; then
+    count=${words[2]}
+    path_arg_pos=3
+fi
+
+(( CURRENT == path_arg_pos )) || return
+
+local base="" i
+for (( i=0; i<count; i++ )); do
+    base="../$base"
+done
+[[ -z $base ]] && base="."
+
+_path_files -/ -W "($base)"
