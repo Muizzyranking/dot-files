@@ -1,6 +1,10 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = ","
 
+if vim.env.VSCODE then
+	vim.g.vscode = true
+end
+
 _G.Utils = require("utils")
 _G.Pack = require("core.pack")
 _G.P = function(...)
