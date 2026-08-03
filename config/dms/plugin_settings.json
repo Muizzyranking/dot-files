@@ -1,0 +1,15 @@
+{
+  "emojiLauncher": {
+    "enabled": true
+  },
+  "screenCaptureToolbar": {
+    "enabled": false
+  },
+  "screenRecorderX": {
+    "enabled": true,
+    "langIndex": 1,
+    "recordAudio": true,
+    "formatIndex": 0,
+    "codecIndex": 0
+  }
+}
