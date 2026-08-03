@@ -141,7 +141,7 @@ link_bash() {
     link_home_file ".bashrc"
 }
 
-SPECIAL_CONFIGS=("vscode" "zsh" "oh-my-posh" "git" "zshcompletions")
+SPECIAL_CONFIGS=("vscode" "zsh" "oh-my-posh" "git" "zshcompletions" "dms")
 SPECIAL_HOME_FILES=(".zshrc" ".bashrc")
 
 declare -a available_configs=()
