@@ -38,7 +38,7 @@ extract() {
 
 fdir() {
     local selected_dir
-    selected_dir=$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse) || return
+    selected_dir=$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse -q "$1") || return
     [[ -n "$selected_dir" ]] && cd "$selected_dir"
 }
 
