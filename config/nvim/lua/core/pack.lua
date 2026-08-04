@@ -13,7 +13,7 @@ local M = {}
 ---@class Pack.AddSpec
 ---@field [1] string
 ---@field name string?
----@field version string?
+---@field version string|vim.VersionRange?
 
 ---@class Pack.ChangeParams
 ---@field name string
