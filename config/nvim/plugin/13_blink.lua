@@ -24,7 +24,7 @@ Pack.add({
 	"rafamadriz/friendly-snippets",
 	"zbirenbaum/copilot.lua",
 	"giuxtaposition/blink-cmp-copilot",
-	"saghen/blink.cmp",
+	{ "saghen/blink.cmp", version = vim.version.range("1.*") },
 })
 
 Pack.when({ event = "BufReadPost" }, function()
