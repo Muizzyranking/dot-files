@@ -1,4 +1,8 @@
-Pack.add("folke/snacks.nvim")
+Pack.on_changed("fff.nvim", function()
+	require("fff.download").download_or_build_binary()
+end)
+
+Pack.add({ "folke/snacks.nvim", "dmtrKovalenko/fff.nvim" })
 
 local notify = Utils.notify.create({ title = "Snacks" })
 
@@ -388,10 +392,36 @@ Pack.now(function()
 			desc = "Buffers",
 		},
 		{ "<leader>fB", unsaved_buffers_picker, desc = "Buffers" },
-		{ "<leader>ff", function() Snacks.picker.files() end, desc = "Find Files (cwd)" },
-		{ "<leader>fF", function() Snacks.picker.files({ cwd = Utils.root() }) end, desc = "Find Files (root)" },
-		{ "<leader>fg", function() Snacks.picker.grep() end, desc = "Grep" },
-		{ "<leader>sw", function() Snacks.picker.grep_word() end, mode = { "n", "x" }, desc = "Search word" },
+		-- { "<leader>ff", function() Snacks.picker.files() end, desc = "Find Files (cwd)" },
+    -- { "<leader>fF", function() Snacks.picker.files({ cwd = Utils.root() }) end, desc = "Find Files (root)" },
+    -- { "<leader>fg", function() Snacks.picker.grep() end, desc = "Grep" },
+    -- { "<leader>sw", function() Snacks.picker.grep_word() end, mode = { "n", "x" }, desc = "Search word" },
+    -- {
+    --     "fz",
+    --     function()
+    --       require("plugins.fff-snacks").grep({
+    --         grep_mode = { "fuzzy", "plain", "regex" },
+    --       })
+    --     end,
+    --     desc = "FFF live grep (fuzzy)",
+    --   },
+		{ "<leader>ff", function() require("plugins.fff-snacks").files() end, desc = "Find Files (cwd)" },
+		{ "<leader>fF", function() require("plugins.fff-snacks").files({ cwd = Utils.root() }) end, desc = "Find Files (root)" },
+		{ "<leader>fg", function() require("plugins.fff-snacks").grep() end, desc = "Grep" },
+    {
+      "<leader>sw",
+      function()
+        require("plugins.fff-snacks").grep_word({
+          search = function(p)
+            return p:word()
+          end,
+          live = false,
+          supports_live = true,
+        })
+      end,
+      mode = { "n", "x" },
+      desc = "Search word",
+    },
 		{ "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent files" },
 		{ "<leader>fR", function() Snacks.picker.recent({ filter = { cwd = true } }) end, desc = "Recent files (cwd)" },
 		{ "<leader>fG", function() Snacks.picker.grep_buffers() end, desc = "Grep in Open Buffers" },
