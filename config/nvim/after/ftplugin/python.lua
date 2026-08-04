@@ -26,8 +26,9 @@ Utils.map.set({
 	{
 		"t",
 		function()
-			Utils.auto_add_async({ "function_definition" })
+			return Utils.auto_add_async({ "function_definition" })
 		end,
+		expr = true,
 		mode = "i",
 		desc = "Auto add async",
 	},
