@@ -55,6 +55,7 @@ M = setmetatable(M, {
 ---@field lsp? table<string, string>
 ---@field has? string|string[]
 ---@field conds? table<number, function|boolean>
+---@field vscode? boolean
 
 ---@class KeymapOpts : BaseMapping
 ---@field [2] string|function # The right-hand side of the mapping
@@ -156,7 +157,7 @@ end
 ---@param mapping KeymapOpts
 ---------------------------------------------------------------
 local function process_mapping(mapping)
-	if vim.g.vscode then
+	if vim.g.vscode and mapping.vscode ~= true then
 		return
 	end
 	if not validate_keymap(mapping) then
