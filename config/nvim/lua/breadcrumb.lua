@@ -184,7 +184,7 @@ function M.setup(opts)
 		hi("BreadcrumbKind" .. name, "Function")
 	end
 
-	Utils.lsp.on({ method = DOC_SYMBOL_METHOD }, function(_, bufnr)
+	Utils.lsp.on_method(DOC_SYMBOL_METHOD, function(_, bufnr)
 		debounced_update(bufnr)
 	end)
 
