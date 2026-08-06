@@ -62,7 +62,7 @@ local staged_status = {
 	renamed = true,
 }
 
-local function format_file_git_status(item, picker)
+local function format_file_git_status(item)
 	local ret = {}
 	local s = item.status
 	local hl
@@ -74,15 +74,7 @@ local function format_file_git_status(item, picker)
 		hl = "SnacksPickerGitStatus" .. s.status:sub(1, 1):upper() .. s.status:sub(2)
 	end
 
-	local icon = picker.opts.icons.git[s.status]
-	if s.staged then
-		icon = picker.opts.icons.git.staged
-	end
-
 	local text_icon = s.status == "untracked" and "?" or s.status == "ignored" and "!" or s.status:sub(1, 1):upper()
-
-	ret[#ret + 1] = { icon or " ", hl }
-	ret[#ret + 1] = { " ", virtual = true }
 	ret[#ret + 1] = {
 		col = 0,
 		virt_text = { { text_icon, hl }, { " " } },
@@ -140,9 +132,7 @@ local find_files_source = {
 	format = function(item, picker)
 		local ret = {}
 		if item.status then
-			vim.list_extend(ret, format_file_git_status(item, picker))
-		else
-			ret[#ret + 1] = { "  ", virtual = true }
+			vim.list_extend(ret, format_file_git_status(item))
 		end
 		vim.list_extend(ret, Snacks.picker.format.filename(item, picker))
 		if item.line then
@@ -151,11 +141,6 @@ local find_files_source = {
 		end
 		return ret
 	end,
-	formatters = {
-		file = {
-			filename_first = true,
-		},
-	},
 	on_show = function()
 		ensure_file_picker()
 	end,
