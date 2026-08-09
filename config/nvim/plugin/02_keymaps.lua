@@ -216,7 +216,7 @@ local maps = {
 		Utils.actions.duplicate_selection,
 		desc = "Dulicate selection",
 		icon = { icon = "󰆑 " },
-		mode = { "v" },
+		mode = { "v", "x" },
 	},
 	{ "<leader>/", "gcc", desc = "Comment line", icon = { icon = "󱆿 " }, remap = true },
 	{ "<leader>/", "gc", desc = "Comment line", icon = { icon = "󱆿 " }, remap = true, mode = { "v", "x" } },
