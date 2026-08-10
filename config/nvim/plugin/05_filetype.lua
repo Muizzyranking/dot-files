@@ -1,5 +1,5 @@
 vim.filetype.add({
-	extension = { rasi = "rasi", rofi = "rasi", wofi = "rasi", sh = "sh" },
+	extension = { rasi = "rasi", rofi = "rasi", wofi = "rasi", sh = "sh", env = "sh" },
 	filename = {
 		[".env"] = "sh",
 		["vifmrc"] = "vim",
