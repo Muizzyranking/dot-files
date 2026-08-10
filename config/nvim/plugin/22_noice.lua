@@ -1,6 +1,6 @@
 Pack.add("folke/noice.nvim")
 
-Pack.when({ lazy_file = true }, function()
+Pack.when({ defer = true }, function()
 	require("noice").setup({
 		lsp = {
 			progress = { enabled = true, view = "mini" },

@@ -254,20 +254,10 @@ local git_maps = {
 	{
 		"<leader>go",
 		function()
-			Utils.fn.run_command({ "open-repo", "-b" }, {
-				trim = true,
-				callback = function(output, success)
-					if not success then
-						Utils.notify.error("Failed to open repo in browser: " .. output)
-					else
-						Utils.notify.info("Opening repo in browser...")
-					end
-				end,
-			})
+			Snacks.gitbrowse()
 		end,
-		desc = "Open repo in browser",
-		icon = { icon = "󰌧 ", color = "red" },
-		conds = { Utils.fn.is_executable("open-repo") },
+		desc = "Browse git repo in browser",
+		icon = { icon = " " },
 	},
 	{
 		"<leader>gb",
