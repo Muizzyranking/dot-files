@@ -4,6 +4,17 @@ end)
 
 Pack.add({ "folke/snacks.nvim", "dmtrKovalenko/fff.nvim" })
 
+local make_tmux_action = function(cmd)
+	return function(picker)
+		local root_win = assert(picker.layout.root.win)
+		local next_win = vim.api.nvim_win_call(root_win, function()
+			vim.cmd(cmd)
+			return vim.api.nvim_get_current_win()
+		end)
+		vim.api.nvim_set_current_win(next_win)
+	end
+end
+
 local notify = Utils.notify.create({ title = "Snacks" })
 
 local function get_unsaved_buffers()
@@ -246,12 +257,20 @@ local explorer = {
 		severity = { pos = "right" },
 	},
 	matcher = { sort_empty = false, fuzzy = true },
-	actions = {},
+	actions = {
+		tmux_h = make_tmux_action("TmuxNavigateLeft"),
+		tmux_j = make_tmux_action("TmuxNavigateDown"),
+		tmux_k = make_tmux_action("TmuxNavigateUp"),
+		tmux_l = make_tmux_action("TmuxNavigateRight"),
+	},
 	win = {
 		list = {
 			keys = {
 				["<c-c>"] = "",
-				["<c-h>"] = nil,
+				["<c-h>"] = { "tmux_h" },
+				["<c-j>"] = { "tmux_j" },
+				["<c-k>"] = { "tmux_k" },
+				["<c-l>"] = { "tmux_l" },
 				["s"] = "edit_vsplit",
 				["S"] = "edit_split",
 			},
