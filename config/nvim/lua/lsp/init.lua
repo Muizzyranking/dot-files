@@ -235,13 +235,4 @@ apply_global_keymaps()
 setup_diagnostics()
 setup_capabilities()
 
---- load servers after mason is ready to ensure executable are available
-Pack.on_load("mason.nvim", function()
-	vim.schedule(function()
-		vim.lsp.enable(servers)
-		vim.api.nvim_exec_autocmds("FileType", {
-			buffer = vim.api.nvim_get_current_buf(),
-			modeline = false,
-		})
-	end)
-end)
+vim.lsp.enable(servers)
