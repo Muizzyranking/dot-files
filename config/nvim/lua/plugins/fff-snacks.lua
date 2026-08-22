@@ -91,7 +91,7 @@ end
 local function ensure_file_picker()
 	if not file_picker.is_initialized() then
 		if not file_picker.setup() then
-			vim.notify("Failed to initialize file picker", vim.log.levels.ERROR)
+			Utils.notify.error("Failed to initialize file picker")
 			return false
 		end
 	end

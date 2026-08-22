@@ -10,7 +10,7 @@ Utils.map.set({
 })
 
 Pack.on_changed("blink.cmp", function(params)
-	vim.notify("Building blink.cmp", vim.log.levels.INFO)
+	Utils.notify("Building blink.cmp")
 	local obj = vim.system({ "cargo", "build", "--release" }, { cwd = params.path }):wait()
 	local c = obj.code
 	Utils.notify[c == 0 and "info" or "error"]("Building blink.cmp " .. (c == 0 and "done" or "failed"))
