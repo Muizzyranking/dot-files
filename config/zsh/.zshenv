@@ -24,3 +24,9 @@ export FZF_DEFAULT_OPTS="
 --pointer='▶'
 --marker='✓'
 "
+
+# Plugins vars
+
+# zsh-autosuggestions
+ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+ZSH_AUTOSUGGEST_HISTORY_IGNORE="?(#c50,)"

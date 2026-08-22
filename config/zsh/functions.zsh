@@ -3,7 +3,26 @@
 source "$HOME/.config/zsh/utils.sh" 2>/dev/null || true
 
 aliases() {
-    alias | sed 's/=/ => /' | bat --language=bash --style=plain
+    alias | awk -F= '
+        {
+            left[NR] = $1
+            right[NR] = $2
+            if (length($1) > max) max = length($1)
+        }
+        END {
+            for (i = 1; i <= NR; i++) {
+                printf "  %-*s => %s\n", max, left[i], right[i]
+            }
+        }
+    ' | bat --language=bash --style=plain
+}
+
+update() {
+    if ! command -v yay &> /dev/null; then
+        echo "yay is not installed."
+        return 1
+    fi
+    yay -Syu --noconfirm --needed
 }
 
 bak() {
