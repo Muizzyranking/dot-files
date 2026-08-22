@@ -19,7 +19,7 @@ M.root_patterns = {
 	"pyrightconfig.json",
 	"biome.json",
 	"package.json",
-	"biome.jsonc",
+	"tmux.conf",
 }
 M.ignore_lsp = { "copilot" }
 

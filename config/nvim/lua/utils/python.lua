@@ -162,7 +162,7 @@ function M.venv_activate(venv_info)
 	end
 
 	vim.env.VIRTUAL_ENV = venv_info.venv_path
-	vim.env.PATH = venv_info.venv_path .. "/bin:" .. vim.env.PATH
+	Utils.fn.add_to_path(venv_info.venv_path .. "/bin")
 	vim.g.python3_host_prog = venv_info.python_path
 
 	return true
