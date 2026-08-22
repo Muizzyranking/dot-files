@@ -188,16 +188,15 @@ end
 --- use another filetype config in this filetype
 ---@param ft string
 function M.ft_config(ft)
-	ft = ft .. ".lua"
-	local config_path = vim.fn.stdpath("config")
-	local after = "after/ftplugin/" .. ft
-	local ftplugin = "ftplugin/" .. ft
+	ft = M.fmt_str("%s.lua", ft)
+	local after = M.fmt_str("after/ftplugin/%s", ft)
+	local ftplugin = M.fmt_str("ftplugin/%s", ft)
 
-	if vim.fn.filereadable(config_path .. "/" .. after) == 1 then
+	if vim.fn.filereadable(M.fmt_str("${CONFIG_DIR}/%s", after)) == 1 then
 		vim.cmd("runtime " .. after)
 		return
 	end
-	if vim.fn.filereadable(config_path .. "/" .. ftplugin) == 1 then
+	if vim.fn.filereadable(M.fmt_str("${CONFIG_DIR}/%s", ftplugin)) == 1 then
 		vim.cmd("runtime " .. ftplugin)
 		return
 	end
@@ -213,6 +212,36 @@ function M.get_path(mod, ...)
 		end
 	end
 	return current
+end
+
+---@param str string
+---@return string
+function M.fmt_str(str, ...)
+	local vars = {
+		HOME = vim.env.HOME,
+		CONFIG_DIR = vim.fn.stdpath("config"),
+		DATA_DIR = vim.fn.stdpath("data"),
+		CACHE_DIR = vim.fn.stdpath("cache"),
+	}
+
+	str = str:gsub("%${([%w_]+)}", function(name)
+		return vars[name] or ("${" .. name .. "}")
+	end)
+
+	return select("#", ...) > 0 and str:format(...) or str
+end
+
+function M.add_to_path(path)
+	local sep = vim.fn.has("win32") == 1 and ";" or ":"
+	local current_path = vim.env.PATH or ""
+	path = M.fmt_str(path)
+	for entry in current_path:gmatch("[^" .. sep .. "]+") do
+		if entry == path then
+			return
+		end
+	end
+
+	vim.env.PATH = path .. sep .. current_path
 end
 
 return M

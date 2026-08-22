@@ -48,8 +48,7 @@ local function make_picker(opts)
 end
 
 function M.get_all_servers()
-	local config_dir = vim.fn.stdpath("config")
-	local lsp_dir = config_dir .. "/lsp"
+	local lsp_dir = Utils.fn.fmt_str("${CONFIG_DIR}/lsp")
 	local servers = {}
 
 	local entries = vim.uv.fs_scandir(lsp_dir)

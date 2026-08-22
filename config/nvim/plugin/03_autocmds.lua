@@ -207,7 +207,7 @@ vim.api.nvim_create_autocmd("BufWritePost", {
 })
 
 vim.api.nvim_create_autocmd("BufWritePost", {
-	pattern = vim.fn.expand("$HOME") .. "/dot-files/bin/*",
+	pattern = Utils.fn.fmt_str("${HOME}/dot-files/bin/*"),
 	callback = function(e)
 		local buf = e.buf
 		local filepath = Utils.fn.get_filepath(buf)

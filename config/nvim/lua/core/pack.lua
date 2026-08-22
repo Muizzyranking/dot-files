@@ -283,7 +283,7 @@ function M.on_changed(name, fn, kind)
 
 			local params = {
 				name = ev.data.spec.name,
-				path = vim.fn.stdpath("data") .. "/site/pack/core/opt/" .. ev.data.spec.name,
+				path = Utils.fn.fmt_str("${DATA_DIR}/site/pack/core/opt/%s", ev.data.spec.name),
 				kind = ev.data.kind,
 				active = ev.data.active,
 			}
