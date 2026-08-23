@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=WhatsApp
+Comment=WhatsApp Web
+Exec=launch-webapp "https://web.whatsapp.com" %U
+Type=Application
+Terminal=false
+Icon=whatsapp
+Categories=Network;Chat;
+StartupWMClass=web.whatsapp.com

@@ -3,8 +3,8 @@
 source "$HOME/.config/zsh/utils.sh"
 
 if [ -z "$1" ]; then
-    echo "Usage: webapp <url>"
-    1
+    echo "Usage: launch-webapp <url>"
+    exit 1
 fi
 
 command="google-chrome-stable"

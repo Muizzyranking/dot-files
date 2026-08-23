@@ -141,7 +141,33 @@ link_bash() {
     link_home_file ".bashrc"
 }
 
-SPECIAL_CONFIGS=("vscode" "zsh" "oh-my-posh" "git" "zshcompletions" "dms")
+link_apps() {
+    print_message info "Processing desktop applications..."
+    local apps_src_dir="$DOTS_DIR/apps"
+    local apps_dest_dir="$HOME/.local/share/applications"
+
+    if [[ ! -d "$apps_src_dir" ]]; then
+        print_message info "No apps directory found, skipping."
+        return 0
+    fi
+
+    ensure_dir "$apps_dest_dir"
+
+    local file
+    for file in "$apps_src_dir"/*.desktop; do
+        [[ -e "$file" ]] || continue
+        local basename
+        basename="$(basename "$file")"
+        link_item "$file" "$apps_dest_dir/$basename"
+    done
+
+    if command -v update-desktop-database &>/dev/null; then
+        update-desktop-database "$apps_dest_dir" 2>/dev/null && \
+            print_message info "Updated desktop database."
+    fi
+}
+
+SPECIAL_CONFIGS=("vscode" "zsh" "oh-my-posh" "git" "zshcompletions" "dms" "apps")
 SPECIAL_HOME_FILES=(".zshrc" ".bashrc")
 
 declare -a available_configs=()
@@ -212,6 +238,7 @@ for item in "${sorted_unique_tasks[@]}"; do
     bash) link_bash ;;
     git) link_git ;;
     oh-my-posh) link_config_folder "oh-my-posh" ;;
+    apps) link_apps ;;
     *)
         if [[ -d "$DOTS_DIR/config/$item" ]]; then
             link_config_folder "$item"
