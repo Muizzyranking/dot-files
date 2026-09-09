@@ -26,9 +26,26 @@ update() {
 }
 
 bak() {
-    [[ -z "$1" ]] && { echo "Usage: bak <file>"; return 1 }
-    cp "$1" "$1.bak"
-    echo "Backed up: $1 -> $1.bak"
+    [[ -z "$1" ]] && { print_message "Usage: bak <path>"; return 1; }
+
+    local src="${1%/}"
+    [[ -e "$src" ]] || { print_message error "'$src' does not exist"; return 1; }
+
+    local dest="${src}.bak"
+    local i=1
+
+    while [[ -e "$dest" ]]; do
+        dest="${src}.bak.${i}"
+        ((i++))
+    done
+
+    if [[ "$(uname)" == "Darwin" ]]; then
+        cp -pR "$src" "$dest"
+    else
+        cp -a "$src" "$dest"
+    fi
+
+    print_message "Backed up: $src -> $dest"
 }
 
 copypath() {
@@ -58,7 +75,7 @@ extract() {
 fdir() {
     local selected_dir
     selected_dir=$(fd --type d --hidden --exclude .git | fzf-tmux -p --reverse -q "$1") || return
-    [[ -n "$selected_dir" ]] && cd "$selected_dir"
+    [[ -n "$selected_dir" ]] && builtin cd "$selected_dir"
 }
 
 f() {
@@ -67,11 +84,11 @@ f() {
         fzf --height 40% --layout reverse --info inline \
             --nth 1.. --tac --no-sort --query "$*" \
             --bind 'enter:become:echo {1}') || return
-    [[ -n "$dir" ]] && cd "$dir"
+    [[ -n "$dir" ]] && builtin cd "$dir"
 }
 
 mkcd() {
-    mkdir -p "$1" && cd "$1"
+    mkdir -p "$1" && builtin cd "$1"
 }
 
 venv-create() {
