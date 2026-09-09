@@ -26,7 +26,6 @@ local parsers = {
 	"javascript",
 	"tsx",
 	"bash",
-	"hyprlang",
 	"rasi",
 	"git_config",
 	"cpp",
