@@ -13,7 +13,6 @@ M.root_patterns = {
 	"lua",
 	"stylua.toml",
 	"pyproject.toml",
-	"pyproject.toml",
 	"uv.lock",
 	"requirements.txt",
 	"pyrightconfig.json",
@@ -120,7 +119,7 @@ function M.find_pattern_root(buf, patterns, stop)
 		end
 
 		if pattern:find("*") then
-			local escaped = vim.pesc(pattern):gsub("%%*", ".*")
+			local escaped = vim.pesc(pattern):gsub("%%%*", ".*")
 			return name:match("^" .. escaped .. "$") ~= nil
 		end
 		return false
@@ -173,9 +172,8 @@ function M.find_lsp_root(buf)
 		end
 	end
 
-	-- Filter out roots that don't contain the buffer path
 	return vim.tbl_filter(function(path)
-		return path and bufpath:find(path, 1, true) == 1
+		return path and (bufpath == path or vim.startswith(bufpath, path .. "/"))
 	end, roots)[1]
 end
 
@@ -193,8 +191,7 @@ function M.add_patterns(patterns)
 end
 
 ---@class root.opts
----@field prefer_git boolean # prefer git root if available
----@field skip_cache boolean # skip cache lookup
+---@field prefer_git boolean
 ---@field patterns table
 ---------------------------------------------------------------
 -- Get the project root directory
@@ -209,7 +206,7 @@ function M.get(buf, opts)
 	end
 
 	local root
-	if not opts.skip_cache and M.cache[buf] then
+	if M.cache[buf] then
 		return M.cache[buf]
 	end
 
@@ -234,9 +231,7 @@ function M.get(buf, opts)
 		root = M.cwd()
 	end
 
-	if not opts.skip_cache and M.cache[buf] then
-		M.cache[buf] = root
-	end
+	M.cache[buf] = root
 	return root
 end
 
@@ -251,7 +246,7 @@ function M.clear_buf_cache(buf)
 	end
 	M.cache[buf] = nil
 	local path = M.get_buffer_path(buf)
-	if path and M.git_cache[path] then
+	if path and M.git_cache[path] ~= nil then
 		M.git_cache[path] = nil
 	end
 end
@@ -261,7 +256,7 @@ end
 ---------------------------------------------------------------
 function M.setup()
 	local group = vim.api.nvim_create_augroup("utils.root", { clear = true })
-	vim.api.nvim_create_autocmd({ "LspAttach", "LspDetach", "BufWritePost", "BufEnter" }, {
+	vim.api.nvim_create_autocmd({ "LspAttach", "LspDetach", "BufWritePost" }, {
 		group = group,
 		callback = function(event)
 			if event and event.buf then
