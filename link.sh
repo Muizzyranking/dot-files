@@ -101,7 +101,7 @@ link_git() {
 
     local global_git_config="$HOME/.gitconfig"
     if [[ -f "$global_git_config" && ! -L "$global_git_config" ]]; then
-        print_message warning "Found real .gitconfig at $global_git_config, backing up..."
+        print_message warning "Found .gitconfig at $global_git_config, backing up..."
         backup_item "$global_git_config"
     fi
 
