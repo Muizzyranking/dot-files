@@ -19,9 +19,8 @@ return {
 		},
 	},
 	on_attach = function(client, bufnr)
-		local root = Utils.root(bufnr)
-		local venv = Utils.python.detect_and_activate_venv(root)
-		if venv and venv.python_path then
+		local venv = Utils.python.activate_venv(Utils.root(bufnr))
+		if venv then
 			local new_settings = vim.tbl_deep_extend("force", client.config.settings or {}, {
 				python = { pythonPath = venv.python_path },
 			})
@@ -29,7 +28,7 @@ return {
 			client.config.settings = new_settings
 			client:notify("workspace/didChangeConfiguration", { settings = new_settings })
 		end
-		local augroup = vim.api.nvim_create_augroup("basedpyright_config_" .. bufnr, { clear = true })
+		local augroup = vim.api.nvim_create_augroup("basedpyright_config", { clear = true })
 		vim.api.nvim_create_autocmd("BufWritePost", {
 			group = augroup,
 			pattern = "pyrightconfig.json",

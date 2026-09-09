@@ -50,4 +50,4 @@ Utils.root.add_patterns({
 	"pyrightconfig.json",
 })
 
-Utils.python.activate_venv(buf)
+Utils.python.activate_venv(Utils.root(buf))

@@ -108,94 +108,68 @@ function M.handle_brace()
 	vim.api.nvim_win_set_cursor(win, { row + 1, brace_start + 1 })
 end
 
-local active_venv = nil
-local venv_cache = {}
+---@class VenvInfo
+---@field venv_path string
+---@field python_path string
 
+local active_venv = nil ---@type string?
+local venv_cache = {} ---@type table<string, VenvInfo|false>
+
+---@param root string?
+---@return VenvInfo?
 function M.detect_venv(root)
-	if not root then
-		return nil
-	end
+	root = root or Utils.root()
 
-	-- Check cache first, but validate it's still valid
-	if venv_cache[root] then
-		local cached = venv_cache[root]
+	local cached = venv_cache[root]
+	if cached ~= nil then
 		if cached and vim.fn.isdirectory(cached.venv_path) == 1 and Utils.fn.is_executable(cached.python_path) then
 			return cached
 		end
 		venv_cache[root] = nil
 	end
 
-	-- Don't override existing VIRTUAL_ENV
-	local current_venv = vim.env.VIRTUAL_ENV
-	if current_venv and vim.startswith(current_venv, root) then
-		local result = {
-			venv_path = current_venv,
-			python_path = current_venv .. "/bin/python",
-		}
-		venv_cache[root] = result
+	local function remember(result)
+		venv_cache[root] = result or false
 		return result
 	end
 
-	local venv_names = { ".venv", "venv", ".virtualenv", "env" }
-	for _, venv_name in ipairs(venv_names) do
-		local venv_path = root .. "/" .. venv_name
-		local python_path = venv_path .. "/bin/python"
+	local current_venv = vim.env.VIRTUAL_ENV
+	if current_venv and vim.startswith(current_venv, root) then
+		return remember({ venv_path = current_venv, python_path = current_venv .. "/bin/python" })
+	end
 
-		-- Check if both directory and python executable exist
+	for _, name in ipairs({ ".venv", "venv", ".virtualenv", "env" }) do
+		local venv_path = root .. "/" .. name
+		local python_path = venv_path .. "/bin/python"
 		if Utils.fn.is_executable(python_path) then
-			local result = {
-				venv_path = venv_path,
-				python_path = python_path,
-			}
-			venv_cache[root] = result
-			return result
+			return remember({ venv_path = venv_path, python_path = python_path })
 		end
 	end
 
-	venv_cache[root] = nil
-	return nil
+	return remember(nil)
 end
 
-function M.venv_activate(venv_info)
-	if not venv_info then
+---@param venv_info VenvInfo?
+---@return boolean
+local function apply_venv(venv_info)
+	if not venv_info or active_venv == venv_info.venv_path then
 		return false
 	end
-
 	vim.env.VIRTUAL_ENV = venv_info.venv_path
 	Utils.fn.add_to_path(venv_info.venv_path .. "/bin")
 	vim.g.python3_host_prog = venv_info.python_path
-
+	active_venv = venv_info.venv_path
 	return true
 end
 
-function M.detect_and_activate_venv(root)
+---@param root string?
+---@return VenvInfo?
+function M.activate_venv(root)
 	local venv_info = M.detect_venv(root)
-	if venv_info then
-		M.venv_activate(venv_info)
-	end
-	return venv_info
-end
-
-function M.activate_venv(buf)
-	buf = Utils.fn.ensure_buf(buf)
-
-	if vim.bo[buf].filetype ~= "python" then
-		return
-	end
-	local root = Utils.root(buf)
-	local venv_info = M.detect_venv(root)
-	if not venv_info then
-		return
-	end
-
-	if active_venv == venv_info.venv_path then
-		return
-	end
-
-	if M.venv_activate(venv_info) then
-		active_venv = venv_info.venv_path
+	if venv_info and apply_venv(venv_info) then
 		Utils.notify.info("venv: " .. venv_info.venv_path)
 	end
+	return venv_info
 end
 
 return M
