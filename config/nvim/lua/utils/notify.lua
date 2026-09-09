@@ -25,6 +25,9 @@ local M = setmetatable({}, {
 ---@param opts? table Additional options for the notification
 ----------------------------------------------------------
 function M.notify(msg, opts)
+	if Utils.fn.is_in_vscode() then
+		return
+	end
 	if vim.in_fast_event() then
 		return vim.schedule(function()
 			M.notify(msg, opts)

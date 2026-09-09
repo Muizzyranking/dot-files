@@ -55,12 +55,12 @@ Pack.on_changed("nvim-treesitter", function()
 end, "update")
 
 Pack.add({
-	"https://github.com/nvim-treesitter/nvim-treesitter",
+	{ "https://github.com/nvim-treesitter/nvim-treesitter", vscode = true },
 	"https://github.com/windwp/nvim-ts-autotag",
-	"https://github.com/nvim-treesitter/nvim-treesitter-textobjects",
+	{ "https://github.com/nvim-treesitter/nvim-treesitter-textobjects", vscode = true },
 })
 
-Pack.when({ lazy_file = true, defer = true }, function()
+Pack.when({ lazy_file = true, defer = true, vscode = true }, function()
 	local opts = {
 		ensure_installed = parsers,
 	}
@@ -83,6 +83,9 @@ Pack.when({ lazy_file = true, defer = true }, function()
 	end
 	vim.api.nvim_create_autocmd("FileType", {
 		callback = function(ev)
+			if Utils.fn.is_in_vscode() then
+				return
+			end
 			local ft = ev.match
 			if not Utils.treesitter.have(ft) then
 				return
@@ -150,4 +153,4 @@ Pack.defer(function()
 		return ret
 	end
 	Utils.map.set(keys())
-end)
+end, { vscode = true })

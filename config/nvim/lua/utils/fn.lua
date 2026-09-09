@@ -9,6 +9,10 @@ M.is_in_tmux = function()
 	return os.getenv("TMUX") ~= nil
 end
 
+M.is_in_vscode = function()
+	return vim.g.vscode ~= nil
+end
+
 -------------------------------------
 -- Checks if the path is executable
 ---@param path any

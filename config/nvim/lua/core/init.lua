@@ -11,20 +11,19 @@ _G.P = function(...)
 	vim.print(vim.inspect(...))
 end
 
-Utils.fn.add_to_path("${DATA_DIR}/mason/bin")
-
 Pack.now(function()
+	Utils.fn.add_to_path("${DATA_DIR}/mason/bin")
 	require("lsp")
 	vim.cmd.colorscheme("custom")
-end)
+end, { vscode = false })
 
 Pack.defer(function()
-	Utils.map.setup()
 	Utils.root.setup()
 	Utils.format.setup()
 	require("statusline").setup()
-end)
+end, { vscode = false })
 
 Pack.lazy_file(function()
+	Utils.map.setup()
 	require("breadcrumb").setup()
-end)
+end, { vscode = false })

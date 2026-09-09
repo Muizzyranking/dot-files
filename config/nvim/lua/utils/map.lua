@@ -69,6 +69,9 @@ M = setmetatable(M, {
 ---@field notify? boolean
 ---@field set_key? boolean
 
+---@class keymap.set.Opts : vim.keymap.set.Opts
+---@field vscode boolean?
+
 local wk_maps = {}
 local did_setup = false
 local deepcopy = vim.deepcopy
@@ -121,11 +124,15 @@ end
 ---@param mode KeymapMode|KeymapMode[] Mode or modes for the mapping
 ---@param lhs string Left-hand side of the mapping
 ---@param rhs string|function Right-hand side of the mapping
----@param opts? vim.keymap.set.Opts Additional options for the mapping
+---@param opts? keymap.set.Opts Additional options for the mapping
 ---@return boolean success Whether the mapping was set successfully
 ---------------------------------------------------------------
 function M.safe_keymap_set(mode, lhs, rhs, opts)
 	opts = opts or {}
+	if vim.g.vscode and opts.vscode ~= true then
+		return false
+	end
+	opts.vscode = nil
 	opts.silent = opts.silent ~= false
 	local ok = pcall(vim.keymap.set, mode, lhs, rhs, opts)
 	return ok
@@ -143,6 +150,7 @@ local function set_keymap(mapping)
 		silent = mapping.silent,
 		remap = mapping.remap,
 		expr = mapping.expr,
+		vscode = mapping.vscode,
 	}
 	if M.safe_keymap_set(mode, lhs, rhs, opts) then
 		if mapping.icon then
@@ -157,9 +165,6 @@ end
 ---@param mapping KeymapOpts
 ---------------------------------------------------------------
 local function process_mapping(mapping)
-	if vim.g.vscode and mapping.vscode ~= true then
-		return
-	end
 	if not validate_keymap(mapping) then
 		return
 	end

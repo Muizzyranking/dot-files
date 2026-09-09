@@ -1,8 +1,8 @@
 Pack.add({
-	"nvim-mini/mini.ai",
+	{ "nvim-mini/mini.ai", vscode = true },
 	"nvim-mini/mini.align",
 	"nvim-mini/mini.pairs",
-	"nvim-mini/mini.surround",
+	{ "nvim-mini/mini.surround", vscode = true },
 	"nvim-mini/mini.icons",
 })
 
@@ -46,7 +46,7 @@ Pack.defer(function()
 		},
 	}
 	require("mini.ai").setup(opts)
-end)
+end, { vscode = true })
 
 Pack.defer(function()
 	local opts = {
@@ -116,10 +116,12 @@ Pack.defer(function()
 	end
 end)
 
-Pack.when({ event = { "BufReadPost", "BufNewFile" } }, function()
-	require("mini.align").setup({
-		mappings = { start = "ga", start_with_preview = "gA" },
-	})
+Pack.when({ event = { "BufReadPost", "BufNewFile" }, vscode = true }, function()
+	if not Utils.fn.is_in_vscode() then
+		require("mini.align").setup({
+			mappings = { start = "ga", start_with_preview = "gA" },
+		})
+	end
 	require("mini.surround").setup({
 		mappings = {
 			add = "gza",

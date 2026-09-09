@@ -9,11 +9,13 @@ local M = {}
 ---@field keys KeymapOpts[]?
 ---@field lazy_file boolean?
 ---@field defer boolean?
+---@field vscode boolean?
 
 ---@class Pack.AddSpec
 ---@field [1] string
 ---@field name string?
 ---@field version string|vim.VersionRange?
+---@field vscode boolean?
 
 ---@class Pack.ChangeParams
 ---@field name string
@@ -27,6 +29,10 @@ local M = {}
 ---| "delete"
 
 local notify = Utils.notify.create({ title = "Pack" })
+
+local function in_vscode()
+	return Utils.fn.is_in_vscode()
+end
 
 ---@type table<string, boolean>
 M.specs = {}
@@ -65,7 +71,7 @@ end
 ---@param fn fun()
 local function safe(msg, fn)
 	local ok, err = pcall(fn)
-	if not ok then
+	if not ok and not in_vscode() then
 		notify.error(string.format("[pack] %s: %s", msg, err))
 	end
 end
@@ -127,6 +133,32 @@ local function watch_lazy_file(trigger)
 	})
 end
 
+--- Neovim: always run.
+--- VS Code: only run if explicitly opted in via opts.vscode = true.
+---@param opts table?
+---@return boolean
+local function should_run(opts)
+	if not in_vscode() then
+		return true
+	end
+	if not opts then
+		return false
+	end
+	return opts.vscode == true
+end
+
+---@param name string|{ name: string, vscode?: boolean }?
+---@return { name: string, vscode?: boolean }
+local function resolve_name(name)
+	if type(name) == "table" then
+		return {
+			name = name.name,
+			vscode = name.vscode,
+		}
+	end
+	return { name = name }
+end
+
 ---@param trigger fun()
 local function watch_defer(trigger)
 	vim.api.nvim_create_autocmd("UIEnter", {
@@ -142,6 +174,10 @@ end
 ---@param fn fun()
 ---@param name string?
 function M.when(spec, fn, name)
+	if not should_run(spec) then
+		return
+	end
+
 	if name then
 		assert(M.has(name), string.format("[pack] when: '%s' is not registered", name))
 	end
@@ -174,7 +210,12 @@ function M.when(spec, fn, name)
 	end
 end
 
-function M.lazy_file(fn, name)
+function M.lazy_file(fn, opts)
+	opts = resolve_name(opts)
+	local name = opts.name
+	if not should_run(opts) then
+		return
+	end
 	if name then
 		assert(M.has(name), string.format("[pack] lazyfile: '%s' is not registered", name))
 		mark_loaded(name)
@@ -183,8 +224,15 @@ function M.lazy_file(fn, name)
 end
 
 ---@param fn fun()
----@param name string?
-function M.now(fn, name)
+---@param opts string|{name: string, vscode: boolean}?
+function M.now(fn, opts)
+	opts = resolve_name(opts)
+	local name = opts.name
+
+	if not should_run(opts) then
+		return
+	end
+
 	if name then
 		assert(M.has(name), string.format("[pack] now: '%s' is not registered", name))
 		mark_loaded(name)
@@ -193,7 +241,15 @@ function M.now(fn, name)
 end
 
 ---@param fn fun()
-function M.defer(fn, name)
+---@param opts string|{name: string, vscode: boolean}?
+function M.defer(fn, opts)
+	opts = resolve_name(opts)
+	local name = opts.name
+
+	if not should_run(opts) then
+		return
+	end
+
 	if name then
 		assert(M.has(name), string.format("[pack] now: '%s' is not registered", name))
 		mark_loaded(name)
@@ -244,16 +300,19 @@ function M.add(spec)
 
 		local src = resolve_src(item[1])
 		local name = item.name or name_from_src(src)
-		M.specs[name] = true
 
-		local pack_spec = { src = src }
-		if item.name then
-			pack_spec.name = item.name
+		if not in_vscode() or item.vscode == true then
+			M.specs[name] = true
+
+			local pack_spec = { src = src }
+			if item.name then
+				pack_spec.name = item.name
+			end
+			if item.version then
+				pack_spec.version = item.version
+			end
+			packadd(pack_spec)
 		end
-		if item.version then
-			pack_spec.version = item.version
-		end
-		packadd(pack_spec)
 	end
 end
 
