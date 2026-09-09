@@ -1,0 +1,121 @@
+#!/bin/bash
+
+# Hold a lock to prevent suspend/idle. While ANY lock is held, logind
+# refuses to suspend or run idle actions. Locks are named, idempotent,
+# and auto-released when a wrapped command exits.
+#
+# start       holds a lock until `stop <same name>` is called
+# stop        releases the lock for <name>
+# stop-all    releases every lock
+# run         holds a lock until the wrapped command exits (auto-release)
+set -euo pipefail
+
+PIDDIR="${TMPDIR:-/tmp}/systemd-inhibit"
+mkdir -p "$PIDDIR"
+
+usage() {
+    cat <<'EOF'
+usage: inhibit <command> [args...]
+
+commands:
+  start <name>                  Hold a lock until 'stop <name>' (idempotent).
+  stop <name>                   Release the lock for <name> (idempotent).
+  stop-all                      Release every lock.
+  run <name> [--] <cmd> [args]  Hold a lock for exactly as long as <cmd> runs.
+  -h, --help                    Show this help.
+
+While ANY lock is held, logind refuses to suspend / run idle actions.
+EOF
+}
+
+die() {
+    printf 'error: %s\n' "$1" >&2
+    printf 'try: %s --help\n' "$(basename "$0")" >&2
+    exit "${2:-1}"
+}
+
+pidfile() { printf '%s/%s.pid' "$PIDDIR" "$1"; }
+
+check_name() {
+    case "$1" in
+    "" | */*) die "invalid name: '$1' (non-empty, no slashes)" ;;
+    esac
+}
+
+cmd_start() {
+    local name="$1" f pid
+    check_name "$name"
+    f="$(pidfile "$name")"
+    if [[ -f "$f" ]] && kill -0 "$(cat "$f" 2>/dev/null)" 2>/dev/null; then
+        return 0
+    fi
+    setsid systemd-inhibit \
+        --what=sleep:idle \
+        --who="${name}" \
+        --why="${name}: lock held by inhibit.sh" \
+        --mode=block \
+        sleep infinity </dev/null &>/dev/null &
+    echo $! >"$f"
+    disown
+}
+
+cmd_stop() {
+    local name="$1" f pid
+    check_name "$name"
+    f="$(pidfile "$name")"
+    [[ -f "$f" ]] || return 0
+    pid="$(cat "$f" 2>/dev/null || true)"
+    [[ -n "$pid" ]] && kill "$pid" 2>/dev/null || true
+    rm -f "$f"
+}
+
+cmd_stop_all() {
+    local f pid
+    shopt -s nullglob
+    for f in "$PIDDIR"/*.pid; do
+        pid="$(cat "$f" 2>/dev/null || true)"
+        [[ -n "$pid" ]] && kill "$pid" 2>/dev/null || true
+        rm -f "$f"
+    done
+}
+
+cmd_run() {
+    local name="$1"
+    shift
+    check_name "$name"
+    [[ "${1:-}" == "--" ]] && shift
+    (($#)) || die "run: missing command after <name>"
+    exec systemd-inhibit \
+        --what=sleep:idle \
+        --who="${name}" \
+        --why="${name}: running $*" \
+        --mode=block \
+        -- "$@"
+}
+
+main() {
+    local action="${1:-}"
+    [[ -n "$action" ]] || {
+        usage
+        exit 2
+    }
+    shift
+    case "$action" in
+    start)
+        (($#)) || die "start: missing <name>"
+        cmd_start "$1"
+        ;;
+    stop)
+        (($#)) || die "stop: missing <name>"
+        cmd_stop "$1"
+        ;;
+    stop-all) cmd_stop_all ;;
+    run)
+        (($#)) || die "run: missing <name> and <command>"
+        cmd_run "$@"
+        ;;
+    -h | --help | help) usage ;;
+    *) die "unknown command: ${action}" 2 ;;
+    esac
+}
+main "$@"
