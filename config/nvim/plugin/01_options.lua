@@ -4,12 +4,14 @@ local opt, o = vim.opt, vim.o
 vim.opt.clipboard                 = ""
 vim.g.bigfile                     = 1.5 * 1024 * 1024 -- 1.5MB
 vim.g.bigfile_max_lines           = 32768
+vim.g.loaded_netrw                = 1
+vim.g.loaded_netrwPlugin          = 1
 vim.g.netrw_browsex_viewer        = os.getenv("BROWSER")
 vim.hl.priorities.semantic_tokens = 95
 vim.g.autoformat                  = false
 
 vim.schedule(function()
-  opt.clipboard = "unnamedplus"
+  opt.clipboard                   = "unnamedplus"
 end)
 opt.updatetime                    = 250
 opt.timeoutlen                    = 300
