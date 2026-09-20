@@ -21,7 +21,12 @@ commands:
   start <name>                  Hold a lock until 'stop <name>' (idempotent).
   stop <name>                   Release the lock for <name> (idempotent).
   stop-all                      Release every lock.
-  run <name> [--] <cmd> [args]  Hold a lock for exactly as long as <cmd> runs.
+  run [-n NAME] [--] <cmd> ...  Hold a lock for as long as <cmd> runs.
+                                Name is derived from <cmd> (sudo, env,
+                                command and their flags are skipped).
+                                Each run holds its OWN lock, so two windows
+                                running the same command are independent and
+                                the system stays awake until ALL of them exit.
   -h, --help                    Show this help.
 
 While ANY lock is held, logind refuses to suspend / run idle actions.
@@ -40,6 +45,36 @@ check_name() {
     case "$1" in
     "" | */*) die "invalid name: '$1' (non-empty, no slashes)" ;;
     esac
+}
+
+derive_name() {
+    local sudo_value_flags=" -u -g -p -C -D -T -U -r -t -R "
+    local arg name=""
+    while (($#)); do
+        arg="$1"
+        shift
+        case "$arg" in
+        sudo | doas | command | builtin | exec)
+            continue
+            ;;
+        env)
+            while [[ "${1:-}" == *=* ]]; do shift; done
+            continue
+            ;;
+        -*)
+            if [[ "$sudo_value_flags" == *" $arg "* ]] && (($#)); then
+                shift
+            fi
+            continue
+            ;;
+        *)
+            name="${arg##*/}"
+            break
+            ;;
+        esac
+    done
+    [[ -n "$name" ]] || die "run: could not determine command name"
+    printf '%s\n' "$name"
 }
 
 cmd_start() {
@@ -80,11 +115,26 @@ cmd_stop_all() {
 }
 
 cmd_run() {
-    local name="$1"
-    shift
+    local name=""
+    while (($#)); do
+        case "$1" in
+        -n | --name)
+            [[ $# -ge 2 ]] || die "run: $1 requires a value"
+            name="$2"
+            shift 2
+            ;;
+        --)
+            shift
+            break
+            ;;
+        *)
+            break
+            ;;
+        esac
+    done
+    (($#)) || die "run: missing command"
+    [[ -z "$name" ]] && name="$(derive_name "$@")"
     check_name "$name"
-    [[ "${1:-}" == "--" ]] && shift
-    (($#)) || die "run: missing command after <name>"
     exec systemd-inhibit \
         --what=sleep:idle \
         --who="${name}" \
@@ -110,10 +160,8 @@ main() {
         cmd_stop "$1"
         ;;
     stop-all) cmd_stop_all ;;
-    run)
-        (($#)) || die "run: missing <name> and <command>"
-        cmd_run "$@"
-        ;;
+    run) cmd_run "$@" ;;
+    list) systemd-inhibit --list ;;
     -h | --help | help) usage ;;
     *) die "unknown command: ${action}" 2 ;;
     esac
