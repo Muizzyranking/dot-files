@@ -66,3 +66,6 @@ path=(
 load "aliases.zsh"
 load "functions.zsh"
 # load "fahh.zsh"
+
+# kilo
+export PATH=/home/muizzyranking/.kilo/bin:$PATH

@@ -1,0 +1,48 @@
+#compdef inhibit
+
+_inhibit() {
+    local -a subcmds
+    subcmds=(start stop stop-all run help)
+
+    if (( CURRENT == 2 )); then
+        _describe -t commands 'inhibit command' subcmds
+        return
+    fi
+
+    case "${words[2]}" in
+        start)
+            _message 'new lock name'
+            ;;
+        stop)
+            # complete names of currently held (started) locks
+            local -a names
+            local f
+            for f in "${TMPDIR:-/tmp}"/systemd-inhibit/*.pid(N); do
+                names+=("${f:t:r}")
+            done
+            if (( ${#names} )); then
+                _describe -t locks 'held lock' names
+            else
+                _message 'no locks held'
+            fi
+            ;;
+        run)
+            local skip=2
+            case "${words[3]:-}" in
+                -n|--name) (( CURRENT > 4 )) && skip=4 ;;
+            esac
+            (( skip == 4 && CURRENT > 5 )) && [[ "${words[5]:-}" == "--" ]] && skip=5
+            (( skip == 2 && CURRENT > 3 )) && [[ "${words[3]:-}" == "--" ]] && skip=3
+            if (( skip > 1 )); then
+                shift words $skip
+                (( CURRENT -= skip ))
+            fi
+            _normal
+            ;;
+        *)
+            _default
+            ;;
+    esac
+}
+
+_inhibit "$@"
