@@ -1,7 +1,7 @@
 ---@type LspExtras
 return {
-	enabled = function(settings)
-		return Utils.fn.get_path(settings, "lsp", "python", "server") == "basedpyright"
+	enabled = function()
+		return Settings.get({ "lsp", "python", "server" }, "basedpyright") == "basedpyright"
 	end,
 	keys = {
 		{

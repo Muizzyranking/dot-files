@@ -1,35 +1,3 @@
-local ensure_installed = {
-	"basedpyright",
-	"bash-language-server",
-	"clangd",
-	"emmet-language-server",
-	"eslint-lsp",
-	"html-lsp",
-	"css-lsp",
-	"json-lsp",
-	"lua-language-server",
-	"ruff",
-	"tailwindcss-language-server",
-	"tsgo",
-	"vtsls",
-	"lua-language-server",
-	"djlint",
-	"prettierd",
-	"biome",
-	"stylua",
-	"shfmt",
-	"jq",
-	"stylua",
-	"ty",
-	"rust-analyzer",
-	"codelldb",
-	"bacon",
-	"kulala-fmt",
-	"vue-language-server",
-	"goimports",
-	"gofumpt",
-}
-
 Pack.on_changed("mason.nvim", function()
 	vim.cmd("MasonUpdate")
 end, "update")
@@ -51,7 +19,7 @@ Pack.when({
 	local mason = require("mason")
 	local mr = require("mason-registry")
 	mason.setup({
-		ensure_installed = ensure_installed,
+		ensure_installed = Settings.get("servers", {}),
 	})
 	mr:on("package:install:success", function()
 		vim.schedule(function()
@@ -62,7 +30,7 @@ Pack.when({
 		end)
 	end)
 
-	local tools = ensure_installed
+	local tools = Settings.get("servers", {})
 	local function ensure_install()
 		for _, tool in ipairs(tools) do
 			local p = mr.get_package(tool)

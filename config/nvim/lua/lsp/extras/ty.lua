@@ -1,6 +1,6 @@
 return {
-	enabled = function(settings)
-		return Utils.fn.get_path(settings, "lsp", "python", "server") == "ty"
+	enabled = function()
+		return Settings.get({ "lsp", "python", "server" }) == "ty"
 	end,
 	keys = {
 		{

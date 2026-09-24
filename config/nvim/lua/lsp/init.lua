@@ -153,10 +153,7 @@ local function scan_servers()
 				end
 
 				local enabled = x.enabled
-				if type(enabled) == "function" then
-					return enabled(require("config.settings"))
-				end
-				return enabled
+				return Utils.fn.evaluate(enabled)
 			end
 
 			if resolve_enabled(extras) then

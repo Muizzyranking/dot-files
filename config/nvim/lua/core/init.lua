@@ -5,6 +5,7 @@ if vim.env.VSCODE then
 	vim.g.vscode = true
 end
 
+_G.Settings = require("config.settings")
 _G.Utils = require("utils")
 _G.Pack = require("core.pack")
 _G.P = function(...)
