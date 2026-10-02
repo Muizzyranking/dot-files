@@ -3,6 +3,10 @@
 print_message() {
     local type="info"
     local message=""
+    local prefix=""
+    local code=""
+    local fd=1
+    local line
 
     if [ $# -eq 1 ]; then
         message="$1"
@@ -10,17 +14,29 @@ print_message() {
         type="$1"
         message="$2"
     else
-        echo "Usage: print_message [type] <message>"
-        exit 1
+        echo "Usage: print_message [type] <message>" >&2
+        return 1
     fi
 
     case "$type" in
-    error) echo -e "\033[0;31mError: $message\033[0m" ;;
-    success) echo -e "\033[0;32mSuccess: $message\033[0m" ;;
-    warning) echo -e "\033[0;33mWarning: $message\033[0m" ;;
-    info) echo -e "\033[0;34m$message\033[0m" ;;
-    *) echo -e "$message" ;;
+    error)   code='0;31'; prefix="Error: ";   fd=2 ;;
+    success) code='0;32'; prefix="Success: " ;;
+    warning) code='0;33'; prefix="Warning: "; fd=2 ;;
+    info)    code='0;34' ;;
+    *)       ;;
     esac
+
+    if [[ -n "$code" && -z "${NO_COLOR:-}" && -t $fd ]]; then
+        line="$(printf '\033[%sm%s%s\033[0m' "$code" "$prefix" "$message")"
+    else
+        line="${prefix}${message}"
+    fi
+
+    if [[ $fd -eq 2 ]]; then
+        printf '%s\n' "$line" >&2
+    else
+        printf '%s\n' "$line"
+    fi
 }
 
 require() {
@@ -34,8 +50,8 @@ require() {
     done
 
     if [[ ${#missing[@]} -gt 0 ]]; then
-        print_message warning "❌ Missing required dependencies:" >&2
-        printf "   - %s\n" "${missing[@]}" >&2
+        print_message error "Missing required dependencies:"
+        printf '   - %s\n' "${missing[@]}" >&2
         echo "" >&2
         print_message info "Please install the missing dependencies and try again." >&2
         return 1

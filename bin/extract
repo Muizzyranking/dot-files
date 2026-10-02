@@ -1,0 +1,481 @@
+#!/usr/bin/env bash
+# extract - unpack many archive formats behind one interface.
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+PROGRAM="${0##*/}"
+UTILS="$HOME/.config/zsh/utils.sh"
+
+if [[ ! -r "$UTILS" ]]; then
+    echo "$PROGRAM: cannot read $UTILS" >&2
+    exit 1
+fi
+source "$UTILS"
+
+usage() {
+    cat <<EOF
+Usage:
+  $PROGRAM <archive> [options]
+
+Options:
+  -d, --directory DIR    Extract into DIR (created if necessary)
+  -f, --force            Overwrite existing files
+  -n, --no-clobber       Never overwrite existing files
+  -l, --list             List archive contents without extracting
+  -q, --quiet            Suppress normal output (listings are still shown)
+  -v, --verbose          Show detailed output
+  -p, --password PASS    Password for encrypted archives (visible in the
+                         process list; prefer -P or \$EXTRACT_PASSWORD)
+  -P, --ask-password     Prompt for the password
+      --dry-run          Show what would be extracted
+  -h, --help             Show this help
+  --                     Treat everything after as the archive name
+
+Formats:
+  zip (jar war whl apk xpi), tar, tar.gz/tgz, tar.bz2/tbz2, tar.xz/txz,
+  tar.zst/tzst, 7z, rar, gz, bz2, deb   (extensions are case-insensitive)
+
+Notes:
+  * tar-based formats overwrite existing files unless --no-clobber is given.
+  * zip/7z/rar prompt on conflicts unless --force or --no-clobber is given.
+  * Single-file .gz/.bz2 keep the original archive and write the decompressed
+    file into the destination directory.
+  * Passwords only apply to zip, 7z and rar. --no-clobber is not supported
+    for .deb.
+
+Examples:
+  $PROGRAM archive.zip
+  $PROGRAM archive.zip -d ~/Downloads
+  $PROGRAM archive.tar.gz --directory ./output
+  $PROGRAM archive.zip --list
+  $PROGRAM archive.zip --dry-run
+  $PROGRAM archive.zip -d ./output --force
+EOF
+}
+
+die() {
+    print_message error "$*"
+    exit 1
+}
+
+warn() {
+    print_message warning "$*"
+}
+
+log() {
+    if [[ "$QUIET" != true ]]; then
+        print_message info "$*"
+    fi
+}
+
+# defaults
+ARCHIVE=""
+DESTINATION="."
+FORCE=false
+NO_CLOBBER=false
+LIST=false
+QUIET=false
+VERBOSE=false
+DRY_RUN=false
+ASK_PASSWORD=false
+PASSWORD="${EXTRACT_PASSWORD:-}"
+FORMAT=""
+LISTING=false
+SEVENZ=""
+
+# parse_args
+set_archive() {
+    if [[ -n "$ARCHIVE" ]]; then
+        die "multiple archives specified: '$ARCHIVE' and '$1'"
+    fi
+    ARCHIVE="$1"
+}
+
+parse_args() {
+    local end_opts=false
+
+    while [[ $# -gt 0 ]]; do
+        if [[ "$end_opts" == true ]]; then
+            set_archive "$1"
+            shift
+            continue
+        fi
+
+        case "$1" in
+            -d|--directory)
+                [[ $# -ge 2 ]] || die "$1 requires a directory"
+                DESTINATION="$2"
+                shift 2
+                ;;
+            --directory=*)
+                DESTINATION="${1#*=}"
+                shift
+                ;;
+            -f|--force)
+                FORCE=true
+                shift
+                ;;
+            -n|--no-clobber)
+                NO_CLOBBER=true
+                shift
+                ;;
+            -l|--list)
+                LIST=true
+                shift
+                ;;
+            -q|--quiet)
+                QUIET=true
+                shift
+                ;;
+            -v|--verbose)
+                VERBOSE=true
+                shift
+                ;;
+            -p|--password)
+                [[ $# -ge 2 ]] || die "$1 requires a password"
+                PASSWORD="$2"
+                shift 2
+                ;;
+            --password=*)
+                PASSWORD="${1#*=}"
+                shift
+                ;;
+            -P|--ask-password)
+                ASK_PASSWORD=true
+                shift
+                ;;
+            --dry-run)
+                DRY_RUN=true
+                shift
+                ;;
+            -h|--help)
+                usage
+                exit 0
+                ;;
+            --)
+                end_opts=true
+                shift
+                ;;
+            -*)
+                die "unknown option: $1"
+                ;;
+            *)
+                set_archive "$1"
+                shift
+                ;;
+        esac
+    done
+}
+
+# validate
+validate() {
+    if [[ -z "$ARCHIVE" ]]; then
+        usage >&2
+        exit 1
+    fi
+
+    [[ -f "$ARCHIVE" ]] || die "'$ARCHIVE' is not a valid file"
+    [[ -r "$ARCHIVE" ]] || die "'$ARCHIVE' is not readable"
+
+    if [[ "$FORCE" == true && "$NO_CLOBBER" == true ]]; then
+        die "--force and --no-clobber cannot be used together"
+    fi
+
+    if [[ "$QUIET" == true && "$VERBOSE" == true ]]; then
+        die "--quiet and --verbose cannot be used together"
+    fi
+
+    # Stop tools from reading names such as "-foo.zip" as options.
+    if [[ "$ARCHIVE" == -* ]]; then
+        ARCHIVE="./$ARCHIVE"
+    fi
+    if [[ "$DESTINATION" == -* ]]; then
+        DESTINATION="./$DESTINATION"
+    fi
+
+    if [[ "$LIST" == true || "$DRY_RUN" == true ]]; then
+        LISTING=true
+    fi
+}
+
+# detect_format
+detect_format() {
+    shopt -s nocasematch
+    case "$ARCHIVE" in
+        *.tar.bz2|*.tbz2|*.tbz)             FORMAT="tar.bz2" ;;
+        *.tar.gz|*.tgz)                     FORMAT="tar.gz" ;;
+        *.tar.xz|*.txz)                     FORMAT="tar.xz" ;;
+        *.tar.zst|*.tzst)                   FORMAT="tar.zst" ;;
+        *.tar)                              FORMAT="tar" ;;
+        *.zip|*.jar|*.war|*.whl|*.apk|*.xpi) FORMAT="zip" ;;
+        *.rar)                              FORMAT="rar" ;;
+        *.7z)                               FORMAT="7z" ;;
+        *.bz2)                              FORMAT="bz2" ;;
+        *.gz)                               FORMAT="gz" ;;
+        *.deb)                              FORMAT="deb" ;;
+        *)                                  FORMAT="unknown" ;;
+    esac
+    shopt -u nocasematch
+}
+
+# check_dependencies
+check_dependencies() {
+    local c
+
+    case "$FORMAT" in
+        zip)     require_or_exit unzip ;;
+        tar)     require_or_exit tar ;;
+        tar.gz)  require_or_exit tar gzip ;;
+        tar.bz2) require_or_exit tar bzip2 ;;
+        tar.xz)  require_or_exit tar xz ;;
+        tar.zst) require_or_exit tar zstd ;;
+        rar)     require_or_exit unrar ;;
+        gz)      require_or_exit gunzip ;;
+        bz2)     require_or_exit bunzip2 ;;
+        deb)     require_or_exit dpkg-deb ;;
+        7z)
+            for c in 7z 7zz 7za; do
+                if command -v "$c" >/dev/null 2>&1; then
+                    SEVENZ="$c"
+                    break
+                fi
+            done
+            if [[ -z "$SEVENZ" ]]; then
+                require_or_exit 7z
+            fi
+            ;;
+        *)
+            die "unsupported archive format: $ARCHIVE"
+            ;;
+    esac
+}
+
+# check_options
+prompt_password() {
+    [[ -t 0 ]] || die "no terminal available to prompt for a password"
+    read -rs -p "Password: " PASSWORD
+    echo >&2
+}
+
+check_options() {
+    case "$FORMAT" in
+        zip|7z|rar)
+            if [[ "$ASK_PASSWORD" == true ]]; then
+                prompt_password
+            fi
+            ;;
+        *)
+            if [[ -n "$PASSWORD" || "$ASK_PASSWORD" == true ]]; then
+                warn "passwords are not supported for $FORMAT archives; ignoring"
+                PASSWORD=""
+            fi
+            ;;
+    esac
+
+    if [[ "$FORMAT" == "deb" && "$NO_CLOBBER" == true && "$LISTING" != true ]]; then
+        die "--no-clobber is not supported for .deb archives (dpkg-deb always overwrites)"
+    fi
+}
+
+#  prepare_destination
+prepare_destination() {
+    if [[ "$LISTING" == true ]]; then
+        return 0
+    fi
+
+    if [[ -e "$DESTINATION" && ! -d "$DESTINATION" ]]; then
+        die "'$DESTINATION' exists and is not a directory"
+    fi
+
+    if [[ ! -d "$DESTINATION" ]]; then
+        log "Creating directory: $DESTINATION"
+        mkdir -p -- "$DESTINATION"
+    fi
+}
+
+# extractors
+tar_is_gnu() {
+    [[ "$(tar --version 2>&1)" == *"GNU tar"* ]]
+}
+
+# run_tar [compression-flag]
+run_tar() {
+    local comp="${1:-}"
+    local args=(-f "$ARCHIVE")
+
+    if [[ -n "$comp" ]]; then
+        args+=("$comp")
+    fi
+
+    if [[ "$LISTING" == true ]]; then
+        tar -t "${args[@]}"
+        return
+    fi
+
+    args+=(-C "$DESTINATION")
+
+    if [[ "$VERBOSE" == true ]]; then
+        args+=(-v)
+    fi
+
+    if [[ "$NO_CLOBBER" == true ]]; then
+        if tar_is_gnu; then
+            args+=(--skip-old-files)
+        else
+            args+=(-k)
+        fi
+    elif [[ "$FORCE" == true ]] && tar_is_gnu; then
+        args+=(--overwrite)
+    fi
+
+    tar -x "${args[@]}"
+}
+
+run_zip() {
+    if [[ "$LISTING" == true ]]; then
+        unzip -l "$ARCHIVE"
+        return
+    fi
+
+    local args=()
+    local rc=0
+
+    if [[ "$FORCE" == true ]]; then args+=(-o); fi
+    if [[ "$NO_CLOBBER" == true ]]; then args+=(-n); fi
+    if [[ "$QUIET" == true ]]; then args+=(-q); fi
+    if [[ -n "$PASSWORD" ]]; then args+=(-P "$PASSWORD"); fi
+    args+=("$ARCHIVE" -d "$DESTINATION")
+
+    unzip "${args[@]}" || rc=$?
+    if (( rc == 1 )); then
+        warn "unzip finished with warnings"
+    elif (( rc > 1 )); then
+        die "unzip failed (exit code $rc)"
+    fi
+}
+
+run_7z() {
+    local args=()
+
+    if [[ "$LISTING" == true ]]; then
+        args=(l)
+        if [[ -n "$PASSWORD" ]]; then args+=("-p$PASSWORD"); fi
+        args+=("$ARCHIVE")
+        "$SEVENZ" "${args[@]}"
+        return
+    fi
+
+    args=(x "$ARCHIVE" "-o$DESTINATION")
+    if [[ "$FORCE" == true ]]; then args+=(-aoa); fi
+    if [[ "$NO_CLOBBER" == true ]]; then args+=(-aos); fi
+    if [[ "$QUIET" == true ]]; then args+=(-bso0 -bsp0); fi
+    if [[ -n "$PASSWORD" ]]; then args+=("-p$PASSWORD"); fi
+
+    "$SEVENZ" "${args[@]}"
+}
+
+run_rar() {
+    if [[ "$LISTING" == true ]]; then
+        unrar l -- "$ARCHIVE"
+        return
+    fi
+
+    local args=(x)
+
+    if [[ "$FORCE" == true ]]; then args+=(-o+); fi
+    if [[ "$NO_CLOBBER" == true ]]; then args+=(-o-); fi
+    if [[ "$QUIET" == true ]]; then args+=(-idq); fi
+    if [[ -n "$PASSWORD" ]]; then args+=("-p$PASSWORD"); fi
+    args+=(-- "$ARCHIVE" "${DESTINATION%/}/")
+
+    unrar "${args[@]}"
+}
+
+# run_single <gunzip|bunzip2>: decompress one file into the destination,
+# leaving the source archive untouched.
+run_single() {
+    local tool="$1"
+    local base="${ARCHIVE##*/}"
+    local out="${DESTINATION%/}/${base%.*}"
+    local tmp
+
+    if [[ "$LISTING" == true ]]; then
+        echo "$out"
+        return
+    fi
+
+    if [[ -e "$out" ]]; then
+        if [[ "$NO_CLOBBER" == true ]]; then
+            log "Skipping existing: $out"
+            return 0
+        elif [[ "$FORCE" != true ]]; then
+            die "'$out' already exists (use --force or --no-clobber)"
+        fi
+    fi
+
+    tmp="$(mktemp "$out.XXXXXX")"
+    if "$tool" -c -- "$ARCHIVE" >"$tmp"; then
+        mv -f -- "$tmp" "$out"
+        if [[ "$VERBOSE" == true ]]; then log "Wrote: $out"; fi
+    else
+        rm -f -- "$tmp"
+        die "failed to decompress '$ARCHIVE'"
+    fi
+}
+
+run_deb() {
+    if [[ "$LISTING" == true ]]; then
+        dpkg-deb -c "$ARCHIVE"
+    elif [[ "$VERBOSE" == true ]]; then
+        dpkg-deb -X "$ARCHIVE" "$DESTINATION"
+    else
+        dpkg-deb -x "$ARCHIVE" "$DESTINATION"
+    fi
+}
+
+extract_archive() {
+    case "$FORMAT" in
+        zip)     run_zip ;;
+        tar)     run_tar "" ;;
+        tar.gz)  run_tar -z ;;
+        tar.bz2) run_tar -j ;;
+        tar.xz)  run_tar -J ;;
+        tar.zst) run_tar --zstd ;;
+        7z)      run_7z ;;
+        rar)     run_rar ;;
+        gz)      run_single gunzip ;;
+        bz2)     run_single bunzip2 ;;
+        deb)     run_deb ;;
+    esac
+}
+
+# main
+main() {
+    parse_args "$@"
+    validate
+    detect_format
+    check_dependencies
+    check_options
+    prepare_destination
+
+    if [[ "$VERBOSE" == true ]]; then
+        log "Archive: $ARCHIVE"
+        log "Format: $FORMAT"
+        log "Destination: $DESTINATION"
+    fi
+
+    if [[ "$DRY_RUN" == true && "$LIST" != true ]]; then
+        log "Would extract: $ARCHIVE"
+        log "Destination: $DESTINATION"
+    fi
+
+    extract_archive
+
+    if [[ "$LISTING" != true && "$QUIET" != true ]]; then
+        print_message success "Finished extracting '$ARCHIVE' into '$DESTINATION'"
+    fi
+}
+
+main "$@"
