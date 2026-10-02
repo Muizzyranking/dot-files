@@ -3,9 +3,8 @@
 ---@field keys? KeymapOpts[]
 ---@field on_attach? fun(client: vim.lsp.Client, bufnr: number)
 
-local config_dir = vim.fn.stdpath("config")
-local lsp_dir = config_dir .. "/lsp"
-local extras_base = config_dir .. "/lua/lsp/extras"
+local lsp_dir = Utils.fn.fmt_str("${CONFIG_DIR}/lsp")
+local extras_base = Utils.fn.fmt_str("${CONFIG_DIR}/lua/lsp/extras")
 
 local config = {
 	codelens = {
