@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
 print_message() {
     local type="info"
@@ -39,12 +39,73 @@ print_message() {
     fi
 }
 
+die() {
+    local message="${1:-Fatal error}"
+    local code="${2:-1}"
+    print_message error "$message"
+    exit "$code"
+}
+
+warn() {
+    print_message warning "$*"
+}
+
+info() {
+    print_message info "$*"
+}
+
+success() {
+    print_message success "$*"
+}
+
+# Respects QUIET=true for scripts with a --quiet flag.
+log() {
+    if [[ "${QUIET:-false}" == true ]]; then
+        return 0
+    fi
+    print_message info "$*"
+}
+
+# Simple y/n prompt. Returns 0 on yes, 1 otherwise.
+# Usage: if confirm "Overwrite it?"; then ...; fi
+confirm() {
+    local prompt="${1:-Are you sure?}"
+    local reply
+    read -r -p "$prompt (y/n): " reply
+    [[ "$reply" =~ ^[Yy]$ ]]
+}
+
+# Standard interrupt message for long/interactive scripts.
+trap_interrupt() {
+    trap 'echo; print_message info "Script interrupted..."' INT TERM
+}
+
+# Returns 0 if <cmd> exists in PATH, 1 otherwise.
+command_exists() {
+    if [ $# -eq 0 ]; then
+        return 1
+    fi
+    command -v "$1" >/dev/null 2>&1
+}
+
+# Returns 0 if [dir] (default: .) is inside a git work tree.
+is_git_repo() {
+    git -C "${1:-.}" rev-parse --is-inside-work-tree >/dev/null 2>&1
+}
+
+# Fatal version of is_git_repo. Exits non-zero with a clear message.
+require_git_repo() {
+    if ! is_git_repo "${1:-.}"; then
+        die "Not inside a git repository: ${1:-.}"
+    fi
+}
+
 require() {
     local missing=()
     local cmd
 
     for cmd in "$@"; do
-        if ! command -v "$cmd" >/dev/null 2>&1; then
+        if ! command_exists "$cmd"; then
             missing+=("$cmd")
         fi
     done
