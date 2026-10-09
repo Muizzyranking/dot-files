@@ -24,6 +24,12 @@ local binds = {
 		action = hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }),
 		description = "Window: Toggle fullscreen",
 	},
+	{
+		"F12",
+		mod = false,
+		action = hl.dsp.window.fullscreen({ mode = "fullscreen", action = "toggle" }),
+		description = "Window: Toggle fullscreen",
+	},
 	{ "C", shift = true, action = hl.dsp.window.center(), description = "Window: Center" },
 
 	-- Workspace navigation
@@ -130,6 +136,7 @@ local binds = {
 		description = "Audio: Volume down",
 	},
 	{ "XF86AudioMute", mod = false, dms = "audio mute", locked = true, description = "Audio: Mute" },
+	{ "XF86AudioMicMute", mod = false, dms = "audio micmute", locked = true, description = "Audio: Mute" },
 
 	-- Media
 	{
