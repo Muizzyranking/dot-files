@@ -6,18 +6,17 @@ set -euo pipefail
 
 source "$HOME/.config/zsh/utils.sh"
 
-is_git_repo() {
-    if ! git -C "$1" rev-parse --is-inside-work-tree &>/dev/null; then
-        print_message error "Not a git repository: $1"
-        exit 1
-    fi
+SHOW_BRANCH=false
+TARGET_DIR=""
+
+usage() {
+    echo "Usage: $(basename "$0") [directory] [-b|--branch]"
 }
 
 get_remote_url() {
     local url
-    if ! url=$(git -C "$1" remote get-url origin 2>/dev/null) || [ -z "$url" ]; then
-        print_message error "No remote 'origin' found."
-        exit 1
+    if ! url=$(git -C "$1" remote get-url origin 2>/dev/null) || [[ -z "$url" ]]; then
+        die "No remote 'origin' found."
     fi
     echo "$url"
 }
@@ -25,8 +24,8 @@ get_remote_url() {
 get_current_branch() {
     local branch
     branch=$(git -C "$1" symbolic-ref --short HEAD 2>/dev/null)
-    if [ $? -ne 0 ]; then
-        print_message warning "Could not determine current branch."
+    if [[ $? -ne 0 ]]; then
+        warn "Could not determine current branch."
         return 1
     fi
     echo "$branch"
@@ -34,89 +33,99 @@ get_current_branch() {
 
 open_url() {
     local url="$1"
-    echo "Opening: $url"
+    print_message info "Opening: $url"
 
     if grep -q Microsoft /proc/version 2>/dev/null || [[ "$(uname -r)" == *"microsoft"* ]]; then
         # WSL
-        if command -v powershell.exe >/dev/null; then
+        if command_exists powershell.exe; then
             powershell.exe -Command "Start-Process '$url'"
-        elif command -v wsl-open >/dev/null; then
+        elif command_exists wsl-open; then
             wsl-open "$url"
         else
-            print_message error "Cannot find way to open URL in WSL."
-            exit 1
+            die "Cannot find way to open URL in WSL."
         fi
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         open "$url"
     elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
         xdg-open "$url"
     else
-        print_message error "Unsupported OS."
-        exit 1
+        die "Unsupported OS."
     fi
 }
 
-# Args parsing
-show_branch=false
-target_dir=""
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+        -b | --branch)
+            SHOW_BRANCH=true
+            shift
+            ;;
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        *)
+            if [[ -z "$TARGET_DIR" ]]; then
+                TARGET_DIR="$1"
+            else
+                die "Unexpected argument: $1"
+            fi
+            shift
+            ;;
+        esac
+    done
+}
 
-while [[ $# -gt 0 ]]; do
-    case "$1" in
-    -b | --branch)
-        show_branch=true
-        shift
-        ;;
-    -h | --help)
-        echo "Usage: $(basename "$0") [directory] [-b|--branch]"
-        exit 0
-        ;;
-    *)
-        if [ -z "$target_dir" ]; then
-            target_dir="$1"
-        else
-            print_message error "Unexpected argument: $1"
-            exit 1
-        fi
-        shift
-        ;;
-    esac
-done
-
-if [ -z "$target_dir" ]; then
-    target_dir="$(pwd)"
-else
-    # Resolve relative path
-    if [[ "$target_dir" != /* ]]; then
-        target_dir="$(pwd)/$target_dir"
+resolve_target() {
+    if [[ -z "$TARGET_DIR" ]]; then
+        TARGET_DIR="$(pwd)"
+    elif [[ "$TARGET_DIR" != /* ]]; then
+        # Resolve relative path
+        TARGET_DIR="$(pwd)/$TARGET_DIR"
     fi
-fi
 
-if [ ! -d "$target_dir" ]; then
-    print_message error "Directory not found: $target_dir"
-    exit 1
-fi
+    if [[ ! -d "$TARGET_DIR" ]]; then
+        die "Directory not found: $TARGET_DIR"
+    fi
 
-is_git_repo "$target_dir"
-remote_url=$(get_remote_url "$target_dir")
+    require_git_repo "$TARGET_DIR"
+}
 
-# Convert SSH to HTTPS
-if [[ $remote_url == git@* ]]; then
-    remote_url=$(echo "$remote_url" | sed 's/git@\(.*\):\(.*\)\.git/https:\/\/\1\/\2/')
-fi
-remote_url=${remote_url%.git}
+build_url() {
+    local remote_url
+    remote_url=$(get_remote_url "$TARGET_DIR")
 
-# Append branch if requested
-if [ "$show_branch" = true ]; then
-    branch=$(get_current_branch "$target_dir") || true
-    if [ -n "$branch" ]; then
-        if [[ $remote_url == *"github.com"* ]]; then
-            remote_url="${remote_url}/tree/${branch}"
-        elif [[ $remote_url == *"gitlab.com"* ]]; then
-            remote_url="${remote_url}/-/tree/${branch}"
-        elif [[ $remote_url == *"bitbucket.org"* ]]; then
-            remote_url="${remote_url}/src/${branch}"
+    # Convert SSH to HTTPS
+    if [[ $remote_url == git@* ]]; then
+        remote_url=$(echo "$remote_url" | sed 's/git@\(.*\):\(.*\)\.git/https:\/\/\1\/\2/')
+    fi
+    remote_url=${remote_url%.git}
+
+    # Append branch if requested
+    if [[ "$SHOW_BRANCH" == true ]]; then
+        local branch
+        branch=$(get_current_branch "$TARGET_DIR") || true
+        if [[ -n "${branch:-}" ]]; then
+            if [[ $remote_url == *"github.com"* ]]; then
+                remote_url="${remote_url}/tree/${branch}"
+            elif [[ $remote_url == *"gitlab.com"* ]]; then
+                remote_url="${remote_url}/-/tree/${branch}"
+            elif [[ $remote_url == *"bitbucket.org"* ]]; then
+                remote_url="${remote_url}/src/${branch}"
+            fi
         fi
     fi
-fi
 
-open_url "$remote_url"
+    printf '%s' "$remote_url"
+}
+
+main() {
+    parse_args "$@"
+    resolve_target
+
+    local url
+    url=$(build_url)
+    open_url "$url"
+}
+
+main "$@"

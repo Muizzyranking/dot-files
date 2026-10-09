@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
+# Description: Interactive process viewer and manager using fzf.
+# Usage: procs [-h|--help]
+# Dependencies: fzf, ps
 
 source "$HOME/.config/zsh/utils.sh"
-# Description: Interactive process viewer and manager using fzf.
-# Usage: procs
-# Dependencies: fzf, ps
 
 set -euo pipefail
 
 require_or_exit fzf ps lsof
+
+usage() {
+    echo "Usage: $(basename "$0")"
+    echo
+    echo "Interactive process viewer and manager using fzf."
+}
 
 get_processes() {
     local fmt="pid,ppid,user,%cpu,%mem,vsz,rss,stat,start,time,comm,args"
@@ -20,56 +26,77 @@ get_processes() {
         }'
 }
 
-while true; do
-    process_info=$(get_processes)
+kill_pid() {
+    local pid="$1"
+    local signal="$2"
+    local label="$3"
 
-    if [[ -z "$process_info" ]]; then
-        echo "No processes found"
+    print_message info "$label PID $pid..."
+    kill "$signal" "$pid" 2>/dev/null && print_message success "Success" || print_message error "Failed"
+}
+
+run_ui() {
+    local process_info header selection key selected_line pid
+
+    while true; do
+        process_info=$(get_processes)
+
+        if [[ -z "$process_info" ]]; then
+            print_message info "No processes found"
+            exit 0
+        fi
+
+        header="PID      | CPU%   | MEM%   | VSZ        | RSS      | STAT  | START    | TIME       | COMMAND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CTRL-K: kill | CTRL-F: force kill | CTRL-O: open files | CTRL-Y: copy PID | CTRL-R: refresh"
+
+        selection=$(echo "$process_info" |
+            fzf --tmux 95%,85% --reverse \
+                --header="$header" \
+                --prompt="Select process > " \
+                --preview='
+                    pid=$(echo {} | awk -F"|" "{print \$1}" | xargs)
+                    if [[ -n "$pid" ]]; then
+                        echo "=== DETAILS ==="
+                        ps -p $pid -o pid,ppid,user,%cpu,%mem,vsz,rss,stat,start,time,command 2>/dev/null
+                        echo ""
+                        echo "=== OPEN FILES (top 10) ==="
+                        lsof -p $pid 2>/dev/null | head -n 11
+                    fi
+                ' \
+                --preview-window=up:60%:wrap \
+                --bind "ctrl-r:reload(ps -u \$(whoami) -o pid,ppid,user,%cpu,%mem,vsz,rss,stat,start,time,comm,args --sort=-%cpu | awk 'NR==1 { next } { cmd = substr(\$0, index(\$0,\$11)); printf \"%-8s | %-6s | %-6s | %-10s | %-8s | %-5s | %-8s | %-10s | %s\\n\", \$1, \$4, \$5, \$6, \$7, \$8, \$9, \$10, cmd }')" \
+                --bind "ctrl-y:execute-silent(echo {} | awk -F'|' '{print \$1}' | xargs | clipcopy)" \
+                --bind "ctrl-o:execute(pid=\$(echo {} | awk -F'|' '{print \$1}' | xargs); lsof -p \$pid 2>/dev/null | less)" \
+                --expect=ctrl-k,ctrl-f || true)
+
+        key=$(echo "$selection" | head -1)
+        selected_line=$(echo "$selection" | tail -1)
+
+        if [[ -z "$selected_line" ]]; then exit 0; fi
+
+        pid=$(echo "$selected_line" | awk -F'|' '{print $1}' | xargs)
+
+        case "$key" in
+        ctrl-k)
+            kill_pid "$pid" "-TERM" "Killing"
+            ;;
+        ctrl-f)
+            kill_pid "$pid" "-KILL" "Force killing"
+            ;;
+        esac
+
+        sleep 0.5
+    done
+}
+
+main() {
+    if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+        usage
         exit 0
     fi
 
-    header="PID      | CPU%   | MEM%   | VSZ        | RSS      | STAT  | START    | TIME       | COMMAND
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💀 CTRL-K: kill | ⚡ CTRL-F: force kill | 📂 CTRL-O: open files | 📋 CTRL-Y: copy PID | 🔄 CTRL-R: refresh"
+    run_ui
+}
 
-    selection=$(echo "$process_info" |
-        fzf --tmux 95%,85% --reverse \
-            --header="$header" \
-            --prompt="Select process > " \
-            --preview='
-                pid=$(echo {} | awk -F"|" "{print \$1}" | xargs)
-                if [[ -n "$pid" ]]; then
-                    echo "=== DETAILS ==="
-                    ps -p $pid -o pid,ppid,user,%cpu,%mem,vsz,rss,stat,start,time,command 2>/dev/null
-                    echo ""
-                    echo "=== OPEN FILES (top 10) ==="
-                    lsof -p $pid 2>/dev/null | head -n 11
-                fi
-            ' \
-            --preview-window=up:60%:wrap \
-            --bind "ctrl-r:reload(ps -u \$(whoami) -o pid,ppid,user,%cpu,%mem,vsz,rss,stat,start,time,comm,args --sort=-%cpu | awk 'NR==1 { next } { cmd = substr(\$0, index(\$0,\$11)); printf \"%-8s | %-6s | %-6s | %-10s | %-8s | %-5s | %-8s | %-10s | %s\\n\", \$1, \$4, \$5, \$6, \$7, \$8, \$9, \$10, cmd }')" \
-            --bind "ctrl-y:execute-silent(echo {} | awk -F'|' '{print \$1}' | xargs | clipcopy)" \
-            --bind "ctrl-o:execute(pid=\$(echo {} | awk -F'|' '{print \$1}' | xargs); lsof -p \$pid 2>/dev/null | less)" \
-            --expect=ctrl-k,ctrl-f)
-
-    key=$(echo "$selection" | head -1)
-    selected_line=$(echo "$selection" | tail -1)
-
-    if [[ -z "$selected_line" ]]; then exit 0; fi
-
-    pid=$(echo "$selected_line" | awk -F'|' '{print $1}' | xargs)
-
-    case "$key" in
-    ctrl-k)
-        echo "Killing PID $pid (SIGTERM)..."
-        kill "$pid" 2>/dev/null && echo "✅ Success" || echo "❌ Failed"
-        ;;
-    ctrl-f)
-        echo "Force killing PID $pid (SIGKILL)..."
-        kill -9 "$pid" 2>/dev/null && echo "✅ Success" || echo "❌ Failed"
-        ;;
-    esac
-
-    sleep 0.5
-done
-
+main "$@"

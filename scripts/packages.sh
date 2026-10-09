@@ -14,7 +14,7 @@ PACMAN_PACKAGES=(
     "lazygit" "tree" "btop" "wget" "curl" "jq" "docker" "docker-compose"
 
     # Hyprland + wayland
-    "hyprland" "hyprlock" "hypridle" "xdg-desktop-portal-hyprland"
+    "hyprland" "hypridle" "xdg-desktop-portal-hyprland"
     "grim" "slurp" "swappy" "wl-clipboard"
     "cliphist" "pamixer" "wireplumber" "playerctl" "brightnessctl" "polkit-gnome"
     "blueman" "thunar" "fastfetch" "udiskie" "acpi"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Description: Interactive port manager to view and kill listening processes.
-# Usage: ports
+# Usage: ports [-h|--help]
 # Dependencies: ss, fzf, awk
 
 source "$HOME/.config/zsh/utils.sh"

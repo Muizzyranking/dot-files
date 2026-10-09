@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
+# Description: Fullscreen countdown timer rendered with figlet.
+# Usage: timer <time>  (e.g. 30s, 3m, 7h, or plain minutes)
 
 source "$HOME/.config/zsh/utils.sh"
 
 set -euo pipefail
 
-require_or_exit figlet
+require_or_exit figlet clear
+
+usage() {
+    echo "Usage: $(basename "$0") <time>  (e.g. 30s, 3m, 7h)"
+}
 
 big_timer() {
   local input=$1
@@ -21,7 +27,7 @@ big_timer() {
   elif [[ "$input" =~ ^[0-9]+$ ]]; then
     total_secs=$(( input * 60 )) # default to mins
   else
-    echo "Invalid format. Use something like: 30s, 3m, 7h"
+    die "Invalid format. Use something like: 30s, 3m, 7h"
     return 1
   fi
 
@@ -44,9 +50,13 @@ big_timer() {
   echo "TIME'S UP!" | figlet -f "$FONT" -c
 }
 
-if [ $# -eq 0 ]; then
-  echo "Usage: $(basename "$0") <time>"
-  exit 1
-fi
+main() {
+  if [[ "${1:-}" == "-h" || "${1:-}" == "--help" || $# -eq 0 ]]; then
+    usage
+    exit 1
+  fi
 
-big_timer "$1"
+  big_timer "$1"
+}
+
+main "$@"

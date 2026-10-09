@@ -1,24 +1,40 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Description: Toggle a process by exact name (kill if running, start if not).
+# Usage: run_cmd <command> [arguments]
 
-if [ -z "$1" ]; then
-    echo "Usage: $0 <command> [arguments]"
-    exit 1
-fi
+source "$HOME/.config/zsh/utils.sh"
 
-CMD=$1
-shift
+usage() {
+    echo "Usage: $(basename "$0") <command> [arguments]"
+}
 
-if ! command -v "$CMD" >/dev/null 2>&1; then
-    echo "Error: Command '$CMD' not found."
-    exit 1
-fi
+toggle_process() {
+    local cmd="$1"
+    shift
 
-PID=$(pgrep -x "$CMD")
+    if ! command_exists "$cmd"; then
+        die "Command '$cmd' not found."
+    fi
 
-if [ -n "$PID" ]; then
-    echo "'$CMD' is running (PID: $PID). Closing it..."
-    pkill -x "$CMD"
-else
-    echo "'$CMD' is not running. Starting it..."
-    "$CMD" "$@"
-fi
+    local pid
+    pid=$(pgrep -x "$cmd" || true)
+
+    if [[ -n "$pid" ]]; then
+        print_message info "'$cmd' is running (PID: $pid). Closing it..."
+        pkill -x "$cmd"
+    else
+        print_message info "'$cmd' is not running. Starting it..."
+        "$cmd" "$@"
+    fi
+}
+
+main() {
+    if [[ $# -eq 0 ]]; then
+        usage
+        exit 1
+    fi
+
+    toggle_process "$@"
+}
+
+main "$@"

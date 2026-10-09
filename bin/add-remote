@@ -8,6 +8,10 @@ source "$HOME/.config/zsh/utils.sh"
 
 set -euo pipefail
 
+trap_interrupt
+
+require_or_exit git
+
 show_help() {
     echo "Usage: $(basename "$0") [repo_name]"
     echo
@@ -17,23 +21,6 @@ show_help() {
     echo "Options:"
     echo "  -h, --help  Show this help message"
 }
-
-cleanup() {
-    # Only print if we are exiting abnormally
-    if [ $? -ne 0 ]; then
-        echo
-        print_message info "Script interrupted..."
-    fi
-}
-trap cleanup INT TERM
-
-if [[ "${1:-}" == "-h" ]] || [[ "${1:-}" == "--help" ]]; then
-    show_help
-    exit 0
-fi
-
-# Validate git installation
-require_or_exit git
 
 set_remote() {
     local remote_name="origin"
@@ -49,64 +36,83 @@ set_remote() {
     fi
 }
 
-# Git Init Check
-if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+ensure_repo() {
+    if is_git_repo; then
+        return 0
+    fi
+
     print_message info "Not a git repository."
-    read -r -p "Would you like to initialize a git repository here? (y/n): " init_choice
-    if [[ $init_choice =~ ^[Yy]$ ]]; then
+    if confirm "Would you like to initialize a git repository here?"; then
         if git init >/dev/null 2>&1; then
             print_message success "Git repository initialized successfully."
         else
-            print_message error "Failed to initialize git repository."
-            exit 1
+            die "Failed to initialize git repository."
         fi
     else
         print_message info "Operation cancelled."
         exit 0
     fi
-fi
+}
 
-# Get repository name
-repo_name=""
-if [ $# -eq 0 ]; then
-    current_dir=$(basename "$(git rev-parse --show-toplevel)")
-    print_message info "No repository name provided. Current directory: $current_dir"
-    read -r -p "Use '$current_dir' as repository name? (y/n): " use_dirname_choice
-    if [[ $use_dirname_choice =~ ^[Yy]$ ]]; then
-        repo_name="$current_dir"
-    else
-        print_message info "Please provide a repository name."
-        exit 0
-    fi
-else
-    repo_name="$1"
-fi
+resolve_name() {
+    local repo_name=""
 
-# Set Remote
-if git remote | grep -q "^origin$"; then
-    print_message error "Remote 'origin' already exists."
-    print_message info "Current 'origin': $(git remote get-url origin)"
-
-    read -r -p "Update existing 'origin'? (y/n): " update_choice
-    if [[ $update_choice =~ ^[Yy]$ ]]; then
-        if set_remote "$repo_name" "set-url"; then
-            print_message success "Remote 'origin' updated."
+    if [[ $# -eq 0 ]]; then
+        local current_dir
+        current_dir=$(basename "$(git rev-parse --show-toplevel)")
+        print_message info "No repository name provided. Current directory: $current_dir"
+        if confirm "Use '$current_dir' as repository name?"; then
+            repo_name="$current_dir"
         else
-            print_message error "Failed to update remote."
-            exit 1
+            print_message info "Please provide a repository name."
+            exit 0
+        fi
+    else
+        repo_name="$1"
+    fi
+
+    printf '%s' "$repo_name"
+}
+
+apply_remote() {
+    local repo_name="$1"
+
+    if git remote | grep -q "^origin$"; then
+        print_message error "Remote 'origin' already exists."
+        print_message info "Current 'origin': $(git remote get-url origin)"
+
+        if confirm "Update existing 'origin'?"; then
+            if set_remote "$repo_name" "set-url"; then
+                print_message success "Remote 'origin' updated."
+            else
+                die "Failed to update remote."
+            fi
+        fi
+    else
+        if set_remote "$repo_name" "add"; then
+            print_message success "Remote 'origin' added."
+        else
+            die "Failed to add remote."
         fi
     fi
-else
-    if set_remote "$repo_name" "add"; then
-        print_message success "Remote 'origin' added."
-    else
-        print_message error "Failed to add remote."
-        exit 1
+
+    echo
+    print_message info "Current remotes:"
+    echo "--------------------------------------------------------"
+    git remote -v
+}
+
+main() {
+    if [[ "${1:-}" == "-h" ]] || [[ "${1:-}" == "--help" ]]; then
+        show_help
+        exit 0
     fi
-fi
 
-echo
-print_message info "Current remotes:"
-echo "--------------------------------------------------------"
-git remote -v
+    ensure_repo
 
+    local repo_name
+    repo_name=$(resolve_name "$@")
+    apply_remote "$repo_name"
+}
+
+main "$@"

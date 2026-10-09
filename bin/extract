@@ -55,21 +55,6 @@ Examples:
 EOF
 }
 
-die() {
-    print_message error "$*"
-    exit 1
-}
-
-warn() {
-    print_message warning "$*"
-}
-
-log() {
-    if [[ "$QUIET" != true ]]; then
-        print_message info "$*"
-    fi
-}
-
 # defaults
 ARCHIVE=""
 DESTINATION="."
@@ -237,7 +222,7 @@ check_dependencies() {
         deb)     require_or_exit dpkg-deb ;;
         7z)
             for c in 7z 7zz 7za; do
-                if command -v "$c" >/dev/null 2>&1; then
+                if command_exists "$c"; then
                     SEVENZ="$c"
                     break
                 fi

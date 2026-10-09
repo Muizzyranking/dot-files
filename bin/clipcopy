@@ -3,30 +3,40 @@
 # Usage: echo "text" | clipcopy
 #        clipcopy < file.txt
 
+source "$HOME/.config/zsh/utils.sh"
+
 # Log fallback location
 LOG_PATH="/tmp/clipcopy_$(date +%s).log"
 
 copy_to_clipboard() {
-    if command -v clip.exe >/dev/null 2>&1; then
+    if command_exists clip.exe; then
         clip.exe
-    elif command -v wl-copy >/dev/null 2>&1; then
+    elif command_exists wl-copy; then
         wl-copy
-    elif command -v xclip >/dev/null 2>&1; then
+    elif command_exists xclip; then
         xclip -in -selection clipboard
-    elif command -v pbcopy >/dev/null 2>&1; then
+    elif command_exists pbcopy; then
         pbcopy
     else
         cat > "$LOG_PATH"
-        echo "No clipboard utility found. Content saved to $LOG_PATH" >&2
+        print_message error "No clipboard utility found. Content saved to $LOG_PATH"
         return 1
     fi
 }
 
-# Check if there is input from stdin
-if [ -t 0 ]; then
+usage() {
     echo "Usage: echo 'text' | $(basename "$0")"
     echo "       $(basename "$0") < file.txt"
-    exit 1
-fi
+}
 
-copy_to_clipboard
+main() {
+    # Check if there is input from stdin
+    if [ -t 0 ]; then
+        usage
+        exit 1
+    fi
+
+    copy_to_clipboard
+}
+
+main "$@"

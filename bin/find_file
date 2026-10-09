@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Description: Fuzzy find files in the current directory with preview and actions.
-# Usage: find_file
+# Usage: find_file [-h|--help]
 # Keybinds:
 #   ENTER:  Print path
 #   CTRL-O: Open in $EDITOR (defaults to nvim)
@@ -13,38 +13,72 @@ set -euo pipefail
 # Dependencies check
 require_or_exit fd fzf
 
-# Set preview command
-if command -v bat >/dev/null 2>&1; then
-    PREVIEW_CMD="bat --style=numbers --color=always --line-range :500 {}"
-else
-    PREVIEW_CMD="cat {}"
-fi
+usage() {
+    echo "Usage: $(basename "$0")"
+    echo
+    echo "Fuzzy find files in the current directory with preview and actions."
+}
 
-header="📁 FILE FINDER
+preview_cmd() {
+    if command_exists bat; then
+        printf '%s' "bat --style=numbers --color=always --line-range :500 {}"
+    else
+        printf '%s' "cat {}"
+    fi
+}
+
+pick_file() {
+    local preview
+    preview=$(preview_cmd)
+
+    local header="FILE FINDER
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📝 ENTER: print path | 🚀 CTRL-O: open in editor | 📋 CTRL-Y: copy path | ESC: exit"
+ENTER: print path | CTRL-O: open in editor | CTRL-Y: copy path | ESC: exit"
 
-selection=$(fd --type f --hidden --exclude .git |
-    fzf --tmux 95%,85% \
-        --header="$header" --reverse \
-        --prompt="Select file 📁 " \
-        --preview="$PREVIEW_CMD" \
-        --bind "ctrl-y:execute-silent(echo {} | clipcopy)" \
-        --expect=ctrl-o)
+    fd --type f --hidden --exclude .git |
+        fzf --tmux 95%,85% \
+            --header="$header" --reverse \
+            --prompt="Select file > " \
+            --preview="$preview" \
+            --bind "ctrl-y:execute-silent(echo {} | clipcopy)" \
+            --expect=ctrl-o
+}
 
-if [ -z "$selection" ]; then exit 0; fi
+handle_selection() {
+    local selection="$1"
 
-key=$(echo "$selection" | head -1)
-selected_file=$(echo "$selection" | tail -1)
+    if [[ -z "$selection" ]]; then
+        exit 0
+    fi
 
-if [[ -z "$selected_file" ]]; then exit 0; fi
+    local key
+    local selected_file
+    key=$(echo "$selection" | head -1)
+    selected_file=$(echo "$selection" | tail -1)
 
-case "$key" in
-ctrl-o)
-    ${EDITOR:-nvim} "$selected_file"
-    ;;
-*)
-    echo "$selected_file"
-    ;;
-esac
+    if [[ -z "$selected_file" ]]; then
+        exit 0
+    fi
 
+    case "$key" in
+    ctrl-o)
+        ${EDITOR:-nvim} "$selected_file"
+        ;;
+    *)
+        echo "$selected_file"
+        ;;
+    esac
+}
+
+main() {
+    if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+        usage
+        exit 0
+    fi
+
+    local selection
+    selection=$(pick_file || true)
+    handle_selection "$selection"
+}
+
+main "$@"

@@ -1,14 +1,27 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Description: Launch a URL as a Chrome app window via uwsm-app.
+# Usage: launch-webapp <url> [extra-chrome-args...]
 
 source "$HOME/.config/zsh/utils.sh"
 
-if [ -z "$1" ]; then
-    echo "Usage: launch-webapp <url>"
-    exit 1
-fi
+BROWSER_CMD="google-chrome-stable"
 
-command="google-chrome-stable"
+usage() {
+    echo "Usage: $(basename "$0") <url> [extra-chrome-args...]"
+}
 
-require_or_exit "$command"
+launch() {
+    require_or_exit "$BROWSER_CMD" uwsm-app
+    exec uwsm-app -- "$BROWSER_CMD" --app="$1" "${@:2}"
+}
 
-exec uwsm-app -- $command --app="$1" "${@:2}"
+main() {
+    if [[ "${1:-}" == "-h" || "${1:-}" == "--help" || $# -eq 0 ]]; then
+        usage
+        exit 0
+    fi
+
+    launch "$@"
+}
+
+main "$@"

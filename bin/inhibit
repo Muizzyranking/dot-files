@@ -1,5 +1,7 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
+# Description: Hold logind locks to prevent suspend/idle (standalone, no utils.sh).
+# Usage: inhibit <command> [args...]
+#
 # Hold a lock to prevent suspend/idle. While ANY lock is held, logind
 # refuses to suspend or run idle actions. Locks are named, idempotent,
 # and auto-released when a wrapped command exits.

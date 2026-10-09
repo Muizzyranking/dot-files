@@ -6,6 +6,9 @@ source "$HOME/.config/zsh/utils.sh"
 
 set -euo pipefail
 
+PROCESS_NAME=""
+DETACH=false
+
 show_help() {
     echo "Usage: $(basename "$0") <process_name> [--detach|-d]"
     echo
@@ -14,71 +17,76 @@ show_help() {
     echo "  -h, --help     Show this help message"
 }
 
-if [[ "${1:-}" == "-h" ]] || [[ "${1:-}" == "--help" ]] || [ $# -eq 0 ]; then
-    show_help
-    exit 0
-fi
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+        --detach | -d)
+            DETACH=true
+            shift
+            ;;
+        -h | --help)
+            show_help
+            exit 0
+            ;;
+        *)
+            if [[ -z "$PROCESS_NAME" ]]; then
+                PROCESS_NAME="$1"
+            else
+                die "Multiple process names provided."
+            fi
+            shift
+            ;;
+        esac
+    done
 
-PROCESS_NAME=""
-DETACH=false
-
-while [[ $# -gt 0 ]]; do
-    case "$1" in
-    --detach | -d)
-        DETACH=true
-        shift
-        ;;
-    *)
-        if [ -z "$PROCESS_NAME" ]; then
-            PROCESS_NAME="$1"
-        else
-            echo "Error: Multiple process names provided."
-            exit 1
-        fi
-        shift
-        ;;
-    esac
-done
-
-if [ -z "$PROCESS_NAME" ]; then
-    echo "Error: Process name is required."
-    exit 1
-fi
-
-if ! require "$PROCESS_NAME"; then
-    print_message error "Required command '$PROCESS_NAME' is not available."
-    exit 1
-fi
-
-echo "Process: $PROCESS_NAME"
-
-# Kill existing
-if pgrep -x "$PROCESS_NAME" >/dev/null; then
-    echo "Killing existing instances..."
-    pkill -x "$PROCESS_NAME"
-    sleep 1
-    if pgrep -x "$PROCESS_NAME" >/dev/null; then
-        echo "Force killing..."
-        pkill -9 -x "$PROCESS_NAME"
-        sleep 1
+    if [[ -z "$PROCESS_NAME" ]]; then
+        die "Process name is required."
     fi
-else
-    echo "Not currently running."
-fi
+}
 
-# Start
-if ! command -v "$PROCESS_NAME" >/dev/null 2>&1; then
-    echo "Error: Command '$PROCESS_NAME' not found in PATH."
-    exit 1
-fi
+stop_existing() {
+    local name="$1"
 
-echo "Starting $PROCESS_NAME..."
-if [ "$DETACH" = true ]; then
-    nohup "$PROCESS_NAME" >/dev/null 2>&1 &
-    disown
-    echo "Started (detached)."
-else
-    "$PROCESS_NAME" &
-    echo "Started (background)."
-fi
+    if pgrep -x "$name" >/dev/null; then
+        print_message info "Killing existing instances..."
+        pkill -x "$name"
+        sleep 1
+        if pgrep -x "$name" >/dev/null; then
+            warn "Force killing..."
+            pkill -9 -x "$name"
+            sleep 1
+        fi
+    else
+        print_message info "Not currently running."
+    fi
+}
 
+start_process() {
+    local name="$1"
+
+    print_message info "Starting $name..."
+    if [[ "$DETACH" == true ]]; then
+        nohup "$name" >/dev/null 2>&1 &
+        disown
+        print_message success "Started (detached)."
+    else
+        "$name" &
+        print_message success "Started (background)."
+    fi
+}
+
+main() {
+    if [[ $# -eq 0 ]]; then
+        show_help
+        exit 0
+    fi
+
+    parse_args "$@"
+    require_or_exit "$PROCESS_NAME"
+
+    print_message info "Process: $PROCESS_NAME"
+    stop_existing "$PROCESS_NAME"
+    start_process "$PROCESS_NAME"
+}
+
+main "$@"

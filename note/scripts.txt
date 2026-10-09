@@ -1,0 +1,100 @@
+Bash script standard (bin/)
+==========================
+Scope: bash scripts in bin/ only. Python scripts (dbman.py, sshm.py) are out of scope.
+
+1. Shebang (always)
+  #!/usr/bin/env bash
+
+2. Header (always, lines 2-3)
+  # Description: one line, what the script does.
+  # Usage: script-name [options] <args>
+  Keep it to 2-4 comment lines. Full help lives in show_help()/usage().
+
+3. Load shared helpers (always, hardcoded path)
+  source "$HOME/.config/zsh/utils.sh"
+  Place it right after the header. No existence check, no fallback.
+  Exception: fully standalone scripts with zero helper needs
+  (e.g. inhibit) may skip sourcing, but then they must define
+  their own local die().
+
+4. Strict mode (complex scripts only)
+  set -euo pipefail
+  Use it when the script takes args, parses options, touches the
+  filesystem/network/git/docker, or is > ~20 lines.
+  Skip it for tiny pipe/filter scripts (e.g. clipcopy, run_cmd)
+  to avoid surprising exits on partial reads.
+  Order: shebang -> header -> source -> set -> require -> code.
+
+5. Messaging (always via utils.sh, no raw echo for status/errors)
+  print_message info|success|warning|error "<msg>"   # base primitive
+  info "<msg>"       # stdout
+  success "<msg>"    # stdout
+  warn "<msg>"        # stderr, non-fatal
+  die "<msg>" [code]  # stderr + exit (default 1), fatal
+  log "<msg>"         # stdout unless QUIET=true (for --quiet flags)
+  Rules:
+  - errors and warnings go to stderr (helpers do this for you).
+  - no emojis in output (use plain text).
+  - no local die/warn/log redefinitions, use the shared ones.
+  - interactive prompts (read -r -p) stay inline, or use confirm()
+    for simple y/n questions.
+  - never inline `command -v <cmd>`, use command_exists <cmd>.
+  - never inline `git rev-parse --is-inside-work-tree`, use
+    is_git_repo [dir] (check) or require_git_repo [dir] (fatal).
+
+6. Dependencies (right after set)
+  require_or_exit git fzf      # fatal, exits 1 with a clear message
+  require bat || fallback      # non-fatal check, handle fallback yourself
+
+7. Help (every script that takes args)
+  show_help() or usage() printing Usage/Options to stdout.
+  Support -h and --help, exit 0. Missing/invalid args print help
+  (or a die message) and exit non-zero. Keep option docs in both
+  the header Usage line and the help function.
+
+8. Arg parsing
+  while [[ $# -gt 0 ]]; do case "$1" in ... esac; done
+  Quote all expansions ("$var", "$@" ). Prefer [[ ]] over [ ].
+  Use local in every function. Name consts UPPER, locals lower.
+
+9. Interrupt trap (only for long/interactive scripts)
+  cleanup() { [ $? -ne 0 ] && print_message info "Script interrupted..."; }
+  trap cleanup INT TERM
+  Do not add traps to short scripts.
+
+10. Structure (always, even one-liners)
+  Break everything into functions, then a main() called at the end:
+    main() { parse_args "$@"; validate; run; }
+    main "$@"
+  Functions before main flow, main "$@" is always the last line.
+  - no bashisms outside bash (this is bash-only, not sh).
+  - shellcheck-clean: quote, guard empty vars with ${1:-}, handle pipes.
+
+Templates
+---------
+Complex (args / fs / network):
+  #!/usr/bin/env bash
+  # Description: what it does.
+  # Usage: name [options] <arg>
+  source "$HOME/.config/zsh/utils.sh"
+  set -euo pipefail
+  require_or_exit git
+  show_help() { echo "Usage: $(basename "$0") ..."; }
+  work() { ...; }
+  main() { ...; work; }
+  main "$@"
+
+Simple (pipe/filter, < ~20 lines, no args):
+  #!/usr/bin/env bash
+  # Description: what it does.
+  # Usage: echo text | name
+  copy_to_clipboard() { ...; }
+  main() { ...; copy_to_clipboard; }
+  main "$@"
+
+Checklist before adding a script
+--------------------------------
+shebang env bash, header present, source line kept, strict only if
+complex, all output via print_message/die/warn/info/success/log,
+deps via require_or_exit, -h/--help works, no local die/warn/log,
+no emoji, shellcheck passes, executable bit set.
