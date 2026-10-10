@@ -12,6 +12,8 @@ trap_interrupt
 
 require_or_exit git
 
+REPO_NAME=""
+
 show_help() {
     echo "Usage: $(basename "$0") [repo_name]"
     echo
@@ -55,23 +57,19 @@ ensure_repo() {
 }
 
 resolve_name() {
-    local repo_name=""
-
     if [[ $# -eq 0 ]]; then
         local current_dir
         current_dir=$(basename "$(git rev-parse --show-toplevel)")
         print_message info "No repository name provided. Current directory: $current_dir"
         if confirm "Use '$current_dir' as repository name?"; then
-            repo_name="$current_dir"
+            REPO_NAME="$current_dir"
         else
             print_message info "Please provide a repository name."
             exit 0
         fi
     else
-        repo_name="$1"
+        REPO_NAME="$1"
     fi
-
-    printf '%s' "$repo_name"
 }
 
 apply_remote() {
@@ -109,10 +107,8 @@ main() {
     fi
 
     ensure_repo
-
-    local repo_name
-    repo_name=$(resolve_name "$@")
-    apply_remote "$repo_name"
+    resolve_name "$@"
+    apply_remote "$REPO_NAME"
 }
 
 main "$@"
