@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+# Shared helpers for bin/ scripts (sourced via $HOME/.config/zsh/utils.sh).
+# Sourced, never executed. No top-level code, set -e, or exits.
+#
+# Scope: scripts only. Do NOT source this from interactive shell setup:
+# generic names (info, warn, die, ...) would shadow real commands.
 
 print_message() {
     local type="info"

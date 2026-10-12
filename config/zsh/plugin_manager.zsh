@@ -10,6 +10,7 @@ _pm_detect_type() {
     local src="$1"
     [[ "$src" == /* || "$src" == ~* ]]  && { echo "local";      return }
     [[ "$src" == git@* || "$src" == ssh://* ]] && { echo "git-ssh";   return }
+    [[ "$src" == https://* || "$src" == http://* ]] && { echo "git-url"; return }
     [[ "$src" == *://* || "$src" == *.*/* ]]   && { echo "git-https"; return }
     echo "github"
 }
@@ -18,6 +19,7 @@ _pm_clone_url() {
     local src="$1" type="$2"
     case "$type" in
         git-ssh)   echo "$src" ;;
+        git-url)   echo "$src" ;;
         git-https) echo "https://$src" ;;
         github)    echo "https://github.com/$src" ;;
         *)         echo "$src" ;;

@@ -1,6 +1,5 @@
 #!/usr/bin/env zsh
 
-alias cd='z'
 alias -- -='cd -'
 alias ..='cd ..'
 alias ...='cd ../..'
@@ -32,13 +31,5 @@ alias gp='git push'
 alias gg='lazygit'
 alias gb='git-branches'
 
-alias ae='$EDITOR ~/.config/zsh/aliases.zsh'
-alias zshrc='$EDITOR $ZSHRC'
-alias zshenv='$EDITOR $ZSHENV'
-alias nvimrc='$EDITOR $NVIMRC'
-alias tmuxrc='$EDITOR $TMUXRC'
 
 alias ff='find_file'
-
-alias dbman='dbman.py'
-alias sshm='sshm.py'

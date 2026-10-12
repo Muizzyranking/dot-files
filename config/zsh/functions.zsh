@@ -1,6 +1,5 @@
 #!/usr/bin/env zsh
 
-source "$HOME/.config/zsh/utils.sh" 2>/dev/null || true
 
 aliases() {
     alias | awk -F= '
@@ -26,10 +25,10 @@ update() {
 }
 
 bak() {
-    [[ -z "$1" ]] && { print_message "Usage: bak <path>"; return 1; }
+    [[ -z "$1" ]] && { print -u2 "Usage: bak <path>"; return 1; }
 
     local src="${1%/}"
-    [[ -e "$src" ]] || { print_message error "'$src' does not exist"; return 1; }
+    [[ -e "$src" ]] || { print -u2 "Error: '$src' does not exist"; return 1; }
 
     local dest="${src}.bak"
     local i=1
@@ -45,7 +44,7 @@ bak() {
         cp -a "$src" "$dest"
     fi
 
-    print_message "Backed up: $src -> $dest"
+    print "Backed up: $src -> $dest"
 }
 
 copypath() {

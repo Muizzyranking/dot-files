@@ -1,6 +1,7 @@
 #!/usr/bin/env zsh
 
 export EDITOR=nvim
+export VISUAL="$EDITOR"
 export SUDO_EDITOR=$EDITOR
 
 export DOTFILES=~/dot-files

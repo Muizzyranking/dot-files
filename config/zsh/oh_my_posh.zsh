@@ -30,23 +30,23 @@ _omp_generate() {
     oh-my-posh init zsh --config "$OMP_CONFIG" >"$OMP_CACHE" 2>/dev/null
 }
 
-_omp_valid() {
-    [[ -s "$OMP_CACHE" ]] && (source "$OMP_CACHE" 2>/dev/null) 2>/dev/null
-}
-
 omp_init() {
     _omp_check_installed || return 1
-    if [[ ! -f "$OMP_CACHE" || "$OMP_CONFIG" -nt "$OMP_CACHE" ]]; then
+    local omp_bin
+    omp_bin="$(command -v oh-my-posh)"
+    # Regenerate when the config OR the binary is newer (upgrades ship new init).
+    if [[ ! -s "$OMP_CACHE" || "$OMP_CONFIG" -nt "$OMP_CACHE" || "$omp_bin" -nt "$OMP_CACHE" ]]; then
         _omp_generate
+        [[ -s "$OMP_CACHE" ]] || { print -u2 "[omp] generation failed."; return 1 }
     fi
 
-    if ! _omp_valid; then
+    # Single source: a failed source regenerates once, then fails loudly.
+    if ! source "$OMP_CACHE" 2>/dev/null; then
         print -u2 "[omp] cache corrupted, regenerating..."
         rm -f "$OMP_CACHE"
         _omp_generate
+        source "$OMP_CACHE"
     fi
-
-    source "$OMP_CACHE"
 }
 
 omp_reload() {

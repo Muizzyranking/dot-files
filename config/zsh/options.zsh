@@ -12,6 +12,7 @@ setopt HIST_EXPIRE_DUPS_FIRST # Remove oldest duplicates first
 setopt HIST_IGNORE_ALL_DUPS   # Remove duplicate entries
 setopt HIST_FIND_NO_DUPS      # Don't show duplicates in search
 setopt HIST_IGNORE_SPACE      # Don't save commands starting with space
+setopt HIST_REDUCE_BLANKS     # Strip extra blanks on save
 setopt HIST_VERIFY            # Show command before executing history expansion
 setopt SHARE_HISTORY          # Share history between sessions
 setopt APPEND_HISTORY         # Append to history file
@@ -32,7 +33,7 @@ setopt COMPLETE_IN_WORD       # Complete from both ends
 setopt ALWAYS_TO_END          # Move cursor to end after completion
 setopt AUTO_MENU              # Show menu on successive tab
 setopt AUTO_LIST              # List choices on ambiguous completion
-setopt MENU_COMPLETE          # Insert first match immediately
+# No MENU_COMPLETE: it inserts the first match immediately and preempts fzf-tab.
 
 # ============================================
 # Globbing
@@ -51,11 +52,13 @@ setopt INTERACTIVE_COMMENTS   # Allow comments in interactive shell
 # Completion System
 # ============================================
 
-fpath+=("$HOME/.zsh/completions" "${ZDOTDIR:-~}/.zsh_functions")
+fpath+=("$HOME/.zsh/completions" "${ZDOTDIR:-$HOME}/.zsh_functions")
+[[ -d "$HOME/.zsh/completions" ]] || mkdir -p "$HOME/.zsh/completions"
+[[ -d "$HOME/.zsh/cache" ]] || mkdir -p "$HOME/.zsh/cache"
 
 autoload -Uz compinit
 
-local zcomp="$HOME/.zcompdump"
+zcomp="$HOME/.zcompdump"
 if [[ ! -f "$zcomp" || -n "$zcomp"(#qN.mh+24) ]]; then
     compinit
     [[ ! -f "$zcomp.zwc" || "$zcomp" -nt "$zcomp.zwc" ]] && zcompile "$zcomp"
