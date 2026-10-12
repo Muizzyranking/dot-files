@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -euo pipefail
 
@@ -7,6 +7,19 @@ source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
 # GTK settings file
 GTK3_SETTINGS="$HOME/.config/gtk-3.0/settings.ini"
 GTK4_SETTINGS="$HOME/.config/gtk-4.0/settings.ini"
+
+backup_file() {
+    local file="$1"
+    if [[ -e "$file" ]]; then
+        local backup="${file}.bk-$(date +"%Y%m%d_%H%M%S")"
+        if cp -f "$file" "$backup"; then
+            print_message warning "Backed up: $file → $backup"
+        else
+            print_message error "Failed to backup: $file"
+            return 1
+        fi
+    fi
+}
 
 apply_gtk_settings() {
     local theme="$1"
@@ -18,6 +31,9 @@ apply_gtk_settings() {
 
     mkdir -p "$(dirname "$GTK3_SETTINGS")"
     mkdir -p "$(dirname "$GTK4_SETTINGS")"
+
+    backup_file "$GTK3_SETTINGS"
+    backup_file "$GTK4_SETTINGS"
 
     local content="[Settings]
 gtk-theme-name=${theme}
@@ -41,6 +57,7 @@ apply_cursor_theme() {
     # X11 cursor fallback via index.theme
     local cursor_dir="$HOME/.icons/default"
     mkdir -p "$cursor_dir"
+    backup_file "$cursor_dir/index.theme"
     cat > "$cursor_dir/index.theme" <<EOF
 [Icon Theme]
 Name=Default
@@ -73,10 +90,15 @@ apply_kvantum_theme() {
 
 update_font_cache() {
     print_section "Updating font cache"
+    if ! has_cmd fc-cache; then
+        print_message warning "fc-cache not found, skipping font cache refresh"
+        return 0
+    fi
     run_cmd "Refreshing font cache" fc-cache -fv
 }
 
 main() {
+    require_user
     setup_logging
     print_header "Themes, Fonts & Cursors"
 
@@ -96,8 +118,7 @@ main() {
     update_font_cache
 
     print_message success "Themes applied"
-    print_message info "Rose Pine Moon GTK theme is also installed — switch via nwg-look or gsettings"
     print_message info "Available cursors: catppuccin-mocha-blue-cursors, catppuccin-mocha-peach-cursors"
 }
 
-main "$@"
+main

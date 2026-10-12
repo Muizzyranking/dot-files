@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -euo pipefail
 
@@ -51,7 +51,9 @@ setup_zsh_default() {
         return 0
     fi
 
-    if [[ "$SHELL" == "$zsh_path" ]]; then
+    local login_shell
+    login_shell="$(getent passwd "$(id -un)" | cut -d: -f7)"
+    if [[ "$login_shell" == "$zsh_path" ]]; then
         print_message info "zsh is already the default shell"
         return 0
     fi
@@ -71,14 +73,20 @@ setup_zsh_default() {
 }
 
 main() {
+    require_user
     setup_logging
     print_header "Post-Install Setup"
 
-    # setup_rustup
+    # Rust toolchain download is slow: opt in with WITH_RUST=1.
+    if [[ "${WITH_RUST:-0}" == "1" ]]; then
+        setup_rustup
+    else
+        print_message info "Skipping Rust setup (opt in with WITH_RUST=1)"
+    fi
     setup_tpm
     setup_zsh_default
 
     print_message success "Setup complete"
 }
 
-main "$@"
+main

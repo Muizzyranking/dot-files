@@ -1,4 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Shared helpers for the installer (install.sh, link.sh, scripts/*.sh).
+# Scope: installation only. Interactive-shell helpers live separately in
+# config/zsh/utils.sh (linked to ~/.config/zsh/utils.sh for daily use).
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -10,10 +13,16 @@ RESET='\033[0m'
 WHITE='\033[37m'
 
 LOG_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/dotfiles"
-LOG_FILE="$LOG_DIR/install-$(date +"%Y%m%d_%H%M%S").log"
+: "${LOG_FILE:=$LOG_DIR/install-$(date +"%Y%m%d_%H%M%S").log}"
 
 setup_logging() {
+    if [[ -n "${LOG_FILE:-}" && -f "$LOG_FILE" ]]; then
+        print_message info "Logging to: $LOG_FILE"
+        return 0
+    fi
     mkdir -p "$LOG_DIR"
+    LOG_FILE="$LOG_DIR/install-$(date +"%Y%m%d_%H%M%S").log"
+    export LOG_FILE
     touch "$LOG_FILE"
     print_message info "Logging to: $LOG_FILE"
 }
@@ -56,7 +65,7 @@ print_message() {
     local console_line="${color}${prefix}${RESET} ${msg}"
     local log_line="${timestamp} ${prefix} ${msg}"
 
-    echo -e "$console_line"
+    printf '%s%s%s %s\n' "$color" "$prefix" "$RESET" "$msg"
     if [[ -n "${LOG_FILE:-}" ]]; then
         echo "$log_line" >>"$LOG_FILE"
     fi
@@ -75,6 +84,10 @@ print_section() {
     local msg="$1"
     local width=50
     local padding=$(( (width - ${#msg} - 2) / 2 ))
+    # Clamp: long titles keep the box intact instead of overflowing it.
+    if (( padding < 0 )); then
+        padding=0
+    fi
     local left_pad=$(( padding ))
     local right_pad=$(( padding ))
     
@@ -118,7 +131,7 @@ ask() {
 
     while true; do
         echo -ne "${BOLD}${CYAN}?${RESET} ${question} ${prompt} "
-        read -r answer
+        read -r answer || answer=""
         answer="${answer:-$default}"
         case "${answer,,}" in
         y | yes) return 0 ;;
@@ -143,6 +156,13 @@ run_cmd() {
 
 has_cmd() {
     command -v "$1" &>/dev/null
+}
+
+require_user() {
+    if [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
+        print_message error "Do not run this as root; run as your normal user (sudo is used where needed)."
+        exit 1
+    fi
 }
 
 pacman_has() {

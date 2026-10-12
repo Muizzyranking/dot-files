@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -euo pipefail
 
@@ -22,7 +22,33 @@ run_script() {
     bash "$script"
 }
 
+require_arch() {
+    local id="unknown"
+    if [[ -f /etc/os-release ]]; then
+        # shellcheck disable=SC1091
+        . /etc/os-release
+        id="${ID:-unknown} ${ID_LIKE:-}"
+    fi
+    if [[ "$id" != *"arch"* ]]; then
+        print_message error "This installer supports Arch Linux only (detected: $id)."
+        exit 1
+    fi
+    local missing=()
+    for cmd in pacman systemctl sudo; do
+        command -v "$cmd" &>/dev/null || missing+=("$cmd")
+    done
+    if [[ ${#missing[@]} -gt 0 ]]; then
+        print_message error "Missing required commands: ${missing[*]}"
+        exit 1
+    fi
+    # Prime sudo so later steps don't interleave password prompts.
+    sudo -v
+}
+
 main() {
+    require_user
+    require_arch
+
     setup_logging
 
     echo -e "${BOLD}${BLUE}"
@@ -38,13 +64,12 @@ main() {
 
     echo
     print_message info "This will:"
-    echo -e "  ${CYAN}1.${RESET} Install pacman packages"
-    echo -e "  ${CYAN}2.${RESET} Install yay + AUR packages"
-    echo -e "  ${CYAN}3.${RESET} Run post-install setup (rustup, TPM, zsh, docker)"
-    echo -e "  ${CYAN}4.${RESET} Apply themes, fonts, cursors"
-    echo -e "  ${CYAN}5.${RESET} Enable services"
+    echo -e "  ${CYAN}1.${RESET} Install pacman packages (incl. yay + AUR packages)"
+    echo -e "  ${CYAN}2.${RESET} Run post-install setup (TPM, zsh as default shell)"
+    echo -e "  ${CYAN}3.${RESET} Apply themes, fonts, cursors"
+    echo -e "  ${CYAN}4.${RESET} Enable services and groups"
     echo
-    if ! ask "Proceed with installation?"; then
+    if ! ask "Proceed with installation?" "n"; then
         print_message info "Aborted."
         exit 0
     fi
@@ -75,4 +100,4 @@ main() {
     print_message warning "Please log out and back in for group changes and shell change to take effect"
 }
 
-main "$@"
+main

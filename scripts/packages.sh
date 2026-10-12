@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -euo pipefail
 
@@ -6,7 +6,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/utils.sh"
 
 PACMAN_PACKAGES=(
     # Dev tools
-    "git" "gcc" "make" "cmake" "python" "python-pip" "nodejs"
+    "base-devel" "git" "gcc" "make" "cmake" "python" "python-pip" "nodejs"
     "npm" "go" "rustup"
 
     # CLI tools
@@ -29,6 +29,7 @@ AUR_PACKAGES=(
     # Apps
     "google-chrome" "firefox" "visual-studio-code-bin"
     "telegram-desktop" "slack-desktop" "discord" "spotify"
+    "pay-respects"
 
     # Fonts
     "ttf-jetbrains-mono-nerd" "ttf-maple-nerd-font"
@@ -74,10 +75,10 @@ install_yay() {
     print_message info "Installing yay..."
     local tmp_dir
     tmp_dir="$(mktemp -d)"
+    trap 'rm -rf "${tmp_dir:-}"' RETURN
 
     run_cmd "Cloning yay" git clone https://aur.archlinux.org/yay.git "$tmp_dir/yay"
     run_cmd "Building yay" bash -c "cd '$tmp_dir/yay' && makepkg -si --noconfirm"
-    rm -rf "$tmp_dir"
 
     print_message success "yay installed"
 }
@@ -104,16 +105,30 @@ install_aur_packages() {
         return 0
     fi
 
-    print_message info "Installing: ${to_install[*]}"
-    run_cmd "yay: installing ${#to_install[@]} AUR packages" \
-        yay -S --needed --noconfirm "${to_install[@]}"
+    # One package at a time: a single failure can block the rest
+    local failed=()
+    local pkg
+    for pkg in "${to_install[@]}"; do
+        if run_cmd "yay: installing $pkg" yay -S --needed --noconfirm "$pkg"; then
+            print_message info "Installed: $pkg"
+        else
+            failed+=("$pkg")
+        fi
+    done
+
+    if [[ ${#failed[@]} -gt 0 ]]; then
+        print_message error "Failed AUR packages: ${failed[*]} (re-run to retry)"
+        return 1
+    fi
+    print_message success "All AUR packages installed"
 }
 
 main() {
+    require_user
     setup_logging
     print_header "Package Installation"
 
-    run_cmd "Updating package database" sudo pacman -Sy
+    run_cmd "Upgrading system packages" sudo pacman -Syu --noconfirm
 
     install_pacman_packages
     install_yay
@@ -122,4 +137,4 @@ main() {
     print_message success "All packages installed"
 }
 
-main "$@"
+main

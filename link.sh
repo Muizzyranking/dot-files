@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -euo pipefail
 
@@ -6,6 +6,7 @@ DOTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="$HOME/.config"
 BACKUP_DIR="$HOME/config_backup"
 BACKUP_TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+_BACKUP_SEQ=0
 
 source "$DOTS_DIR/scripts/utils.sh"
 
@@ -32,7 +33,8 @@ backup_item() {
     local target="$1"
     local name
     name="$(basename "$target")"
-    local backup_name="${name}.bk-${BACKUP_TIMESTAMP}"
+    _BACKUP_SEQ=$((_BACKUP_SEQ + 1))
+    local backup_name="${name}.bk-${BACKUP_TIMESTAMP}-${_BACKUP_SEQ}"
 
     ensure_dir "$BACKUP_DIR"
 
@@ -167,7 +169,7 @@ link_apps() {
     fi
 }
 
-SPECIAL_CONFIGS=("vscode" "zsh" "oh-my-posh" "git" "zshcompletions" "dms" "apps")
+SPECIAL_CONFIGS=("vscode" "zsh" "oh-my-posh" "git" "zshcompletions" "apps")
 SPECIAL_HOME_FILES=(".zshrc" ".bashrc")
 
 declare -a available_configs=()
@@ -216,7 +218,7 @@ if $want_all; then
         if ! $skip; then
             tasks+=("$file")
         fi
-    done < <(find "$DOTS_DIR/home" -mindepth 1 -maxdepth 1 -printf '%f\n' 2>/dev/null | sort)
+    done < <(find "$DOTS_DIR/home" -mindepth 1 -maxdepth 1 -type f -printf '%f\n' 2>/dev/null | sort)
 fi
 
 declare -a sorted_unique_tasks=()

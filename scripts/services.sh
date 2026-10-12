@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -euo pipefail
 
@@ -9,14 +9,16 @@ enable_service() {
     local scope="${2:-system}"
 
     if [[ "$scope" == "user" ]]; then
-        if systemctl --user is-enabled "$service" &>/dev/null; then
-            print_message info "Already enabled (user): $service"
+        if systemctl --user is-enabled "$service" &>/dev/null && \
+           systemctl --user is-active "$service" &>/dev/null; then
+            print_message info "Already enabled and active (user): $service"
             return 0
         fi
         run_cmd "Enabling user service: $service" systemctl --user enable --now "$service"
     else
-        if systemctl is-enabled "$service" &>/dev/null; then
-            print_message info "Already enabled: $service"
+        if systemctl is-enabled "$service" &>/dev/null && \
+           systemctl is-active "$service" &>/dev/null; then
+            print_message info "Already enabled and active: $service"
             return 0
         fi
         run_cmd "Enabling service: $service" sudo systemctl enable --now "$service"
@@ -34,20 +36,17 @@ add_user_to_group() {
 }
 
 main() {
+    require_user
     setup_logging
     print_header "Services & Groups"
 
     enable_service "bluetooth"
     enable_service "docker"
-    # enable_service "sshd"
 
     add_user_to_group "docker"
-    # add_user_to_group "video"
-    # add_user_to_group "input"
-    # add_user_to_group "audio"
 
     print_message success "Services configured"
     print_message warning "Some group changes require logout to take effect"
 }
 
-main "$@"
+main
