@@ -2,7 +2,7 @@ local M = {}
 
 local mainMod = "SUPER"
 
----@alias Dispatcher HL.Dispatcher
+---@alias Dispatcher HL.Dispatcher | function
 
 ---@class Bind
 ---@field [1] string            Key name
@@ -49,13 +49,15 @@ function M.on_monitor(n, make_dsp)
 end
 
 ---@param actions table<string, Dispatcher>
----@return Dispatcher?
+---@return fun()
 function M.layout_action(actions)
-	local workspace = hl.get_active_special_workspace() or hl.get_active_workspace()
-	if not workspace then
-		return nil
+	return function()
+		local workspace = hl.get_active_special_workspace() or hl.get_active_workspace()
+		local dsp = workspace and actions[workspace.tiled_layout] or actions.default
+		if dsp then
+			hl.dispatch(dsp)
+		end
 	end
-	return actions[workspace.tiled_layout] or actions.default
 end
 
 ---@param b Bind
