@@ -3,14 +3,14 @@
 # Scope: installation only. Interactive-shell helpers live separately in
 # config/zsh/utils.sh (linked to ~/.config/zsh/utils.sh for daily use).
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-BOLD='\033[1m'
-RESET='\033[0m'
-WHITE='\033[37m'
+RED=$'\033[0;31m'
+GREEN=$'\033[0;32m'
+YELLOW=$'\033[1;33m'
+BLUE=$'\033[0;34m'
+CYAN=$'\033[0;36m'
+BOLD=$'\033[1m'
+RESET=$'\033[0m'
+WHITE=$'\033[37m'
 
 LOG_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/dotfiles"
 : "${LOG_FILE:=$LOG_DIR/install-$(date +"%Y%m%d_%H%M%S").log}"
