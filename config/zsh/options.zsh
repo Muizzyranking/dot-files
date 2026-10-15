@@ -52,8 +52,7 @@ setopt INTERACTIVE_COMMENTS   # Allow comments in interactive shell
 # Completion System
 # ============================================
 
-fpath+=("$HOME/.zsh/completions" "${ZDOTDIR:-$HOME}/.zsh_functions")
-[[ -d "$HOME/.zsh/completions" ]] || mkdir -p "$HOME/.zsh/completions"
+fpath+=("$HOME/.config/zsh/completions" "${ZDOTDIR:-$HOME}/.zsh_functions")
 [[ -d "$HOME/.zsh/cache" ]] || mkdir -p "$HOME/.zsh/cache"
 
 autoload -Uz compinit

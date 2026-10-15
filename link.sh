@@ -4,18 +4,33 @@ set -euo pipefail
 
 DOTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_DIR="$HOME/.config"
+LOCAL_DIR="$HOME/.local"
+HOME_SRC="$DOTS_DIR/home"
 BACKUP_DIR="$HOME/config_backup"
-BACKUP_TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+BACKUP_TIMESTAMP="$(date +"%Y%m%d_%H%M%S")"
 _BACKUP_SEQ=0
 
 source "$DOTS_DIR/scripts/utils.sh"
+
+# Entries here are never linked and never listed
+IGNORE_LIST=()
+
+# Tasks with custom handling instead of a plain link
+SPECIAL_TASKS=("zsh" "git")
+
+# Home files with custom handling, skipped by generic discovery
+SPECIAL_HOME_FILES=(".zshrc")
+
+# Set by parse_args
+LIST_ONLY=false
+WANT_ALL=false
+TASKS=()
 
 cleanup() {
     echo
     print_message info "Script interrupted."
     exit 1
 }
-trap cleanup INT TERM
 
 ensure_dir() {
     local dir="$1"
@@ -24,10 +39,35 @@ ensure_dir() {
             print_message info "Created directory: $dir"
         else
             print_message error "Failed to create directory: $dir"
-            exit 1
+            return 1
         fi
     fi
 }
+
+is_in() {
+    local needle="$1"
+    shift
+    local item
+    for item in "$@"; do
+        [[ "$item" == "$needle" ]] && return 0
+    done
+    return 1
+}
+
+is_ignored() {
+    is_in "$1" ${IGNORE_LIST[@]+"${IGNORE_LIST[@]}"}
+}
+
+# Prints the names of the entries of type $2 (d or f) directly inside $1
+list_names() {
+    local dir="$1" type="$2"
+    [[ -d "$dir" ]] || return 0
+    find "$dir" -mindepth 1 -maxdepth 1 -type "$type" -printf '%f\n' | sort
+}
+
+# ---------------------------------------------------------------------------
+# Linking
+# ---------------------------------------------------------------------------
 
 backup_item() {
     local target="$1"
@@ -36,7 +76,7 @@ backup_item() {
     _BACKUP_SEQ=$((_BACKUP_SEQ + 1))
     local backup_name="${name}.bk-${BACKUP_TIMESTAMP}-${_BACKUP_SEQ}"
 
-    ensure_dir "$BACKUP_DIR"
+    ensure_dir "$BACKUP_DIR" || return 1
 
     if mv "$target" "$BACKUP_DIR/$backup_name"; then
         print_message warning "Backed up: $target → $BACKUP_DIR/$backup_name"
@@ -61,15 +101,14 @@ link_item() {
         if [[ "$current_link" == "$source" ]]; then
             print_message info "Skipping: $target already links to $source"
             return 0
-        else
-            print_message warning "Relinking: $target (was → $current_link)"
-            unlink "$target"
         fi
+        print_message warning "Relinking: $target (was → $current_link)"
+        unlink "$target"
     elif [[ -e "$target" ]]; then
-        backup_item "$target"
+        backup_item "$target" || return 1
     fi
 
-    ensure_dir "$(dirname "$target")"
+    ensure_dir "$(dirname "$target")" || return 1
 
     if ln -s "$source" "$target"; then
         print_message success "Linked: $source → $target"
@@ -80,22 +119,41 @@ link_item() {
 }
 
 link_config_folder() {
-    local config_name="$1"
-    link_item "$DOTS_DIR/config/$config_name" "$CONFIG_DIR/$config_name"
+    local name="$1"
+    link_item "$DOTS_DIR/config/$name" "$CONFIG_DIR/$name"
 }
 
 link_home_file() {
     local filename="$1"
-    link_item "$DOTS_DIR/home/$filename" "$HOME/$filename"
+    link_item "$HOME_SRC/$filename" "$HOME/$filename"
 }
 
-link_vscode() {
-    print_message info "Processing VSCode configuration..."
-    local vscode_user_dir="$HOME/.config/Code/User"
-    ensure_dir "$vscode_user_dir"
-    if [[ -f "$DOTS_DIR/config/vscode/settings.json" ]]; then
-        link_item "$DOTS_DIR/config/vscode/settings.json" "$vscode_user_dir/settings.json"
+update_desktop_db() {
+    local apps_dir="$1"
+    [[ -d "$apps_dir" ]] || return 0
+    command -v update-desktop-database &>/dev/null || return 0
+
+    if update-desktop-database "$apps_dir" 2>/dev/null; then
+        print_message info "Updated desktop database for $apps_dir."
+    else
+        print_message warning "Could not update desktop database for $apps_dir."
     fi
+}
+
+link_local_entry() {
+    local name="$1"
+    local src="$DOTS_DIR/local/$name"
+    local dest="$LOCAL_DIR/$name"
+
+    print_message info "Processing ~/.local/$name..."
+    link_item "$src" "$dest" || return 1
+    update_desktop_db "$dest/applications"
+}
+
+link_zsh() {
+    print_message info "Processing Zsh configuration..."
+    link_home_file ".zshrc"
+    link_config_folder "zsh"
 }
 
 link_git() {
@@ -104,153 +162,155 @@ link_git() {
     local global_git_config="$HOME/.gitconfig"
     if [[ -f "$global_git_config" && ! -L "$global_git_config" ]]; then
         print_message warning "Found .gitconfig at $global_git_config, backing up..."
-        backup_item "$global_git_config"
+        backup_item "$global_git_config" || return 1
     fi
 
     link_config_folder "git"
 }
 
-link_zsh_completions() {
-    local src_dir="$DOTS_DIR/config/zshcompletions"
-    local dest_dir="$HOME/.zsh/completions"
+# ---------------------------------------------------------------------------
+# Discovery
+# ---------------------------------------------------------------------------
 
-    if [[ ! -d "$src_dir" ]]; then
-        print_message info "No zshcompletions directory found, skipping."
-        return 0
-    fi
-
-    ensure_dir "$dest_dir"
-
-    local file
-    for file in "$src_dir"/*; do
-        [[ -e "$file" ]] || continue
-        local basename
-        basename="$(basename "$file")"
-        link_item "$file" "$dest_dir/$basename"
+discover_config_names() {
+    local name
+    list_names "$DOTS_DIR/config" d | while IFS= read -r name; do
+        is_in "$name" "${SPECIAL_TASKS[@]}" || printf '%s\n' "$name"
     done
 }
 
-link_zsh() {
-    print_message info "Processing Zsh configuration..."
-    link_home_file ".zshrc"
-    link_config_folder "zsh"
-    link_config_folder "oh-my-posh"
-    link_zsh_completions
+discover_home_names() {
+    local name
+    list_names "$HOME_SRC" f | while IFS= read -r name; do
+        is_in "$name" "${SPECIAL_HOME_FILES[@]}" || printf '%s\n' "$name"
+    done
 }
 
-link_bash() {
-    print_message info "Processing Bash configuration..."
-    link_home_file ".bashrc"
+discover_local_names() {
+    list_names "$DOTS_DIR/local" d
 }
 
-link_apps() {
-    print_message info "Processing desktop applications..."
-    local apps_src_dir="$DOTS_DIR/apps"
-    local apps_dest_dir="$HOME/.local/share/applications"
-
-    if [[ ! -d "$apps_src_dir" ]]; then
-        print_message info "No apps directory found, skipping."
-        return 0
-    fi
-
-    ensure_dir "$apps_dest_dir"
-
-    local file
-    for file in "$apps_src_dir"/*.desktop; do
-        [[ -e "$file" ]] || continue
-        local basename
-        basename="$(basename "$file")"
-        link_item "$file" "$apps_dest_dir/$basename"
+all_tasks() {
+    {
+        printf '%s\n' "${SPECIAL_TASKS[@]}"
+        discover_config_names
+        discover_home_names
+        discover_local_names
+    } | sort -u | while IFS= read -r name; do
+        is_ignored "$name" || printf '%s\n' "$name"
     done
-
-    if command -v update-desktop-database &>/dev/null; then
-        update-desktop-database "$apps_dest_dir" 2>/dev/null && \
-            print_message info "Updated desktop database."
-    fi
 }
 
-SPECIAL_CONFIGS=("vscode" "zsh" "oh-my-posh" "git" "zshcompletions" "apps")
-SPECIAL_HOME_FILES=(".zshrc" ".bashrc")
+# ---------------------------------------------------------------------------
+# Dispatch
+# ---------------------------------------------------------------------------
 
-declare -a available_configs=()
-while IFS= read -r config; do
-    local_skip=false
-    for special in "${SPECIAL_CONFIGS[@]}"; do
-        if [[ "$config" == "$special" ]]; then
-            local_skip=true
-            break
-        fi
-    done
-    if ! $local_skip; then
-        available_configs+=("$config")
-    fi
-done < <(find "$DOTS_DIR/config" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' 2>/dev/null | sort)
+run_task() {
+    local item="$1"
 
-
-declare -a tasks=()
-want_all=false
-
-if [[ $# -eq 0 ]]; then
-    want_all=true
-else
-    for arg in "$@"; do
-        if [[ "$arg" == "all" ]]; then
-            want_all=true
-            break
-        else
-            tasks+=("$arg")
-        fi
-    done
-fi
-
-if $want_all; then
-    tasks+=("${available_configs[@]}")
-    tasks+=("git" "zsh" "bash" "vscode")
-
-    while IFS= read -r file; do
-        skip=false
-        for special in "${SPECIAL_HOME_FILES[@]}"; do
-            if [[ "$file" == "$special" ]]; then
-                skip=true
-                break
-            fi
-        done
-        if ! $skip; then
-            tasks+=("$file")
-        fi
-    done < <(find "$DOTS_DIR/home" -mindepth 1 -maxdepth 1 -type f -printf '%f\n' 2>/dev/null | sort)
-fi
-
-declare -a sorted_unique_tasks=()
-declare -A seen=()
-for item in "${tasks[@]}"; do
-    if [[ -z "${seen[$item]+x}" ]]; then
-        sorted_unique_tasks+=("$item")
-        seen[$item]=1
-    fi
-done
-
-setup_logging
-print_header "Linking dotfiles"
-
-for item in "${sorted_unique_tasks[@]}"; do
     case "$item" in
-    vscode) link_vscode ;;
     zsh) link_zsh ;;
-    bash) link_bash ;;
     git) link_git ;;
-    oh-my-posh) link_config_folder "oh-my-posh" ;;
-    apps) link_apps ;;
     *)
         if [[ -d "$DOTS_DIR/config/$item" ]]; then
             link_config_folder "$item"
-        elif [[ -f "$DOTS_DIR/home/$item" ]]; then
+        elif [[ -f "$HOME_SRC/$item" ]]; then
             link_home_file "$item"
+        elif [[ -d "$DOTS_DIR/local/$item" ]]; then
+            link_local_entry "$item"
         else
             print_message warning "Unknown config or task: $item"
+            return 1
         fi
         ;;
     esac
-done
+}
 
-print_message success "Linking complete."
+run_tasks() {
+    local item failed=0
+
+    for item in "$@"; do
+        if is_ignored "$item"; then
+            print_message info "Ignored: $item"
+            continue
+        fi
+        run_task "$item" || failed=$((failed + 1))
+    done
+
+    if [[ $failed -gt 0 ]]; then
+        print_message warning "$failed task(s) failed."
+        return 1
+    fi
+    print_message success "Linking complete."
+}
+
+dedupe_tasks() {
+    local item
+    local -A seen=()
+    local -a unique=()
+
+    for item in ${TASKS[@]+"${TASKS[@]}"}; do
+        if [[ -z "${seen[$item]+x}" ]]; then
+            seen[$item]=1
+            unique+=("$item")
+        fi
+    done
+
+    TASKS=(${unique[@]+"${unique[@]}"})
+}
+
+# ---------------------------------------------------------------------------
+# Arguments
+# ---------------------------------------------------------------------------
+
+parse_args() {
+    local arg
+    for arg in "$@"; do
+        case "$arg" in
+        -l | --list)
+            LIST_ONLY=true
+            ;;
+        all)
+            WANT_ALL=true
+            ;;
+        -*)
+            print_message error "Unknown option: $arg"
+            exit 1
+            ;;
+        *)
+            TASKS+=("$arg")
+            ;;
+        esac
+    done
+}
+
+list_tasks() {
+    all_tasks
+}
+
+main() {
+    trap cleanup INT TERM
+
+    parse_args "$@"
+
+    if $LIST_ONLY; then
+        list_tasks
+        exit 0
+    fi
+
+    if [[ $# -eq 0 ]] || $WANT_ALL; then
+        local name
+        while IFS= read -r name; do
+            TASKS+=("$name")
+        done < <(all_tasks)
+    fi
+
+    dedupe_tasks
+
+    setup_logging
+    print_header "Linking dotfiles"
+
+    run_tasks ${TASKS[@]+"${TASKS[@]}"}
+}
+
+main "$@"
