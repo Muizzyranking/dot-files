@@ -22,6 +22,26 @@ eval_if_exists() {
 }
 
 load "env.zsh"
+
+typeset -U path PATH
+
+path=(
+    ~/.local/custom-bin
+    ~/.local/bin
+    ~/.cargo/bin
+    ~/.npm-global/bin
+    ~/bin/lua_ls/bin
+    /usr/local/go/bin
+    ~/.bun/bin
+    ~/.spicetify
+    ~/.opencode/bin
+    ~/.kilo/bin
+    /snap/bin
+    $PNPM_HOME
+    $PNPM_HOME/bin
+    $path
+)
+
 load "options.zsh"
 load "keybinds.zsh"
 load "plugin_manager.zsh"
