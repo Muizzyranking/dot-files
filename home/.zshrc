@@ -9,28 +9,19 @@ load() {
     [[ -f "$f" ]] && source "$f"
 }
 
+eval_if_exists() {
+    local cmd="$1"
+    command -v "$cmd" &>/dev/null || return 0
+
+    local output
+    output="$("$@")" || {
+        print "eval_if_exists: '$*' failed" >&2
+        return 1
+    }
+    eval "$output"
+}
+
 load "env.zsh"
-
-export PNPM_HOME="$HOME/.local/share/pnpm"
-typeset -U path PATH
-
-path=(
-    ~/.local/bin
-    ~/.cargo/bin
-    ~/.npm-global/bin
-    ~/bin/lua_ls/bin
-    /usr/local/go/bin
-    ~/.bun/bin
-    ~/.spicetify
-    ~/.opencode/bin
-    ~/.kilo/bin
-    $DOTFILES/bin
-    /snap/bin
-    $PNPM_HOME
-    $PNPM_HOME/bin
-    $path
-)
-
 load "options.zsh"
 load "keybinds.zsh"
 load "plugin_manager.zsh"
@@ -43,19 +34,12 @@ load_plugin "zdharma-continuum/fast-syntax-highlighting"
 
 load "oh_my_posh.zsh"
 
-command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"
+eval_if_exists zoxide init zsh
+eval_if_exists fzf --zsh
+eval_if_exists uv generate-shell-completion zsh
+eval_if_exists pay-respects zsh --alias fuck
 
-command -v fzf &>/dev/null && eval "$(fzf --zsh)"
-
-command -v uv &>/dev/null && eval "$(uv generate-shell-completion zsh)"
-command -v pay-respects &>/dev/null && eval "$(pay-respects zsh --alias fuck)"
-
-[[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
-[[ -s "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
-
-export NVM_DIR="$HOME/.nvm"
 [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
-[[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion"
 
 load "aliases.zsh"
 load "functions.zsh"

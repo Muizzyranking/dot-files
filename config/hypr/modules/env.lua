@@ -16,13 +16,15 @@ _G.COLORS = {
 
 hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
 
-local XDG_DATA_DIRS_OLD = os.getenv("XDG_DATA_DIRS") or ""
-hl.env(
-	"XDG_DATA_DIRS",
-	HOME_DIR
-		.. "/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/usr/local/share:/usr/share:"
-		.. XDG_DATA_DIRS_OLD
-)
+local HOME_DATA = HOME_DIR .. "/.local/custom-apps"
+local data_dirs = {
+	HOME_DATA,
+	HOME_DIR .. "/.local/share/flatpak/exports/share",
+	"/var/lib/flatpak/exports/share",
+	"/usr/local/share",
+	"/usr/share",
+}
+hl.env("XDG_DATA_DIRS", table.concat(data_dirs, ":"))
 
 hl.env("XDG_MENU_PREFIX", "plasma-")
 hl.env("XCURSOR_THEME", CURSOR.theme)
