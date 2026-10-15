@@ -37,7 +37,6 @@ path=(
     ~/.opencode/bin
     ~/.kilo/bin
     /snap/bin
-    $PNPM_HOME
     $PNPM_HOME/bin
     $path
 )
