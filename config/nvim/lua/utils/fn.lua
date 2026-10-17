@@ -18,7 +18,7 @@ end
 ---@param path any
 ---@return boolean
 -------------------------------------
-M.is_executable = function(path)
+function M.is_executable(path)
 	if path == "" then
 		return false
 	end

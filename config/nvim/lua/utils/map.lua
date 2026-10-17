@@ -67,7 +67,6 @@ M = setmetatable(M, {
 ---@field icon? ToggleIconConfig
 ---@field color? ToggleColorConfig
 ---@field notify? boolean
----@field set_key? boolean
 
 ---@class keymap.set.Opts : vim.keymap.set.Opts
 ---@field vscode boolean?
@@ -332,7 +331,7 @@ function Toggle:to_keymap()
 		desc = self:desc(),
 		icon = self:icon(),
 	}
-	local excluded = { "name", "get_state", "toggle_fn", "change_state", "color", "notify", "set_key", "get", "set" }
+	local excluded = { "name", "get_state", "toggle_fn", "change_state", "color", "notify", "get", "set" }
 	for k, v in pairs(self.mapping) do
 		if map[k] == nil and not vim.tbl_contains(excluded, k) then
 			map[k] = v
