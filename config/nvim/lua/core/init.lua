@@ -16,6 +16,10 @@ Pack.now(function()
 	Utils.fn.add_to_path("${DATA_DIR}/mason/bin")
 	require("lsp")
 	vim.cmd.colorscheme("custom")
+	require("plugins.mdview").setup({
+		browser = "google-chrome-stable",
+		keymap = "<leader>mp",
+	})
 end, { vscode = false })
 
 Pack.defer(function()
