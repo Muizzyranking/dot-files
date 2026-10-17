@@ -22,7 +22,7 @@ PACMAN_PACKAGES=(
     # Theming
     "qt5ct" "qt6ct" "kvantum" "pavucontrol"
 
-    "dms-shell"
+    "dms-shell" "cmark-gfm"
 )
 
 AUR_PACKAGES=(

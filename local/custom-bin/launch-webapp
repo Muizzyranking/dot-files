@@ -12,7 +12,7 @@ usage() {
 
 launch() {
     require_or_exit "$BROWSER_CMD" uwsm-app
-    exec uwsm-app -- "$BROWSER_CMD" --app="$1" "${@:2}"
+    exec uwsm-app -- "$BROWSER_CMD" --app="$1" --profile-directory=Default "${@:2}"
 }
 
 main() {
