@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Markdown preview</title>
+    <link rel="stylesheet" href="/markdown.css" />
+    <style>
+      html,
+      body {
+        background: #0d1117;
+      }
+      .markdown-body {
+        box-sizing: border-box;
+        max-width: 980px;
+        min-height: 100vh;
+        margin: 0 auto;
+        padding: 45px;
+      }
+      @media (max-width: 767px) {
+        .markdown-body {
+          padding: 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <article class="markdown-body" id="doc"></article>
+    <script>
+      const doc = document.getElementById("doc");
+      const POLL_MS = 200;
+      const MAX_FAILURES = 25; // stop polling after this many failures in a row
+      let version = null,
+        lastLine = null,
+        failures = 0;
+
+      async function get(path) {
+        const r = await fetch(path, { cache: "no-store" });
+        if (!r.ok) throw new Error(path + " " + r.status);
+        return r;
+      }
+
+      // Scroll so the block containing the cursor line sits near the top of the window.
+      // Falls back to a fraction of the document if no source positions are present.
+      function scrollToLine(line, total) {
+        const blocks = doc.querySelectorAll("[data-sourcepos]");
+        if (blocks.length) {
+          let target = null;
+          for (const el of blocks) {
+            if (parseInt(el.dataset.sourcepos, 10) > line) break;
+            target = el;
+          }
+          if (target) {
+            const top = target.getBoundingClientRect().top + scrollY;
+            window.scrollTo(0, top - innerHeight * 0.3);
+          }
+          return;
+        }
+        const max = document.documentElement.scrollHeight - innerHeight;
+        window.scrollTo(0, (line / total) * max);
+      }
+
+      async function poll() {
+        try {
+          const st = await (await get("/state")).json();
+          failures = 0;
+          // Fetch the body only when the version changed.
+          if (st.version !== version) {
+            version = st.version;
+            doc.innerHTML = await (await get("/body")).text();
+          }
+          // Scroll only when the cursor moved, so manual scrolling sticks.
+          if (st.line !== lastLine) {
+            lastLine = st.line;
+            scrollToLine(st.line, st.total);
+          }
+        } catch (e) {
+          if (++failures > MAX_FAILURES) return; // the session has ended
+        }
+        setTimeout(poll, POLL_MS);
+      }
+      poll();
+    </script>
+  </body>
+</html>
