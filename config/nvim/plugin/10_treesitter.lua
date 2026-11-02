@@ -1,3 +1,57 @@
+local parsers = {
+	"c",
+	"cpp",
+	"vim",
+	"vimdoc",
+	"query",
+	"python",
+	"toml",
+	"rst",
+	"regex",
+	"yaml",
+	"diff",
+	"jsdoc",
+	"luadoc",
+	"lua",
+	"luadoc",
+	"luap",
+	"python",
+	"ninja",
+	"rst",
+	"htmldjango",
+	"vim",
+	"xml",
+	"puppet",
+	"typescript",
+	"javascript",
+	"tsx",
+	"bash",
+	"rasi",
+	"git_config",
+	"cpp",
+	"go",
+	"gomod",
+	"gowork",
+	"gosum",
+	"gdscript",
+	"html",
+	"css",
+	"http",
+	"graphql",
+	"json",
+	"json5",
+	"jsonc",
+	"rust",
+	"ron",
+	"php",
+	"phpdoc",
+	"qml",
+	"qmldir",
+	"qmljs",
+	"dockerfile",
+	"vue",
+}
+
 Pack.on_changed("nvim-treesitter", function()
 	vim.cmd("TSUpdate")
 end, "update")
@@ -9,9 +63,6 @@ Pack.add({
 })
 
 Pack.when({ lazy_file = true, defer = true, vscode = true }, function()
-	local opts = {
-		ensure_installed = Settings.get("parsers", {}),
-	}
 	Utils.treesitter.incr.attach({
 		init_selection = "<CR>",
 		node_incremental = "<CR>",
@@ -23,7 +74,7 @@ Pack.when({ lazy_file = true, defer = true, vscode = true }, function()
 	-- Only install parsers that are not already present.
 	local missing = vim.tbl_filter(function(lang)
 		return not Utils.treesitter.have(lang)
-	end, opts.ensure_installed or {})
+	end, parsers or {})
 	if #missing > 0 then
 		ts.install(missing, { summary = true }):await(function()
 			Utils.treesitter.get_installed(true)
@@ -52,7 +103,7 @@ end)
 
 Pack.defer(function()
 	require("nvim-treesitter-textobjects").setup()
-	local keys = function()
+	local function keys()
 		local moves = {
 			goto_next_start = {
 				["]f"] = "@function.outer",
