@@ -73,6 +73,10 @@
       "rev": "2a6940af80375532e5e9e7c1f2fc6319a1b7a69d",
       "src": "https://github.com/mason-org/mason.nvim"
     },
+    "mdview-nvim": {
+      "rev": "9255a6a9e062f78a66dc51f7b4b7cd53df604a23",
+      "src": "https://github.com/muizzyranking/mdview-nvim"
+    },
     "mini.ai": {
       "rev": "25248c6aa002391936a6200f12d1466015987133",
       "src": "https://github.com/nvim-mini/mini.ai"
