@@ -56,7 +56,6 @@ load "oh_my_posh.zsh"
 eval_if_exists zoxide init zsh
 eval_if_exists fzf --zsh
 eval_if_exists uv generate-shell-completion zsh
-eval_if_exists pay-respects zsh --alias fuck
 
 [[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
 
