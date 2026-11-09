@@ -4,7 +4,7 @@ end)
 
 Pack.add({ "folke/snacks.nvim", "dmtrKovalenko/fff.nvim" })
 
-local make_tmux_action = function(cmd)
+local function make_tmux_action(cmd)
 	return function(picker)
 		local root_win = assert(picker.layout.root.win)
 		local next_win = vim.api.nvim_win_call(root_win, function()

@@ -153,6 +153,7 @@ Pack.now(function()
 			["tsconfig.build.json"] = { glyph = "", hl = "MiniIconsAzure" },
 			["yarn.lock"] = { glyph = "", hl = "MiniIconsBlue" },
 			[".go-version"] = { glyph = "", hl = "MiniIconsBlue" },
+			[".env"] = { glyph = " ", hl = "MiniIconsYellow" },
 		},
 		filetype = {
 			dotenv = { glyph = "", hl = "MiniIconsYellow" },

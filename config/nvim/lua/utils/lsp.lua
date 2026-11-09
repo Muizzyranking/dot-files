@@ -424,6 +424,7 @@ function M.goto_definition(opts)
 
 			if #items > 1 then
 				Snacks.picker.lsp_definitions()
+				return
 			end
 
 			-- Get the first definition

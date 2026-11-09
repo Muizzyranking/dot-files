@@ -4,7 +4,7 @@ Pack.defer(function()
 	require("which-key").setup({
 		icons = {
 			rules = {
-				{ pattern = "%f[%a]ai", icon = "  ", color = "blue" },
+				-- { pattern = "%f[%a]ai", icon = "  ", color = "blue" },
 			},
 		},
 		preset = "classic",

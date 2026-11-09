@@ -8,7 +8,6 @@ vim.filetype.add({
 		[".gitignore_global"] = "gitignore",
 	},
 	pattern = {
-		[".*/waybar/config"] = "jsonc",
 		[".*/kitty/.+%.conf"] = "bash",
 		[".*/hypr/.+%.conf"] = "hyprlang",
 		["%.env%.[%w_.-]+"] = "sh",

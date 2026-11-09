@@ -43,7 +43,6 @@ Pack.when({ event = { "BufWritePre", "BufReadPost" } }, function()
 					return not use_biome(ctx) or not vim.tbl_contains(biome_supported, ft)
 				end,
 			},
-			black = { append_args = { "--line-length", "85" } },
 			djlint = { append_args = { "--indent", "2" } },
 			ruff = require("conform.formatters.ruff_format"),
 		},
