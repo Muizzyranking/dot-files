@@ -1,0 +1,20 @@
+{
+  "colors": {
+    "barBg": "#16161e",
+    "panel": "#16161e",
+    "surface": "#292e42",
+    "surfaceHi": "#3b4261",
+    "island": "#0f0f14",
+    "onIsland": "#c0caf5",
+    "text": "#c0caf5",
+    "textDim": "#a9b1d6",
+    "textFaint": "#565f89",
+    "accent": "#7aa2f7",
+    "onAccent": "#16161e",
+    "good": "#9ece6a",
+    "warn": "#e0af68",
+    "warm": "#ff9e64",
+    "bad": "#f7768e",
+    "info": "#7dcfff"
+  }
+}
