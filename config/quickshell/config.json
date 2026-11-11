@@ -1,0 +1,298 @@
+{
+  "palette": "catppuccin-mocha",
+  "scale": 1.0,
+  "font": {
+    "family": "JetBrainsMono Nerd Font",
+    "iconFamily": "Material Symbols Rounded",
+    "size": 12,
+    "iconSize": 16,
+    "iconFill": 0,
+    "iconWeight": 500
+  },
+  "bar": {
+    "height": 35,
+    "opacity": 0.7,
+    "radius": 15,
+    "marginX": 5,
+    "marginY": 0,
+    "outerPadding": 5,
+    "spacing": 5,
+    "pill": {
+      "height": 26,
+      "padding": 10,
+      "spacing": 10,
+      "opacity": 1.0,
+      "border": 1
+    }
+  },
+  "hyprland": {
+    "lua": true
+  },
+  "workspaces": {
+    "label": "name",
+    "activeExtra": 20
+  },
+  "panels": {
+    "width": 320,
+    "vitalsWidth": 500,
+    "maxHeight": 740,
+    "radius": 22,
+    "opacity": 1,
+    "padding": 14,
+    "openMs": 220,
+    "controlWidth": 520,
+    "networkWidth": 400,
+    "closeMs": 140
+  },
+  "island": {
+    "idleWidth": 150,
+    "idleHeight": 25,
+    "bottomRadius": 15,
+    "toastWidth": 350,
+    "toastHeight": 35,
+    "toastFullWidth": 400,
+    "musicFullWidth": 380,
+    "musicFullHeight": 150,
+    "expandedRadius": 26,
+    "morphMs": 320,
+    "scrollSpeed": 22,
+    "color": "island",
+    "border": 1,
+    "borderColor": "accent",
+    "borderOpacity": 0.1,
+    "flare": 20
+  },
+  "eyes": {
+    "color": "onIsland",
+    "width": 11,
+    "height": 13,
+    "gap": 12,
+    "drift": 2.5,
+    "driftEnabled": true,
+    "blinkMinMs": 2500,
+    "blinkMaxMs": 6500,
+    "blinkOnHover": true,
+    "mood": "auto",
+    "moodIntervalMs": 5000,
+    "stableSamples": 2,
+    "nightStart": 22,
+    "nightEnd": 6,
+    "moodyBattery": 35,
+    "happyBattery": 60,
+    "cpuHigh": 85,
+    "memHigh": 85,
+    "panic": 95,
+    "offlineMoody": true,
+    "moodColors": {
+      "neutral": "onIsland",
+      "happy": "onIsland",
+      "playful": "accent",
+      "sleepy": "textDim",
+      "moody": "accent",
+      "tired": "textDim",
+      "sad": "info",
+      "angry": "warm",
+      "scared": "onIsland"
+    }
+  },
+  "clock": {
+    "timeFormat": "h:mm AP",
+    "dateFormat": "ddd d"
+  },
+  "animation": {
+    "fast": 120,
+    "normal": 220,
+    "slow": 400
+  },
+  "vitals": {
+    "intervalMs": 2000,
+    "diskIntervalMs": 30000,
+    "stops": [
+      [
+        0,
+        "text"
+      ],
+      [
+        40,
+        "warn"
+      ],
+      [
+        70,
+        "warm"
+      ],
+      [
+        100,
+        "bad"
+      ]
+    ]
+  },
+  "battery": {
+    "low": 20,
+    "medium": 50
+  },
+  "network": {
+    "intervalMs": 5000
+  },
+  "sounds": {
+    "enabled": true,
+    "volume": 1,
+    "chargerPlug": "/usr/share/sounds/freedesktop/stereo/power-plug.oga",
+    "chargerUnplug": "/usr/share/sounds/freedesktop/stereo/power-unplug.oga",
+    "usbAdd": "/usr/share/sounds/freedesktop/stereo/device-added.oga",
+    "usbRemove": "/usr/share/sounds/freedesktop/stereo/device-removed.oga",
+    "lowBattery": "/usr/share/sounds/freedesktop/stereo/dialog-warning.oga",
+    "notification": "/usr/share/sounds/freedesktop/stereo/message-new-instant.oga"
+  },
+  "modules": {
+    "idleInhibitor": true
+  },
+  "notifications": {
+    "dnd": false,
+    "maxLines": 3
+  },
+  "calendar": {
+    "firstDay": 1
+  },
+  "toasts": {
+    "enabled": true,
+    "timeoutMs": 2500,
+    "expandedTimeoutMs": 15000,
+    "maxBodyLines": 3,
+    "monitor": "focused"
+  },
+  "media": {
+    "exclude": [],
+    "excludeTitles": []
+  },
+  "audio": {
+    "maxVolume": 2.0,
+    "maxInput": 1.0,
+    "step": 0.5
+  },
+  "session": {
+    "lock": "",
+    "suspend": "systemctl suspend",
+    "hibernate": "systemctl hibernate",
+    "logout": "loginctl terminate-session $XDG_SESSION_ID",
+    "reboot": "systemctl reboot",
+    "poweroff": "systemctl poweroff"
+  },
+  "capture": {
+    "screenshotDir": "~/Pictures/Screenshots",
+    "recordDir": "~/Videos",
+    "annotate": "satty --filename - --output-filename \"$f\" --copy-command wl-copy",
+    "audio": "default"
+  },
+  "clipboard": {
+    "maxItems": 30,
+    "manageWatcher": false
+  },
+  "profile": {
+    "name": "Muizzyranking",
+    "avatar": "/home/muizzyranking/.config/quickshell/assets/avatar.png"
+  },
+  "wallpaper": {
+    "enabled": true,
+    "dir": "~/Pictures/Wallpapers",
+    "default": "",
+    "fit": "crop",
+    "transitionMs": 700,
+    "intervalMin": 0,
+    "random": false
+  },
+  "widgets": {
+    "clock": {
+      "enabled": true,
+      "position": "bottom-left",
+      "margin": 56,
+      "timeFormat": "h:mm",
+      "dateFormat": "dddd, d MMMM",
+      "seconds": false,
+      "size": 88,
+      "dateSize": 20,
+      "color": "text",
+      "opacity": 0.9,
+      "shadow": true,
+      "monitors": "all"
+    }
+  },
+  "launcher": {
+    "columns": 7,
+    "iconSize": 64,
+    "cellWidth": 150,
+    "cellHeight": 120,
+    "dim": 1
+  },
+  "lock": {
+    "pamConfig": "login",
+    "wallpaper": "",
+    "blur": 0.7,
+    "dim": 0.35,
+    "timeFormat": "h:mm",
+    "dateFormat": "dddd, d MMMM",
+    "showMedia": true,
+    "clockStyle": "inline",
+    "clockSize": 130,
+    "clockColor": "accent",
+    "hourFormat": "HH",
+    "minuteFormat": "mm",
+    "restoreOnStart": true
+  },
+  "theming": {
+    "enabled": true,
+    "targets": [
+      {
+        "template": "kitty.conf",
+        "out": "~/.config/kitty/shell-theme.conf",
+        "reload": "pkill -USR1 -x kitty"
+      },
+      {
+        "template": "gtk.css",
+        "out": "~/.config/gtk-3.0/shell-colors.css",
+        "reload": ""
+      },
+      {
+        "template": "gtk.css",
+        "out": "~/.config/gtk-4.0/shell-colors.css",
+        "reload": "gsettings set org.gnome.desktop.interface color-scheme prefer-{{mode}}; gsettings set org.gnome.desktop.interface gtk-theme {{gtk}}"
+      },
+      {
+        "template": "qt6ct.conf",
+        "out": "~/.config/qt6ct/colors/shell.conf",
+        "reload": ""
+      },
+      {
+        "template": "colors.json",
+        "out": "~/.local/state/qs-shell/colors.json",
+        "reload": ""
+      },
+      {
+        "template": "hypr.lua",
+        "out": "~/.config/hypr/colors.lua",
+        "reload": "hyprctl reload"
+      },
+      {
+        "template": "tmux.conf",
+        "out": "~/.config/tmux/themes/colors.conf",
+        "reload": "tmux source-file ~/.config/tmux/tmux.conf"
+      },
+      {
+        "template": "nvim.lua",
+        "out": "~/.config/nvim/colors.lua",
+        "reload": "for s in \"$XDG_RUNTIME_DIR\"/nvim.*; do nvim --server \"$s\" --remote-expr 'execute(\"lua reload_shell_theme()\")' >/dev/null 2>&1; done; true"
+      },
+      {
+        "template": "oh-my-posh.json",
+        "out": "~/.config/oh-my-posh/colors.json",
+        "reload": "~/.local/bin/omp-reload"
+      }
+    ]
+  },
+  "monitors": {
+    "include": [],
+    "exclude": [],
+    "primary": "",
+    "tray": "all"
+  },
+  "colors": {}
+}
