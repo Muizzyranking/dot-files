@@ -21,9 +21,16 @@ SPECIAL_TASKS=("zsh" "git")
 # Home files with custom handling, skipped by generic discovery
 SPECIAL_HOME_FILES=(".zshrc")
 
+# config/<name> dirs whose *children* are linked into a shared directory
+# instead of linking the dir itself.  config/<name>/X -> <target>/X
+declare -A SHARED_CONFIG=(
+    [systemd]="$CONFIG_DIR/systemd/user"
+)
+
 # Set by parse_args
 LIST_ONLY=false
 WANT_ALL=false
+PRUNE=false
 TASKS=()
 
 cleanup() {
@@ -63,6 +70,13 @@ list_names() {
     local dir="$1" type="$2"
     [[ -d "$dir" ]] || return 0
     find "$dir" -mindepth 1 -maxdepth 1 -type "$type" -printf '%f\n' | sort
+}
+
+# Prints the names of all entries (files, dirs, symlinks) directly inside $1
+list_children() {
+    local dir="$1"
+    [[ -d "$dir" ]] || return 0
+    find "$dir" -mindepth 1 -maxdepth 1 -printf '%f\n' | sort
 }
 
 # ---------------------------------------------------------------------------
@@ -118,9 +132,39 @@ link_item() {
     fi
 }
 
+# Owned dir: config/<name> -> ~/.config/<name>
 link_config_folder() {
     local name="$1"
     link_item "$DOTS_DIR/config/$name" "$CONFIG_DIR/$name"
+}
+
+# Shared dir: each child of config/<name> -> <SHARED_CONFIG[name]>/<child>
+link_shared_config() {
+    local name="$1"
+    local src_root="$DOTS_DIR/config/$name"
+    local dest_root="${SHARED_CONFIG[$name]}"
+    local child failed=0
+
+    print_message info "Processing $dest_root (shared)..."
+
+    if [[ ! -d "$src_root" ]]; then
+        print_message warning "Nothing to link, missing: $src_root"
+        return 0
+    fi
+
+    ensure_dir "$dest_root" || return 1
+
+    while IFS= read -r child; do
+        link_item "$src_root/$child" "$dest_root/$child" || failed=$((failed + 1))
+    done < <(list_children "$src_root")
+
+    [[ $failed -eq 0 ]] || return 1
+
+    if [[ "$name" == "systemd" ]] && command -v systemctl &>/dev/null; then
+        systemctl --user daemon-reload 2>/dev/null \
+            && print_message info "Reloaded systemd user units." \
+            || print_message warning "Could not reload systemd user units."
+    fi
 }
 
 link_home_file() {
@@ -140,14 +184,23 @@ update_desktop_db() {
     fi
 }
 
+# local/<name> mirrors ~/.local/<name>. Real parent dirs are created and only
+# the leaf files are symlinked, so shared dirs (bin, share/...) stay untouched.
 link_local_entry() {
     local name="$1"
-    local src="$DOTS_DIR/local/$name"
-    local dest="$LOCAL_DIR/$name"
+    local src_root="$DOTS_DIR/local/$name"
+    local src rel failed=0
 
     print_message info "Processing ~/.local/$name..."
-    link_item "$src" "$dest" || return 1
-    update_desktop_db "$dest/applications"
+
+    while IFS= read -r -d '' src; do
+        rel="${src#"$DOTS_DIR/local/"}"
+        link_item "$src" "$LOCAL_DIR/$rel" || failed=$((failed + 1))
+    done < <(find "$src_root" \( -type f -o -type l \) -print0)
+
+    update_desktop_db "$LOCAL_DIR/share/applications"
+
+    [[ $failed -eq 0 ]]
 }
 
 link_zsh() {
@@ -168,6 +221,29 @@ link_git() {
     link_config_folder "git"
 }
 
+# Removes broken symlinks that point into this repo. Never touches links that
+# point anywhere else.
+prune_links() {
+    local link target
+
+    print_message info "Pruning dangling links..."
+
+    while IFS= read -r -d '' link; do
+        target="$(readlink "$link")"
+        if [[ "$target" == "$DOTS_DIR/"* && ! -e "$target" ]]; then
+            rm "$link"
+            print_message info "Pruned dangling link: $link"
+        fi
+    done < <(
+        {
+            find "$LOCAL_DIR" -type l -print0
+            find "$CONFIG_DIR" -maxdepth 1 -type l -print0
+            find "$CONFIG_DIR/systemd/user" -maxdepth 1 -type l -print0
+            find "$HOME" -maxdepth 1 -type l -print0
+        } 2>/dev/null
+    )
+}
+
 # ---------------------------------------------------------------------------
 # Discovery
 # ---------------------------------------------------------------------------
@@ -186,6 +262,7 @@ discover_home_names() {
     done
 }
 
+# Top-level dirs only (bin, share, ...)
 discover_local_names() {
     list_names "$DOTS_DIR/local" d
 }
@@ -212,7 +289,9 @@ run_task() {
     zsh) link_zsh ;;
     git) link_git ;;
     *)
-        if [[ -d "$DOTS_DIR/config/$item" ]]; then
+        if [[ -n "${SHARED_CONFIG[$item]+x}" ]]; then
+            link_shared_config "$item"
+        elif [[ -d "$DOTS_DIR/config/$item" ]]; then
             link_config_folder "$item"
         elif [[ -f "$HOME_SRC/$item" ]]; then
             link_home_file "$item"
@@ -270,6 +349,9 @@ parse_args() {
         -l | --list)
             LIST_ONLY=true
             ;;
+        --prune)
+            PRUNE=true
+            ;;
         all)
             WANT_ALL=true
             ;;
@@ -298,6 +380,8 @@ main() {
         exit 0
     fi
 
+    # No args at all, or "all": link everything.
+    # (`link.sh --prune` alone only prunes.)
     if [[ $# -eq 0 ]] || $WANT_ALL; then
         local name
         while IFS= read -r name; do
@@ -310,7 +394,16 @@ main() {
     setup_logging
     print_header "Linking dotfiles"
 
-    run_tasks ${TASKS[@]+"${TASKS[@]}"}
+    local rc=0
+    if [[ ${#TASKS[@]} -gt 0 ]]; then
+        run_tasks "${TASKS[@]}" || rc=$?
+    fi
+
+    if $PRUNE; then
+        prune_links
+    fi
+
+    exit "$rc"
 }
 
 main "$@"

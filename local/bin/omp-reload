@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+dir="${XDG_RUNTIME_DIR:-/tmp}/omp-shells"
+base="$HOME/.config/oh-my-posh"
+cache="${OMP_CACHE:-$HOME/.cache/oh-my-posh-init.zsh}"
+
+jq --slurpfile p "$base/colors.json" '.palette = $p[0]' \
+    "$base/base.omp.json" > "$base/config.omp.json.tmp" \
+    && mv "$base/config.omp.json.tmp" "$base/config.omp.json" || exit 1
+
+mkdir -p "$(dirname "$cache")"
+oh-my-posh init zsh --config "$base/config.omp.json" > "$cache.tmp" 2>/dev/null \
+    && [[ -s "$cache.tmp" ]] \
+    && mv "$cache.tmp" "$cache" || { rm -f "$cache.tmp"; exit 1; }
+
+# 3. Tell every registered shell to re-source and redraw
+[[ -d "$dir" ]] || exit 0
+for f in "$dir"/*; do
+    [[ -e "$f" ]] || continue
+    pid="${f##*/}"
+    if kill -0 "$pid" 2>/dev/null; then
+        kill -USR1 "$pid"
+    else
+        rm -f "$f"
+    fi
+done

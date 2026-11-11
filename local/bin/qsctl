@@ -1,0 +1,27 @@
+#!/bin/sh
+#   qsctl clipboard toggle        same as: qs -p <shell>/shell.qml ipc call clipboard toggle
+#   qsctl show                    list every IPC command the running shell understands
+#   qsctl restart | start | stop  control the systemd service (see quickshell.service)
+#   qsctl logs                    follow the shell's log
+
+SHELL_DIR="${QS_SHELL_DIR:-$HOME/.config/quickshell}"
+
+qs_run() {
+    if [ -f "$SHELL_DIR/shell.qml" ]; then
+        qs -p "$SHELL_DIR/shell.qml" "$@"
+    else
+        qs "$@"
+    fi
+}
+
+usage() {
+    sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'
+}
+
+case "${1:-}" in
+    ""|-h|--help|help) usage ;;
+    show) qs_run ipc show ;;
+    start|stop|restart) systemctl --user "$1" quickshell.service ;;
+    logs) journalctl --user -u quickshell.service -f ;;
+    *) qs_run ipc call "$@" ;;
+esac
