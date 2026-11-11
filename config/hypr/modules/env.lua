@@ -1,6 +1,5 @@
 _G.TERMINAL = "kitty"
 _G.FILEMANAGER = "thunar"
-_G.MENU = "hyprlauncher"
 _G.HOME_DIR = os.getenv("HOME")
 _G.BROWSER = "google-chrome-stable"
 _G.CURSOR = {
@@ -8,22 +7,23 @@ _G.CURSOR = {
 	theme = "catppuccin-mocha-blue-cursors",
 }
 _G.GTK_THEME = "catppuccin-mocha-blue-standard+default"
-_G.COLORS = {
+_G.COLORS = _G.COLORS or {
 	primary = "#89b4fa",
 	outline = "#6c7086",
 	error = "#f38ba8",
 }
-
 hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
 
-local HOME_DATA = HOME_DIR .. "/.local/custom-apps"
+local XDG_DATA_DIRS_OLD = os.getenv("XDG_DATA_DIRS") or ""
 local data_dirs = {
-	HOME_DATA,
 	HOME_DIR .. "/.local/share/flatpak/exports/share",
 	"/var/lib/flatpak/exports/share",
 	"/usr/local/share",
 	"/usr/share",
 }
+if XDG_DATA_DIRS_OLD ~= "" then
+	table.insert(data_dirs, XDG_DATA_DIRS_OLD)
+end
 hl.env("XDG_DATA_DIRS", table.concat(data_dirs, ":"))
 
 hl.env("XDG_MENU_PREFIX", "plasma-")

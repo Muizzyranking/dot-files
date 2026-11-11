@@ -11,6 +11,7 @@ _G.Pack = require("core.pack")
 _G.P = function(...)
 	vim.print(vim.inspect(...))
 end
+_G.COLORS = _G.COLORS or {}
 
 Pack.now(function()
 	Utils.fn.add_to_path("${DATA_DIR}/mason/bin")

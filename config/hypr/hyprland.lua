@@ -1,3 +1,4 @@
+pcall(require, "colors")
 local modules = {
 	"env",
 	"config",
