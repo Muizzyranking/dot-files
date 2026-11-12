@@ -107,6 +107,7 @@ popup({ class = "^firefox$", title = "^Sign in – Google accounts — Mozilla F
 popup({ title = "^(Add Folder to Workspace|Save As)$" }, 0.7, 0.6)
 popup({ title = "^(SDDM Background)$" }, 0.16, 0.12)
 popup({ class = "^(thunar)$", title = "^(File Operation Progress)$" }, 0.26, 0.18)
+popup({ class = "^(thunar)$", title = "^(Thunar Preferences)$" }, 0.26, 0.18)
 popup({ class = "^(hyprland-share-picker)$" }, 0.4, 0.4)
 popup({ class = "^xdg-desktop-portal-gtk$", title = "^Open Folder$", float = true }, 0.6, 0.6)
 popup({ initial_title = "(Open Files)" }, 0.7, 0.6)
@@ -159,4 +160,4 @@ hl.workspace_rule({ workspace = "8", default_name = "八", layout = "scrolling" 
 hl.workspace_rule({ workspace = "9", default_name = "九" })
 hl.workspace_rule({ workspace = "10", default_name = "十" })
 
-hl.layer_rule({ match = { namespace = "^dms:bar$" }, xray = true })
+hl.layer_rule({ match = { namespace = "qs-bar" }, blur = true }):set_enabled(false)

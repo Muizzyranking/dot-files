@@ -6,7 +6,7 @@ _G.CURSOR = {
 	size = "24",
 	theme = "catppuccin-mocha-blue-cursors",
 }
-_G.GTK_THEME = "catppuccin-mocha-blue-standard+default"
+_G.GTK_THEME = "adw-gtk3-dark"
 _G.COLORS = _G.COLORS or {
 	primary = "#89b4fa",
 	outline = "#6c7086",

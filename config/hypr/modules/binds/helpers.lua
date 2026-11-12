@@ -12,7 +12,7 @@ local mainMod = "SUPER"
 ---@field alt? boolean          Include ALT
 ---@field action? Dispatcher    Hyprland dispatcher or function
 ---@field cmd? string           Shell command (wrapped in hl.dsp.exec_cmd)
----@field dms? string           DMS IPC call (wrapped in `dms ipc call`)
+---@field qs? string            qsctl call (wrapped in `qsctl <qs>`)
 ---@field description? string   Description
 ---@field mouse? boolean        Mouse bind
 ---@field repeating? boolean    Repeat while held
@@ -83,8 +83,8 @@ end
 ---@param b Bind
 ---@return Dispatcher
 local function resolve_action(b)
-	if b.dms then
-		return hl.dsp.exec_cmd("dms ipc call " .. b.dms)
+	if b.qs then
+		return hl.dsp.exec_cmd("qsctl " .. b.qs)
 	elseif b.cmd then
 		return hl.dsp.exec_cmd(b.cmd)
 	end

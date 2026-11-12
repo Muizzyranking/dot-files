@@ -33,8 +33,8 @@ local binds = {
 	{ "C", shift = true, action = hl.dsp.window.center(), description = "Window: Center" },
 
 	-- Workspace navigation
-	{ "mouse_up", action = hl.dsp.focus({ workspace = "e-1" }), description = "Workspace: Next (scroll)" },
-	{ "mouse_down", action = hl.dsp.focus({ workspace = "e+1" }), description = "Workspace: Previous (scroll)" },
+	{ "mouse_up", action = hl.dsp.focus({ workspace = "e-1" }), description = "Workspace: Previous (scroll)" },
+	{ "mouse_down", action = hl.dsp.focus({ workspace = "e+1" }), description = "Workspace: Next (scroll)" },
 	{ "Page_Up", action = hl.dsp.focus({ workspace = "e-1" }), description = "Workspace: Previous" },
 	{ "Page_Down", action = hl.dsp.focus({ workspace = "e+1" }), description = "Workspace: Next" },
 	{ "U", action = hl.dsp.focus({ workspace = "e-1" }), description = "Workspace: Previous" },
@@ -95,34 +95,31 @@ local binds = {
 	},
 
 	-- Screenshots
-	{ "Print", mod = false, cmd = "dms screenshot", description = "Screenshot: Region" },
-	{ "Print", mod = false, ctrl = true, cmd = "dms screenshot full", description = "Screenshot: Full screen" },
-	{ "Print", mod = false, alt = true, cmd = "dms screenshot window", description = "Screenshot: Window" },
+	{ "Print", mod = false, qs = "capture screenshot region", description = "Screenshot: Region" },
+	{ "Print", mod = false, ctrl = true, qs = "capture screenshot screen", description = "Screenshot: Full screen" },
+	{ "Print", mod = false, alt = true, qs = "capture screenshot annotate", description = "Screenshot: annotate" },
 
-	-- DMS IPC
-	{ "DELETE", dms = "powermenu toggle", description = "DMS: Power menu" },
-	{ "SPACE", dms = "spotlight toggle", description = "DMS: Spotlight" },
-	{ "SPACE", mod = false, alt = true, dms = "spotlight-bar toggle", description = "DMS: Spotlight bar" },
-	{ "V", dms = "clipboard toggle", description = "DMS: Clipboard history" },
-	{ "M", dms = "processlist focusOrToggle", description = "DMS: Process list" },
-	{ "comma", dms = "settings focusOrToggle", description = "DMS: Settings" },
-	{ "N", dms = "notifications toggle", description = "DMS: Notifications" },
-	{ "N", shift = true, dms = "notepad toggle", description = "DMS: Notepad" },
-	{ "L", alt = true, dms = "lock lock", description = "DMS: Lock screen" },
+	-- Shell
+	{ "SPACE", qs = "launcher toggle", description = "Shell: Launcher" },
+	{ "V", qs = "clipboard toggle", description = "Shell: Clipboard history" },
+	{ "M", qs = "panel toggle vitals", description = "Shell: Process list" },
+	{ "N", qs = "notifications toggle", description = "Shell: Notifications" },
+	-- { "N", shift = true, qs = "panel toggle notepad", description = "Shell: Notepad" },
+	{ "L", alt = true, qs = "lock lock", description = "Shell: Lock screen" },
 	{
 		"Delete",
 		mod = false,
 		ctrl = true,
 		alt = true,
-		dms = "processlist focusOrToggle",
-		description = "DMS: Process list",
+		qs = "panel toggle processes",
+		description = "Shell: Process list",
 	},
 
 	-- Volume
 	{
 		"XF86AudioRaiseVolume",
 		mod = false,
-		dms = "audio increment 3",
+		qs = "volume up",
 		locked = true,
 		repeating = true,
 		description = "Audio: Volume up",
@@ -130,30 +127,24 @@ local binds = {
 	{
 		"XF86AudioLowerVolume",
 		mod = false,
-		dms = "audio decrement 3",
+		qs = "volume down",
 		locked = true,
 		repeating = true,
 		description = "Audio: Volume down",
 	},
-	{ "XF86AudioMute", mod = false, dms = "audio mute", locked = true, description = "Audio: Mute" },
-	{ "XF86AudioMicMute", mod = false, dms = "audio micmute", locked = true, description = "Audio: Mute" },
+	{ "XF86AudioMute", mod = false, qs = "volume mute", locked = true, description = "Audio: Mute" },
+	{ "XF86AudioMicMute", mod = false, qs = "volume micMute", locked = true, description = "Audio: Mic mute" },
 
 	-- Media
-	{
-		"XF86AudioPlay",
-		mod = false,
-		cmd = "playerctl play-pause",
-		locked = true,
-		description = "Media: Play/pause",
-	},
-	{ "XF86AudioPrev", mod = false, cmd = "playerctl previous", locked = true, description = "Media: Previous" },
-	{ "XF86AudioNext", mod = false, cmd = "playerctl next", locked = true, description = "Media: Next" },
+	{ "XF86AudioPlay", mod = false, qs = "media playPause", locked = true, description = "Media: Play/pause" },
+	{ "XF86AudioPrev", mod = false, qs = "media previous", locked = true, description = "Media: Previous" },
+	{ "XF86AudioNext", mod = false, qs = "media next", locked = true, description = "Media: Next" },
 
 	-- Brightness
 	{
 		"XF86MonBrightnessUp",
 		mod = false,
-		dms = 'brightness increment 5 ""',
+		qs = "brightness up",
 		locked = true,
 		repeating = true,
 		description = "Brightness: Up",
@@ -161,7 +152,7 @@ local binds = {
 	{
 		"XF86MonBrightnessDown",
 		mod = false,
-		dms = 'brightness decrement 5 ""',
+		qs = "brightness down",
 		locked = true,
 		repeating = true,
 		description = "Brightness: Down",
