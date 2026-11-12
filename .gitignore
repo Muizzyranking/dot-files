@@ -6,7 +6,9 @@ config/gtk-3.0/gtk.css
 config/gtk-4.0/colors.css
 config/gtk-4.0/gtk.css
 config/cava/shaders
-config/hypr/.initial_startup_done
 config/nvim/lua/utils/misc
-/config/hypr/dms
-/local/custom-apps/applications/mimeinfo.cache
+mimeinfo.cache
+/config/hypr/colors.lua
+/config/nvim/colors.lua
+/config/kitty/themes/colors.conf
+/config/tmux/themes/colors.conf
