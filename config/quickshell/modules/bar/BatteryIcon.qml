@@ -11,9 +11,9 @@ Item {
     signal clicked()
     readonly property int pct: Battery.percent
     readonly property bool low: pct <= Config.v.battery.low
-    readonly property color tone: pct <= low ? Theme.bad
+    readonly property color textTone: Theme.text 
+    readonly property color tone: low ? Theme.bad
                                 : pct <= Config.v.battery.medium ? Theme.warn : Theme.good
-    readonly property color textTone: low ? Theme.text : Theme.accentText
     implicitWidth: row.implicitWidth
     implicitHeight: row.implicitHeight
 
@@ -25,7 +25,7 @@ Item {
             implicitWidth: Theme.px(38)
             implicitHeight: Theme.px(18)
             radius: Theme.px(6)
-            color: "transparent"
+            color: Qt.rgba(0, 0, 0, 0.45)  
             border.width: 2
             border.color: root.tone
             Rectangle {

@@ -239,7 +239,7 @@
     "timeFormat": "h:mm",
     "dateFormat": "dddd, d MMMM",
     "showMedia": true,
-    "clockStyle": "inline",
+    "clockStyle": "stacked",
     "clockSize": 130,
     "clockColor": "accent",
     "hourFormat": "HH",
@@ -262,7 +262,7 @@
     "targets": [
       {
         "template": "kitty.conf",
-        "out": "~/.config/kitty/shell-theme.conf",
+        "out": "~/.config/kitty/themes/colors.conf",
         "reload": "pkill -USR1 -x kitty"
       },
       {
