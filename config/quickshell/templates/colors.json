@@ -1,0 +1,21 @@
+{
+  "name": "{{name}}",
+  "mode": "{{mode}}",
+  "bg": "{{bg}}",
+  "panel": "{{panel}}",
+  "surface": "{{surface}}",
+  "surfaceHi": "{{surfaceHi}}",
+  "island": "{{island}}",
+  "fg": "{{fg}}",
+  "fgDim": "{{fgDim}}",
+  "fgFaint": "{{fgFaint}}",
+  "accent": "{{accent}}",
+  "onAccent": "{{onAccent}}",
+  "good": "{{good}}",
+  "warn": "{{warn}}",
+  "warm": "{{warm}}",
+  "bad": "{{bad}}",
+  "info": "{{info}}",
+  "magenta": "{{magenta}}",
+  "cyan": "{{cyan}}"
+}
