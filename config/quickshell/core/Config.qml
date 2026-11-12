@@ -22,10 +22,15 @@ Singleton {
         launcher: { columns: 7, iconSize: 64, cellWidth: 150, cellHeight: 120, dim: 0.9 },
         lock: { pamConfig: "login", wallpaper: "", blur: 0.7, dim: 0.35, timeFormat: "h:mm", dateFormat: "dddd, d MMMM", showMedia: true,
                 clockStyle: "stacked", clockSize: 130, clockColor: "accent", hourFormat: "HH", minuteFormat: "mm", restoreOnStart: true },
-        theming: { enabled: false, targets: [] },
+        theming: {
+            enabled: false, targets: [],
+            system: { enabled: false, gtkTheme: "adw-gtk3", gtkThemeDark: "adw-gtk3-dark", icons: "Reversal-blue-dark", cursor: "auto", cursorSize: 24, font: "", qt: false, cleanGtk: true }
+        },
+        panels: { gap: 6, border: 1, borderOpacity: 0.12, borderColor: "text" },
+        workspaces: { attention: true, attentionColor: "warm" },
         profile: { name: "", avatar: "" },
         session: { lock: "" },
-        bar: { marginX: 0, marginY: 0 },
+        bar: { marginX: 0, marginY: 0, border: 0, borderOpacity: 0.1 },
         monitors: { include: [], exclude: [], primary: "", tray: "all" },
         toasts: { monitor: "focused" },
         island: { flare: 8 },
@@ -60,7 +65,13 @@ Singleton {
         if (c.island === undefined) c.island = c.barBg
         if (c.onIsland === undefined) c.onIsland = c.text
         if (c.warm === undefined) c.warm = c.warn
+        c.blue = c.blue ?? c.info
+        c.cyan = c.cyan ?? c.info
+        c.purple = c.purple ?? c.accent
+        c.magenta = c.magenta ?? c.purple
+        c.foam = c.foam ?? c.cyan
         o.colors = c
+        o.paletteSystem = palette.system || {}
         return o
     }
 

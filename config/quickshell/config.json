@@ -1,6 +1,6 @@
 {
-  "palette": "catppuccin-mocha",
-  "scale": 1.0,
+  "palette": "rose-pine",
+  "scale": 1,
   "font": {
     "family": "JetBrainsMono Nerd Font",
     "iconFamily": "Material Symbols Rounded",
@@ -11,6 +11,8 @@
   },
   "bar": {
     "height": 35,
+    "border": 1,
+    "borderOpacity": 0.1,
     "opacity": 0.7,
     "radius": 15,
     "marginX": 5,
@@ -21,7 +23,7 @@
       "height": 26,
       "padding": 10,
       "spacing": 10,
-      "opacity": 1.0,
+      "opacity": 1,
       "border": 1
     }
   },
@@ -30,10 +32,16 @@
   },
   "workspaces": {
     "label": "name",
+    "attention": true,
+    "attentionColor": "warn",
     "activeExtra": 20
   },
   "panels": {
     "width": 320,
+    "gap": 0,
+    "border": 2,
+    "borderOpacity": 0.6,
+    "borderColor": "accent",
     "vitalsWidth": 500,
     "maxHeight": 740,
     "radius": 22,
@@ -144,7 +152,7 @@
     "notification": "/usr/share/sounds/freedesktop/stereo/message-new-instant.oga"
   },
   "modules": {
-    "idleInhibitor": true
+    "idleInhibitor": false
   },
   "notifications": {
     "dnd": false,
@@ -165,8 +173,8 @@
     "excludeTitles": []
   },
   "audio": {
-    "maxVolume": 2.0,
-    "maxInput": 1.0,
+    "maxVolume": 2,
+    "maxInput": 1,
     "step": 0.5
   },
   "session": {
@@ -193,17 +201,17 @@
   },
   "wallpaper": {
     "enabled": true,
-    "dir": "~/Pictures/Wallpapers",
+    "dir": "~/Pictures/images/Wallpapers",
     "default": "",
-    "fit": "crop",
+    "fit": "fit",
     "transitionMs": 700,
     "intervalMin": 0,
     "random": false
   },
   "widgets": {
     "clock": {
-      "enabled": true,
-      "position": "bottom-left",
+      "enabled": false,
+      "position": "center",
       "margin": 56,
       "timeFormat": "h:mm",
       "dateFormat": "dddd, d MMMM",
@@ -225,7 +233,7 @@
   },
   "lock": {
     "pamConfig": "login",
-    "wallpaper": "",
+    "wallpaper": "~/Pictures/images/Wallpapers/early-snow-art.jpg",
     "blur": 0.7,
     "dim": 0.35,
     "timeFormat": "h:mm",
@@ -240,6 +248,17 @@
   },
   "theming": {
     "enabled": true,
+    "system": {
+      "enabled": false,
+      "gtkTheme": "adw-gtk3",
+      "gtkThemeDark": "adw-gtk3-dark",
+      "icons": "Reversal-blue-dark",
+      "cursor": "catppuccin-mocha-blue-cursors",
+      "cursorSize": 24,
+      "font": "JetBrainsMono Nerd Font 11",
+      "qt": false,
+      "cleanGtk": true
+    },
     "targets": [
       {
         "template": "kitty.conf",
@@ -285,6 +304,11 @@
         "template": "oh-my-posh.json",
         "out": "~/.config/oh-my-posh/colors.json",
         "reload": "~/.local/bin/omp-reload"
+      },
+      {
+        "template": "firefox-chrome.css",
+        "out": "~/.mozilla/firefox/*.default*/chrome/userChrome.css",
+        "reload": ""
       }
     ]
   },
