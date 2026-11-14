@@ -11,7 +11,6 @@ local cmds = {
 	"udiskie &",
 	"systemctl --user start hypridle.service",
 	"systemctl --user start quickshell.service",
-	Scripts .. "/theme/init.sh",
 }
 
 hl.on("hyprland.start", function()
