@@ -5,21 +5,28 @@ import QtQuick
 import qs.core
 
 // Palettes and exporting them to other apps.
-//  - palettes: list of palettes (name + preview colours) for the control center picker
-//  - apply(): when theming.enabled, renders templates/* into the paths in theming.targets
-//    and runs each target's reload command. Also runs extras/theme.sh (GTK, cursor,
-//    Qt) when theming.system.enabled.
+//  - palettes: list of palettes (name, preview colours, file defaults) for the pickers
+//  - Switching palette also switches the wallpaper (wallpaper.followPalette) and, through
+//    theming.system, the cursor, when the palette (or config.json "palettes") names them.
+//  - apply(): when theming.enabled, renders templates/* into the paths in theming.targets and
+//    runs a target's reload command ONLY if its file really changed. Also runs
+//    extras/system-theme.sh (GTK, cursor, Qt) when theming.system.enabled.
+//  - Changes are coalesced (several quick switches become one apply), and everything runs at
+//    low priority so the desktop does not stall.
 //  - At start, target files that do not exist yet are created.
-//  - A target that is a symlink is replaced by a real file, so a downloaded theme is
-//    never modified. A target path may contain * (for example a Firefox profile folder).
+//  - A target that is a symlink is replaced by a real file. A target path may contain *.
 Singleton {
     id: root
     property var palettes: []
     readonly property var names: palettes.map(p => p.name)
     readonly property string current: Config.v.palette ?? ""
-    property string lastSig: ""
+    property string lastPalette: ""
+    property string lastWall: ""
+    property string lastColors: ""
+    property string lastSys: ""
     property bool ready: false
 
+    function expand(p) { return String(p || "").replace(/^~/, Quickshell.env("HOME")) }
     function set(name) {
         if (!/^[A-Za-z0-9_-]+$/.test(name)) return
         write.command = ["sh", "-c",
@@ -62,7 +69,6 @@ Singleton {
             diffAdd: mix(c.barBg, c.good, 0.22), diffChange: mix(c.barBg, c.blue, 0.2),
             diffDelete: mix(c.barBg, c.bad, 0.22), diffText: mix(c.barBg, c.blue, 0.38)
         }
-        // a colour far from the accent, so "active" and "inactive" never look alike
         let best = c.info, bd = -1
         for (const cand of [c.info, c.magenta, c.cyan, c.good, c.blue, c.purple]) {
             const d = hueDist(c.accent, cand)
@@ -72,19 +78,23 @@ Singleton {
         return { map: m, mode: dark ? "dark" : "light" }
     }
 
+    // One target. The file is only written (and its app reloaded) when the new content differs.
     function targetScript(tg, expr, missingOnly, home, reload) {
         const tpl = q(Quickshell.shellPath("templates/" + tg.template))
         const out = tg.out.replace(/^~/, home)
         const segs = out.split("/")
         const gi = segs.findIndex(s => s.indexOf("*") >= 0)
-        const write = o => "mkdir -p \"$(dirname " + o + ")\" && sed -e " + q(expr) + " " + tpl + " > " + o
-        let body
-        if (gi < 0) body = "o=" + q(out) + "\n"
-        else body = "for b in " + segs.slice(0, gi + 1).join("/") + "; do [ -d \"$b\" ] || continue\no=\"$b\"/" + q(segs.slice(gi + 1).join("/")) + "\n"
-        body += missingOnly ? "[ -e \"$o\" ] || { " + write("\"$o\"") + "; }\n"
-                            : "[ -L \"$o\" ] && rm -f \"$o\"\n" + write("\"$o\"") + "\n"
+        let body = "chg=0\n"
+        if (gi < 0) body += "o=" + q(out) + "\n"
+        else body += "for b in " + segs.slice(0, gi + 1).join("/") + "; do [ -d \"$b\" ] || continue\no=\"$b\"/" + q(segs.slice(gi + 1).join("/")) + "\n"
+        if (missingOnly)
+            body += "[ -e \"$o\" ] || { mkdir -p \"$(dirname \"$o\")\" && sed -e " + q(expr) + " " + tpl + " > \"$o\"; }\n"
+        else
+            body += "t=$(mktemp) && sed -e " + q(expr) + " " + tpl + " > \"$t\" && { " +
+                "if [ -f \"$o\" ] && [ ! -L \"$o\" ] && cmp -s \"$t\" \"$o\"; then :; " +
+                "else [ -L \"$o\" ] && rm -f \"$o\"; mkdir -p \"$(dirname \"$o\")\" && cat \"$t\" > \"$o\"; chg=1; fi; }; rm -f \"$t\"\n"
         if (gi >= 0) body += "done\n"
-        if (!missingOnly && reload) body += reload + " >/dev/null 2>&1 || true\n"
+        if (!missingOnly && reload) body += "[ \"$chg\" = 1 ] && { " + reload + "; } >/dev/null 2>&1\n"
         return body
     }
 
@@ -101,12 +111,12 @@ Singleton {
         const expr = parts.join(";")
         let sh = ""
         for (const tg of Config.v.theming.targets)
-            sh += targetScript(tg, expr, missingOnly, home, tg.reload ? tg.reload.replace(/\{\{mode\}\}/g, t.mode) : "")
-        if (sh !== "") { render.command = ["sh", "-c", sh]; render.running = true }
-        applySystem()
+            sh += targetScript(tg, expr, missingOnly, home, tg.reload ? tg.reload.replace(/\{\{mode\}\}/g, t.mode).replace(/\{\{gtk\}\}/g, t.mode === "dark" ? Config.v.theming.system.gtkThemeDark : Config.v.theming.system.gtkTheme) : "")
+        if (sh !== "") { render.command = ["nice", "-n", "10", "sh", "-c", sh]; render.running = true }
+        if (!missingOnly) applySystem()
     }
 
-    // GTK settings, GTK/Qt preferences and the cursor (extras/theme.sh)
+    // GTK settings, GTK/Qt preferences and the cursor (extras/system-theme.sh)
     function applySystem() {
         const s = Config.v.theming.system
         if (!s.enabled) return
@@ -123,22 +133,41 @@ Singleton {
             "SHELL_GTK_CLEAN": s.cleanGtk ? "1" : "",
             "SHELL_QT_COLORS": Quickshell.env("HOME") + "/.config/qt6ct/colors/shell.conf"
         }
-        sys.command = ["sh", Quickshell.shellPath("extras/theme.sh")]
+        sys.command = ["nice", "-n", "10", "sh", Quickshell.shellPath("extras/system-theme.sh")]
         sys.running = true
+    }
+
+    function snapshot() {
+        lastPalette = Config.v.palette ?? ""
+        lastWall = expand(Config.v.paletteSystem.wallpaper)
+        lastColors = JSON.stringify(Config.v.colors)
+        lastSys = JSON.stringify(Config.v.paletteSystem)
     }
 
     Connections {
         target: Config
         function onVChanged() {
-            const sig = JSON.stringify([Config.v.colors, Config.v.paletteSystem])
-            if (!root.ready) { root.lastSig = sig; return }
-            if (sig !== root.lastSig) { root.lastSig = sig; if (Config.v.theming.enabled) root.apply(false) }
+            if (!root.ready) return
+            const pal = Config.v.palette ?? ""
+            const wall = root.expand(Config.v.paletteSystem.wallpaper)
+            const colors = JSON.stringify(Config.v.colors)
+            const sys = JSON.stringify(Config.v.paletteSystem)
+            // the wallpaper follows the palette (an empty entry leaves the wallpaper alone)
+            if (Config.v.wallpaper.followPalette !== false && wall !== "" && (pal !== root.lastPalette || wall !== root.lastWall))
+                Wallpaper.set(wall)
+            const colorsChanged = colors !== root.lastColors, sysChanged = sys !== root.lastSys
+            root.lastPalette = pal; root.lastWall = wall; root.lastColors = colors; root.lastSys = sys
+            if (!Config.v.theming.enabled) return
+            if (colorsChanged) applyT.restart()
+            else if (sysChanged) sysT.restart()
         }
     }
+    Timer { id: applyT; interval: 600; onTriggered: root.apply(false) }
+    Timer { id: sysT; interval: 600; onTriggered: root.applySystem() }
     Timer {
         running: true; interval: 2500
         onTriggered: {
-            root.lastSig = JSON.stringify([Config.v.colors, Config.v.paletteSystem])
+            root.snapshot()
             root.ready = true
             if (Config.v.theming.enabled) { root.apply(true); root.applySystem() }
         }
@@ -147,14 +176,14 @@ Singleton {
     Process {
         command: ["sh", "-c",
             'for f in "$1"/*.json; do [ -f "$f" ] || continue; n=$(basename "$f" .json); ' +
-            'g() { sed -n "s/.*\\"$1\\": *\\"\\(#[^\\"]*\\)\\".*/\\1/p" "$f" | head -1; }; ' +
-            'echo "$n $(g accent) $(g barBg) $(g text)"; done',
+            'g() { sed -n "s/.*\\"$1\\": *\\"\\([^\\"]*\\)\\".*/\\1/p" "$f" | head -1; }; ' +
+            'printf "%s\\t%s\\t%s\\t%s\\t%s\\t%s\\n" "$n" "$(g accent)" "$(g barBg)" "$(g text)" "$(g cursor)" "$(g wallpaper)"; done',
             "_", Quickshell.shellPath("palettes")]
         running: true
         stdout: StdioCollector {
             onStreamFinished: root.palettes = text.split("\n").filter(l => l.trim() !== "").map(l => {
-                const p = l.trim().split(/\s+/)
-                return { name: p[0], accent: p[1] || "#888888", bg: p[2] || "#222222", text: p[3] || "#dddddd" }
+                const p = l.split("\t")
+                return { name: p[0], accent: p[1] || "#888888", bg: p[2] || "#222222", text: p[3] || "#dddddd", cursor: p[4] || "", wallpaper: p[5] || "" }
             })
         }
     }
