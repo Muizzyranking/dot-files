@@ -20,14 +20,16 @@ Singleton {
     // Defaults for sections added in later versions, so an older config.json keeps working
     readonly property var fallback: ({
         launcher: { columns: 7, iconSize: 64, cellWidth: 150, cellHeight: 120, dim: 0.9 },
-        lock: { pamConfig: "login", wallpaper: "", blur: 0.7, dim: 0.35, timeFormat: "h:mm", dateFormat: "dddd, d MMMM", showMedia: true,
-                clockStyle: "stacked", clockSize: 130, clockColor: "accent", hourFormat: "HH", minuteFormat: "mm", restoreOnStart: true },
+        lock: { pamConfig: "login", wallpaper: "", blur: 0.7, dim: 0.35, timeFormat: "HH:mm", dateFormat: "dddd, d MMMM", showMedia: true,
+                clockSize: 130, clockColor: "accent", restoreOnStart: true },
         theming: {
             enabled: false, targets: [],
-            system: { enabled: false, gtkTheme: "adw-gtk3", gtkThemeDark: "adw-gtk3-dark", icons: "Reversal-blue-dark", cursor: "auto", cursorSize: 24, font: "", qt: false, cleanGtk: true }
+            system: { enabled: false, gtkTheme: "adw-gtk3", gtkThemeDark: "adw-gtk3-dark", icons: "", cursor: "auto", cursorSize: 24, font: "", qt: false, cleanGtk: true }
         },
         panels: { gap: 6, border: 1, borderOpacity: 0.12, borderColor: "text" },
         workspaces: { attention: true, attentionColor: "warm" },
+        wallpaper: { followPalette: true },
+        palettes: {},
         profile: { name: "", avatar: "" },
         session: { lock: "" },
         bar: { marginX: 0, marginY: 0, border: 0, borderOpacity: 0.1 },
@@ -65,13 +67,19 @@ Singleton {
         if (c.island === undefined) c.island = c.barBg
         if (c.onIsland === undefined) c.onIsland = c.text
         if (c.warm === undefined) c.warm = c.warn
+        // extra names some templates use; derived when a palette does not define them
         c.blue = c.blue ?? c.info
         c.cyan = c.cyan ?? c.info
         c.purple = c.purple ?? c.accent
         c.magenta = c.magenta ?? c.purple
         c.foam = c.foam ?? c.cyan
         o.colors = c
-        o.paletteSystem = palette.system || {}
+        // wallpaper and cursor for the active palette: the palette file's "system" block, overridden
+        // by config.json "palettes.<name>" (empty entries never override, they mean "leave unchanged")
+        const ps = Object.assign({}, palette.system || {})
+        const over = raw.palettes && raw.palettes[paletteName] ? raw.palettes[paletteName] : {}
+        for (const k in over) if (over[k] !== "" && over[k] !== undefined) ps[k] = over[k]
+        o.paletteSystem = ps
         return o
     }
 

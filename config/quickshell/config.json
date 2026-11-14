@@ -1,9 +1,9 @@
 {
-  "palette": "rose-pine",
+  "palette": "catppuccin-mocha",
   "scale": 1,
   "font": {
     "family": "JetBrainsMono Nerd Font",
-    "iconFamily": "Material Symbols Rounded",
+    "iconFamily": "Material Symbols Outlined",
     "size": 12,
     "iconSize": 16,
     "iconFill": 0,
@@ -14,7 +14,7 @@
     "border": 1,
     "borderOpacity": 0.1,
     "opacity": 0.7,
-    "radius": 15,
+    "radius": 5,
     "marginX": 5,
     "marginY": 0,
     "outerPadding": 5,
@@ -33,18 +33,18 @@
   "workspaces": {
     "label": "name",
     "attention": true,
-    "attentionColor": "warn",
+    "attentionColor": "bad",
     "activeExtra": 20
   },
   "panels": {
     "width": 320,
     "gap": 0,
-    "border": 2,
-    "borderOpacity": 0.6,
+    "border": 1,
+    "borderOpacity": 1,
     "borderColor": "accent",
     "vitalsWidth": 500,
     "maxHeight": 740,
-    "radius": 22,
+    "radius": 5,
     "opacity": 1,
     "padding": 14,
     "openMs": 220,
@@ -55,13 +55,13 @@
   "island": {
     "idleWidth": 150,
     "idleHeight": 25,
-    "bottomRadius": 15,
+    "bottomRadius": 10,
     "toastWidth": 350,
     "toastHeight": 35,
     "toastFullWidth": 400,
     "musicFullWidth": 380,
     "musicFullHeight": 150,
-    "expandedRadius": 26,
+    "expandedRadius": 10,
     "morphMs": 320,
     "scrollSpeed": 22,
     "color": "island",
@@ -143,7 +143,7 @@
   },
   "sounds": {
     "enabled": true,
-    "volume": 1,
+    "volume": 2,
     "chargerPlug": "/usr/share/sounds/freedesktop/stereo/power-plug.oga",
     "chargerUnplug": "/usr/share/sounds/freedesktop/stereo/power-unplug.oga",
     "usbAdd": "/usr/share/sounds/freedesktop/stereo/device-added.oga",
@@ -206,7 +206,8 @@
     "fit": "fit",
     "transitionMs": 700,
     "intervalMin": 0,
-    "random": false
+    "random": false,
+    "followPalette": true
   },
   "widgets": {
     "clock": {
@@ -236,14 +237,11 @@
     "wallpaper": "~/Pictures/images/Wallpapers/early-snow-art.jpg",
     "blur": 0.7,
     "dim": 0.35,
-    "timeFormat": "h:mm",
+    "timeFormat": "hh:mm AP",
     "dateFormat": "dddd, d MMMM",
     "showMedia": true,
-    "clockStyle": "stacked",
     "clockSize": 130,
     "clockColor": "accent",
-    "hourFormat": "HH",
-    "minuteFormat": "mm",
     "restoreOnStart": true
   },
   "theming": {
@@ -253,7 +251,7 @@
       "gtkTheme": "adw-gtk3",
       "gtkThemeDark": "adw-gtk3-dark",
       "icons": "Reversal-blue-dark",
-      "cursor": "catppuccin-mocha-blue-cursors",
+      "cursor": "everforest-cursors",
       "cursorSize": 24,
       "font": "JetBrainsMono Nerd Font 11",
       "qt": false,
@@ -273,7 +271,7 @@
       {
         "template": "gtk.css",
         "out": "~/.config/gtk-4.0/shell-colors.css",
-        "reload": "gsettings set org.gnome.desktop.interface color-scheme prefer-{{mode}}; gsettings set org.gnome.desktop.interface gtk-theme {{gtk}}"
+        "reload": ""
       },
       {
         "template": "qt6ct.conf",
@@ -318,5 +316,14 @@
     "primary": "",
     "tray": "all"
   },
-  "colors": {}
+  "colors": {},
+  "palettes": {
+    "everforest-dark": {
+      "cursor": "everforest-cursors",
+      "wallpaper": "~/Pictures/images/Wallpapers/tropic_island_night.jpg"
+    },
+    "catppuccin-mocha": {
+      "wallpaper": "~/Pictures/images/Wallpapers/sushi.jpg"
+    }
+  }
 }
