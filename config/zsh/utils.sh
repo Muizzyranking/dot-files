@@ -83,6 +83,7 @@ confirm() {
 # Standard interrupt message for long/interactive scripts.
 trap_interrupt() {
     trap 'echo; print_message info "Script interrupted..."' INT TERM
+    exit 1
 }
 
 # Returns 0 if <cmd> exists in PATH, 1 otherwise.

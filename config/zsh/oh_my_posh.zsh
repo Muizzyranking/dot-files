@@ -2,6 +2,7 @@
 
 : ${OMP_CACHE:="$HOME/.cache/oh-my-posh-init.zsh"}
 : ${OMP_CONFIG:="$HOME/.config/oh-my-posh/config.omp.json"}
+: ${OMP_SHELLS:="${XDG_RUNTIME_DIR:-/tmp}/omp-shells"}
 
 _omp_check_installed() {
     if ! command -v oh-my-posh >/dev/null 2>&1; then
@@ -30,6 +31,27 @@ _omp_generate() {
     oh-my-posh init zsh --config "$OMP_CONFIG" >"$OMP_CACHE" 2>/dev/null
 }
 
+# Register this shell and redraw the prompt on USR1 (sent by omp-reload)
+_omp_live_reload_setup() {
+    [[ -o interactive ]] || return 0
+
+    mkdir -p "$OMP_SHELLS"
+    : >"$OMP_SHELLS/$$"
+
+    autoload -Uz add-zsh-hook
+    _omp_unregister() { rm -f "$OMP_SHELLS/$$" }
+    add-zsh-hook zshexit _omp_unregister
+
+    # Rebuild the prompt string with the new colors, then redraw.
+    # Must return 0: a non-zero trap return aborts the interrupted code.
+    TRAPUSR1() {
+        [[ -s "$OMP_CACHE" ]] && source "$OMP_CACHE"
+        (( $+functions[_omp_precmd] )) && _omp_precmd
+        zle && zle reset-prompt
+        return 0
+    }
+}
+
 omp_init() {
     _omp_check_installed || return 1
     local omp_bin
@@ -47,6 +69,8 @@ omp_init() {
         _omp_generate
         source "$OMP_CACHE"
     fi
+
+    _omp_live_reload_setup
 }
 
 omp_reload() {
