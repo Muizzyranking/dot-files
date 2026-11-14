@@ -11,7 +11,6 @@ Item {
     signal clicked()
     readonly property int pct: Battery.percent
     readonly property bool low: pct <= Config.v.battery.low
-    readonly property color textTone: Theme.text 
     readonly property color tone: low ? Theme.bad
                                 : pct <= Config.v.battery.medium ? Theme.warn : Theme.good
     implicitWidth: row.implicitWidth
@@ -20,15 +19,28 @@ Item {
     RowLayout {
         id: row
         spacing: 1
+
         Rectangle {
             id: body
             implicitWidth: Theme.px(38)
             implicitHeight: Theme.px(18)
             radius: Theme.px(6)
-            color: Qt.rgba(0, 0, 0, 0.45)  
+            color: Qt.rgba(0, 0, 0, 0.45)
             border.width: 2
             border.color: root.tone
+
+            // Light label over the whole track.
+            Row {
+                id: lightRow
+                anchors.centerIn: parent
+                spacing: 0
+                Icon { visible: Battery.plugged; name: "bolt"; size: Theme.px(11); color: Theme.text }
+                Label { text: root.pct; color: Theme.text; font.pixelSize: Theme.fontSize - 2; font.weight: Font.DemiBold }
+            }
+
+            // Opaque fill, drawn over the light label.
             Rectangle {
+                id: fill
                 x: 2; y: 2
                 height: body.height - 4
                 width: Math.max(0, (body.width - 4) * root.pct / 100)
@@ -36,14 +48,27 @@ Item {
                 color: root.tone
                 Behavior on width { NumberAnimation { duration: Config.v.animation.normal } }
             }
-            RowLayout {
-                anchors.centerIn: parent
-                spacing: 0
-                Icon { visible: Battery.plugged; name: "bolt"; size: Theme.px(11); color: root.textTone }
-                Label { text: root.pct; color: root.textTone; font.pixelSize: Theme.fontSize - 2; font.weight: Font.DemiBold }
+
+            // Dark label, clipped to the fill, so it only shows where the fill is.
+            Item {
+                x: fill.x
+                y: fill.y
+                width: fill.width
+                height: fill.height
+                clip: true
+
+                Row {
+                    x: (body.width - width) / 2 - fill.x
+                    y: (body.height - height) / 2 - fill.y
+                    spacing: 0
+                    Icon { visible: Battery.plugged; name: "bolt"; size: Theme.px(11); color: Theme.accentText }
+                    Label { text: root.pct; color: Theme.accentText; font.pixelSize: Theme.fontSize - 2; font.weight: Font.DemiBold }
+                }
             }
         }
+
         Rectangle { implicitWidth: Theme.px(3); implicitHeight: Theme.px(7); radius: 1.5; color: root.tone }
     }
+
     MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.clicked() }
 }
