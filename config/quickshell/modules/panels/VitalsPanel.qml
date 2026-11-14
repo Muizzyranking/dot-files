@@ -15,6 +15,7 @@ ColumnLayout {
     property int tab: 0                 // 0 memory, 1 cpu, 2 swap, 3 disk
     readonly property bool listTab: tab < 2
     property var rows: []
+    property bool desc: true          // highest first; the arrow button flips it
     property string armedPid: ""
     property var termed: ({})
 
@@ -30,7 +31,8 @@ ColumnLayout {
         let r = SysStats.procs
         if (q) r = r.filter(p => p.name.toLowerCase().includes(q) || String(p.pid).includes(q))
         const key = tab === 0 ? "kb" : "cpu"
-        rows = r.slice().sort((a, b) => b[key] - a[key]).slice(0, 250)
+        const dir = desc ? 1 : -1
+        rows = r.slice().sort((a, b) => dir * (b[key] - a[key]) || dir * (b.kb - a.kb) || a.name.localeCompare(b.name)).slice(0, 250)
     }
     function pressKill(pid) {
         const k = String(pid)
@@ -96,6 +98,7 @@ ColumnLayout {
             spacing: Theme.px(10)
 
             Rectangle {
+                id: sum
                 Layout.fillWidth: true
                 implicitHeight: Theme.px(66)
                 radius: Theme.px(14)
@@ -107,9 +110,9 @@ ColumnLayout {
                     ColumnLayout {
                         spacing: 0
                         Label {
-                            text: Math.round(parent.parent.parent.pct) + "%"
+                            text: Math.round(sum.pct) + "%"
                             font.pixelSize: Theme.px(24); font.weight: Font.DemiBold
-                            color: Theme.vitalColor(parent.parent.parent.pct)
+                            color: Theme.vitalColor(sum.pct)
                         }
                         Label {
                             text: root.tab === 0 ? root.fmtKb(SysStats.memUsedKb) + " of " + root.fmtKb(SysStats.memTotalKb)
@@ -118,23 +121,43 @@ ColumnLayout {
                         }
                     }
                     Rectangle {
+                        id: track
                         Layout.fillWidth: true
                         implicitHeight: Theme.px(8); radius: height / 2; color: Theme.surfaceHi
                         Rectangle {
-                            width: parent.width * Math.min(1, parent.parent.parent.parent.pct / 100)
-                            height: parent.height; radius: parent.radius
-                            color: Theme.vitalColor(parent.parent.parent.parent.pct)
+                            width: track.width * Math.max(0, Math.min(1, sum.pct / 100))
+                            height: track.height; radius: track.radius
+                            color: Theme.vitalColor(sum.pct)
                             Behavior on width { NumberAnimation { duration: Config.v.animation.normal } }
                         }
                     }
                 }
             }
 
-            SearchField {
-                id: search
+            RowLayout {
                 Layout.fillWidth: true
-                placeholder: "Search processes or PID"
-                onTextChanged: root.refresh(true)
+                spacing: Theme.px(8)
+                SearchField {
+                    id: search
+                    Layout.fillWidth: true
+                    placeholder: "Search processes or PID"
+                    onTextChanged: root.refresh(true)
+                }
+                Rectangle {
+                    implicitHeight: Theme.px(32)
+                    implicitWidth: sortRow.implicitWidth + Theme.px(20)
+                    radius: Theme.px(10)
+                    color: sortHover.hovered ? Theme.surfaceHi : Theme.surface
+                    HoverHandler { id: sortHover }
+                    RowLayout {
+                        id: sortRow
+                        anchors.centerIn: parent
+                        spacing: Theme.px(4)
+                        Icon { name: root.desc ? "arrow_downward" : "arrow_upward"; size: Theme.px(15); color: Theme.accent }
+                        Label { text: root.desc ? "Highest" : "Lowest"; font.pixelSize: Theme.fontSize - 1 }
+                    }
+                    MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: { root.desc = !root.desc; root.refresh(true) } }
+                }
             }
 
             Item {
