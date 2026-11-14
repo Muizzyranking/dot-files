@@ -70,6 +70,7 @@ Singleton {
         onTriggered: df.running = true
     }
 
+    // processes
     function parsePs(t) {
         const rows = []
         for (const line of t.split("\n")) {
@@ -85,14 +86,20 @@ Singleton {
         let start = 0
         lines.forEach((l, i) => { if (l.startsWith("top -")) start = i })
         const cpuBy = {}
-        let rows = false
+        let iPid = 0, iCpu = 8, rows = false
         for (let i = start; i < lines.length; i++) {
             const l = lines[i].trim()
-            if (l.startsWith("PID")) { rows = true; continue }
+            if (l.startsWith("PID")) {
+                const names = l.split(/\s+/)
+                iPid = Math.max(0, names.indexOf("PID"))
+                iCpu = names.indexOf("%CPU")
+                rows = iCpu >= 0
+                continue
+            }
             if (!rows || !l) continue
             const f = l.split(/\s+/)
-            const v = parseFloat((f[8] || "").replace(",", "."))
-            if (!isNaN(v)) cpuBy[f[0]] = v / cores
+            const v = parseFloat((f[iCpu] || "").replace(",", "."))
+            if (!isNaN(v)) cpuBy[f[iPid]] = v / cores
         }
         procs = _psRows.map(p => ({ pid: p.pid, name: p.name, user: p.user, kb: p.kb, cpu: cpuBy[p.pid] || 0 }))
     }
