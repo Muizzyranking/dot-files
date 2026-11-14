@@ -1,15 +1,35 @@
 hl.config({
 	general = {
+		col = {
+			active_border = COLORS.primary,
+			inactive_border = COLORS.outline,
+		},
 		border_size = 1,
 		resize_on_border = true,
 		allow_tearing = false,
 		layout = "dwindle",
 		gaps_in = 4,
-		gaps_out = 4,
+		gaps_out = 6,
+	},
+	group = {
+		col = {
+			border_active = COLORS.primary,
+			border_inactive = COLORS.outline,
+			border_locked_active = COLORS.error,
+			border_locked_inactive = COLORS.outline,
+		},
+		groupbar = {
+			col = {
+				active = COLORS.primary,
+				inactive = COLORS.outline,
+				locked_active = COLORS.error,
+				locked_inactive = COLORS.outline,
+			},
+		},
 	},
 
 	decoration = {
-		rounding = 10,
+		rounding = 5,
 		active_opacity = 1,
 		inactive_opacity = 0.95,
 		shadow = {

@@ -8,7 +8,6 @@ local modules = {
 	"binds",
 	"rules",
 	"start",
-	"colors",
 }
 
 for _, mod in ipairs(modules) do
