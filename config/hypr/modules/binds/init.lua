@@ -104,16 +104,8 @@ local binds = {
 	{ "V", qs = "clipboard toggle", description = "Shell: Clipboard history" },
 	{ "M", qs = "panel toggle vitals", description = "Shell: Process list" },
 	{ "N", qs = "notifications toggle", description = "Shell: Notifications" },
-	-- { "N", shift = true, qs = "panel toggle notepad", description = "Shell: Notepad" },
+	{ "comma", qs = "settings toggle", description = "Shell: Settings" },
 	{ "L", alt = true, qs = "lock lock", description = "Shell: Lock screen" },
-	{
-		"Delete",
-		mod = false,
-		ctrl = true,
-		alt = true,
-		qs = "panel toggle processes",
-		description = "Shell: Process list",
-	},
 
 	-- Volume
 	{

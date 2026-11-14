@@ -160,4 +160,6 @@ hl.workspace_rule({ workspace = "8", default_name = "八", layout = "scrolling" 
 hl.workspace_rule({ workspace = "9", default_name = "九" })
 hl.workspace_rule({ workspace = "10", default_name = "十" })
 
-hl.layer_rule({ match = { namespace = "qs-bar" }, blur = true }):set_enabled(false)
+hl.layer_rule({ match = { namespace = "qs-bar" }, blur = true, ignore_alpha = 0.1 })
+hl.layer_rule({ match = { namespace = "qs-popup" }, blur = true })
+hl.layer_rule({ match = { namespace = "qs-launcher" }, blur = true, ignore_alpha = 0.1 })
