@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Shared helpers for the installer (install.sh, link.sh, scripts/*.sh).
-# Scope: installation only. Interactive-shell helpers live separately in
-# config/zsh/utils.sh (linked to ~/.config/zsh/utils.sh for daily use).
+# Scope: installation only.
 
 RED=$'\033[0;31m'
 GREEN=$'\033[0;32m'

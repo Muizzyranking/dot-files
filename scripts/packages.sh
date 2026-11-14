@@ -15,14 +15,14 @@ PACMAN_PACKAGES=(
 
     # Hyprland + wayland
     "hyprland" "hypridle" "xdg-desktop-portal-hyprland"
-    "grim" "slurp" "swappy" "wl-clipboard"
+    "grim" "swappy" "wl-clipboard" "wf-recorder" "libnotify" "satty"
     "cliphist" "pamixer" "wireplumber" "playerctl" "brightnessctl" "polkit-gnome"
-    "blueman" "thunar" "udiskie"
+    "blueman" "thunar" "udiskie" "nmcli"
 
     # Theming
-    "qt5ct" "qt6ct" "kvantum" "pavucontrol"
+    "qt5ct" "qt6ct" "adw-gtk-theme" "pavucontrol"
 
-    "dms-shell" "cmark-gfm"
+    "cmark-gfm", "quickshell"
 )
 
 AUR_PACKAGES=(
@@ -33,9 +33,8 @@ AUR_PACKAGES=(
     # Fonts
     "ttf-jetbrains-mono-nerd" "ttf-maple-nerd-font"
 
-    # Themes / icons / cursors
+    # cursors
     "reversal-icon-theme-git" "catppuccin-cursors-mocha-blue"
-    "catppuccin-gtk-theme-mocha" "kvantum-theme-catppuccin-git"
 )
 
 install_pacman_packages() {

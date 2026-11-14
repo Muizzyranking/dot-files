@@ -81,10 +81,7 @@ main() {
     print_section "Step 2: Post-install Setup"
     run_script "setup.sh"
 
-    print_section "Step 3: Themes"
-    run_script "themes.sh"
-
-    print_section "Step 4: Services"
+    print_section "Step 3: Services"
     run_script "services.sh"
 
     echo
