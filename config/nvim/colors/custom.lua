@@ -66,7 +66,10 @@ local function build()
 end
 
 local function apply()
-	colors.setup(build(), "custom")
+	local palette = build()
+	colors.setup(palette, "custom")
+	vim.g.custom_colors = palette
+	vim.api.nvim_exec_autocmds("User", { pattern = "CustomColorsUpdated" })
 end
 
 apply()
