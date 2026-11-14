@@ -9,112 +9,74 @@ M.ignored_servers = { "copilot" }
 
 ---@param name string
 ---@return boolean
-function M.is_ignored(name)
-	for _, ignored in ipairs(M.ignored_servers) do
-		if name == ignored then
-			return true
+local function is_ignored(name)
+	return vim.tbl_contains(M.ignored_servers, name)
+end
+
+---@return table[]
+local function get_running_servers()
+	local items = {}
+	for _, client in ipairs(vim.lsp.get_clients()) do
+		if not is_ignored(client.name) then
+			table.insert(items, {
+				text = string.format("%s (id: %d)", client.name, client.id),
+				name = client.name,
+			})
 		end
 	end
-	return false
-end
-
----@param opts table
----@return function
-local function make_picker(opts)
-	return function()
-		return Snacks.picker(vim.tbl_deep_extend("force", {
-			layout = { preset = "drop", preview = false },
-			on_show = function()
-				vim.cmd("stopinsert")
-			end,
-			win = {
-				input = {
-					keys = {
-						["<CR>"] = { "confirm", mode = { "n", "i" } },
-					},
-				},
-			},
-			actions = {
-				confirm = function(picker, _)
-					local selected = picker:selected({ fallback = true })
-					picker:close()
-					if opts.on_confirm then
-						opts.on_confirm(selected)
-					end
-				end,
-			},
-		}, opts))
+	if #items == 0 then
+		Utils.notify.warn("No LSP servers currently running")
 	end
+	return items
 end
 
-function M.get_all_servers()
-	local lsp_dir = Utils.fn.fmt_str("${CONFIG_DIR}/lsp")
+---@return string[]
+local function get_all_servers()
 	local servers = {}
-
-	local entries = vim.uv.fs_scandir(lsp_dir)
-	if entries then
-		while true do
-			local name, ftype = vim.uv.fs_scandir_next(entries)
-			if not name then
-				break
-			end
-			if ftype == "file" and name:match("%.lua$") then
-				local server_name = (name:gsub("%.lua$", ""))
-				if not M.is_ignored(server_name) then
-					table.insert(servers, server_name)
-				end
+	for name, ftype in vim.fs.dir(Utils.fn.fmt_str("${CONFIG_DIR}/lsp")) do
+		if ftype == "file" and name:match("%.lua$") then
+			local server = name:gsub("%.lua$", "")
+			if not is_ignored(server) then
+				table.insert(servers, server)
 			end
 		end
 	end
 	return servers
 end
 
-function M.get_running_servers()
-	local items = {}
-	for _, client in ipairs(Utils.lsp.get_clients()) do
-		if not M.is_ignored(client.name) then
-			table.insert(items, {
-				text = client.name .. " (id: " .. client.id .. ")",
-				name = client.name,
-				id = client.id,
-				bufnr = 0,
-			})
-		end
+---@param icon string
+---@param hl string
+local function format(icon, hl)
+	return function(item)
+		return { { icon, hl }, { item.text } }
 	end
-	if #items == 0 then
-		Utils.notify.warn("No LSP servers currently running")
-		return {}
-	end
-	return items
 end
 
-function M.get_server_status()
-	local all = M.get_all_servers()
-	local running = {}
-
-	for _, client in ipairs(Utils.lsp.get_clients()) do
-		if not M.is_ignored(client.name) then
-			running[client.name] = true
-		end
+---@param opts table
+---@return function
+local function picker(opts)
+	return function()
+		return Snacks.picker(vim.tbl_deep_extend("force", {
+			layout = { preset = "drop", preview = false },
+			on_show = function()
+				vim.cmd("stopinsert")
+			end,
+			win = { input = { keys = { ["<CR>"] = { "confirm", mode = { "n", "i" } } } } },
+			actions = {
+				confirm = function(p)
+					local selected = p:selected({ fallback = true })
+					p:close()
+					opts.on_confirm(selected)
+				end,
+			},
+		}, opts))
 	end
-
-	local items = {}
-	for _, name in ipairs(all) do
-		table.insert(items, {
-			text = running[name] and (name .. " [running]") or (name .. " [stopped]"),
-			name = name,
-			running = running[name] or false,
-		})
-	end
-	return items
 end
 
-M.restart_picker = make_picker({
+M.restart_picker = picker({
 	title = "Restart LSP Servers",
-	finder = M.get_running_servers,
-	format = function(item)
-		return { { "󰒋 ", "DiagnosticOk" }, { item.text } }
-	end,
+	finder = get_running_servers,
+	format = format("󰒋 ", "DiagnosticOk"),
 	on_confirm = function(selected)
 		for _, item in ipairs(selected) do
 			Utils.lsp.restart(item.name)
@@ -122,12 +84,10 @@ M.restart_picker = make_picker({
 	end,
 })
 
-M.stop_picker = make_picker({
+M.stop_picker = picker({
 	title = "Stop LSP Servers",
-	finder = M.get_running_servers,
-	format = function(item)
-		return { { "󰒋 ", "DiagnosticError" }, { item.text } }
-	end,
+	finder = get_running_servers,
+	format = format("󰒋 ", "DiagnosticError"),
 	on_confirm = function(selected)
 		for _, item in ipairs(selected) do
 			Utils.lsp.stop(item.name)
@@ -135,17 +95,16 @@ M.stop_picker = make_picker({
 	end,
 })
 
-M.start_picker = make_picker({
+M.start_picker = picker({
 	title = "Start LSP Servers",
 	finder = function()
-		local all = M.get_all_servers()
 		local running = {}
 		for _, client in ipairs(vim.lsp.get_clients()) do
 			running[client.name] = true
 		end
 
 		local items = {}
-		for _, name in ipairs(all) do
+		for _, name in ipairs(get_all_servers()) do
 			if not running[name] then
 				table.insert(items, { text = name, name = name })
 			end
@@ -156,9 +115,7 @@ M.start_picker = make_picker({
 		end
 		return items
 	end,
-	format = function(item)
-		return { { "󰒌 ", "DiagnosticWarn" }, { item.text } }
-	end,
+	format = format("󰒌 ", "DiagnosticWarn"),
 	on_confirm = function(selected)
 		for _, item in ipairs(selected) do
 			Utils.lsp.start(item.name)
@@ -167,7 +124,7 @@ M.start_picker = make_picker({
 })
 
 function M.restart_all_attached()
-	local clients = M.get_running_servers()
+	local clients = get_running_servers()
 	if #clients == 0 then
 		Utils.notify.warn("No LSP servers attached to current buffer")
 		return

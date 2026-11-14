@@ -46,23 +46,8 @@ return {
 		desc = "Lsp Symbols",
 		has = "documentSymbol",
 	},
-	{
-		"<c-k>",
-		function()
-			return vim.lsp.buf.signature_help()
-		end,
-		desc = "Signature Help",
-		has = "signatureHelp",
-		mode = "i",
-	},
-	{
-		"K",
-		function()
-			vim.lsp.buf.hover()
-		end,
-		desc = "Hover",
-		has = "hover",
-	},
+	{ "<c-k>", vim.lsp.buf.signature_help, desc = "Signature Help", has = "signatureHelp", mode = "i" },
+	{ "K", vim.lsp.buf.hover, desc = "Hover", has = "hover" },
 	{ "]d", Utils.lsp.goto_diagnostics(true), desc = "Next Diagnostic" },
 	{ "[d", Utils.lsp.goto_diagnostics(false), desc = "Prev Diagnostic" },
 	{ "]e", Utils.lsp.goto_diagnostics(true, "ERROR"), desc = "Next Error" },
@@ -85,9 +70,6 @@ return {
 		has = "codeAction",
 		mode = { "n", "v" },
 	},
-	-- { rename set in plugin/
-	-- 	"<leader>cr",
-	-- },
 	{
 		"<leader>ui",
 		get = function(buf)

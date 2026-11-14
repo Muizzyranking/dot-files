@@ -264,38 +264,6 @@ local function apply_highlights(c)
 	set_hl("TroubleCount", { fg = c.purple, bold = true })
 	set_hl("TroubleCode", { fg = c.fg_dim })
 
-	-- Dropbar.nvim
-	set_hl("DropBarIconKindFile", { fg = c.fg })
-	set_hl("DropBarIconKindFolder", { fg = c.blue })
-	set_hl("DropBarIconKindModule", { fg = c.purple })
-	set_hl("DropBarIconKindFunction", { fg = c.blue })
-	set_hl("DropBarIconKindMethod", { fg = c.blue })
-	set_hl("DropBarIconKindClass", { fg = c.red_alt })
-	set_hl("DropBarIconKindStruct", { fg = c.red_alt })
-	set_hl("DropBarMenuNormalFloat", { fg = c.fg, bg = c.surface })
-	set_hl("DropBarMenuFloatBorder", { fg = c.blue, bg = c.none })
-	set_hl("DropBarMenuCurrentContext", { bg = c.surface_light })
-
-	-- Tiny-inline-diagnostic.nvim
-	set_hl("TinyInlineDiagnosticVirtualTextError", { fg = c.error, italic = true })
-	set_hl("TinyInlineDiagnosticVirtualTextWarn", { fg = c.warning, italic = true })
-	set_hl("TinyInlineDiagnosticVirtualTextInfo", { fg = c.info, italic = true })
-	set_hl("TinyInlineDiagnosticVirtualTextHint", { fg = c.hint, italic = true })
-
-	-- Markview.nvim
-	set_hl("MarkviewHeading1", { fg = c.red, bold = true })
-	set_hl("MarkviewHeading2", { fg = c.orange, bold = true })
-	set_hl("MarkviewHeading3", { fg = c.blue, bold = true })
-	set_hl("MarkviewHeading4", { fg = c.cyan, bold = true })
-	set_hl("MarkviewHeading5", { fg = c.purple, bold = true })
-	set_hl("MarkviewHeading6", { fg = c.magenta, bold = true })
-	set_hl("MarkviewCode", { bg = c.surface })
-	set_hl("MarkviewInlineCode", { fg = c.green, bg = c.surface })
-	set_hl("MarkviewListItemMinus", { fg = c.cyan })
-	set_hl("MarkviewListItemPlus", { fg = c.green })
-	set_hl("MarkviewListItemStar", { fg = c.orange })
-	set_hl("MarkviewBlockQuote", { fg = c.fg_dim, italic = true })
-
 	set_hl("IncRename", { fg = c.bg_dark, bg = c.orange })
 
 	set_hl("TSJoinDelimiter", { fg = c.fg_dim })

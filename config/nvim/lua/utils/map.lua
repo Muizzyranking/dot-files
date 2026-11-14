@@ -151,12 +151,10 @@ local function set_keymap(mapping)
 		expr = mapping.expr,
 		vscode = mapping.vscode,
 	}
-	if M.safe_keymap_set(mode, lhs, rhs, opts) then
-		if mapping.icon then
-			M.add_to_wk({
-				{ lhs, mode = mode, icon = mapping.icon, desc = mapping.desc or "", buffer = mapping.buffer },
-			})
-		end
+	if M.safe_keymap_set(mode, lhs, rhs, opts) and mapping.icon then
+		M.add_to_wk({
+			{ lhs, mode = mode, icon = mapping.icon, desc = mapping.desc or "", buffer = mapping.buffer },
+		})
 	end
 end
 
@@ -199,7 +197,7 @@ function M.set(mappings, opts)
 	end
 	for _, map in ipairs(mappings) do
 		local mapping = vim.tbl_deep_extend("force", {}, opts, map)
-		if mapping.conds and map.conds then
+		if opts.conds and map.conds then
 			mapping.conds = vim.list_extend(vim.list_slice(opts.conds or {}), map.conds)
 		end
 		if is_toggle_mapping(mapping) then
@@ -209,195 +207,93 @@ function M.set(mappings, opts)
 	end
 end
 
-----------------------------------------------------------------------
----@class Toggle
----@field mapping ToggleMap
----@field icons table
----@field color table
-----------------------------------------------------------------------
-local Toggle = {}
-Toggle.__index = Toggle
-
----@param mapping ToggleMap
----@return Toggle
-function Toggle:new(mapping)
-	local ui_icons = Utils.icons.ui
-	return setmetatable({
-		mapping = mapping,
-		icons = {
-			enabled = (mapping.icon and mapping.icon.enabled) or ui_icons.enabled,
-			disabled = (mapping.icon and mapping.icon.disabled) or ui_icons.disabled,
-		},
-		color = {
-			enabled = (mapping.color and mapping.color.enabled) or "green",
-			disabled = (mapping.color and mapping.color.disabled) or "yellow",
-		},
-	}, Toggle)
-end
-
-function Toggle:notify(message, level, buf)
-	buf = Utils.fn.ensure_buf(buf)
-	Utils.notify[level](message, { title = self.mapping.desc, buffer = buf })
-end
-
-function Toggle:is_valid()
-	local m = self.mapping
-	return type(m) == "table"
-		and type(m[1]) == "string"
-		and vim.is_callable(m.get)
-		and vim.is_callable(m.set)
-		and (m.notify == false or type(m.name) == "string")
-end
-
----@param buf? number
-function Toggle:get(buf)
-	buf = Utils.fn.ensure_buf(buf)
-	local ok, ret = pcall(self.mapping.get, buf)
-	if not ok then
-		self:notify({
-			"Failed to get state `" .. "`:\n",
-			ret,
-		}, "error")
-	end
-	return ret
-end
-
----@param state boolean
----@param buf? number
-function Toggle:set(state, buf)
-	buf = Utils.fn.ensure_buf(buf)
-	local ok, err = pcall(self.mapping.set, state, buf) ---@type boolean, string?
-	if not ok then
-		self:notify({
-			"Failed to set state `" .. "`:\n",
-			err,
-		}, "error")
-	end
-end
-
--- notify
-function Toggle:notification(buf)
-	if self.mapping.notify == false then
-		return
-	end
-	buf = Utils.fn.ensure_buf(buf)
-	local state = not self:get(buf)
-	local name = self.mapping.name
-	local msg = string.format("%s %s", state and "Disabled" or "Enabled", "**" .. name .. "**")
-	local level = state and "warn" or "info"
-	self:notify(msg, level)
-end
-
--- toggle
----@param buf? number
-function Toggle:toggle(buf)
-	buf = Utils.fn.ensure_buf(buf)
-	local state = self:get(buf)
-	self:set(state, buf)
-	self:notification()
-end
-
----Get description for the mapping
----@return string|function
-function Toggle:desc()
-	return function()
-		local buf = Utils.fn.ensure_buf()
-		if type(self.mapping.desc) == "function" then
-			return self.mapping.desc(self:get(buf))
-		end
-		return self.mapping.desc or string.format("Toggle %s", self.mapping.name)
-	end
-end
-
----Get icon
----@return fun(): table
-function Toggle:icon()
-	return function()
-		local state = self:get()
-		return {
-			icon = state and self.icons.enabled or self.icons.disabled,
-			color = state and self.color.enabled or self.color.disabled,
-		}
-	end
-end
-
-function Toggle:to_keymap()
-	local map = {
-		self.mapping[1],
-		function()
-			self:toggle(Utils.fn.ensure_buf())
-		end,
-		mode = self.mapping.mode or "n",
-		desc = self:desc(),
-		icon = self:icon(),
-	}
-	local excluded = { "name", "get_state", "toggle_fn", "change_state", "color", "notify", "get", "set" }
-	for k, v in pairs(self.mapping) do
-		if map[k] == nil and not vim.tbl_contains(excluded, k) then
-			map[k] = v
-		end
-	end
-	return map
-end
-
 ---------------------------------------------------------------
 ---Create a toggle mapping
 ---@param mapping ToggleMap
 ---@return KeymapOpts?
 ---------------------------------------------------------------
 function M.toggle(mapping)
-	local toggle = Toggle:new(mapping)
-	if not toggle:is_valid() then
+	if type(mapping[1]) ~= "string" or (mapping.notify ~= false and type(mapping.name) ~= "string") then
 		return nil
 	end
-	return toggle:to_keymap()
+
+	local ui = Utils.icons.ui
+	local icons = {
+		enabled = (mapping.icon and mapping.icon.enabled) or ui.enabled,
+		disabled = (mapping.icon and mapping.icon.disabled) or ui.disabled,
+	}
+	local color = {
+		enabled = (mapping.color and mapping.color.enabled) or "green",
+		disabled = (mapping.color and mapping.color.disabled) or "yellow",
+	}
+
+	---@param buf? number
+	local function get(buf)
+		buf = Utils.fn.ensure_buf(buf)
+		local ok, state = pcall(mapping.get, buf)
+		if not ok then
+			Utils.notify.error("Failed to get state:\n" .. tostring(state), { title = mapping.desc })
+		end
+		return state
+	end
+
+	---@param state boolean
+	---@param buf? number
+	local function set(state, buf)
+		buf = Utils.fn.ensure_buf(buf)
+		local ok, err = pcall(mapping.set, state, buf)
+		if not ok then
+			Utils.notify.error("Failed to set state:\n" .. tostring(err), { title = mapping.desc })
+		end
+	end
+
+	---@param buf? number
+	local function toggle(buf)
+		buf = Utils.fn.ensure_buf(buf)
+		set(get(buf), buf)
+		if mapping.notify ~= false then
+			local enabled = get(buf)
+			Utils.notify[enabled and "info" or "warn"](
+				string.format("%s **%s**", enabled and "Enabled" or "Disabled", mapping.name),
+				{ title = mapping.desc, buffer = buf }
+			)
+		end
+	end
+
+	return {
+		mapping[1],
+		toggle,
+		mode = mapping.mode or "n",
+		desc = function()
+			if type(mapping.desc) == "function" then
+				return mapping.desc(get())
+			end
+			return mapping.desc or string.format("Toggle %s", mapping.name)
+		end,
+		icon = function()
+			local enabled = get()
+			return {
+				icon = enabled and icons.enabled or icons.disabled,
+				color = enabled and color.enabled or color.disabled,
+			}
+		end,
+		buffer = mapping.buffer,
+		lsp = mapping.lsp,
+		has = mapping.has,
+		conds = mapping.conds,
+		expr = mapping.expr,
+		silent = mapping.silent,
+		remap = mapping.remap,
+	}
 end
 
-local DEFAULT_ABBREV_CONDS = {
+local ABBREV_CONDS = {
 	-- disable abbreviations in comments and strings
 	lsp_keyword = function()
 		local ts = Utils.treesitter
 		return ts.is_active() and not ts.find_node({ "comment", "string" })
 	end,
 }
-
------------------------------------
--- Internal function to create a single abbreviation
----@param word string
----@param new_word string
----@param opts? AbbrevOpts
------------------------------------
-local function set_abbrev(word, new_word, opts)
-	if not word or not new_word then
-		return
-	end
-	opts = opts or {}
-	local mode = opts.mode or "ia"
-	local conds = Utils.fn.ensure_list(opts.conds, false) or nil
-	opts.conds = nil
-	opts.mode = nil
-	opts = vim.tbl_extend("force", opts or {}, {
-		expr = true,
-	})
-	vim.keymap.set(mode, word, function()
-		if conds then
-			for _, c in ipairs(conds) do
-				if type(c) == "string" then
-					if not DEFAULT_ABBREV_CONDS[c] then
-						return word
-					end
-					c = DEFAULT_ABBREV_CONDS[c]
-				end
-				if type(c) == "function" then
-					if not Utils.fn.evaluate(c, true) then
-						return word
-					end
-				end
-			end
-		end
-		return new_word
-	end, opts)
-end
 
 ---------------------------------------------------------------
 ---Create multiple abbreviations with shared options
@@ -408,43 +304,32 @@ function M.abbrev(abbrevs, opts)
 	if type(abbrevs) ~= "table" then
 		return
 	end
-	opts = opts or {}
 	for _, abbrev in ipairs(abbrevs) do
-		local right_word = abbrev[1]
-		local wrong_words = Utils.fn.ensure_list(abbrev[2])
-		local abbrev_opts = abbrev[3] or {}
-		local merged_opts = vim.tbl_deep_extend("force", {}, opts, abbrev_opts)
-		for _, wrong_word in ipairs(wrong_words) do
-			if type(wrong_word) == "string" then
-				set_abbrev(wrong_word, right_word, merged_opts)
+		local right = abbrev[1]
+		local merged = vim.tbl_deep_extend("force", {}, opts or {}, abbrev[3] or {})
+		local mode = merged.mode or "i"
+		local conds = Utils.fn.ensure_list(merged.conds)
+		merged.mode, merged.conds, merged.expr = nil, nil, true
+
+		for _, wrong in ipairs(Utils.fn.ensure_list(abbrev[2])) do
+			if type(wrong) == "string" and type(right) == "string" then
+				vim.keymap.set(mode, wrong, function()
+					for _, condition in ipairs(conds) do
+						if type(condition) == "string" then
+							condition = ABBREV_CONDS[condition]
+							if not condition then
+								return wrong
+							end
+						end
+						if not Utils.fn.evaluate(condition, true) then
+							return wrong
+						end
+					end
+					return right
+				end, merged)
 			end
 		end
 	end
-end
-
------------------------------------
--- Internal function to delete a single keymap
----@param mapping table|string
------------------------------------
-local function del_keymap(mapping)
-	if type(mapping) == "string" then
-		mapping = { [1] = mapping }
-	end
-	local lhs = mapping[1]
-	if not lhs then
-		return
-	end
-	local modes = mapping.mode and Utils.fn.ensure_list(mapping.mode) or { "n" }
-	local opts = {}
-	if mapping.buffer ~= nil then
-		opts.buffer = mapping.buffer
-	end
-	if mapping.icon then
-		M.hide_from_wk({
-			{ lhs, mode = modes, buffer = mapping.buffer },
-		})
-	end
-	pcall(vim.keymap.del, modes, lhs, opts)
 end
 
 ---------------------------------------------------------------
@@ -453,11 +338,15 @@ end
 ---@param opts? table Shared options for all mappings
 ---------------------------------------------------------------
 function M.del(mappings, opts)
-	opts = opts or {}
-	for _, map in ipairs(mappings) do
+	for _, map in ipairs(mappings or {}) do
 		local mapping = type(map) == "string" and { [1] = map } or map
-		local merged = vim.tbl_deep_extend("force", {}, opts, mapping)
-		del_keymap(merged)
+		mapping = vim.tbl_deep_extend("force", {}, opts or {}, mapping)
+		if mapping.icon then
+			M.hide_from_wk({ { mapping[1], mode = mapping.mode or "n", buffer = mapping.buffer } })
+		end
+		local modes = mapping.mode and Utils.fn.ensure_list(mapping.mode) or { "n" }
+		local del_opts = mapping.buffer ~= nil and { buffer = mapping.buffer } or {}
+		pcall(vim.keymap.del, modes, mapping[1], del_opts)
 	end
 end
 
@@ -493,10 +382,7 @@ function M.hide_from_wk(mappings)
 
 	for _, map in ipairs(mappings) do
 		if type(map) == "string" then
-			mappings[_] = {
-				[1] = map,
-				hidden = true,
-			}
+			mappings[_] = { [1] = map, hidden = true }
 		elseif type(map) == "table" then
 			map.hidden = true
 		end
@@ -509,12 +395,12 @@ end
 ---Apply which-key mappings if available
 ---------------------------------------------------------------
 function M._apply_which_key()
-	if #wk_maps > 0 and Pack.is_loaded("which-key.nvim") then
-		local wk = require("which-key")
-		local current_maps = deepcopy(wk_maps)
-		wk_maps = {}
-		wk.add(current_maps)
+	if #wk_maps == 0 or not Pack.is_loaded("which-key.nvim") then
+		return
 	end
+	local maps = vim.deepcopy(wk_maps)
+	wk_maps = {}
+	require("which-key").add(maps)
 end
 
 M.setup = function()
@@ -524,9 +410,7 @@ M.setup = function()
 
 		vim.api.nvim_create_autocmd("User", {
 			pattern = "KeymapSet",
-			callback = function()
-				M._apply_which_key()
-			end,
+			callback = M._apply_which_key,
 		})
 	end)
 end

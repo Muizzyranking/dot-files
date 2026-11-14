@@ -3,12 +3,12 @@ local M = {}
 
 local notify = Utils.notify.create({ title = "LSP" })
 
----@class LspKeymapHandler
----@field filter vim.lsp.get_clients.Filter
----@field callback fun(client: vim.lsp.Client, buffer: number)
----@field done table<string, boolean> -- tracks which buf:client combos have been handled
+---@class LspHandler
+---@field filter table
+---@field callback fun(client: vim.lsp.Client, buf: number)
+---@field done table<string, boolean>
 
-local _handlers = {} ---@type LspKeymapHandler[]
+local handlers = {} ---@type LspHandler[]
 local did_setup = false
 
 ---------------------------------------------------------------
@@ -21,69 +21,32 @@ local function normalize_method(method)
 end
 
 ---------------------------------------------------------------
----Check if buffer has LSP client matching filter with capability
----@param buf number
 ---@param client vim.lsp.Client
----@param filter vim.lsp.get_clients.Filter
+---@param buf number
+---@param filter table
 ---@return boolean
 ---------------------------------------------------------------
-local function matches_filter(buf, client, filter)
-	if filter.id and client.id ~= filter.id then
-		return false
-	end
-	if filter.name and client.name ~= filter.name then
-		return false
-	end
-	if filter.bufnr and buf ~= filter.bufnr then
-		return false
-	end
-
-	if filter.method then
-		local method = normalize_method(filter.method)
-		if not client:supports_method(method, buf) then
-			return false
-		end
-	end
-
-	return true
+local function matches(client, buf, filter)
+	return (not filter.id or client.id == filter.id)
+		and (not filter.name or client.name == filter.name)
+		and (not filter.bufnr or buf == filter.bufnr)
+		and (not filter.method or client:supports_method(filter.method, buf))
 end
 
 ---------------------------------------------------------------
----Handle LSP callback execution for matching clients
----@param filter vim.lsp.get_clients.Filter
+---@param handler LspHandler
+---@param client vim.lsp.Client
+---@param buf number
 ---------------------------------------------------------------
-local function handle(filter)
-	local handlers = vim.tbl_filter(function(h)
-		for k, v in pairs(filter) do
-			if h.filter[k] ~= nil and h.filter[k] ~= v then
-				return false
-			end
-		end
-		return true
-	end, _handlers)
-
-	if #handlers == 0 then
+local function run(handler, client, buf)
+	local key = string.format("%d:%d", client.id, buf)
+	if handler.done[key] or not matches(client, buf, handler.filter) then
 		return
 	end
-
-	for _, state in ipairs(handlers) do
-		local f = vim.tbl_extend("force", vim.deepcopy(state.filter), filter)
-		local clients = M.get_clients(f)
-
-		for _, client in ipairs(clients) do
-			for buf in pairs(client.attached_buffers) do
-				local key = string.format("%d:%d", client.id, buf)
-
-				if not state.done[key] and matches_filter(buf, client, state.filter) then
-					state.done[key] = true
-
-					local ok, err = pcall(state.callback, client, buf)
-					if not ok then
-						notify.error(string.format("LSP callback error for %s (buf %d): %s", client.name, buf, err))
-					end
-				end
-			end
-		end
+	handler.done[key] = true
+	local ok, err = pcall(handler.callback, client, buf)
+	if not ok then
+		notify.error(string.format("LSP callback error for %s (buf %d): %s", client.name, buf, err))
 	end
 end
 
@@ -96,47 +59,35 @@ function M.setup()
 	end
 	did_setup = true
 
-	local lsp_group = vim.api.nvim_create_augroup("lsp.setup", {})
-	local autocmds = {
-		["LspAttach"] = function(ev)
+	local group = vim.api.nvim_create_augroup("utils.lsp", { clear = true })
+	vim.api.nvim_create_autocmd("LspAttach", {
+		group = group,
+		callback = function(ev)
 			local client = vim.lsp.get_client_by_id(ev.data.client_id)
 			if not client then
 				return
 			end
 			vim.schedule(function()
-				handle({ id = ev.data.client_id, bufnr = ev.buf })
+				for _, handler in ipairs(handlers) do
+					run(handler, client, ev.buf)
+				end
 			end)
 		end,
-		["LspDetach"] = function(ev)
+	})
+	vim.api.nvim_create_autocmd("LspDetach", {
+		group = group,
+		callback = function(ev)
 			local key = string.format("%d:%d", ev.data.client_id, ev.buf)
-			for _, state in ipairs(_handlers) do
-				state.done[key] = nil
+			for _, handler in ipairs(handlers) do
+				handler.done[key] = nil
 			end
 		end,
-	}
-	for events, fn in pairs(autocmds) do
-		vim.api.nvim_create_autocmd(events, {
-			group = lsp_group,
-			callback = fn,
-		})
-	end
+	})
 end
 
 ---------------------------------------------------------------
---- Register a callback to be executed when LSP client matches filter
---- This is the core function that replaces on_attach, on_support_methods, etc.
 ---@param filter vim.lsp.get_clients.Filter Filter can include:
----  - id: client id
----  - name: client name
----  - bufnr: buffer number
----  - method: LSP method (e.g., "textDocument/formatting", "formatting", "hover")
 ---@param callback fun(client: vim.lsp.Client, buffer: number)
----
---- Examples:
----   Utils.lsp.on({}, callback) -- on any LSP attach
----   Utils.lsp.on({ name = "lua_ls" }, callback) -- on lua_ls attach
----   Utils.lsp.on({ method = "formatting" }, callback) -- when formatting is supported
---- Register a callback to be executed when LSP client matches filter
 ---------------------------------------------------------------
 function M.on(filter, callback)
 	M.setup()
@@ -144,15 +95,14 @@ function M.on(filter, callback)
 		filter = vim.deepcopy(filter)
 		filter.method = normalize_method(filter.method)
 	end
-	table.insert(_handlers, {
-		filter = filter,
-		callback = callback,
-		done = {},
-	})
 
-	local clients = M.get_clients(filter)
-	if #clients > 0 then
-		handle(filter)
+	local handler = { filter = filter, callback = callback, done = {} }
+	table.insert(handlers, handler)
+
+	for _, client in ipairs(vim.lsp.get_clients()) do
+		for buf in pairs(client.attached_buffers) do
+			run(handler, client, buf)
+		end
 	end
 end
 
@@ -192,25 +142,6 @@ function M.get_clients(opts)
 end
 
 ----------------------------------------------------
--- Execute LSP command
----@param opts table Options for the LSP command
-----------------------------------------------------
-function M.execute(opts)
-	local params = {
-		command = opts.command,
-		arguments = opts.arguments,
-	}
-	if opts.open then
-		require("trouble").open({
-			mode = "lsp_command",
-			params = params,
-		})
-	else
-		return vim.lsp.buf_request(0, "workspace/executeCommand", params, opts.handler)
-	end
-end
-
-----------------------------------------------------
 -- Action metatable for LSP code actions
 ---@return table Metatable for LSP code actions
 ----------------------------------------------------
@@ -235,35 +166,17 @@ M.action = setmetatable({}, {
 --- @return boolean Whether the method(s) is supported
 ----------------------------------------------------
 function M.has(buffer, method)
-	if not buffer or not method then
-		return false
-	end
 	if type(method) == "table" then
-		for _, m in ipairs(method) do
-			if M.has(buffer, m) then
-				return true
-			end
-		end
-		return false
+		return vim.iter(method):any(function(m)
+			return M.has(buffer, m)
+		end)
 	end
-	if type(method) ~= "string" then
-		return false
-	end
-
-	local clients = M.get_clients({ bufnr = buffer })
-	if not clients or #clients == 0 then
-		return false
-	end
-	local capability_name = method .. "Provider"
-	for _, client in ipairs(clients) do
-		if client and client.server_capabilities then
-			local capability = client.server_capabilities[capability_name]
-			if capability ~= nil and capability ~= false then
-				return true
-			end
+	for _, client in ipairs(M.get_clients({ bufnr = buffer })) do
+		local capability = client.server_capabilities[method .. "Provider"]
+		if capability ~= nil and capability ~= false then
+			return true
 		end
 	end
-
 	return false
 end
 
@@ -296,14 +209,14 @@ function M.copy_diagnostics()
 	end
 
 	---@param msg string
-	local function _yank(msg)
+	local function yank(msg)
 		vim.fn.setreg('"', msg)
 		vim.fn.setreg(vim.v.register, msg)
 	end
 
 	if #diags == 1 then
 		local msg = diags[1].message
-		_yank(msg)
+		yank(msg)
 		notify(string.format([[ yanked diagnostic message '%s']], msg))
 		return
 	end
@@ -313,19 +226,8 @@ function M.copy_diagnostics()
 			return d.message
 		end, diags),
 		{ prompt = "Select diagnostic message to yank: " },
-		_yank
+		yank
 	)
-end
-
----@param name string
----@return boolean
-function M.server_is_valid(name)
-	local clients = vim.lsp.get_clients({ name = name })
-	if #clients == 0 then
-		notify.warn(string.format("Server '%s' is not running or attached", name))
-		return false
-	end
-	return true
 end
 
 ---@param name string
@@ -337,18 +239,13 @@ function M.stop(name)
 		return false
 	end
 
-	local success = true
 	for _, client in ipairs(clients) do
-		local ok, err = pcall(function()
+		pcall(function()
 			client:stop(true)
 		end)
-		if not ok then
-			notify.error(string.format("Failed to stop server '%s' (id: %d): %s", name, client.id, err))
-			success = false
-		end
 	end
 
-	return success
+	return true
 end
 
 ---@param name string
@@ -360,10 +257,8 @@ function M.start(name, bufnr)
 		notify.info(string.format("Server '%s' is already running on buffer %d", name, bufnr))
 		return true
 	end
-	local success, err = pcall(function()
-		vim.lsp.enable(name)
-	end)
-	if not success then
+	local ok, err = pcall(vim.lsp.enable, name)
+	if not ok then
 		notify.error(string.format("Failed to start server '%s': %s", name, err))
 		return false
 	end
@@ -389,84 +284,48 @@ function M.restart(name, bufnr)
 	return true
 end
 
-local function find_win_with_file(filename)
-	local target_buf = vim.fn.bufnr(filename)
-	if target_buf == -1 then
-		return nil
+---@param item table
+local function jump(item)
+	if not item.filename then
+		notify.error("Invalid definition result: no filename")
+		return
 	end
-	for _, win in ipairs(vim.api.nvim_list_wins()) do
-		if vim.api.nvim_win_get_buf(win) == target_buf then
-			return win
-		end
+	local win = vim.fn.bufwinid(vim.fn.bufadd(item.filename))
+	if win ~= -1 then
+		vim.api.nvim_set_current_win(win)
+	else
+		vim.cmd("edit " .. vim.fn.fnameescape(item.filename))
 	end
-
-	return nil
+	pcall(vim.api.nvim_win_set_cursor, 0, { item.lnum, math.max(item.col - 1, 0) })
 end
 
 ----------------------------------------------------
 --- Go to first definition with window reuse and split options
---- @param opts? table Optional parameters
+---@param opts? { direction?: "split"|"vsplit" }
 ---   - reuse_win: boolean - Whether to reuse existing windows (default: true)
----   - direction: string - "vsplit" or "split" to open in a new split
 ----------------------------------------------------
 function M.goto_definition(opts)
 	opts = opts or {}
-	local direction = opts.direction
-	local reuse_win = opts.reuse_win ~= false
-
 	vim.lsp.buf.definition({
-		on_list = function(list_opts)
-			local items = list_opts.items
+		on_list = function(list)
+			local items = list.items
 			if not items or #items == 0 then
 				notify.warn("No definition found")
 				return
 			end
-
 			if #items > 1 then
 				Snacks.picker.lsp_definitions()
 				return
 			end
 
-			-- Get the first definition
 			local item = items[1]
-			local filename = item.filename
-			local lnum = item.lnum
-			local col = item.col
-
-			if not filename then
-				notify.error("Invalid definition result: no filename")
-				return
-			end
-
-			-- Mark current position for jump list
 			vim.cmd("normal! m'")
-
-			if direction then
-				local cmd = vim.tbl_contains({ "vsplit", "split" }, direction) and direction or "vsplit"
-				vim.cmd(cmd .. " " .. vim.fn.fnameescape(filename))
-				if lnum then
-					col = (col - 1) or 0
-					vim.cmd(string.format("normal! %dG%d|", lnum, col + 1))
-				end
-			elseif reuse_win then
-				local current_buf = vim.api.nvim_get_current_buf()
-				local current_filename = vim.api.nvim_buf_get_name(current_buf)
-
-				if current_filename == filename then
-					vim.cmd(string.format("normal! %dG%d|", lnum, col))
-				else
-					local existing_win = find_win_with_file(filename)
-					if existing_win then
-						vim.api.nvim_set_current_win(existing_win)
-						pcall(vim.api.nvim_win_set_cursor, existing_win, { lnum, col - 1 }) -- 0-indexed
-					else
-						vim.cmd("edit " .. filename)
-						pcall(vim.api.nvim_win_set_cursor, 0, { lnum, col - 1 })
-					end
-				end
+			if opts.direction then
+				local cmd = opts.direction == "split" and "split" or "vsplit"
+				vim.cmd(cmd .. " " .. vim.fn.fnameescape(item.filename))
+				pcall(vim.api.nvim_win_set_cursor, 0, { item.lnum, math.max(item.col - 1, 0) })
 			else
-				vim.cmd("edit " .. filename)
-				pcall(vim.api.nvim_win_set_cursor, 0, { lnum, col - 1 })
+				jump(item)
 			end
 			vim.cmd("normal! zz")
 		end,
@@ -480,26 +339,14 @@ end
 ---@return KeymapOpts? opts Returns nil if keymap shouldn't be set
 ---------------------------------------------------------------
 function M.map(mapping, buf)
-	if mapping.has then
-		local methods = type(mapping.has) == "table" and mapping.has or { mapping.has }
-		local has_capability = false
-		---@diagnostic disable-next-line: param-type-mismatch
-		for _, method in ipairs(methods) do
-			if M.has(buf, method) then
-				has_capability = true
-				break
-			end
-		end
-		if not has_capability then
-			return nil
-		end
+	if mapping.has and not M.has(buf, mapping.has) then
+		return nil
 	end
 	local opts = vim.tbl_extend("force", {}, mapping)
 	opts.buffer = buf
 	opts.lsp = nil
 	opts.has = nil
 	opts.enabled = nil
-
 	return opts
 end
 

@@ -19,6 +19,7 @@ M.root_patterns = {
 	"biome.json",
 	"package.json",
 	"tmux.conf",
+	"shell.qml",
 }
 M.ignore_lsp = { "copilot" }
 

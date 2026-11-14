@@ -6,7 +6,6 @@ vim.g.bigfile                     = 1.5 * 1024 * 1024 -- 1.5MB
 vim.g.bigfile_max_lines           = 32768
 vim.g.loaded_netrw                = 1
 vim.g.loaded_netrwPlugin          = 1
-vim.g.netrw_browsex_viewer        = os.getenv("BROWSER")
 vim.hl.priorities.semantic_tokens = 95
 vim.g.autoformat                  = false
 

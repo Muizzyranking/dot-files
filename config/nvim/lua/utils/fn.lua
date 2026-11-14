@@ -176,12 +176,11 @@ function M.run_command(cmd, opts)
 	return success, output
 end
 
-function M.is_in_git_repo(notify)
-	notify = notify or false
+function M.is_in_git_repo()
 	local success, output = M.run_command({ "git", "rev-parse", "--is-inside-work-tree" }, {
 		trim = true,
 		callback = function(output, success, _)
-			if notify and not success then
+			if not success then
 				Utils.notify.error("Failed to check git repository: " .. output)
 			end
 		end,
