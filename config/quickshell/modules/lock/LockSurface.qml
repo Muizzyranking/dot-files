@@ -75,63 +75,70 @@ WlSessionLockSurface {
             anchors.verticalCenterOffset: -parent.height * 0.03
             spacing: Theme.px(8)
 
-            // clock: "stacked" (hours over minutes, minutes in the accent colour) or "inline"
             ColumnLayout {
-                visible: surf.cfg.clockStyle === "stacked"
+                id: clk
                 Layout.alignment: Qt.AlignHCenter
-                spacing: 0
+                spacing: Theme.px(2)
+                readonly property string stamp: Qt.formatDateTime(sc.date, surf.cfg.timeFormat)
+                readonly property var parts: stamp.match(/^(\d+)(\D+?)(\d+)(.*)$/)
+                readonly property real size: Theme.px(surf.cfg.clockSize)
                 Text {
                     Layout.alignment: Qt.AlignHCenter
                     text: Qt.formatDateTime(sc.date, surf.cfg.dateFormat).toUpperCase()
                     color: surf.clockTone
                     font.family: Theme.fontFamily
-                    font.pixelSize: Theme.px(25)
-                    font.weight: Font.DemiBold
+                    font.pixelSize: Theme.px(20)
+                    font.weight: Font.Bold
                     font.letterSpacing: 5
                 }
-                Text {
+                Row {
                     Layout.alignment: Qt.AlignHCenter
-                    Layout.topMargin: Theme.px(6)
-                    text: Qt.formatDateTime(sc.date, surf.cfg.hourFormat)
-                    color: Theme.text
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.px(surf.cfg.clockSize)
-                    font.weight: Font.Black
-                    style: Text.Raised
-                    styleColor: Qt.rgba(0, 0, 0, 0.4)
-                }
-                Text {
-                    Layout.alignment: Qt.AlignHCenter
-                    Layout.topMargin: -Theme.px(surf.cfg.clockSize * 0.16)
-                    text: Qt.formatDateTime(sc.date, surf.cfg.minuteFormat)
-                    color: surf.clockTone
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.px(surf.cfg.clockSize)
-                    font.weight: Font.Thin
-                    style: Text.Raised
-                    styleColor: Qt.rgba(0, 0, 0, 0.4)
-                }
-            }
-            ColumnLayout {
-                visible: surf.cfg.clockStyle !== "stacked"
-                Layout.alignment: Qt.AlignHCenter
-                spacing: 0
-                Text {
-                    Layout.alignment: Qt.AlignHCenter
-                    text: Qt.formatDateTime(sc.date, surf.cfg.timeFormat)
-                    color: Theme.text
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.px(surf.cfg.clockSize * 0.9)
-                    font.weight: Font.Light
-                    style: Text.Raised
-                    styleColor: Qt.rgba(0, 0, 0, 0.4)
-                }
-                Text {
-                    Layout.alignment: Qt.AlignHCenter
-                    text: Qt.formatDateTime(sc.date, surf.cfg.dateFormat)
-                    color: Theme.textDim
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.px(20)
+                    Layout.topMargin: Theme.px(4)
+                    spacing: clk.size * 0.03
+                    Item {
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.topMargin: Theme.px(4)
+                        implicitWidth: hh.implicitWidth + mm.implicitWidth + ap.implicitWidth + spacingPx * (ap.visible ? 2 : 1)
+                        implicitHeight: hh.implicitHeight
+                        readonly property real spacingPx: clk.size * 0.03
+
+                        Text {
+                            id: hh
+                            text: clk.parts ? clk.parts[1] : clk.stamp
+                            color: Theme.text
+                            font.family: Theme.fontFamily
+                            font.pixelSize: clk.size
+                            font.weight: Font.Black
+                            style: Text.Raised
+                            styleColor: Qt.rgba(0, 0, 0, 0.4)
+                        }
+                        Text {
+                            id: mm
+                            anchors.left: hh.right
+                            anchors.leftMargin: parent.spacingPx
+                            anchors.baseline: hh.baseline
+                            visible: clk.parts !== null
+                            text: clk.parts ? clk.parts[2].trim() + clk.parts[3] : ""
+                            color: surf.clockTone
+                            font.family: Theme.fontFamily
+                            font.pixelSize: clk.size
+                            font.weight: Font.Thin
+                            style: Text.Raised
+                            styleColor: Qt.rgba(0, 0, 0, 0.4)
+                        }
+                        Text {
+                            id: ap
+                            anchors.left: mm.right
+                            anchors.leftMargin: parent.spacingPx
+                            anchors.baseline: hh.baseline
+                            visible: clk.parts !== null && clk.parts[4].trim() !== ""
+                            text: clk.parts ? clk.parts[4].trim() : ""
+                            color: surf.clockTone
+                            font.family: Theme.fontFamily
+                            font.pixelSize: clk.size * 0.2
+                            font.weight: Font.DemiBold
+                        }
+                    }
                 }
             }
 
@@ -157,7 +164,6 @@ WlSessionLockSurface {
                 }
             }
 
-            // password
             Rectangle {
                 id: field
                 Layout.alignment: Qt.AlignHCenter
@@ -220,7 +226,6 @@ WlSessionLockSurface {
                 Behavior on opacity { NumberAnimation { duration: 150 } }
             }
 
-            // media
             Rectangle {
                 id: mc
                 visible: surf.cfg.showMedia && Media.active
