@@ -168,6 +168,11 @@
     "maxBodyLines": 3,
     "monitor": "focused"
   },
+  "meters": {
+    "enabled": true,
+    "holdMs": 1500,
+    "monitor": "focused"
+  },
   "media": {
     "exclude": [],
     "excludeTitles": []

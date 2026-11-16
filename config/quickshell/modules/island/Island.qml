@@ -24,9 +24,10 @@ Item {
         : (IslandState.expanded === "toast" && mine && toastHere) ? "toastFull"
         : toastHere ? "toast"
         : (IslandState.expanded === "music" && mine && Media.present) ? "musicFull"
+        : (Meters.active && Meters.showsOn(screenName)) ? "meter"
         : Media.active ? "music" : "idle"
     property string mode: "idle"
-    readonly property bool compact: mode === "idle" || mode === "music" || mode === "toast"
+    readonly property bool compact: mode === "idle" || mode === "music" || mode === "toast" || mode === "meter"
 
     function loaderFor(m) { return m === "control" ? ctl : m === "toastFull" ? tfull : m === "musicFull" ? mfull : null }
     function commit() {
@@ -46,11 +47,11 @@ Item {
     readonly property real idleH: Theme.px(cfg.idleHeight)
     property real targetW: mode === "control" ? Theme.px(Config.v.panels.controlWidth)
         : mode === "toastFull" ? Theme.px(cfg.toastFullWidth)
-        : mode === "toast" ? Theme.px(cfg.toastWidth)
+        : (mode === "toast" || mode === "meter") ? Theme.px(cfg.toastWidth)
         : mode === "musicFull" ? Theme.px(cfg.musicFullWidth) : idleW
     property real targetH: mode === "control" ? (ctl.item ? ctl.item.implicitHeight + pad * 2 : idleH)
         : mode === "toastFull" ? (tfull.item ? tfull.item.implicitHeight : Theme.px(cfg.toastHeight))
-        : mode === "toast" ? Theme.px(cfg.toastHeight)
+        : (mode === "toast" || mode === "meter") ? Theme.px(cfg.toastHeight)
         : mode === "musicFull" ? Theme.px(cfg.musicFullHeight) : idleH
     property real w: targetW
     property real h: targetH
@@ -100,7 +101,7 @@ Item {
                 if (topStrip || m.button === Qt.RightButton) root.closeAll()
                 return
             }
-            if (m.button === Qt.RightButton || root.mode === "idle") {
+            if (m.button === Qt.RightButton || root.mode === "idle" || root.mode === "meter") {
                 IslandState.collapse()
                 Panels.toggle("control", root.screenName, root.mapToItem(null, root.width / 2, 0).x)
             } else if (root.mode === "music") IslandState.expand("music", root.screenName)
@@ -197,6 +198,15 @@ Item {
             opacity: root.mode === "toast" ? 1 : 0
             Behavior on opacity { NumberAnimation { duration: 160 } }
             source: "ToastCompact.qml"
+        }
+        Loader {
+            readonly property bool want: root.wantMode === "meter"
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: Theme.px(root.cfg.toastWidth); height: Theme.px(root.cfg.toastHeight)
+            active: want || opacity > 0.01
+            opacity: root.mode === "meter" ? 1 : 0
+            Behavior on opacity { NumberAnimation { duration: 160 } }
+            source: "MeterToast.qml"
         }
         Loader {
             id: tfull

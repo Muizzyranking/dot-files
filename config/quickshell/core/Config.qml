@@ -24,7 +24,7 @@ Singleton {
                 clockSize: 130, clockColor: "accent", restoreOnStart: true },
         theming: {
             enabled: false, targets: [],
-            system: { enabled: false, gtkTheme: "adw-gtk3", gtkThemeDark: "adw-gtk3-dark", icons: "auto", iconsFallback: "", cursor: "auto", cursorFallback: "breeze_cursors", cursorSize: 24, font: "", qt: false, cleanGtk: true }
+            system: { enabled: false, gtkTheme: "adw-gtk3", gtkThemeDark: "adw-gtk3-dark", icons: "auto", iconsFallback: "", cursor: "auto", cursorFallback: "breeze_cursors", cursorSize: 24, font: "", qt: false }
         },
         panels: { gap: 6, border: 1, borderOpacity: 0.12, borderColor: "text" },
         workspaces: { attention: true, attentionColor: "warm" },
@@ -35,6 +35,7 @@ Singleton {
         bar: { marginX: 0, marginY: 0, border: 0, borderOpacity: 0.1 },
         monitors: { include: [], exclude: [], primary: "", tray: "all" },
         toasts: { monitor: "focused" },
+        meters: { enabled: true, holdMs: 1500, monitor: "focused" },
         island: { flare: 8 },
         widgets: { clock: { monitors: "all" } },
         eyes: {
