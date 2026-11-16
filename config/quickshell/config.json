@@ -247,7 +247,7 @@
   "theming": {
     "enabled": true,
     "system": {
-      "enabled": false,
+      "enabled": true,
       "gtkTheme": "adw-gtk3",
       "gtkThemeDark": "adw-gtk3-dark",
       "icons": "auto",
@@ -255,9 +255,8 @@
       "cursor": "auto",
       "cursorFallback": "breeze_cursors",
       "cursorSize": 24,
-      "font": "JetBrainsMono Nerd Font 11",
-      "qt": false,
-      "cleanGtk": true
+      "font": "JetBrainsMono Nerd Font 10",
+      "qt": true
     },
     "targets": [
       {
@@ -267,12 +266,12 @@
       },
       {
         "template": "gtk.css",
-        "out": "~/.config/gtk-3.0/shell-colors.css",
+        "out": "~/.config/gtk-3.0/colors.css",
         "reload": ""
       },
       {
-        "template": "gtk.css",
-        "out": "~/.config/gtk-4.0/shell-colors.css",
+        "template": "gtk4-colors.css",
+        "out": "~/.config/gtk-4.0/colors.css",
         "reload": ""
       },
       {

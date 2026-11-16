@@ -151,7 +151,6 @@ Singleton {
             "SHELL_CURSOR_SIZE": String(s.cursorSize),
             "SHELL_FONT": s.font,
             "SHELL_QT": s.qt ? "1" : "",
-            "SHELL_GTK_CLEAN": s.cleanGtk ? "1" : "",
             "SHELL_QT_COLORS": Quickshell.env("HOME") + "/.config/qt6ct/colors/shell.conf"
         }
         sys.command = ["nice", "-n", "10", "sh", Quickshell.shellPath("extras/system-theme.sh")]

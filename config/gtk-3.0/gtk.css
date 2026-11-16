@@ -1,0 +1,3 @@
+/* Static file: the shell renders the palette into colors.css (same directory).
+   Running apps keep the old colours until restarted. */
+@import url("colors.css");

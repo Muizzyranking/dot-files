@@ -1,0 +1,6 @@
+/* Static file: adw-gtk3 for libadwaita apps (they ignore gtk-theme-name), then the
+   palette colours the shell renders into colors.css (same directory). For a light
+   palette switch the adw import to adw-gtk3's gtk-4.0/gtk.css.
+   Running apps keep the old colours until restarted. */
+@import url("file:///usr/share/themes/adw-gtk3-dark/gtk-4.0/gtk.css");
+@import url("colors.css");
