@@ -6,10 +6,6 @@ import qs.core
 import qs.components
 import qs.services
 
-// Settings window. It reads config.json and shows the right control for each key: toggles,
-// sliders, pickers for installed fonts / cursors / icon themes / colour names, a file and
-// folder browser, a colour picker, and monitor chips. Every change is saved to config.json
-// and applies at once. Open it from the control center or with: qsctl settings toggle
 Scope {
     id: root
     readonly property bool want: Popups.open === "settings"
@@ -83,6 +79,7 @@ Scope {
                         out.push({ header: true, label: p.name, path: ["palettes", p.name] })
                         out.push(rowFor(["palettes", p.name, "wallpaper"], "Wallpaper", "", { hint: p.wallpaper }))
                         out.push(rowFor(["palettes", p.name, "cursor"], "Cursor theme", "", { hint: p.cursor }))
+                        out.push(rowFor(["palettes", p.name, "icons"], "Icon theme", "", { hint: p.icons }))
                     }
                     rows = out
                 } else {

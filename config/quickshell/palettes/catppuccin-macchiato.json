@@ -16,5 +16,8 @@
     "warm": "#f5a97f",
     "bad": "#ed8796",
     "info": "#7dc4e4"
+  },
+  "system": {
+    "cursor": "catppuccin-macchiato-blue-cursors"
   }
 }

@@ -16,5 +16,9 @@
     "warm": "#e69875",
     "bad": "#e67e80",
     "info": "#7fbbb3"
+  },
+  "system": {
+    "cursor": "everforest-cursors",
+    "wallpaper": ""
   }
 }

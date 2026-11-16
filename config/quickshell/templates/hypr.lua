@@ -34,3 +34,8 @@ _G.COLORS = {
 	magenta = "rgb({{magenta.hex}})",
 	cyan = "rgb({{cyan.hex}})",
 }
+
+-- The cursor theme of this palette. apps read XCURSOR_* at their launch, so the
+-- Hyprland config must know it at start; hyprctl setcursor (system script) covers
+-- palette changes while running.
+_G.CURSOR = { theme = "{{cursor}}", size = {{cursorSize}} }

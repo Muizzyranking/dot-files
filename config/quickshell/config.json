@@ -250,8 +250,10 @@
       "enabled": false,
       "gtkTheme": "adw-gtk3",
       "gtkThemeDark": "adw-gtk3-dark",
-      "icons": "Reversal-blue-dark",
-      "cursor": "everforest-cursors",
+      "icons": "auto",
+      "iconsFallback": "Reversal-dark",
+      "cursor": "auto",
+      "cursorFallback": "breeze_cursors",
       "cursorSize": 24,
       "font": "JetBrainsMono Nerd Font 11",
       "qt": false,
@@ -319,7 +321,6 @@
   "colors": {},
   "palettes": {
     "everforest-dark": {
-      "cursor": "everforest-cursors",
       "wallpaper": "~/Pictures/images/Wallpapers/tropic_island_night.jpg"
     },
     "catppuccin-mocha": {

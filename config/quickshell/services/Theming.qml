@@ -24,6 +24,7 @@ Singleton {
     property string lastWall: ""
     property string lastColors: ""
     property string lastSys: ""
+    property string lastThemeSys: ""
     property bool ready: false
 
     function expand(p) { return String(p || "").replace(/^~/, Quickshell.env("HOME")) }
@@ -40,6 +41,16 @@ Singleton {
     }
 
     function q(s) { return "'" + String(s).replace(/'/g, "'\\''") + "'" }
+    function cursorName() {
+        const s = Config.v.theming.system
+        if (s.cursor !== "auto") return s.cursor
+        return Config.v.paletteSystem.cursor || s.cursorFallback || ""
+    }
+    function iconName() {
+        const s = Config.v.theming.system
+        if (s.icons !== "auto") return s.icons
+        return Config.v.paletteSystem.icons || s.iconsFallback || ""
+    }
     function hex(c) { return String(c).replace("#", "").slice(-6) }
     function rgb(c) { const k = Qt.color(c); return Math.round(k.r * 255) + ", " + Math.round(k.g * 255) + ", " + Math.round(k.b * 255) }
     function mix(a, b, t) {
@@ -107,7 +118,8 @@ Singleton {
             const v = t.map[k]
             parts.push("s|{{" + k + "}}|" + v + "|g", "s|{{" + k + "\\.hex}}|" + hex(v) + "|g", "s|{{" + k + "\\.rgb}}|" + rgb(v) + "|g")
         }
-        parts.push("s|{{name}}|" + current + "|g", "s|{{mode}}|" + t.mode + "|g")
+        parts.push("s|{{name}}|" + current + "|g", "s|{{mode}}|" + t.mode + "|g",
+            "s|{{cursor}}|" + cursorName() + "|g", "s|{{cursorSize}}|" + Config.v.theming.system.cursorSize + "|g")
         const expr = parts.join(";")
         let sh = ""
         for (const tg of Config.v.theming.targets)
@@ -121,12 +133,11 @@ Singleton {
         const s = Config.v.theming.system
         if (!s.enabled) return
         const t = tokens()
-        const cursor = s.cursor === "auto" ? (Config.v.paletteSystem.cursor ?? "") : s.cursor
         sys.environment = {
             "SHELL_MODE": t.mode,
             "SHELL_GTK_THEME": t.mode === "dark" ? s.gtkThemeDark : s.gtkTheme,
-            "SHELL_ICONS": s.icons,
-            "SHELL_CURSOR": cursor,
+            "SHELL_ICONS": iconName(),
+            "SHELL_CURSOR": cursorName(),
             "SHELL_CURSOR_SIZE": String(s.cursorSize),
             "SHELL_FONT": s.font,
             "SHELL_QT": s.qt ? "1" : "",
@@ -142,6 +153,7 @@ Singleton {
         lastWall = expand(Config.v.paletteSystem.wallpaper)
         lastColors = JSON.stringify(Config.v.colors)
         lastSys = JSON.stringify(Config.v.paletteSystem)
+        lastThemeSys = JSON.stringify(Config.v.theming.system)
     }
 
     Connections {
@@ -152,14 +164,16 @@ Singleton {
             const wall = root.expand(Config.v.paletteSystem.wallpaper)
             const colors = JSON.stringify(Config.v.colors)
             const sys = JSON.stringify(Config.v.paletteSystem)
-            // the wallpaper follows the palette (an empty entry leaves the wallpaper alone)
+            const themeSys = JSON.stringify(Config.v.theming.system)
             if (Config.v.wallpaper.followPalette !== false && wall !== "" && (pal !== root.lastPalette || wall !== root.lastWall))
                 Wallpaper.set(wall)
             const colorsChanged = colors !== root.lastColors, sysChanged = sys !== root.lastSys
-            root.lastPalette = pal; root.lastWall = wall; root.lastColors = colors; root.lastSys = sys
+            const themeSysChanged = themeSys !== root.lastThemeSys
+            root.lastPalette = pal; root.lastWall = wall; root.lastColors = colors
+            root.lastSys = sys; root.lastThemeSys = themeSys
             if (!Config.v.theming.enabled) return
             if (colorsChanged) applyT.restart()
-            else if (sysChanged) sysT.restart()
+            else if (sysChanged || themeSysChanged) sysT.restart()
         }
     }
     Timer { id: applyT; interval: 600; onTriggered: root.apply(false) }
@@ -173,21 +187,22 @@ Singleton {
         }
     }
 
+    Process { id: render }
+
     Process {
         command: ["sh", "-c",
             'for f in "$1"/*.json; do [ -f "$f" ] || continue; n=$(basename "$f" .json); ' +
             'g() { sed -n "s/.*\\"$1\\": *\\"\\([^\\"]*\\)\\".*/\\1/p" "$f" | head -1; }; ' +
-            'printf "%s\\t%s\\t%s\\t%s\\t%s\\t%s\\n" "$n" "$(g accent)" "$(g barBg)" "$(g text)" "$(g cursor)" "$(g wallpaper)"; done',
+            'printf "%s\\t%s\\t%s\\t%s\\t%s\\t%s\\t%s\\n" "$n" "$(g accent)" "$(g barBg)" "$(g text)" "$(g cursor)" "$(g wallpaper)" "$(g icons)"; done',
             "_", Quickshell.shellPath("palettes")]
         running: true
         stdout: StdioCollector {
             onStreamFinished: root.palettes = text.split("\n").filter(l => l.trim() !== "").map(l => {
                 const p = l.split("\t")
-                return { name: p[0], accent: p[1] || "#888888", bg: p[2] || "#222222", text: p[3] || "#dddddd", cursor: p[4] || "", wallpaper: p[5] || "" }
+                return { name: p[0], accent: p[1] || "#888888", bg: p[2] || "#222222", text: p[3] || "#dddddd", cursor: p[4] || "", wallpaper: p[5] || "", icons: p[6] || "" }
             })
         }
     }
     Process { id: write }
-    Process { id: render }
     Process { id: sys }
 }

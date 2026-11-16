@@ -16,5 +16,9 @@
     "warm": "#ef9f76",
     "bad": "#e78284",
     "info": "#85c1dc"
+  },
+  "system": {
+    "cursor": "catppuccin-frappe-blue-cursors",
+    "wallpaper": ""
   }
 }

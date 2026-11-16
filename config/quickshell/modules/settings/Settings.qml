@@ -3,10 +3,8 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 import qs.core
+import qs.services
 
-// The settings window's brain. It knows what each key MEANS (a font, a folder, an opacity, a
-// colour name, ...) so the window can show the right control, and it writes changes to
-// config.json (the file is watched, so every change applies to the running shell at once).
 Singleton {
     id: root
     property var pendingObj: null
@@ -75,8 +73,10 @@ Singleton {
         { re: /^(wallpaper\.default|lock\.wallpaper|profile\.avatar)$/, kind: "image", empty: true },
         { re: /^palettes\.[^.]+\.wallpaper$/, kind: "image", empty: true, emptyLabel: "Leave unchanged" },
         { re: /^palettes\.[^.]+\.cursor$/, kind: "choice", choices: "cursor", empty: true, emptyLabel: "Leave unchanged" },
+        { re: /^palettes\.[^.]+\.icons$/, kind: "choice", choices: "icons", empty: true, emptyLabel: "Leave unchanged" },
         { re: /^theming\.system\.cursor$/, kind: "choice", choices: "cursor", extra: ["auto"], empty: true, emptyLabel: "Leave unchanged" },
-        { re: /^theming\.system\.icons$/, kind: "choice", choices: "icons", empty: true, emptyLabel: "Leave unchanged" },
+        { re: /^theming\.system\.cursorFallback$/, kind: "choice", choices: "cursor", empty: true, emptyLabel: "Keep current cursor" },
+        { re: /^theming\.system\.icons$/, kind: "choice", choices: "icons", extra: ["auto"], empty: true, emptyLabel: "Leave unchanged" },
         { re: /^theming\.system\.(gtkTheme|gtkThemeDark)$/, kind: "choice", choices: "gtk" },
         { re: /^monitors\.(include|exclude)$/, kind: "monitors" },
         { re: /^monitors\.primary$/, kind: "choice", choices: "monitor", empty: true, emptyLabel: "First monitor" },

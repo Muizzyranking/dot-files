@@ -16,5 +16,8 @@
     "warm": "#fe640b",
     "bad": "#d20f39",
     "info": "#209fb5"
+  },
+  "system": {
+    "cursor": "catppuccin-latte-blue-cursors"
   }
 }

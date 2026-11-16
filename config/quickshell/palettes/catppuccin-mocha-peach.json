@@ -16,5 +16,8 @@
     "warm": "#fab387",
     "bad": "#f38ba8",
     "info": "#89b4fa"
+  },
+  "system": {
+    "cursor": "catppuccin-mocha-peach-cursors"
   }
 }

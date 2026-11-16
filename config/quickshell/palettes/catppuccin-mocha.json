@@ -16,5 +16,9 @@
     "warm": "#fab387",
     "bad": "#f38ba8",
     "info": "#74c7ec"
+  },
+  "system": {
+    "cursor": "catppuccin-mocha-blue-cursors",
+    "wallpaper": ""
   }
 }

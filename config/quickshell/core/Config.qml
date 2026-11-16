@@ -24,7 +24,7 @@ Singleton {
                 clockSize: 130, clockColor: "accent", restoreOnStart: true },
         theming: {
             enabled: false, targets: [],
-            system: { enabled: false, gtkTheme: "adw-gtk3", gtkThemeDark: "adw-gtk3-dark", icons: "", cursor: "auto", cursorSize: 24, font: "", qt: false, cleanGtk: true }
+            system: { enabled: false, gtkTheme: "adw-gtk3", gtkThemeDark: "adw-gtk3-dark", icons: "auto", iconsFallback: "", cursor: "auto", cursorFallback: "breeze_cursors", cursorSize: 24, font: "", qt: false, cleanGtk: true }
         },
         panels: { gap: 6, border: 1, borderOpacity: 0.12, borderColor: "text" },
         workspaces: { attention: true, attentionColor: "warm" },
@@ -88,13 +88,16 @@ Singleton {
         path: Quickshell.shellPath("config.json")
         blockLoading: true
         watchChanges: true
-        onFileChanged: reload()
+        // One save fires the watcher (and the write); coalesce the burst so the
+        // shell sees one change (themed exports and the system script run per change).
+        onFileChanged: reloadT.restart()
         onLoaded: {
             const o = root.parse(text())
             if (o) root.raw = o
             else console.warn("config.json has a syntax error. Keeping the previous values.")
         }
     }
+    Timer { id: reloadT; interval: 150; onTriggered: file.reload() }
     FileView {
         id: paletteFile
         path: root.paletteName !== "" ? Quickshell.shellPath("palettes/" + root.paletteName + ".json") : ""
