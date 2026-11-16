@@ -42,10 +42,11 @@ _omp_live_reload_setup() {
     _omp_unregister() { rm -f "$OMP_SHELLS/$$" }
     add-zsh-hook zshexit _omp_unregister
 
-    # Rebuild the prompt string with the new colors, then redraw.
+    # Rebuild the prompt with the new colors and re-source the fzf colours, then redraw.
     # Must return 0: a non-zero trap return aborts the interrupted code.
     TRAPUSR1() {
         [[ -s "$OMP_CACHE" ]] && source "$OMP_CACHE"
+        [[ -s "$HOME/.config/fzf/colors.sh" ]] && source "$HOME/.config/fzf/colors.sh"
         (( $+functions[_omp_precmd] )) && _omp_precmd
         zle && zle reset-prompt
         return 0

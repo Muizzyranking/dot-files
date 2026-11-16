@@ -285,6 +285,11 @@
         "reload": ""
       },
       {
+        "template": "fzf.sh",
+        "out": "~/.config/fzf/colors.sh",
+        "reload": "sh ~/.config/quickshell/extras/fzf-reload.sh"
+      },
+      {
         "template": "hypr.lua",
         "out": "~/.config/hypr/colors.lua",
         "reload": "hyprctl reload"
