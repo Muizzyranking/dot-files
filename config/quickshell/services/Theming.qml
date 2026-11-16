@@ -26,6 +26,7 @@ Singleton {
     property string lastSys: ""
     property string lastThemeSys: ""
     property bool ready: false
+    property bool sysAfterRender: false
 
     function expand(p) { return String(p || "").replace(/^~/, Quickshell.env("HOME")) }
     function set(name) {
@@ -105,12 +106,18 @@ Singleton {
                 "if [ -f \"$o\" ] && [ ! -L \"$o\" ] && cmp -s \"$t\" \"$o\"; then :; " +
                 "else [ -L \"$o\" ] && rm -f \"$o\"; mkdir -p \"$(dirname \"$o\")\" && cat \"$t\" > \"$o\"; chg=1; fi; }; rm -f \"$t\"\n"
         if (gi >= 0) body += "done\n"
-        if (!missingOnly && reload) body += "[ \"$chg\" = 1 ] && { " + reload + "; } >/dev/null 2>&1\n"
+        // every reload runs under timeout: a hanging app
+        // must never leave the render process stuck, or future applies stop silently
+        if (!missingOnly && reload) body += '[ "$chg" = 1 ] && { timeout 10 sh -c ' + q(reload) + '; } >/dev/null 2>&1\n'
         return body
     }
 
-    // missingOnly = true creates only the files that do not exist yet
+    // missingOnly = true creates only the files that do not exist yet.
+    // A render takes up to ~10s (app reload timeouts), so an apply arriving while
+    property int pendingApply: -1
+    property bool pendingSys: false
     function apply(missingOnly) {
+        if (render.running) { pendingApply = missingOnly ? 1 : 0; return }
         const t = tokens()
         const home = Quickshell.env("HOME")
         const parts = []
@@ -124,12 +131,15 @@ Singleton {
         let sh = ""
         for (const tg of Config.v.theming.targets)
             sh += targetScript(tg, expr, missingOnly, home, tg.reload ? tg.reload.replace(/\{\{mode\}\}/g, t.mode).replace(/\{\{gtk\}\}/g, t.mode === "dark" ? Config.v.theming.system.gtkThemeDark : Config.v.theming.system.gtkTheme) : "")
+        // the system script runs after the render: it assembles the GTK theme from
+        // the freshly rendered colours file, so it must not race the render
+        sysAfterRender = true
         if (sh !== "") { render.command = ["nice", "-n", "10", "sh", "-c", sh]; render.running = true }
-        if (!missingOnly) applySystem()
-    }
+        else { sysAfterRender = false; applySystem() }    }
 
     // GTK settings, GTK/Qt preferences and the cursor (extras/system-theme.sh)
     function applySystem() {
+        if (sys.running) { pendingSys = true; return }
         const s = Config.v.theming.system
         if (!s.enabled) return
         const t = tokens()
@@ -183,11 +193,20 @@ Singleton {
         onTriggered: {
             root.snapshot()
             root.ready = true
-            if (Config.v.theming.enabled) { root.apply(true); root.applySystem() }
+            if (Config.v.theming.enabled) { root.apply(false) }
         }
     }
 
-    Process { id: render }
+    Process {
+        id: render
+        // the system script needs the rendered colours file, so it waits for this
+        onExited: {
+            if (root.pendingApply >= 0) { const m = root.pendingApply; root.pendingApply = -1; root.apply(m === 1); return }
+            if (!root.sysAfterRender) return
+            root.sysAfterRender = false
+            root.applySystem()
+        }
+    }
 
     Process {
         command: ["sh", "-c",
@@ -204,5 +223,12 @@ Singleton {
         }
     }
     Process { id: write }
-    Process { id: sys }
+    Process {
+        id: sys
+        onExited: {
+            if (!root.pendingSys) return
+            root.pendingSys = false
+            root.applySystem()
+        }
+    }
 }
