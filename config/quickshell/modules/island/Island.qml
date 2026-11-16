@@ -118,7 +118,12 @@ Item {
 
         Eyes {
             id: eyes
-            anchors.horizontalCenter: parent.horizontalCenter
+            anchors {
+                horizontalCenter: parent.horizontalCenter
+                // shift left so the privacy indicators on the right do not overlap
+                horizontalCenterOffset: root.mode === "idle" && Privacy.count > 0 ? -Theme.px(Privacy.space + 12) / 2 : 0
+            }
+            Behavior on anchors.horizontalCenterOffset { NumberAnimation { duration: 160 } }
             y: (root.idleH - height) / 2
             active: root.mode === "idle"
             opacity: root.mode === "idle" ? 1 : 0
@@ -137,19 +142,41 @@ Item {
             sourceSize.height: 176
         }
 
-        Rectangle {
-            visible: Capture.recording && (root.mode === "idle" || root.mode === "music")
-            width: Theme.px(8); height: width; radius: width / 2
-            color: Theme.bad
+        // privacy indicators: recording / camera / mic / screen share (Privacy.items)
+        Row {
+            id: indicators
             anchors.right: parent.right
             anchors.rightMargin: Theme.px(12)
             anchors.top: parent.top
-            anchors.topMargin: (root.idleH - height) / 2
-            SequentialAnimation on opacity {
-                running: parent.visible
-                loops: Animation.Infinite
-                NumberAnimation { from: 1; to: 0.25; duration: 700 }
-                NumberAnimation { from: 0.25; to: 1; duration: 700 }
+            anchors.topMargin: (root.idleH - Theme.px(16)) / 2
+            spacing: Theme.px(6)
+            opacity: (root.mode === "idle" || root.mode === "music") && Privacy.count > 0 ? 1 : 0
+            visible: opacity > 0.01
+            Behavior on opacity { NumberAnimation { duration: 160 } }
+
+            Repeater {
+                model: Privacy.items
+                Item {
+                    required property var modelData
+                    width: Theme.px(16); height: Theme.px(16)
+                    Rectangle {
+                        visible: modelData.pulse === true
+                        anchors.fill: parent; radius: width / 2
+                        color: Theme.bad
+                        SequentialAnimation on opacity {
+                            running: parent.visible
+                            loops: Animation.Infinite
+                            NumberAnimation { from: 1; to: 0.25; duration: 700 }
+                            NumberAnimation { from: 0.25; to: 1; duration: 700 }
+                        }
+                    }
+                    Icon {
+                        visible: !modelData.pulse
+                        anchors.centerIn: parent
+                        name: modelData.icon
+                        color: Theme.bad
+                    }
+                }
             }
         }
 

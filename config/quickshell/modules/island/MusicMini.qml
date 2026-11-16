@@ -11,7 +11,7 @@ Item {
         anchors {
             fill: parent
             leftMargin: Theme.px(12)
-            rightMargin: Capture.recording ? Theme.px(26) : Theme.px(12)
+            rightMargin: Theme.px(12 + (Privacy.count > 0 ? Privacy.space + 12 : 0))
         }
         spacing: Theme.px(8)
         Bars { Layout.alignment: Qt.AlignVCenter; running: Media.active; tone: Theme.islandText }

@@ -119,6 +119,10 @@ Scope {
         function close(): void { Launcher.hide() }
     }
     IpcHandler {
+        target: "privacy"
+        function get(): string { return Privacy.items.map(i => i.icon).join(", ") || "none" }
+    }
+    IpcHandler {
         target: "theme"
         function set(name: string): void { Theming.set(name) }
         function next(): void { Theming.next() }
