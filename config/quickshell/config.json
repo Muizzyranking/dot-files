@@ -328,6 +328,11 @@
         "template": "cava.conf",
         "out": "~/.config/cava/themes/shell",
         "reload": "pkill -USR2 -x cava"
+      },
+      {
+        "template": "bat.tmTheme",
+        "out": "~/.config/bat/themes/shell.tmTheme",
+        "reload": "bat cache --build"
       }
     ]
   },
