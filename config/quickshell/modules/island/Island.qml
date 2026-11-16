@@ -23,7 +23,7 @@ Item {
     readonly property string wantMode: control ? "control"
         : (IslandState.expanded === "toast" && mine && toastHere) ? "toastFull"
         : toastHere ? "toast"
-        : (IslandState.expanded === "music" && mine && Media.active) ? "musicFull"
+        : (IslandState.expanded === "music" && mine && Media.present) ? "musicFull"
         : Media.active ? "music" : "idle"
     property string mode: "idle"
     readonly property bool compact: mode === "idle" || mode === "music" || mode === "toast"
@@ -124,6 +124,17 @@ Item {
             opacity: root.mode === "idle" ? 1 : 0
             visible: opacity > 0.01
             Behavior on opacity { NumberAnimation { duration: 160 } }
+        }
+
+        // warms the artwork cache as soon as a player exists (the expanded view's
+        // own Image only starts fetching when it is built, which made art pop in late)
+        Image {
+            visible: false
+            source: Media.player && Media.player.trackArtUrl ? Media.player.trackArtUrl : ""
+            asynchronous: true
+            cache: true
+            sourceSize.width: 176
+            sourceSize.height: 176
         }
 
         Rectangle {

@@ -8,7 +8,7 @@ import qs.services
 // Expanded music: art, title/artist, equalizer, progress and controls.
 Item {
     id: root
-    readonly property var p: Media.islandPlayer
+    readonly property var p: Media.player
     function fmt(s) { s = Math.max(0, Math.floor(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0") }
 
     Timer {
