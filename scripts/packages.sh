@@ -17,24 +17,26 @@ PACMAN_PACKAGES=(
     "hyprland" "hypridle" "xdg-desktop-portal-hyprland"
     "grim" "swappy" "wl-clipboard" "wf-recorder" "libnotify" "satty"
     "cliphist" "pamixer" "wireplumber" "playerctl" "brightnessctl" "polkit-gnome"
-    "blueman" "thunar" "udiskie" "nmcli"
+    "blueman" "thunar" "udiskie" "networkmanager"
 
     # Theming
     "qt5ct" "qt6ct" "adw-gtk-theme" "pavucontrol"
+    "ttf-material-symbols-variable" "breeze-cursors" "adwaita-icon-theme"
 
-    "cmark-gfm", "quickshell"
+    "cmark-gfm" "quickshell"
 )
 
 AUR_PACKAGES=(
     # Apps
     "google-chrome" "firefox" "visual-studio-code-bin"
-    "telegram-desktop" "slack-desktop" "spotify"
+    "telegram-desktop" "slack-desktop" "spotify" "spicetify-cli"
 
     # Fonts
     "ttf-jetbrains-mono-nerd" "ttf-maple-nerd-font"
 
-    # cursors
-    "reversal-icon-theme-git" "catppuccin-cursors-mocha-blue"
+    # Theming: icon theme + cursor themes
+    "reversal-icon-theme-git"
+    "catppuccin-cursors-mocha" "catppuccin-cursors-macchiato" "catppuccin-cursors-frappe" "catppuccin-cursors-latte"
 )
 
 install_pacman_packages() {
