@@ -1,5 +1,5 @@
 {
-  "palette": "catppuccin-mocha",
+  "palette": "everforest-dark",
   "scale": 1,
   "font": {
     "family": "JetBrainsMono Nerd Font",
@@ -175,7 +175,7 @@
   "audio": {
     "maxVolume": 2,
     "maxInput": 1,
-    "step": 0.5
+    "step": 0.05
   },
   "session": {
     "lock": "",
