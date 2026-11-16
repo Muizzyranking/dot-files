@@ -7,8 +7,6 @@ source "$HOME/.config/zsh/utils.sh"
 
 set -euo pipefail
 
-trap_interrupt
-
 require_or_exit git
 
 show_help() {
