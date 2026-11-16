@@ -323,6 +323,11 @@
         "template": "opencode-theme.json",
         "out": "~/.config/opencode/themes/qs-shell.json",
         "reload": ""
+      },
+      {
+        "template": "cava.conf",
+        "out": "~/.config/cava/themes/shell",
+        "reload": "pkill -USR2 -x cava"
       }
     ]
   },
