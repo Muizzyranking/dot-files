@@ -7,26 +7,63 @@
 
 ## Showcase
 
-![image](https://muizzyranking.github.io/images/dot_images/home.png)
+![Home Idle](https://muizzyranking.github.io/images/dot_images/home-idle.png)
 
 <details>
-<summary>Nvim</summary>
+<summary>Home (With Music)</summary>
 
-![image](https://muizzyranking.github.io/images/dot_images/nvim.png)
+![Home With Music](https://muizzyranking.github.io/images/dot_images/home-w-music.png)
 
 </details>
 
 <details>
-<summary>Spotify</summary>
+<summary>Music Full Island</summary>
 
-![image](https://muizzyranking.github.io/images/dot_images/spotify.png)
+![Music Full Island](https://muizzyranking.github.io/images/dot_images/music-full-island.png)
 
 </details>
 
 <details>
-<summary>Home Screen</summary>
+<summary>App Launcher</summary>
 
-![image](https://muizzyranking.github.io/images/dot_images/home_with_media.png)
+![App Launcher](https://muizzyranking.github.io/images/dot_images/app-launcher.png)
+
+</details>
+
+<details>
+<summary>Control Center</summary>
+
+![Control](https://muizzyranking.github.io/images/dot_images/control.png)
+
+</details>
+
+<details>
+<summary>Chrome Browser</summary>
+
+![Chrome Browser](https://muizzyranking.github.io/images/dot_images/chrome-browser.png)
+
+</details>
+
+<details>
+<summary>Neovim</summary>
+
+![Neovim](https://muizzyranking.github.io/images/dot_images/nvim.png)
+
+</details>
+
+### Another Theme (Catppuccin)
+
+<details>
+<summary>Browser (Catppuccin)</summary>
+
+![Browser Catppuccin](https://muizzyranking.github.io/images/dot_images/browser-catpuccin.png)
+
+</details>
+
+<details>
+<summary>Neovim (Catppuccin)</summary>
+
+![Neovim Catppuccin](https://muizzyranking.github.io/images/dot_images/nvim-catpuccin.png)
 
 </details>
 

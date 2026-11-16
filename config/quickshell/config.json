@@ -1,5 +1,5 @@
 {
-  "palette": "everforest-dark",
+  "palette": "catppuccin-mocha",
   "scale": 1,
   "font": {
     "family": "JetBrainsMono Nerd Font",
@@ -208,7 +208,7 @@
     "enabled": true,
     "dir": "~/Pictures/images/Wallpapers",
     "default": "",
-    "fit": "fit",
+    "fit": "stretch",
     "transitionMs": 700,
     "intervalMin": 0,
     "random": false,
@@ -350,7 +350,7 @@
   "colors": {},
   "palettes": {
     "everforest-dark": {
-      "wallpaper": "~/Pictures/images/Wallpapers/tropic_island_night.jpg"
+      "wallpaper": "~/Pictures/images/Wallpapers/waves.png"
     },
     "catppuccin-mocha": {
       "wallpaper": "~/Pictures/images/Wallpapers/sushi.jpg"
