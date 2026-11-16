@@ -11,9 +11,8 @@ A Wayland desktop shell for Hyprland, written in QML on Quickshell (0.3.x, Qt 6.
 ## Layout
 
     shell.qml            entry point: creates the top-level modules
-    config.json          the ONE user config file (see config.md for every key)
-    config.md            user documentation of every config key and IPC command
-    theming.md           how palettes are exported to other apps
+    config.json          the ONE user config file (see ../docs/config.md for every key)
+    ../docs/             user-facing guides (config.md, theming.md, palettes.md), shared with the repo
     palettes/*.json      colour palettes (the "colors" block)
     templates/*          files rendered with palette colours for other apps
     core/                Config.qml (loads + merges config), Theme.qml (colours, sizes)
@@ -40,7 +39,7 @@ Imports use the `qs.` prefix: `import qs.core`, `import qs.components`, `import 
 1. **Never name a property `on` + Capital letter** (like `onIsland`, `onAccent`). Its change signal clashes with the handler of the property without the prefix, and the value silently stays black/empty. Use names like `islandText`, `accentText`.
 2. **Do not name properties `top`, `left`, `right`, `bottom`** on Items (QML reserves them). Use `edge`, `atTop`, etc.
 3. **No hardcoded colours or sizes.** Colours come from `Theme`; sizes go through `Theme.px()`. Text sitting directly on the island uses `Theme.islandText` / `Theme.islandTextDim`; on the bar use `Theme.text`.
-4. **New settings go in `config.json`, and in `Config.fallback`** with a default, and in `config.md`.
+4. **New settings go in `config.json`, and in `Config.fallback`** with a default, and in `../docs/config.md`.
 5. **Do not resize or recreate layer-shell windows while animating.** The bar window has a fixed height on purpose; resizing it caused flicker.
 6. **Do not write through symlinks** when exporting files (the theming code removes a symlink first).
 7. **Every `MouseArea` that is clickable sets `cursorShape: Qt.PointingHandCursor`.**
@@ -86,16 +85,16 @@ Reference it anywhere as `Thing.value`. Singletons are created on first use: tou
 
 **A desktop widget.** Add a component in `modules/widgets/`, instantiate it in `modules/wallpaper/WallpaperWindow.qml`, and add its config under `widgets`.
 
-**An IPC command.** Add a function with typed arguments to an `IpcHandler` in `modules/ipc/Ipc.qml` (`function name(arg: string): void { ... }`), then document it in `config.md` and `keybinds.example.conf`.
+**An IPC command.** Add a function with typed arguments to an `IpcHandler` in `modules/ipc/Ipc.qml` (`function name(arg: string): void { ... }`), then document it in `../docs/config.md` and `keybinds.example.conf`.
 
-**A themed app.** Add a file to `templates/` using `{{accent}}`, `{{bg.hex}}`, etc., and a target in `theming.targets`. See `theming.md`.
+**A themed app.** Add a file to `templates/` using `{{accent}}`, `{{bg.hex}}`, etc., and a target in `theming.targets`. See `../docs/theming.md`.
 
-**A config key.** Add it to `config.json`, to `Config.fallback` in `core/Config.qml`, and to `config.md`.
+**A config key.** Add it to `config.json`, to `Config.fallback` in `core/Config.qml`, and to `../docs/config.md`.
 
 ## Theming and settings
 
 - Templates use `{{token}}`, `{{token.hex}}`, `{{token.rgb}}`. New tokens go in `Theming.tokens()`. Palettes may define extra colour names and a `system.cursor`.
-- `extras/theme.sh` applies GTK/GSettings/cursor/Qt from `SHELL_*` environment variables. Set the cursor in GSettings too, or apps that read GSettings lose the pointer.
+- `extras/system-theme.sh` applies GTK/GSettings/cursor/Qt from `SHELL_*` environment variables. The GTK base theme name (`adw-gtk3`/`-dark`) never changes between palettes; palette colours go into `~/.config/gtk-*/colors.css` (rendered by a theming target, imported by the static `~/.config/gtk-*/gtk.css`). Running apps keep the old colours until restarted — accepted. Set the cursor in GSettings too, or apps that read GSettings lose the pointer.
 - The settings popup (`modules/settings/`) edits any key generically. A new config key shows up there automatically; fixed-choice keys are listed in `Settings.enums`.
 - Workspace alerts come from Hyprland raw events (`openwindow`, `urgent`) in `services/WorkspaceActivity.qml`.
 - After a shell reload, `NotificationServer` re-announces old notifications; `Notifs` ignores those for toasts and sounds.
@@ -110,4 +109,4 @@ Lock screen (PAM service in `lock.pamConfig`), session-lock behaviour, screen ca
 
 ## Style
 
-Small files, one job each. Comments explain *why*, not what. Keep user-facing text short and plain. Update `config.md` whenever behaviour or config changes.
+Small files, one job each. Comments explain *why*, not what. Keep user-facing text short and plain. Update `../docs/config.md` whenever behaviour or config changes.

@@ -11,9 +11,7 @@ Do not delete keys: the shell reads every key listed here, so a missing one will
     qs -p ./shell.qml       # or run from this folder
 
 Optional tools, each only needed for its own feature:
-`brightnessctl` (brightness and keyboard light), `grim` `slurp` `wl-clipboard` `libnotify` (screenshots), `satty` (annotation), `wf-recorder` (recording), `cliphist` (clipboard history), `libpulse` and `sound-theme-freedesktop` (sounds).
-
-`slurp` is no longer needed: regions are picked with the shell's own selector.
+`brightnessctl` (brightness and keyboard light), `grim` `wl-clipboard` `libnotify` (screenshots), `satty` (annotation), `wf-recorder` (recording), `cliphist` (clipboard history), `libpulse` and `sound-theme-freedesktop` (sounds).
 
 Needs: Quickshell (tested against 0.3.2), the Inter font, Material Symbols Rounded, NetworkManager (nmcli), UPower, PipeWire, BlueZ.
 
@@ -132,9 +130,15 @@ Use any `.oga`, `.ogg`, `.wav` or `.flac` file path. No sounds play for the firs
 | Nothing happening | Eyes | Opens the control center |
 | Music playing | Equalizer bars and the scrolling title and artist, same size as the eyes | Expands to art, progress and controls |
 | Notification arrives | Grows into a toast | Expands to the full notification |
-| Music paused | Back to eyes | |
+| Volume or brightness changes | Grows into a meter (icon, bar, percent) while the value moves | Opens the control center |
+| Music paused, not expanded | Back to eyes | |
+| Music paused, expanded | Stays open with the paused track until you close it | |
 
 Right click always opens the control center. Click outside the island or press Escape to collapse it. A toast you open is removed from the island afterwards but stays in the notifications panel. The equalizer bars are animated for effect, they do not analyse the audio.
+
+### Privacy indicators
+
+While something is in use, small icons appear on the right of the eyes (and of the music pill): a pulsing dot while the screen is recorded, `videocam` while a process holds a camera open, `mic` while an app captures audio, and `screen_share` while the desktop portal streams the screen. They are informational, not clickable, and hide while the island is expanded. Album art is preloaded as soon as a player exists, so the expanded view does not wait for the image.
 
 ## toasts and media
 
@@ -148,6 +152,16 @@ Right click always opens the control center. Click outside the island or press E
 | `media.excludeTitles` | [] | Ignore any track whose title or artist contains one of these words. |
 
 Do not disturb hides toasts and silences sounds. Critical notifications still get through.
+
+## meters
+
+The island also shows volume and brightness as a small meter: icon, bar, percent. It appears whenever the value changes (keybind, `qs ipc`, media keys, the control centre sliders) and closes on its own shortly after the last change. It never interrupts the control centre, an opened notification or the music player.
+
+| Key | Default | Meaning |
+|---|---|---|
+| `meters.enabled` | true | Show the volume/brightness meter on the island. |
+| `meters.holdMs` | 1500 | How long the meter stays after the last change. |
+| `meters.monitor` | focused | Where the meter appears: `focused`, `primary`, or `all`. |
 
 ## audio
 
@@ -344,7 +358,8 @@ To lock on idle and before sleep, point hypridle at it (`~/.config/hypr/hypridle
 | `lock.wallpaper` | "" | Picture for the lock screen. Empty uses the current wallpaper. |
 | `lock.blur` | 0.7 | Blur strength, 0 to 1. 0 turns blur off. |
 | `lock.dim` | 0.35 | How dark the wallpaper is, 0 to 1. |
-| `lock.timeFormat`, `lock.dateFormat` | h:mm, dddd, d MMMM | Qt formats. |
+| `lock.timeFormat` | HH:mm | Qt time format. The hours are bold in the text colour and the minutes thin in the clock colour, on one line. `HH:mm` is 24-hour, `h:mm AP` is 12-hour (the AM/PM is shown small). |
+| `lock.dateFormat` | dddd, d MMMM | Qt date format. Shown above the time in capitals. |
 | `lock.showMedia` | true | Show the playing media under the password box. |
 
 **Before you rely on it:** test it while you have another way in. Open a second terminal on another TTY (Ctrl+Alt+F3), then run `qs ipc call lock lock` and unlock with your password. If the password is never accepted, check `lock.pamConfig`. If you get stuck, from the TTY run `loginctl unlock-session` or restart your session. Installing `hyprlock` as a spare is a good safety net.
@@ -352,6 +367,23 @@ To lock on idle and before sleep, point hypridle at it (`~/.config/hypr/hypridle
 ## theming (one palette for every app)
 
 See `theming.md`. In short: `theming.enabled` turns on exporting. Each entry in `theming.targets` has a `template` from `templates/`, an `out` path, and an optional `reload` command. When the palette changes (or you run `qs ipc call theme apply`) every template is rendered with the palette's colours.
+
+| Key | Default | What it does |
+|---|---|---|
+| `theming.enabled` | false | Render every target when the palette changes. |
+| `theming.system.enabled` | false | Apply GTK, cursor and Qt settings with the palette (`extras/system-theme.sh`). |
+| `theming.system.gtkTheme`, `gtkThemeDark` | adw-gtk3, adw-gtk3-dark | **Base** theme the generated theme builds on (per mode). |
+| `theming.system.icons` | auto | `auto` uses the palette's `system.icons`, falling back to `iconsFallback`; or an icon theme name; empty leaves it unchanged. |
+| `theming.system.cursor` | auto | `auto` uses the palette's `system.cursor`; or a cursor theme name; empty leaves it unchanged. |
+| `theming.system.cursorFallback` | breeze_cursors | Cursor for palettes with no cursor entry of their own. Empty keeps the current cursor. |
+| `theming.system.iconsFallback` | "" | Icon theme for palettes with no icons entry of their own. Empty keeps the current icons. |
+| `theming.system.cursorSize` | 24 | Cursor size. |
+| `theming.system.font` | "" | GTK font, like `JetBrainsMono Nerd Font 11`. Empty leaves it unchanged. |
+| `theming.system.qt` | false | Configure qt6ct/qt5ct (Fusion style with the palette). |
+
+Boot and robustness: at startup the shell re-renders every target from the current palette, so files left stale by the previous session (a palette changed while a render hung, or a crash) are fixed on the next boot; `hyprctl setcursor` also always runs, because Hyprland read the previous session's cursor theme at start. App reload commands run under `timeout 10`, so one app (nvim's RPC hangs when it is busy) can never stall the whole pipeline, and applies that arrive while a render is still running are replayed when it finishes.
+
+Targets included: kitty, tmux, nvim, Hyprland (`colors.lua`), oh-my-posh, Firefox (`userChrome.css`), Spicetify (`spicetify apply` runs, then restart Spotify), GTK colours (`~/.config/gtk-3.0/colors.css` and `gtk-4.0/colors.css`, imported by the static `gtk.css` files), fzf (`~/.config/fzf/colors.sh`, exported as `FZF_DEFAULT_OPTS` and re-sourced in open shells via the prompt's USR1 reload), and **opencode**: `~/.config/opencode/themes/qs-shell.json`, selected in `~/.config/opencode/cli.json` (`"theme": { "name": "qs-shell", "mode": "system" }`). opencode reads its theme at startup, so an open session needs a restart to pick up a palette change.
 
 ## IPC commands (keybinds)
 
@@ -367,12 +399,15 @@ Run any of these from a keybind or a terminal as `qs ipc call <target> <function
 | `volume` | `up`, `down`, `mute`, `set <percent>`, `micMute` | Output volume (up to `audio.maxVolume`) and microphone mute. |
 | `brightness` | `up`, `down`, `set <percent>`, `kbdUp`, `kbdDown` | Screen and keyboard backlight. |
 | `media` | `playPause`, `next`, `previous`, `expand` | Control the playing player. `expand` opens or closes the island player. |
+| `privacy` | `get` | List the privacy indicators currently active (camera, mic, screen share, recording). |
 | `island` | `collapse` | Close whatever the island has open. |
 | `session` | `lock`, `suspend`, `hibernate`, `logout`, `reboot`, `poweroff` | Runs the commands from `session`. These run immediately, with no confirmation. |
 | `idle` | `toggle` | Keep awake on or off. |
 | `wallpaper` | `picker`, `next`, `prev`, `random`, `set <path>`, `reload` | Wallpaper picker popup and changes. |
 | `launcher` | `toggle`, `open`, `close` | The app launcher. |
 | `theme` | `set <name>`, `next`, `get`, `list`, `apply` | Switch the palette. It edits `palette` in `config.json`, and the shell updates live. `apply` re-exports the colours to your apps. |
+| `settings` | `toggle` | Open or close the settings window. |
+| `mood` | `set <name>`, `auto`, `get` | Test the eyes' mood. |
 | `lock` | `lock`, `locked` | Lock the screen with the built-in lock screen. There is deliberately no unlock command. |
 
 Examples:
@@ -441,10 +476,8 @@ Closing the island: click its top strip (where it sat when idle) to close it, or
 
 | Key | Default | Meaning |
 |---|---|---|
-| `lock.clockStyle` | stacked | `stacked` (hours over minutes) or `inline`. |
-| `lock.clockSize` | 130 | Clock size. |
-| `lock.clockColor` | accent | Colour of the date and the minutes. |
-| `lock.hourFormat`, `lock.minuteFormat` | HH, mm | Qt formats for the stacked clock. |
+| `lock.clockSize` | 130 | Size of the time. |
+| `lock.clockColor` | accent | Colour of the date and the minutes, a colour name or hex value. |
 | `lock.restoreOnStart` | true | If the shell restarts while locked, it locks again at start so you can still unlock. |
 
 ## theming: Hyprland (Lua)
@@ -460,3 +493,90 @@ When `theming.enabled` is true, every target whose file does not exist yet is cr
 ## service and qsctl
 
 See `extras/README.md`: a systemd user service so the shell starts without Hyprland, and `qsctl`, a short command for all the IPC calls.
+
+
+## Settings window
+
+Open it from the Settings tile in the control center or with `qsctl settings toggle`. It lists every key in `config.json`, grouped by section, with a search box. Toggles, number steppers, text fields, and arrow pickers for fixed choices (like `workspaces.label` or `palette`) write straight to `config.json`, and the shell applies each change immediately. Lists (like `media.exclude`) are comma-separated text. Complex values (like `theming.targets`) are edited as JSON and only saved when the JSON is valid. The file is rewritten in a standard layout, so hand-made spacing is not kept.
+
+## panels and bar borders
+
+Panels are detached from the bar, with a small gap and a light border.
+
+| Key | Default | Meaning |
+|---|---|---|
+| `panels.gap` | 6 | Space between the bar and a panel. |
+| `panels.border` | 1 | Panel border width. 0 removes it. |
+| `panels.borderOpacity` | 0.12 | Border strength. |
+| `panels.borderColor` | text | A colour name from `colors` or a hex value. |
+| `bar.border` | 0 | Bar border width. Set 1 to match the panels. |
+| `bar.borderOpacity` | 0.1 | Bar border strength. |
+
+## workspace alerts
+
+A workspace that gets activity while you are on another one is painted in a different colour until you visit it. That covers a window opening there, and a window asking for attention (for example a browser opening a link on another workspace).
+
+| Key | Default | Meaning |
+|---|---|---|
+| `workspaces.attention` | true | Turn the alerts on or off. |
+| `workspaces.attentionColor` | warm | A colour name from `colors` or a hex value. |
+
+## theming.system
+
+| Key | Default | Meaning |
+|---|---|---|
+| `theming.system.enabled` | false | Apply GTK, cursor and Qt settings with the palette. |
+| `theming.system.gtkTheme`, `gtkThemeDark` | adw-gtk3, adw-gtk3-dark | **Base** theme name (light and dark palettes). The palette never changes it; `~/.config/gtk-*/colors.css` carries the colours. |
+| `theming.system.icons` | auto | `auto` uses the palette's `system.icons`, falling back to `iconsFallback`; or an icon theme name; empty leaves it unchanged. |
+| `theming.system.cursor` | auto | `auto` uses the palette's `system.cursor`; or a cursor theme name; empty leaves it unchanged. |
+| `theming.system.cursorFallback` | breeze_cursors | Cursor for palettes with no cursor entry of their own. Empty keeps the current cursor. |
+| `theming.system.iconsFallback` | "" | Icon theme for palettes with no icons entry of their own. Empty keeps the current icons. |
+| `theming.system.cursorSize` | 24 | Cursor size. |
+| `theming.system.font` | "" | GTK font, like `JetBrainsMono Nerd Font 11`. Empty leaves it unchanged. |
+| `theming.system.qt` | false | Configure qt6ct/qt5ct (Fusion style with the palette). |
+
+See `theming.md` for the full explanation (the generated-theme live-reload mechanism, Spotify, Chrome).
+
+## session.lock
+
+`session.lock` may be empty or `loginctl lock-session`: both use the built-in lock screen directly. Any other command is run instead.
+
+
+## wallpaper, cursor and icons per palette
+
+Each palette can carry its own wallpaper, cursor theme and icon theme, so switching palette changes the whole look. Set them in the Settings window (Palettes page, with a file browser and a cursor list), or in `config.json`:
+
+    "palettes": {
+      "catppuccin-mocha-peach": {
+        "wallpaper": "~/Pictures/Wallpapers/peach.jpg",
+        "cursor": "catppuccin-mocha-peach-cursors",
+        "icons": "Reversal-blue-dark"
+      }
+    }
+
+An empty or missing entry means "leave it unchanged": the current wallpaper, cursor and icons stay. Entries in `config.json` win over the palette file's own `system` block. The cursor and icons are applied through `theming.system` (they need `theming.system.enabled` and `"cursor": "auto"` / `"icons": "auto"`); a palette with no cursor uses `theming.system.cursorFallback` (`breeze_cursors`), a palette with no icons uses `theming.system.iconsFallback`. The wallpaper does not need theming turned on.
+
+| Key | Default | Meaning |
+|---|---|---|
+| `wallpaper.followPalette` | true | Change the wallpaper when the palette changes. |
+| `palettes.<name>.wallpaper` | "" | Wallpaper for that palette. Empty leaves it unchanged. |
+| `palettes.<name>.cursor` | "" | Cursor theme for that palette. Empty leaves it unchanged. |
+| `palettes.<name>.icons` | "" | Icon theme for that palette. Empty leaves it unchanged. |
+
+## Settings window controls
+
+The window knows what each key means, so it shows the right control: toggles; sliders for opacity, blur, radius, scale and similar; arrow pickers for short fixed lists; searchable pickers for installed fonts (each shown in its own typeface), cursor themes, icon themes, GTK themes, colour names and monitors; a file and folder browser with image previews for wallpapers, the avatar and folders; a colour picker (hue, saturation, brightness, hex) for `colors`; and monitor chips for `monitors.include` and `monitors.exclude`. Anything else is text, a comma-separated list, or JSON. A palette's wallpaper and cursor are on the Palettes page.
+
+## system vitals
+
+The process list is sorted highest first by default. The Highest/Lowest button next to the search box flips it. The bar at the top of the Memory and CPU tabs fills to the current percentage.
+
+## blur (Hyprland)
+
+The bar window is a tall, see-through surface (it needs room for panels and the island). Without a threshold, Hyprland blurs behind the whole surface, so the screen blurs but the bar stays clear. Tell it to ignore the see-through pixels with `ignore_alpha`. For your Lua config:
+
+    hl.layer_rule({ match = { namespace = "qs-bar" }, blur = true, ignore_alpha = 0.1 })
+    hl.layer_rule({ match = { namespace = "qs-launcher" }, blur = true, ignore_alpha = 0.1 })
+    hl.layer_rule({ match = { namespace = "qs-popup" }, blur = true, ignore_alpha = 0.1 })
+
+With the old config syntax: `layerrule = blur, qs-bar` and `layerrule = ignorealpha 0.1, qs-bar`. Keep `ignore_alpha` below `bar.opacity` (and below `panels.opacity`), otherwise the bar stops blurring.
