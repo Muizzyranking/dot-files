@@ -19,3 +19,4 @@ config/gtk-3.0/backup-*
 config/gtk-4.0/backup-*
 config/oh-my-posh/colors.json
 /config/bat/themes/shell.tmTheme
+/config/oh-my-posh/config.omp.json
