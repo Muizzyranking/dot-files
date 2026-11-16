@@ -1,0 +1,15 @@
+[Desktop Entry]
+# User override of the system's spotify.desktop (/usr/share/applications).
+# It only changes the Exec line: forces the Wayland backend. Spotify does not
+# reload its theme live; after a palette change run `spicetify apply` (the shell
+# runs it for you) and restart Spotify.
+Type=Application
+Name=Spotify
+GenericName=Music Player
+Icon=spotify-client
+TryExec=spotify
+Exec=spotify --enable-features=UseOzonePlatform --ozone-platform=wayland --uri=%u
+Terminal=false
+MimeType=x-scheme-handler/spotify;
+Categories=Audio;Music;Player;AudioVideo;
+StartupWMClass=spotify

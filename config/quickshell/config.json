@@ -308,6 +308,11 @@
         "template": "firefox-chrome.css",
         "out": "~/.mozilla/firefox/*.default*/chrome/userChrome.css",
         "reload": ""
+      },
+      {
+        "template": "spicetify-color.ini",
+        "out": "~/.config/spicetify/Themes/qs-shell/color.ini",
+        "reload": "spicetify apply"
       }
     ]
   },
