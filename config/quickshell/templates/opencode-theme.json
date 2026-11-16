@@ -1,0 +1,99 @@
+{
+  "base": {
+    "categorical": ["blue", "purple", "green", "orange", "red"],
+    "text": {
+      "base": "{{fg}}",
+      "muted": "{{fgDim}}",
+      "action": {
+        "primary": { "base": "{{onAccent}}", "$disabled": "{{fgFaint}}", "$focused": "{{onAccent}}", "$selected": "{{onAccent}}" },
+        "secondary": { "base": "{{fgDim}}", "$hovered": "{{fg}}" },
+        "destructive": { "base": "{{bad}}", "$disabled": "{{fgFaint}}" }
+      },
+      "formfield": {
+        "base": "{{fg}}",
+        "$hovered": "{{fg}}", "$focused": "{{fg}}", "$pressed": "{{fg}}",
+        "$disabled": "{{fgFaint}}", "$selected": "{{fg}}"
+      },
+      "feedback": {
+        "error": { "base": "{{bad}}" },
+        "warning": { "base": "{{warn}}" },
+        "success": { "base": "{{good}}" },
+        "info": { "base": "{{info}}" }
+      }
+    },
+    "background": {
+      "base": "{{bg}}",
+      "raised": { "base": "{{panel}}", "high": "{{surface}}", "max": "{{surfaceHi}}" },
+      "action": {
+        "primary": { "base": "{{accent}}", "$hovered": "{{accent}}", "$focused": "{{accent}}", "$selected": "{{accent}}" },
+        "secondary": { "base": "transparent" },
+        "destructive": { "base": "transparent" }
+      },
+      "formfield": { "base": "{{surface}}" },
+      "feedback": {
+        "error": { "base": "{{bg}}" },
+        "warning": { "base": "{{bg}}" },
+        "success": { "base": "{{bg}}" },
+        "info": { "base": "{{bg}}" }
+      }
+    },
+    "border": { "base": "{{surfaceHi}}" },
+    "scrollbar": { "base": "{{surfaceHi}}" },
+    "diff": {
+      "text": { "added": "{{good}}", "removed": "{{bad}}", "context": "{{fgDim}}", "hunkHeader": "{{blue}}" },
+      "background": { "added": "{{diffAdd}}", "removed": "{{diffDelete}}", "context": "{{panel}}" },
+      "highlight": { "added": "{{good}}", "removed": "{{bad}}" },
+      "lineNumber": {
+        "text": "{{fgFaint}}",
+        "background": { "added": "{{diffAdd}}", "removed": "{{diffDelete}}" }
+      }
+    },
+    "syntax": {
+      "comment": "{{fgFaint}}",
+      "keyword": "{{magenta}}",
+      "function": "{{blue}}",
+      "variable": "{{fg}}",
+      "string": "{{good}}",
+      "number": "{{warn}}",
+      "type": "{{cyan}}",
+      "operator": "{{fgDim}}",
+      "punctuation": "{{fgDim}}"
+    },
+    "markdown": {
+      "text": "{{fg}}",
+      "heading": "{{accent}}",
+      "link": "{{blue}}",
+      "linkText": "{{cyan}}",
+      "code": "{{good}}",
+      "blockQuote": "{{fgDim}}",
+      "emphasis": "{{fg}}",
+      "strong": "{{accent}}",
+      "horizontalRule": "{{surfaceHi}}",
+      "listItem": "{{fgDim}}",
+      "listEnumeration": "{{accent}}",
+      "image": "{{magenta}}",
+      "imageText": "{{cyan}}",
+      "codeBlock": "{{fg}}"
+    },
+    "@dialog": {
+      "background": { "base": "{{panel}}", "action": { "primary": { "$hovered": "{{surface}}" } } }
+    }
+  },
+  "{{mode}}": {
+    "hue": {
+      "gray": {
+        "100": "{{fgBright}}", "200": "{{fg}}", "300": "{{fgDim}}", "400": "{{fgFaint}}",
+        "500": "{{surfaceHi}}", "600": "{{surface}}", "700": "{{panel}}", "800": "{{bg}}", "900": "{{island}}"
+      },
+      "red": { "100": "{{bad}}", "200": "{{bad}}", "300": "{{bad}}", "400": "{{bad}}", "500": "{{bad}}", "600": "{{bad}}", "700": "{{bad}}", "800": "{{bad}}", "900": "{{bad}}" },
+      "orange": { "100": "{{warm}}", "200": "{{warm}}", "300": "{{warm}}", "400": "{{warm}}", "500": "{{warm}}", "600": "{{warm}}", "700": "{{warm}}", "800": "{{warm}}", "900": "{{warm}}" },
+      "green": { "100": "{{good}}", "200": "{{good}}", "300": "{{good}}", "400": "{{good}}", "500": "{{good}}", "600": "{{good}}", "700": "{{good}}", "800": "{{good}}", "900": "{{good}}" },
+      "cyan": { "100": "{{cyan}}", "200": "{{cyan}}", "300": "{{cyan}}", "400": "{{cyan}}", "500": "{{cyan}}", "600": "{{cyan}}", "700": "{{cyan}}", "800": "{{cyan}}", "900": "{{cyan}}" },
+      "blue": { "100": "{{blue}}", "200": "{{blue}}", "300": "{{blue}}", "400": "{{blue}}", "500": "{{blue}}", "600": "{{blue}}", "700": "{{blue}}", "800": "{{blue}}", "900": "{{blue}}" },
+      "purple": { "100": "{{purple}}", "200": "{{purple}}", "300": "{{purple}}", "400": "{{purple}}", "500": "{{purple}}", "600": "{{purple}}", "700": "{{purple}}", "800": "{{purple}}", "900": "{{purple}}" },
+      "accent": { "100": "{{accent}}", "200": "{{accent}}", "300": "{{accent}}", "400": "{{accent}}", "500": "{{accent}}", "600": "{{accent}}", "700": "{{accent}}", "800": "{{accent}}", "900": "{{accent}}" },
+      "interactive": { "100": "{{accent}}", "200": "{{accent}}", "300": "{{accent}}", "400": "{{accent}}", "500": "{{accent}}", "600": "{{accent}}", "700": "{{accent}}", "800": "{{accent}}", "900": "{{accent}}" },
+      "neutral": "$hue.gray"
+    }
+  }
+}

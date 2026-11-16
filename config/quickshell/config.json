@@ -318,6 +318,11 @@
         "template": "spicetify-color.ini",
         "out": "~/.config/spicetify/Themes/qs-shell/color.ini",
         "reload": "spicetify apply"
+      },
+      {
+        "template": "opencode-theme.json",
+        "out": "~/.config/opencode/themes/qs-shell.json",
+        "reload": ""
       }
     ]
   },
