@@ -68,6 +68,7 @@ main() {
     echo -e "  ${CYAN}2.${RESET} Run post-install setup (TPM, zsh as default shell)"
     echo -e "  ${CYAN}3.${RESET} Apply themes, fonts, cursors"
     echo -e "  ${CYAN}4.${RESET} Enable services and groups"
+    echo -e "  ${CYAN}5.${RESET} Link dotfiles and enable the quickshell shell"
     echo
     if ! ask "Proceed with installation?" "n"; then
         print_message info "Aborted."
@@ -89,6 +90,27 @@ main() {
         bash "$DOTS_DIR/link.sh" all
     else
         print_message info "Skipping config linking"
+    fi
+
+    # The quickshell unit comes from config/systemd and only exists after linking
+    if ask "Enable the quickshell desktop shell service now?" "n"; then
+        systemctl --user daemon-reload
+        if run_cmd "Enabling user service: quickshell" systemctl --user enable --now quickshell.service; then
+            print_message success "Quickshell is running"
+        fi
+    fi
+
+    # Spotify theming: quickshell has now written Themes/qs-shell/color.ini on its first palette apply
+    if command -v spicetify &>/dev/null; then
+        echo
+        if ask "Configure Spotify theming (spicetify) now?" "n"; then
+            spicetify >/dev/null 2>&1 || true
+            run_cmd "Pointing spicetify at the shell theme" \
+                spicetify config current_theme qs-shell color_scheme qs-shell
+            if ! run_cmd "Applying spicetify" spicetify backup apply; then
+                run_cmd "Backup exists — reapplying" spicetify apply || true
+            fi
+        fi
     fi
 
     echo
