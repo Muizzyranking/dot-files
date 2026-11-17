@@ -34,6 +34,8 @@ Singleton {
         session: { lock: "" },
         bar: { marginX: 0, marginY: 0, border: 0, borderOpacity: 0.1 },
         monitors: { include: [], exclude: [], primary: "", tray: "all" },
+        modules: { ai: true },
+        ai: { suspendInhibit: false },
         toasts: { monitor: "focused" },
         meters: { enabled: true, holdMs: 1500, monitor: "focused" },
         island: { flare: 8 },
