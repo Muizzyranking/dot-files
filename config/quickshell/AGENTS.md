@@ -87,6 +87,13 @@ Reference it anywhere as `Thing.value`. Singletons are created on first use: tou
 
 **An IPC command.** Add a function with typed arguments to an `IpcHandler` in `modules/ipc/Ipc.qml` (`function name(arg: string): void { ... }`), then document it in `../docs/config.md` and `keybinds.example.conf`.
 
+**An AI provider.** AI agents (opencode today; Claude Code, cursor, ...) are tracked by `services/Ai.qml`, the aggregator that also owns the suspend inhibitor. A provider is a singleton in `services/` exposing a small interface: `ready` (service reachable), `busy` (a turn is running), `attention` (int, prompts waiting for the user), `sessions` (list for the panel) and action functions the panel calls. To add one:
+
+1. Copy the shape of `services/AiOpencode.qml`: read your agent's state (files or a local API — prefer event streams over polling), keep the parsed result in small plain properties, and expose actions as functions.
+2. Add it to the `providers` list in `services/Ai.qml` — pill state and inhibit are aggregates over that list.
+3. The panel (`modules/panels/AiPanel.qml`) shows `sessions` per provider and renders pending prompts; extend its request section if your prompts need a different reply shape.
+4. Document any new config keys in `config.json` + `Config.fallback` + `../docs/config.md` (same as any setting).
+
 **A themed app.** Add a file to `templates/` using `{{accent}}`, `{{bg.hex}}`, etc., and a target in `theming.targets`. See `../docs/theming.md`.
 
 **A config key.** Add it to `config.json`, to `Config.fallback` in `core/Config.qml`, and to `../docs/config.md`.

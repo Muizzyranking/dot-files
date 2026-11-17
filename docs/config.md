@@ -262,9 +262,21 @@ The battery hides itself on machines without one.
 | Key | Default | Meaning |
 |---|---|---|
 | `modules.idleInhibitor` | false | Shows the keep-awake button in the bar and the Keep awake tile in the control center. Off by default. |
+| `modules.ai` | true | Shows the AI pill in the bar. |
 | `notifications.dnd` | false | Start with do not disturb on. |
 | `notifications.maxLines` | 3 | Lines of body text shown per notification. |
 | `calendar.firstDay` | 1 | 0 starts weeks on Sunday, 1 on Monday. |
+
+## ai
+
+The AI pill in the bar tracks coding agents, starting with opencode. The icon is dim when nothing runs, accent while a session is working, and warning-coloured when an agent is waiting for you (a permission or question). Left click opens the panel: pending prompts to answer inline, the session list (agent, model, tokens, context used, last activity) with a stop button for busy sessions, and total tokens/cost. Clicking a session focuses the terminal running the TUI; right click on the pill does the same.
+
+| Key | Default | Meaning |
+|---|---|---|
+| `ai.suspendInhibit` | false | While on, the shell holds a logind sleep/idle lock exactly while some agent session is busy, so the machine never suspends mid-turn. Off when idle again. |
+
+State comes from the background service's local HTTP API (`~/.local/state/opencode/service.json` points at it), so no agent-side plugin is needed.
+
 
 ## Using the bar
 
@@ -272,6 +284,7 @@ The battery hides itself on machines without one.
 |---|---|---|
 | Time and date | Calendar | |
 | Bell | Notifications panel | Toggle do not disturb |
+| AI | AI agents panel | Focus the agent's terminal |
 | Recording timer | Stop recording | |
 | Island | Control center | Control center |
 | Wi-Fi, Bluetooth | Their panels | |
@@ -392,7 +405,7 @@ Run any of these from a keybind or a terminal as `qs ipc call <target> <function
 | Target | Function | What it does |
 |---|---|---|
 | `control` | `toggle`, `open`, `close` | Control center (the expanded island) on the focused screen. |
-| `panel` | `toggle <name>`, `close` | A bar panel. Names: `wifi`, `bluetooth`, `volume`, `battery`, `vitals`, `calendar`, `notifications`. They open centered under the island. |
+| `panel` | `toggle <name>`, `close` | A bar panel. Names: `wifi`, `bluetooth`, `volume`, `battery`, `vitals`, `calendar`, `notifications`, `ai`. They open centered under the island. |
 | `notifications` | `toggle`, `dnd`, `dndOn`, `dndOff`, `clear`, `dismissToast` | Notifications panel, do not disturb, clear all, close the current toast. |
 | `clipboard` | `toggle`, `close` | The clipboard popup window. It is its own window, not part of the bar. |
 | `capture` | `screenshot <region\|screen\|annotate>`, `record <screen\|region>`, `toggleRecord`, `stopRecord` | Screenshots and recording on the focused screen. |
@@ -403,6 +416,7 @@ Run any of these from a keybind or a terminal as `qs ipc call <target> <function
 | `island` | `collapse` | Close whatever the island has open. |
 | `session` | `lock`, `suspend`, `hibernate`, `logout`, `reboot`, `poweroff` | Runs the commands from `session`. These run immediately, with no confirmation. |
 | `idle` | `toggle` | Keep awake on or off. |
+| `ai` | `toggle`, `reveal`, `stop`, `inhibit <on\|off\|toggle>` | Open the AI agents panel, focus the agent's terminal, stop every busy session, and arm or disarm suspend inhibit. |
 | `wallpaper` | `picker`, `next`, `prev`, `random`, `set <path>`, `reload` | Wallpaper picker popup and changes. |
 | `launcher` | `toggle`, `open`, `close` | The app launcher. |
 | `theme` | `set <name>`, `next`, `get`, `list`, `apply` | Switch the palette. It edits `palette` in `config.json`, and the shell updates live. `apply` re-exports the colours to your apps. |
