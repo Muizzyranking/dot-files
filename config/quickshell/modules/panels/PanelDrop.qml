@@ -74,7 +74,8 @@ Item {
                 : root.shown === "battery" ? batC
                 : root.shown === "vitals" ? vitC
                 : root.shown === "notifications" ? notC
-                : root.shown === "calendar" ? calC : null
+                : root.shown === "calendar" ? calC
+                : root.shown === "ai" ? aiC : null
         }
     }
 
@@ -85,4 +86,5 @@ Item {
     Component { id: vitC; VitalsPanel {} }
     Component { id: notC; NotificationsPanel {} }
     Component { id: calC; CalendarPanel {} }
+    Component { id: aiC; AiPanel {} }
 }

@@ -131,6 +131,19 @@ Variants {
             }
 
             Pill {
+                visible: Config.v.modules.ai
+                clickable: true
+                onClicked: m => m.button === Qt.RightButton ? AiOpencode.reveal()
+                    : Panels.toggle("ai", win.screen.name, mapToItem(null, width / 2, 0).x)
+                Icon {
+                    name: Ai.attention > 0 ? "notifications_active" : "smart_toy"
+                    color: Ai.attention > 0 ? Theme.warn
+                        : Ai.busy ? Theme.accent
+                        : Ai.running ? Theme.text : Theme.textFaint
+                }
+            }
+
+            Pill {
                 visible: SystemTray.items.values.length > 0 && (Config.v.monitors.tray !== "primary" || Monitors.isPrimary(win.modelData.name))
                 spacing: Theme.px(8)
                 Repeater {

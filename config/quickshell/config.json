@@ -152,7 +152,11 @@
     "notification": "/usr/share/sounds/freedesktop/stereo/message-new-instant.oga"
   },
   "modules": {
-    "idleInhibitor": false
+    "idleInhibitor": false,
+    "ai": true
+  },
+  "ai": {
+    "suspendInhibit": false
   },
   "notifications": {
     "dnd": false,
