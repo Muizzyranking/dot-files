@@ -3,6 +3,7 @@ import Quickshell.Io
 import QtQuick
 import qs.core
 import qs.services
+import qs.modules.settings
 
 // Keybind commands: qs ipc call <target> <function> [argument]
 Scope {
@@ -19,9 +20,21 @@ Scope {
     }
     IpcHandler {
         target: "panel"
-        // names: wifi, bluetooth, volume, battery, vitals, calendar, notifications
+        // names: wifi, bluetooth, volume, battery, vitals, calendar, notifications, ai
         function toggle(name: string): void { Panels.toggleFocused(name) }
         function close(): void { Panels.close() }
+    }
+    IpcHandler {
+        target: "ai"
+        // actions on the agents tracked by the AI service (opencode first)
+        function toggle(): void { Panels.toggleFocused("ai") }
+        function reveal(): void { AiOpencode.reveal() }
+        function stop(): void { AiOpencode.stopAll() }
+        // on / off / anything else toggles
+        function inhibit(value: string): void {
+            Settings.setPath(["ai", "suspendInhibit"],
+                value === "on" ? true : value === "off" ? false : !Config.v.ai.suspendInhibit)
+        }
     }
     IpcHandler {
         target: "notifications"
