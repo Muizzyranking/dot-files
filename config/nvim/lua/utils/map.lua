@@ -307,7 +307,7 @@ function M.abbrev(abbrevs, opts)
 	for _, abbrev in ipairs(abbrevs) do
 		local right = abbrev[1]
 		local merged = vim.tbl_deep_extend("force", {}, opts or {}, abbrev[3] or {})
-		local mode = merged.mode or "i"
+		local mode = merged.mode or "ia"
 		local conds = Utils.fn.ensure_list(merged.conds)
 		merged.mode, merged.conds, merged.expr = nil, nil, true
 
