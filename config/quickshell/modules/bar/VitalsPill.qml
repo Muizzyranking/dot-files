@@ -8,6 +8,13 @@ Pill {
     id: root
     clickable: true
     spacing: Theme.px(12)
+    TextMetrics {
+        id: pctMetrics
+        font.family: Theme.fontFamily
+        font.pixelSize: Theme.fontSize - 1
+        font.weight: Font.Medium
+        text: "00%"
+    }
     property var items: [
         { icon: "memory", value: SysStats.memory },
         { icon: "swap_vert", value: SysStats.swap },
@@ -24,6 +31,8 @@ Pill {
                 text: Math.round(modelData.value) + "%"
                 color: Theme.vitalColor(modelData.value)
                 font.pixelSize: Theme.fontSize - 1
+                horizontalAlignment: Text.AlignRight
+                Layout.preferredWidth: pctMetrics.width + Theme.px(1)
             }
         }
     }
