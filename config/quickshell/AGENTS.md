@@ -45,6 +45,7 @@ Imports use the `qs.` prefix: `import qs.core`, `import qs.components`, `import 
 7. **Every `MouseArea` that is clickable sets `cursorShape: Qt.PointingHandCursor`.**
 8. **Icons are Material Symbols names** (`Icon { name: "wifi" }`). Do not use emoji or text glyphs.
 9. After a change, run the shell from a terminal (`qs`) and read the output. Fix every warning you caused.
+10. **QML's JS engine is not full modern JS.** Do not use object shorthand: write `{ reply: reply }`, never `{ reply }`. Prefer plain, explicit syntax in handlers and functions (braces around every block, one statement per line, no `{ a(); b() }` one-liners).
 
 ## Performance rules
 
