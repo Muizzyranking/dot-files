@@ -135,11 +135,11 @@ end
 local function filepath_hl(c)
 	local state = filepath_state()
 	if state == "modified" then
-		return { fg = c.orange }
+		return { fg = c.orange, gui = "italic" }
 	elseif state == "exec" then
-		return { fg = c.green }
+		return { fg = c.green, gui = "italic" }
 	end
-	return { fg = c.fg }
+	return { fg = c.fg, gui = "italic" }
 end
 
 local function get_buffers()
@@ -151,7 +151,7 @@ local function get_buffers()
 		end
 	end
 	local icon = Utils.icons.ui.buffer
-	local modified_indicator = modified_count > 0 and (" " .. modified_count) or ""
+	local modified_indicator = modified_count > 0 and (" ● " .. modified_count) or ""
 	return string.format("%s%d%s", icon, #buffers, modified_indicator)
 end
 
@@ -314,6 +314,7 @@ local function build_opts(c)
 						return string.format("󱉭 %s", vim.fn.fnamemodify(root, ":t"))
 					end,
 					cond = at_least(W.full),
+					color = { fg = c.info },
 				},
 				{
 					"diff",
