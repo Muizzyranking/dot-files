@@ -106,6 +106,7 @@ local binds = {
 	{ "N", qs = "notifications toggle", description = "Shell: Notifications" },
 	{ "comma", qs = "settings toggle", description = "Shell: Settings" },
 	{ "L", alt = true, qs = "lock lock", description = "Shell: Lock screen" },
+	{ "A", qs = "ai toggle", description = "Shell: AI panel" },
 
 	-- Volume
 	{
