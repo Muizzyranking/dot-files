@@ -28,9 +28,8 @@ Scope {
         target: "ai"
         // actions on the agents tracked by the AI service (opencode first)
         function toggle(): void { Panels.toggleFocused("ai") }
-        function reveal(): void { AiOpencode.reveal() }
+        function copy(): void { AiOpencode.copyLatest() }
         function stop(): void { AiOpencode.stopAll() }
-        // on / off / anything else toggles
         function inhibit(value: string): void {
             Settings.setPath(["ai", "suspendInhibit"],
                 value === "on" ? true : value === "off" ? false : !Config.v.ai.suspendInhibit)

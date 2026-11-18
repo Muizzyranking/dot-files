@@ -6,6 +6,7 @@ Rectangle {
     id: root
     property string icon: ""
     property string text: ""
+    property real iconSize: Theme.iconSize
     property bool danger: false
     property bool active: false
     signal clicked()
@@ -16,7 +17,7 @@ Rectangle {
     ColumnLayout {
         anchors.centerIn: parent
         spacing: 2
-        Icon { Layout.alignment: Qt.AlignHCenter; name: root.icon; color: root.danger || root.active ? Theme.accentText : Theme.text }
+        Icon { Layout.alignment: Qt.AlignHCenter; name: root.icon; size: root.iconSize; color: root.danger || root.active ? Theme.accentText : Theme.text }
         Label {
             Layout.alignment: Qt.AlignHCenter
             text: root.text

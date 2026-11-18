@@ -10,6 +10,7 @@ import qs.modules.settings
 ColumnLayout {
     id: root
     property real panelWidth: Theme.px(Config.v.panels.width)
+    property string expandedId: ""  
     spacing: Theme.px(10)
     Component.onCompleted: AiOpencode.refresh()
 
@@ -28,6 +29,13 @@ ColumnLayout {
         const h = Math.floor(m / 60)
         if (h < 24) return h + "h " + (m % 60) + "m"
         return Math.floor(h / 24) + "d"
+    }
+    function fmtWhen(ms) {
+        if (!ms) return ""
+        const d = new Date(ms)
+        const today = new Date()
+        const sameDay = d.toDateString() === today.toDateString()
+        return Qt.formatDateTime(d, sameDay ? "HH:mm" : "d MMM, HH:mm")
     }
     function statusTone(id) {
         const t = AiOpencode.status(id)
@@ -103,9 +111,9 @@ ColumnLayout {
                     RowLayout {
                         visible: req.modelData.kind === "permission"
                         spacing: Theme.px(6)
-                        ActionButton { Layout.fillWidth: true; implicitHeight: Theme.px(34); icon: "check"; text: "Allow"; onClicked: AiOpencode.permissionReply(req.modelData.sessionID, req.modelData.id, "once") }
-                        ActionButton { Layout.fillWidth: true; implicitHeight: Theme.px(34); icon: "done_all"; text: "Always"; onClicked: AiOpencode.permissionReply(req.modelData.sessionID, req.modelData.id, "always") }
-                        ActionButton { Layout.fillWidth: true; implicitHeight: Theme.px(34); icon: "close"; text: "Deny"; danger: true; onClicked: AiOpencode.permissionReply(req.modelData.sessionID, req.modelData.id, "reject") }
+                        ActionButton { Layout.fillWidth: true; implicitHeight: Theme.px(34); iconSize: Theme.px(13); icon: "check"; text: "Allow"; onClicked: AiOpencode.permissionReply(req.modelData.sessionID, req.modelData.id, "once") }
+                        ActionButton { Layout.fillWidth: true; implicitHeight: Theme.px(34); iconSize: Theme.px(13); icon: "done_all"; text: "Always"; onClicked: AiOpencode.permissionReply(req.modelData.sessionID, req.modelData.id, "always") }
+                        ActionButton { Layout.fillWidth: true; implicitHeight: Theme.px(34); iconSize: Theme.px(13); icon: "close"; text: "Deny"; danger: true; onClicked: AiOpencode.permissionReply(req.modelData.sessionID, req.modelData.id, "reject") }
                     }
 
                     // question: one button per option, plus reject
@@ -117,7 +125,7 @@ ColumnLayout {
                             delegate: ActionButton {
                                 required property var modelData
                                 Layout.fillWidth: true
-                                implicitHeight: Theme.px(34)
+                                implicitHeight: Theme.px(34); iconSize: Theme.px(13)
                                 icon: ""
                                 text: modelData.label
                                 onClicked: AiOpencode.questionReply(req.modelData.sessionID, req.modelData.id,
@@ -126,7 +134,7 @@ ColumnLayout {
                         }
                         ActionButton {
                             Layout.fillWidth: true
-                            implicitHeight: Theme.px(34)
+                            implicitHeight: Theme.px(34); iconSize: Theme.px(13)
                             icon: "close"
                             text: "Reject"
                             danger: true
@@ -163,58 +171,144 @@ ColumnLayout {
             readonly property int pct: AiOpencode.contextPct(row.modelData)
             readonly property real used: (row.modelData.tokens?.input ?? 0) + (row.modelData.tokens?.cache?.read ?? 0)
             readonly property string tokens: root.fmtTokens(row.used) + (row.pct >= 0 ? " (" + row.pct + "%)" : "")
+            readonly property bool expanded: root.expandedId === row.modelData.id
             width: list.width
-            implicitHeight: Theme.px(46)
+            implicitHeight: body.implicitHeight + Theme.px(14)
             radius: Theme.px(10)
             color: rArea.containsMouse ? Theme.surfaceHi : Theme.surface
+            Behavior on implicitHeight { NumberAnimation { duration: Config.v.animation.fast } }
 
-            RowLayout {
-                anchors { fill: parent; leftMargin: Theme.px(10); rightMargin: Theme.px(10) }
-                spacing: Theme.px(8)
-
-                Rectangle {
-                    implicitWidth: Theme.px(7); implicitHeight: Theme.px(7)
-                    radius: width / 2
-                    color: root.statusTone(row.modelData.id)
-                }
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 0
-                    Label { text: row.modelData.title ?? row.modelData.id; elide: Text.ElideRight; Layout.fillWidth: true }
-                    Label {
-                        text: (row.modelData.agent ?? "agent") + " · " + (row.modelData.model?.id ?? "")
-                        color: Theme.textDim
-                        font.pixelSize: Theme.fontSize - 2
-                        elide: Text.ElideRight
-                        Layout.fillWidth: true
-                    }
-                }
-                ColumnLayout {
-                    spacing: 0
-                    Label {
-                        text: row.tokens
-                        color: Theme.textDim
-                        font.pixelSize: Theme.fontSize - 2
-                    }
-                    Label {
-                        text: row.isBusy ? "busy" : fmtAgo(row.modelData.time?.updated ?? 0) + " ago"
-                        color: row.isBusy ? Theme.accent : Theme.textFaint
-                        font.pixelSize: Theme.fontSize - 2
-                    }
-                }
-                IconButton {
-                    visible: row.isBusy
-                    name: "stop"
-                    tone: Theme.bad
-                    onClicked: AiOpencode.interrupt(row.modelData.id)
-                }
-            }
+            // Behind the content, so the buttons on top get their own clicks.
             MouseArea {
                 id: rArea
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onClicked: AiOpencode.reveal()
+                onClicked: root.expandedId = row.expanded ? "" : row.modelData.id
+            }
+
+            ColumnLayout {
+                id: body
+                anchors { left: parent.left; right: parent.right; margins: Theme.px(10) }
+                y: Theme.px(7)
+                spacing: Theme.px(6)
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Theme.px(8)
+
+                    Rectangle {
+                        implicitWidth: Theme.px(7); implicitHeight: Theme.px(7)
+                        radius: width / 2
+                        color: root.statusTone(row.modelData.id)
+                    }
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 0
+                        Label { text: row.modelData.title ?? row.modelData.id; elide: Text.ElideRight; Layout.fillWidth: true }
+                        Label {
+                            text: (row.modelData.agent ?? "agent") + " · " + (row.modelData.model?.id ?? "")
+                            color: Theme.textDim
+                            font.pixelSize: Theme.fontSize - 2
+                            elide: Text.ElideRight
+                            Layout.fillWidth: true
+                        }
+                    }
+                    ColumnLayout {
+                        spacing: 0
+                        Label {
+                            text: row.tokens
+                            color: Theme.textDim
+                            font.pixelSize: Theme.fontSize - 2
+                        }
+                        Label {
+                            text: row.isBusy ? "busy" : fmtAgo(row.modelData.time?.updated ?? 0) + " ago"
+                            color: row.isBusy ? Theme.accent : Theme.textFaint
+                            font.pixelSize: Theme.fontSize - 2
+                        }
+                    }
+                    IconButton {
+                        visible: row.isBusy
+                        name: "stop"
+                        tone: Theme.bad
+                        onClicked: AiOpencode.interrupt(row.modelData.id)
+                    }
+                }
+
+                // Expanded view: details and actions
+                ColumnLayout {
+                    visible: row.expanded
+                    Layout.fillWidth: true
+                    spacing: Theme.px(4)
+
+                    Label {
+                        Layout.fillWidth: true
+                        elide: Text.ElideRight
+                        color: Theme.textDim
+                        font.pixelSize: Theme.fontSize - 2
+                        text: {
+                            const s = row.modelData
+                            const t = AiOpencode.status(s.id)
+                            const state = t === "busy" ? "working" : t === "retry" ? "retrying" : "idle"
+                            const m = s.model ?? {}
+                            return state + " · " + (s.agent ?? "agent") + " · " + (m.id ?? "")
+                                + (m.variant && m.variant !== "default" ? " (" + m.variant + ")" : "")
+                        }
+                    }
+                    Label {
+                        Layout.fillWidth: true
+                        elide: Text.ElideMiddle
+                        color: Theme.textDim
+                        font.pixelSize: Theme.fontSize - 2
+                        text: {
+                            const s = row.modelData
+                            const dir = s.subpath ?? s.location?.directory ?? ""
+                            return "started " + fmtWhen(s.time?.created ?? 0) + (dir !== "" ? " · " + dir : "")
+                        }
+                    }
+                    Label {
+                        Layout.fillWidth: true
+                        elide: Text.ElideRight
+                        color: Theme.textDim
+                        font.pixelSize: Theme.fontSize - 2
+                        text: {
+                            const t = row.modelData.tokens ?? {}
+                            let parts = ["in " + fmtTokens(t.input ?? 0), "out " + fmtTokens(t.output ?? 0)]
+                            if ((t.reasoning ?? 0) > 0) parts.push("thinking " + fmtTokens(t.reasoning))
+                            if ((t.cache?.read ?? 0) > 0) parts.push("cache " + fmtTokens(t.cache.read))
+                            if (row.pct >= 0) parts.push("context " + row.pct + "%")
+                            if ((row.modelData.cost ?? 0) > 0) parts.push("$" + (row.modelData.cost).toFixed(2))
+                            return parts.join(" · ")
+                        }
+                    }
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: Theme.px(6)
+                        ActionButton {
+                            Layout.fillWidth: true
+                            implicitHeight: Theme.px(34); iconSize: Theme.px(13)
+                            icon: "content_copy"
+                            text: "Copy"
+                            onClicked: AiOpencode.copyCommand(row.modelData.id)
+                        }
+                        ActionButton {
+                            id: delBtn
+                            property bool armed: false
+                            Layout.fillWidth: true
+                            implicitHeight: Theme.px(34); iconSize: Theme.px(13)
+                            icon: "delete"
+                            text: armed ? "Sure?" : "Delete"
+                            danger: armed
+                            onClicked: {
+                                if (!armed) { armed = true; disarmT.restart(); return; }
+                                armed = false
+                                if (root.expandedId === row.modelData.id) root.expandedId = ""
+                                AiOpencode.removeSession(row.modelData.id)
+                            }
+                            Timer { id: disarmT; interval: 3000; onTriggered: delBtn.armed = false }
+                        }
+                    }
+                }
             }
         }
     }
