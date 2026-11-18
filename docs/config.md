@@ -269,13 +269,14 @@ The battery hides itself on machines without one.
 
 ## ai
 
-The AI pill in the bar tracks coding agents, starting with opencode. The icon is dim when nothing runs, accent while a session is working, and warning-coloured when an agent is waiting for you (a permission or question). Left click opens the panel: pending prompts to answer inline, the session list (agent, model, tokens, context used, last activity) with a stop button for busy sessions, and total tokens/cost. Clicking a session focuses the terminal running the TUI; right click on the pill does the same.
+The AI pill in the bar tracks coding agents, starting with opencode. It shows a single agent icon whose colour carries the state: normal while idle, a slow accent pulse while a session works, warning colour when an agent is waiting for you (a permission or question), dim when everything has been idle for a while, and faint when no agent is running. Left click opens the panel: pending prompts to answer inline, the session list with a collapsed line per session (agent, model, tokens, context used, last activity) that expands on click into details (state, start time, project, token and cost breakdown) with a Copy button (copies the `opencode -s <session>` command to resume that session in a terminal) and a Delete button (click twice to confirm). A toast is raised whenever an agent starts waiting for you. Right click on the pill copies the newest session's resume command.
 
 | Key | Default | Meaning |
 |---|---|---|
 | `ai.suspendInhibit` | false | While on, the shell holds a logind sleep/idle lock exactly while some agent session is busy, so the machine never suspends mid-turn. Off when idle again. |
+| `ai.sleepyAfterMs` | 600000 | How long every agent can stay idle before the pill goes to its sleepy mood. |
 
-State comes from the background service's local HTTP API (`~/.local/state/opencode/service.json` points at it), so no agent-side plugin is needed.
+State comes from the background service's local HTTP API (`~/.local/state/opencode/service.json` points at it), polled every few seconds, so no agent-side plugin is needed.
 
 
 ## Using the bar
@@ -321,6 +322,8 @@ Open the picker from the Wallpaper tile in the control center or with `qs ipc ca
 
 Desktop widgets sit on the wallpaper layer, under your windows.
 
+The clock uses the lock screen's design: the date in small uppercase letters above, the hours heavy in `widgets.clock.hourColor`, the minutes (and seconds) thin in `widgets.clock.color`, and a soft shadow.
+
 | Key | Default | Meaning |
 |---|---|---|
 | `widgets.clock.enabled` | true | Show the digital clock. |
@@ -329,8 +332,10 @@ Desktop widgets sit on the wallpaper layer, under your windows.
 | `widgets.clock.timeFormat` | h:mm | Qt time format. `HH:mm` for 24-hour. |
 | `widgets.clock.dateFormat` | dddd, d MMMM | Qt date format. Empty hides the date. |
 | `widgets.clock.seconds` | false | Show seconds. Updates every second instead of every minute. |
-| `widgets.clock.size`, `widgets.clock.dateSize` | 88, 20 | Text sizes. |
-| `widgets.clock.color` | text | A colour name from `colors` or a hex value. |
+| `widgets.clock.size` | 88 | Text size of the time. |
+| `widgets.clock.dateSize` | 0 | Date size; 0 keeps the lock screen's ratio (about 15% of the time size). |
+| `widgets.clock.hourColor` | text | Colour of the hours, a colour name from `colors` or a hex value. |
+| `widgets.clock.color` | accent | Colour of the date, minutes and am/pm. |
 | `widgets.clock.opacity` | 0.9 | Text opacity. |
 | `widgets.clock.shadow` | true | Soft shadow so it reads on any wallpaper. |
 
@@ -416,7 +421,7 @@ Run any of these from a keybind or a terminal as `qs ipc call <target> <function
 | `island` | `collapse` | Close whatever the island has open. |
 | `session` | `lock`, `suspend`, `hibernate`, `logout`, `reboot`, `poweroff` | Runs the commands from `session`. These run immediately, with no confirmation. |
 | `idle` | `toggle` | Keep awake on or off. |
-| `ai` | `toggle`, `reveal`, `stop`, `inhibit <on\|off\|toggle>` | Open the AI agents panel, focus the agent's terminal, stop every busy session, and arm or disarm suspend inhibit. |
+| `ai` | `toggle`, `copy`, `stop`, `inhibit <on\|off\|toggle>` | Open the AI agents panel, copy the newest session's resume command, stop every busy session, and arm or disarm suspend inhibit. |
 | `wallpaper` | `picker`, `next`, `prev`, `random`, `set <path>`, `reload` | Wallpaper picker popup and changes. |
 | `launcher` | `toggle`, `open`, `close` | The app launcher. |
 | `theme` | `set <name>`, `next`, `get`, `list`, `apply` | Switch the palette. It edits `palette` in `config.json`, and the shell updates live. `apply` re-exports the colours to your apps. |
