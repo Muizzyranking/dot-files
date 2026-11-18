@@ -133,13 +133,21 @@ Variants {
             Pill {
                 visible: Config.v.modules.ai
                 clickable: true
-                onClicked: m => m.button === Qt.RightButton ? AiOpencode.reveal()
+                onClicked: m => m.button === Qt.RightButton ? AiOpencode.copyLatest()
                     : Panels.toggle("ai", win.screen.name, mapToItem(null, width / 2, 0).x)
                 Icon {
-                    name: Ai.attention > 0 ? "notifications_active" : "smart_toy"
-                    color: Ai.attention > 0 ? Theme.warn
-                        : Ai.busy ? Theme.accent
-                        : Ai.running ? Theme.text : Theme.textFaint
+                    name: "smart_toy"
+                    color: Ai.mood === "waiting" ? Theme.warn
+                        : Ai.mood === "thinking" ? Theme.accent
+                        : Ai.mood === "sleepy" ? Theme.textDim
+                        : Ai.mood === "neutral" ? Theme.text : Theme.textFaint
+                    SequentialAnimation on scale {
+                        running: Ai.mood === "thinking"
+                        alwaysRunToEnd: true
+                        loops: Animation.Infinite
+                        NumberAnimation { to: 1.14; duration: 1500; easing.type: Easing.InOutSine }
+                        NumberAnimation { to: 1.0; duration: 1500; easing.type: Easing.InOutSine }
+                    }
                 }
             }
 
