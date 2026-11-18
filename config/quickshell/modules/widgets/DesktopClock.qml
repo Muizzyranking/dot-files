@@ -1,11 +1,9 @@
 import QtQuick
-import QtQuick.Layouts
 import Quickshell
 import qs.core
+import qs.components
 import qs.services
 
-// Digital clock on the desktop. Position, size, formats and colour are in
-// config.json "widgets.clock". Only updates once a minute unless seconds are on.
 Item {
     id: root
     anchors.fill: parent
@@ -17,13 +15,10 @@ Item {
     readonly property bool atTop: cfg.position.startsWith("top")
     readonly property bool atBottom: cfg.position.startsWith("bottom")
     readonly property real m: Theme.px(cfg.margin)
-    readonly property int align: atLeft ? Qt.AlignLeft : atRight ? Qt.AlignRight : Qt.AlignHCenter
-    readonly property color tone: Qt.alpha(Theme.resolve(cfg.color), cfg.opacity)
 
     SystemClock { id: sc; precision: root.cfg.seconds ? SystemClock.Seconds : SystemClock.Minutes }
 
-    ColumnLayout {
-        spacing: 0
+    BigClock {
         anchors.left: root.atLeft ? parent.left : undefined
         anchors.right: root.atRight ? parent.right : undefined
         anchors.horizontalCenter: (!root.atLeft && !root.atRight) ? parent.horizontalCenter : undefined
@@ -34,27 +29,12 @@ Item {
         anchors.rightMargin: root.m
         anchors.topMargin: root.m
         anchors.bottomMargin: root.m
-
-        Text {
-            Layout.alignment: root.align
-            text: Qt.formatDateTime(sc.date, root.cfg.seconds && root.cfg.timeFormat.indexOf("s") < 0 ? root.cfg.timeFormat + ":ss" : root.cfg.timeFormat)
-            color: root.tone
-            font.family: Theme.fontFamily
-            font.pixelSize: Theme.px(root.cfg.size)
-            font.weight: Font.Light
-            style: root.cfg.shadow ? Text.Raised : Text.Normal
-            styleColor: Qt.rgba(0, 0, 0, 0.45)
-        }
-        Text {
-            Layout.alignment: root.align
-            visible: root.cfg.dateFormat !== ""
-            text: Qt.formatDateTime(sc.date, root.cfg.dateFormat)
-            color: root.tone
-            font.family: Theme.fontFamily
-            font.pixelSize: Theme.px(root.cfg.dateSize)
-            font.weight: Font.Medium
-            style: root.cfg.shadow ? Text.Raised : Text.Normal
-            styleColor: Qt.rgba(0, 0, 0, 0.45)
-        }
+        stamp: Qt.formatDateTime(sc.date, root.cfg.seconds && root.cfg.timeFormat.indexOf("s") < 0 ? root.cfg.timeFormat + ":ss" : root.cfg.timeFormat)
+        dateStamp: root.cfg.dateFormat !== "" ? Qt.formatDateTime(sc.date, root.cfg.dateFormat).toUpperCase() : ""
+        size: Theme.px(root.cfg.size)
+        dateSize: root.cfg.dateSize > 0 ? Theme.px(root.cfg.dateSize) : root.size * 0.15
+        tone: Qt.alpha(Theme.resolve(root.cfg.color), root.cfg.opacity)
+        hoursTone: Qt.alpha(Theme.resolve(root.cfg.hourColor), root.cfg.opacity)
+        shadow: root.cfg.shadow
     }
 }

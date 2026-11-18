@@ -221,16 +221,17 @@
   },
   "widgets": {
     "clock": {
-      "enabled": false,
-      "position": "center",
-      "margin": 56,
-      "timeFormat": "h:mm",
-      "dateFormat": "dddd, d MMMM",
+      "enabled": true,
+      "position": "top-right",
+      "margin": 100,
+      "timeFormat": "hh:mm AP",
+      "dateFormat": "ddd, d MMM",
       "seconds": false,
-      "size": 88,
+      "size": 100,
       "dateSize": 20,
+      "hourColor": "accent",
       "color": "text",
-      "opacity": 0.9,
+      "opacity": 1,
       "shadow": true,
       "monitors": "all"
     }

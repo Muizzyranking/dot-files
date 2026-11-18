@@ -75,71 +75,13 @@ WlSessionLockSurface {
             anchors.verticalCenterOffset: -parent.height * 0.03
             spacing: Theme.px(8)
 
-            ColumnLayout {
-                id: clk
+            BigClock {
                 Layout.alignment: Qt.AlignHCenter
-                spacing: Theme.px(2)
-                readonly property string stamp: Qt.formatDateTime(sc.date, surf.cfg.timeFormat)
-                readonly property var parts: stamp.match(/^(\d+)(\D+?)(\d+)(.*)$/)
-                readonly property real size: Theme.px(surf.cfg.clockSize)
-                Text {
-                    Layout.alignment: Qt.AlignHCenter
-                    text: Qt.formatDateTime(sc.date, surf.cfg.dateFormat).toUpperCase()
-                    color: surf.clockTone
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.px(20)
-                    font.weight: Font.Bold
-                    font.letterSpacing: 5
-                }
-                Row {
-                    Layout.alignment: Qt.AlignHCenter
-                    Layout.topMargin: Theme.px(4)
-                    spacing: clk.size * 0.03
-                    Item {
-                        Layout.alignment: Qt.AlignHCenter
-                        Layout.topMargin: Theme.px(4)
-                        implicitWidth: hh.implicitWidth + mm.implicitWidth + ap.implicitWidth + spacingPx * (ap.visible ? 2 : 1)
-                        implicitHeight: hh.implicitHeight
-                        readonly property real spacingPx: clk.size * 0.03
-
-                        Text {
-                            id: hh
-                            text: clk.parts ? clk.parts[1] : clk.stamp
-                            color: Theme.text
-                            font.family: Theme.fontFamily
-                            font.pixelSize: clk.size
-                            font.weight: Font.Black
-                            style: Text.Raised
-                            styleColor: Qt.rgba(0, 0, 0, 0.4)
-                        }
-                        Text {
-                            id: mm
-                            anchors.left: hh.right
-                            anchors.leftMargin: parent.spacingPx
-                            anchors.baseline: hh.baseline
-                            visible: clk.parts !== null
-                            text: clk.parts ? clk.parts[2].trim() + clk.parts[3] : ""
-                            color: surf.clockTone
-                            font.family: Theme.fontFamily
-                            font.pixelSize: clk.size
-                            font.weight: Font.Thin
-                            style: Text.Raised
-                            styleColor: Qt.rgba(0, 0, 0, 0.4)
-                        }
-                        Text {
-                            id: ap
-                            anchors.left: mm.right
-                            anchors.leftMargin: parent.spacingPx
-                            anchors.baseline: hh.baseline
-                            visible: clk.parts !== null && clk.parts[4].trim() !== ""
-                            text: clk.parts ? clk.parts[4].trim() : ""
-                            color: surf.clockTone
-                            font.family: Theme.fontFamily
-                            font.pixelSize: clk.size * 0.2
-                            font.weight: Font.DemiBold
-                        }
-                    }
-                }
+                stamp: Qt.formatDateTime(sc.date, surf.cfg.timeFormat)
+                dateStamp: Qt.formatDateTime(sc.date, surf.cfg.dateFormat).toUpperCase()
+                size: Theme.px(surf.cfg.clockSize)
+                tone: surf.clockTone
+                hoursTone: Theme.text
             }
 
             Rectangle {

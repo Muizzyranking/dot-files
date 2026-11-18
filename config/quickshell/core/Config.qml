@@ -35,11 +35,11 @@ Singleton {
         bar: { marginX: 0, marginY: 0, border: 0, borderOpacity: 0.1 },
         monitors: { include: [], exclude: [], primary: "", tray: "all" },
         modules: { ai: true },
-        ai: { suspendInhibit: false },
+        ai: { suspendInhibit: false, sleepyAfterMs: 600000 },
         toasts: { monitor: "focused" },
         meters: { enabled: true, holdMs: 1500, monitor: "focused" },
         island: { flare: 8 },
-        widgets: { clock: { monitors: "all" } },
+        widgets: { clock: { monitors: "all", dateSize: 0, hourColor: "text", color: "accent" } },
         eyes: {
             mood: "auto", moodIntervalMs: 5000, stableSamples: 2, nightStart: 22, nightEnd: 6,
             moodyBattery: 35, happyBattery: 60, cpuHigh: 85, memHigh: 85, panic: 95, offlineMoody: true,
