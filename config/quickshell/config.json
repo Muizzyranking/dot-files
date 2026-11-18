@@ -156,7 +156,8 @@
     "ai": true
   },
   "ai": {
-    "suspendInhibit": false
+    "suspendInhibit": false,
+    "sleepyAfterMs": 600000
   },
   "notifications": {
     "dnd": false,

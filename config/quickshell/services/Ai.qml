@@ -22,9 +22,36 @@ Singleton {
     readonly property bool inhibitArmed: Config.v.ai.suspendInhibit
     readonly property bool inhibit: inhibitArmed && busy
 
+    property int tick: 0
+    readonly property double lastActivity: providers.reduce((m, p) => Math.max(m, p.lastActivity ?? 0), 0)
+    readonly property string mood: {
+        const _ = tick
+        if (attention > 0) return "waiting"
+        if (busy) return "thinking"
+        if (!running) return "off"
+        return Date.now() - lastActivity > Config.v.ai.sleepyAfterMs ? "sleepy" : "neutral"
+    }
+    Timer {
+        interval: 30000
+        running: root.running
+        repeat: true
+        onTriggered: root.tick++
+    }
+
+    Timer {
+        interval: root.inhibitArmed ? 2000 : 5000
+        running: root.running
+        repeat: true
+        onTriggered: root.pollProviders()
+    }
+
+    function pollProviders() {
+        for (const p of root.providers) {
+            p.poll()
+        }
+    }
+
     Process {
-        // Quickshell terminates child processes on exit, so the lock cannot
-        // outlive the shell.
         command: ["systemd-inhibit", "--what=sleep:idle", "--who=qs-ai", "--why=AI agents running", "sleep", "infinity"]
         running: root.inhibit
     }
