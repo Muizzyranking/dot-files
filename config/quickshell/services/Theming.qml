@@ -108,7 +108,8 @@ Singleton {
         if (gi >= 0) body += "done\n"
         // every reload runs under timeout: a hanging app
         // must never leave the render process stuck, or future applies stop silently
-        if (!missingOnly && reload) body += '[ "$chg" = 1 ] && { timeout 10 sh -c ' + q(reload) + '; } >/dev/null 2>&1\n'
+        const to = tg.timeout ?? 10
+        if (!missingOnly && reload) body += '[ "$chg" = 1 ] && { timeout ' + to + ' sh -c ' + q(reload) + '; } >/dev/null 2>&1\n'
         return body
     }
 

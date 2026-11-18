@@ -128,4 +128,15 @@ if [ "${SHELL_QT:-}" = 1 ]; then
         [ -n "$icons" ] && theme_ok "$icons" && ini_set "$conf" Appearance icon_theme "$icons"
     done
 fi
+# The xdg-desktop-portal-gtk backend hosts the file chooser and reads the GTK
+# theme once at startup. If it predates the rendered palette colours, restart
+# it so the picker follows the palette (idle restarts are cheap).
+css="$HOME/.config/gtk-3.0/colors.css"
+if [ -f "$css" ] && command -v systemctl >/dev/null 2>&1; then
+    pid=$(pgrep -f "xdg-desktop-portal-gtk$" | head -1)
+    if [ -n "$pid" ] && [ "$(stat -c %Y "/proc/$pid")" -lt "$(stat -c %Y "$css")" ]; then
+        systemctl --user try-restart xdg-desktop-portal-gtk.service 2>/dev/null
+    fi
+fi
+
 exit 0

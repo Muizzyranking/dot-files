@@ -328,6 +328,7 @@
       {
         "template": "spicetify-color.ini",
         "out": "~/.config/spicetify/Themes/qs-shell/color.ini",
+        "timeout": 40,
         "reload": "spicetify apply"
       },
       {

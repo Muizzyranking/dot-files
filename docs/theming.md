@@ -37,6 +37,8 @@ A target says which template goes to which path, and how to reload the app (empt
     { "template": "firefox-chrome.css", "out": "~/.mozilla/firefox/*.default*/chrome/userChrome.css", "reload": "" },
     { "template": "hypr.lua", "out": "~/.config/hypr/colors.lua", "reload": "hyprctl reload" }
 
+Each target may set `"timeout"` (seconds, default 10): how long the reload command may run. Set it higher for reloads that restart a whole app, like `spicetify apply` (~7s, timeout 40).
+
 and the system block:
 
     "system": {
