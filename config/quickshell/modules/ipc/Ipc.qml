@@ -48,6 +48,7 @@ Scope {
         target: "clipboard"
         function toggle(): void { Popups.toggle("clipboard") }
         function close(): void { if (Popups.open === "clipboard") Popups.close() }
+        function clearPins(): void { Clip.clearPins() }
     }
     IpcHandler {
         target: "capture"
@@ -89,8 +90,8 @@ Scope {
     IpcHandler {
         target: "session"
         function lock(): void { Session.lock() }
-        function suspend(): void { Session.run(Config.v.session.suspend) }
-        function hibernate(): void { Session.run(Config.v.session.hibernate) }
+        function suspend(): void { Session.sleep(Config.v.session.suspend) }
+        function hibernate(): void { Session.sleep(Config.v.session.hibernate) }
         function logout(): void { Session.run(Config.v.session.logout) }
         function reboot(): void { Session.run(Config.v.session.reboot) }
         function poweroff(): void { Session.run(Config.v.session.poweroff) }

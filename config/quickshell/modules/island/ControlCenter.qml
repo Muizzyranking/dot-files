@@ -113,6 +113,7 @@ ColumnLayout {
                         if (modelData.confirm && root.armed !== index) { root.armed = index; armTimer.restart(); return; }
                         root.armed = -1
                         if (modelData.act === "lock") Session.lock()
+                        else if (modelData.act === "suspend" || modelData.act === "hibernate") Session.sleep(Config.v.session[modelData.act])
                         else Session.run(Config.v.session[modelData.act])
                         root.done()
                     }

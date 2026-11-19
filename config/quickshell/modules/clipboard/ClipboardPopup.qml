@@ -23,13 +23,20 @@ Scope {
             cardHeight: Theme.px(480)
             onCloseRequested: Popups.close()
 
+            property int tab: 0          // 0 history, 1 pinned
             property int sel: 0
+            readonly property string q: search.text.trim().toLowerCase()
             readonly property var shown: {
-                const q = search.text.trim().toLowerCase()
-                return q ? Clip.items.filter(i => i.text.toLowerCase().includes(q)) : Clip.items
+                if (tab === 1) {
+                    return q !== "" ? Clip.pins.filter(p => p.text.toLowerCase().includes(q)) : Clip.pins
+                }
+                return q !== "" ? Clip.items.filter(i => i.text.toLowerCase().includes(q)) : Clip.items
             }
             function pick(i) {
-                if (shown[i]) { Clip.copy(shown[i].id); Popups.close() }
+                if (!shown[i]) return
+                if (tab === 1) Clip.copyPin(shown[i])
+                else Clip.copy(shown[i].id)
+                Popups.close()
             }
             Component.onCompleted: { Clip.refresh(); search.focusInput() }
 
@@ -39,12 +46,25 @@ Scope {
                 PanelHeader {
                     icon: "content_paste"
                     title: "Clipboard"
-                    IconButton { visible: Clip.items.length > 0; name: "delete_sweep"; onClicked: Clip.wipe() }
+                    IconButton {
+                        visible: win.tab === 0 ? Clip.items.length > 0 : Clip.pins.length > 0
+                        name: "delete_sweep"
+                        onClicked: {
+                            if (win.tab === 1) Clip.clearPins()
+                            else Clip.wipe()
+                        }
+                    }
+                }
+                Tabs {
+                    Layout.fillWidth: true
+                    model: [{ icon: "history", name: "History" }, { icon: "push_pin", name: "Pinned" }]
+                    current: win.tab
+                    onPicked: function(i) { win.tab = i; win.sel = 0 }
                 }
                 SearchField {
                     id: search
                     Layout.fillWidth: true
-                    placeholder: "Search clipboard history"
+                    placeholder: win.tab === 1 ? "Search pinned entries" : "Search clipboard history"
                     onTextChanged: win.sel = 0
                     onUp: win.sel = Math.max(0, win.sel - 1)
                     onDown: win.sel = Math.min(win.shown.length - 1, win.sel + 1)
@@ -56,7 +76,16 @@ Scope {
                     Layout.topMargin: Theme.px(20)
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.Wrap
-                    text: Clip.items.length === 0 ? "Nothing here yet. History needs cliphist and a wl-paste watcher (see config.md)." : "No matches"
+                    text: {
+                        if (win.tab === 1) {
+                            return Clip.pins.length === 0
+                                ? "Nothing pinned yet. Pin an entry in History and it stays after Clear."
+                                : "No matches"
+                        }
+                        return Clip.items.length === 0
+                            ? "Nothing here yet. History needs cliphist and a wl-paste watcher (see config.md)."
+                            : "No matches"
+                    }
                     color: Theme.textDim
                 }
                 ListView {
@@ -73,6 +102,7 @@ Scope {
                         id: d
                         required property var modelData
                         required property int index
+                        readonly property bool pinned: Clip.pinKey(modelData.text) !== ""
                         width: ListView.view.width
                         height: Theme.px(36)
                         radius: Theme.px(10)
@@ -87,17 +117,37 @@ Scope {
                         RowLayout {
                             anchors { fill: parent; leftMargin: Theme.px(12); rightMargin: Theme.px(6) }
                             spacing: Theme.px(10)
-                            Icon { name: d.modelData.text.startsWith("[[ binary") ? "image" : "notes"; color: d.index === win.sel ? Theme.accent : Theme.textDim; size: Theme.px(16) }
+                            Icon {
+                                name: d.modelData.text.startsWith("[[ binary") ? "image" : "notes"
+                                color: d.index === win.sel ? Theme.accent : Theme.textDim
+                                size: Theme.px(16)
+                            }
                             Label {
                                 Layout.fillWidth: true
                                 text: d.modelData.text.startsWith("[[ binary") ? "Image" : d.modelData.text
                                 elide: Text.ElideRight
                             }
-                            IconButton { name: "close"; onClicked: Clip.remove(d.modelData.id) }
+                            IconButton {
+                                name: "push_pin"
+                                tone: d.pinned ? Theme.accent : Theme.textDim
+                                onClicked: Clip.togglePin(d.modelData)
+                            }
+                            IconButton {
+                                name: "close"
+                                onClicked: {
+                                    if (win.tab === 1) Clip.unpin(d.modelData.key)
+                                    else Clip.remove(d.modelData.id)
+                                }
+                            }
                         }
                     }
                 }
-                Label { text: "Enter copies  ·  Esc closes"; color: Theme.textFaint; font.pixelSize: Theme.fontSize - 2 }
+                Label {
+                    text: win.tab === 1 ? "Enter copies  ·  click the pin to unpin  ·  Esc closes"
+                                        : "Enter copies  ·  pin keeps an entry after Clear  ·  Esc closes"
+                    color: Theme.textFaint
+                    font.pixelSize: Theme.fontSize - 2
+                }
             }
         }
     }

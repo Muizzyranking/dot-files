@@ -202,7 +202,6 @@
     "audio": "default"
   },
   "clipboard": {
-    "maxItems": 30,
     "manageWatcher": false
   },
   "profile": {
