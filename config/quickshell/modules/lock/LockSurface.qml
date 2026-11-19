@@ -22,6 +22,13 @@ WlSessionLockSurface {
     SystemClock { id: sc; precision: SystemClock.Minutes }
     Component.onCompleted: { SysInfo.refresh(); input.forceActiveFocus() }
 
+    // Lets Session.sleep wait for a painted lock screen before suspending.
+    Timer {
+        interval: 100
+        running: true
+        onTriggered: Lock.surfaceDrawn()
+    }
+
     Item {
         anchors.fill: parent
 

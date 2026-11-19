@@ -14,6 +14,13 @@ Singleton {
     property bool busy: false
     property int failed: 0
 
+    // Lock surfaces report here once they have painted. Sleeping waits for this:
+    // if the machine freezes while the lock screen is still being built, the
+    // compositor shows the old frame on wake until the lock surface is ready.
+    property int drawnSurfaces: 0
+    readonly property bool surfacesDrawn: drawnSurfaces >= Quickshell.screens.length
+    function surfaceDrawn() { drawnSurfaces++ }
+
     // A flag file remembers that we were locked. If the shell restarts or crashes while
     // locked, it locks again at start so you can still enter your password.
     readonly property string flag: Quickshell.env("HOME") + "/.local/state/qs-shell/locked"
@@ -28,6 +35,7 @@ Singleton {
     function lock() {
         if (locked) return
         password = ""; error = ""; busy = false
+        drawnSurfaces = 0
         mark(true)
         locked = true
     }
