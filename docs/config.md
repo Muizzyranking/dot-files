@@ -186,6 +186,8 @@ Commands run by the power and lock buttons in the control center. Edit them to m
 
 An empty `session.lock` uses the shell's own lock screen. Put a command there to use something else. Log out, reboot and power off ask for a second click to confirm in the control center.
 
+Suspend and hibernate lock first and wait for the lock screen to actually be on screen (about a third of a second) before running the command. Freezing while the lock is still being built is what leaves the old frame visible and unreachable for a few seconds after wake.
+
 ## capture and clipboard
 
 | Key | Default | Meaning |
@@ -194,8 +196,9 @@ An empty `session.lock` uses the shell's own lock screen. Put a command there to
 | `capture.recordDir` | ~/Videos | Where recordings are saved. |
 | `capture.audio` | "" | Recording sound. `""` is silent, `"default"` records the default microphone, or give a device name (a monitor source records what you hear: find names with `pactl list short sources`). |
 | `capture.annotate` | satty ... | Command that receives the screenshot on stdin for annotation. `$f` is the output file. |
-| `clipboard.maxItems` | 30 | History entries shown. |
 | `clipboard.manageWatcher` | false | Let the shell run the `wl-paste` watchers. Leave false if your Hyprland config already does. |
+
+The whole history is listed, with no limit. Pin an entry with the pin button and it is copied out of cliphist into `~/.local/state/qs-shell/clipboard`, so Clear (a `cliphist wipe`) keeps it; the Pinned tab in the clipboard window lists pins. The Clear button clears the tab you are looking at: history in History, pins in Pinned. `qs ipc call clipboard clearPins` clears pins without opening the window.
 
 Clipboard history needs entries to be stored. Add these to your Hyprland config, or set `clipboard.manageWatcher` to true:
 
@@ -370,6 +373,12 @@ To lock on idle and before sleep, point hypridle at it (`~/.config/hypr/hypridle
 
 `loginctl lock-session` then runs `lock_cmd`, so everything that locks (idle, suspend, the buttons) ends up in the shell's lock screen.
 
+Sleep started from the control center or `qs ipc call session suspend` locks first by itself. For sleep started elsewhere (closing the lid, `systemctl suspend` from a terminal, hypridle's own suspend timer) make logind wait for the lock screen by holding a delay inhibitor in `before_sleep_cmd`:
+
+    before_sleep_cmd = systemd-inhibit --what=sleep --mode=delay --who=qs-lock --why=lock-before-sleep sh -c "qs ipc call lock lock; sleep 0.6"
+
+Without that wait the machine can freeze while the lock surface is still being drawn, and the screen shows the old frame for several seconds after wake.
+
 | Key | Default | Meaning |
 |---|---|---|
 | `lock.pamConfig` | login | PAM service used to check your password. `login` exists on most systems. If your password is rejected, try `system-auth` (Arch) or `common-auth` (Debian, Ubuntu). |
@@ -412,7 +421,7 @@ Run any of these from a keybind or a terminal as `qs ipc call <target> <function
 | `control` | `toggle`, `open`, `close` | Control center (the expanded island) on the focused screen. |
 | `panel` | `toggle <name>`, `close` | A bar panel. Names: `wifi`, `bluetooth`, `volume`, `battery`, `vitals`, `calendar`, `notifications`, `ai`. They open centered under the island. |
 | `notifications` | `toggle`, `dnd`, `dndOn`, `dndOff`, `clear`, `dismissToast` | Notifications panel, do not disturb, clear all, close the current toast. |
-| `clipboard` | `toggle`, `close` | The clipboard popup window. It is its own window, not part of the bar. |
+| `clipboard` | `toggle`, `close`, `clearPins` | The clipboard popup window. It is its own window, not part of the bar. |
 | `capture` | `screenshot <region\|screen\|annotate>`, `record <screen\|region>`, `toggleRecord`, `stopRecord` | Screenshots and recording on the focused screen. |
 | `volume` | `up`, `down`, `mute`, `set <percent>`, `micMute` | Output volume (up to `audio.maxVolume`) and microphone mute. |
 | `brightness` | `up`, `down`, `set <percent>`, `kbdUp`, `kbdDown` | Screen and keyboard backlight. |
