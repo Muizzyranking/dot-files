@@ -20,10 +20,14 @@ Singleton {
     property real _idle: 0
     property real _total: 0
 
-    // Full process list, only polled while the vitals panel is open
+    // Process list, only polled while the vitals panel is open.
+    // Rows are grouped by executable name, one entry per app.
     property bool watchProcs: false
-    property var procs: []           // { pid, name, user, kb, cpu }
+    property var procs: []           // { name, user, count, kb, rssKb, pssKb, cpu, pids, roots }
     property var _psRows: []
+    property var _cpuBy: ({})
+    property var _pssByPid: ({})
+    property int _tick: 0
 
     function parseMem(t) {
         const g = k => { const m = t.match(new RegExp("^" + k + ":\\s+(\\d+)", "m")); return m ? +m[1] : 0 }
@@ -74,10 +78,13 @@ Singleton {
     function parsePs(t) {
         const rows = []
         for (const line of t.split("\n")) {
-            const m = line.match(/^\s*(\d+)\s+(\d+)\s+(\S+)\s+(.*\S)\s*$/)
-            if (m && m[4] !== "ps" && m[4] !== "top") rows.push({ pid: +m[1], kb: +m[2], user: m[3], name: m[4] })
+            const m = line.match(/^\s*(\d+)\s+(\d+)\s+(\d+)\s+(\S+)\s+(.*\S)\s*$/)
+            if (m && m[5] !== "ps" && m[5] !== "top" && m[5] !== "grep") {
+                rows.push({ pid: +m[1], ppid: +m[2], kb: +m[3], user: m[4], name: m[5] })
+            }
         }
         _psRows = rows
+        buildGroups()
     }
     function parseTop(t) {
         const lines = t.split("\n")
@@ -101,7 +108,69 @@ Singleton {
             const v = parseFloat((f[iCpu] || "").replace(",", "."))
             if (!isNaN(v)) cpuBy[f[iPid]] = v / cores
         }
-        procs = _psRows.map(p => ({ pid: p.pid, name: p.name, user: p.user, kb: p.kb, cpu: cpuBy[p.pid] || 0 }))
+        _cpuBy = cpuBy
+        buildGroups()
+    }
+    // PSS is the only memory number that can be summed across processes: RSS
+    // counts every shared page once per process, so Chrome would look like it
+    // uses twice its real memory. Root-owned processes cannot be read, so they
+    // fall back to RSS below.
+    function parsePss(t) {
+        const map = {}
+        for (const line of t.split("\n")) {
+            const m = line.match(/^\/proc\/(\d+)\/smaps_rollup:Pss:\s+(\d+)/)
+            if (m) map[+m[1]] = +m[2]
+        }
+        _pssByPid = map
+        buildGroups()
+    }
+    function buildGroups() {
+        if (_psRows.length === 0) return
+        const nameByPid = {}
+        for (const p of _psRows) nameByPid[p.pid] = p.name
+        const groups = {}
+        const order = []
+        for (const p of _psRows) {
+            const gk = "g_" + p.name
+            let g = groups[gk]
+            if (!g) {
+                g = { name: p.name, user: p.user, count: 0, rssKb: 0, pssKb: 0, rssNoPssKb: 0, cpu: 0, pids: [], roots: [] }
+                groups[gk] = g
+                order.push(p.name)
+            }
+            const pss = _pssByPid[p.pid] || 0
+            const cpu = _cpuBy[p.pid] || 0
+            // Topmost process of its own name tree: Chrome's browser has the
+            // same name as its zygotes/renderers, so "root" cannot just mean
+            // "parent is not running".
+            const isRoot = nameByPid[p.ppid] !== p.name
+            g.count++
+            g.rssKb += p.kb
+            g.cpu += cpu
+            if (pss > 0) {
+                g.pssKb += pss
+            } else {
+                g.rssNoPssKb += p.kb
+            }
+            if (isRoot) g.roots.push(p.pid)
+            g.pids.push({ pid: p.pid, ppid: p.ppid, kb: pss > 0 ? pss : p.kb, rssKb: p.kb, cpu: cpu, isRoot: isRoot })
+        }
+        const out = []
+        for (const name of order) {
+            const g = groups["g_" + name]
+            out.push({
+                name: g.name,
+                user: g.user,
+                count: g.count,
+                kb: g.pssKb + g.rssNoPssKb,
+                rssKb: g.rssKb,
+                pssKb: g.pssKb,
+                cpu: g.cpu,
+                pids: g.pids,
+                roots: g.roots
+            })
+        }
+        procs = out
     }
     function kill(pid, force) {
         killer.command = ["kill", force ? "-KILL" : "-TERM", String(pid)]
@@ -111,7 +180,7 @@ Singleton {
 
     Process {
         id: psProc
-        command: ["ps", "-eo", "pid=,rss=,user=,comm="]
+        command: ["ps", "-eo", "pid=,ppid=,rss=,user=,comm="]
         stdout: StdioCollector { onStreamFinished: root.parsePs(text) }
     }
     Process {
@@ -119,11 +188,23 @@ Singleton {
         command: ["sh", "-c", "echo cores:$(nproc); top -b -n 2 -d 0.5 -w 200"]
         stdout: StdioCollector { onStreamFinished: root.parseTop(text) }
     }
+    // grep -s keeps going when a root-owned smaps_rollup is unreadable.
+    Process {
+        id: pssProc
+        command: ["sh", "-c", "grep -sH '^Pss:' /proc/[0-9]*/smaps_rollup"]
+        stdout: StdioCollector { onStreamFinished: root.parsePss(text) }
+    }
     Process { id: killer }
     Timer { id: killRefresh; interval: 600; onTriggered: { psProc.running = true; topProc.running = true } }
     Timer {
         running: root.watchProcs; repeat: true; triggeredOnStart: true
         interval: 2500
-        onTriggered: { psProc.running = true; topProc.running = true }
+        onTriggered: {
+            root._tick++
+            psProc.running = true
+            topProc.running = true
+            // PSS costs ~0.3s of reads, so refresh it every other tick.
+            if (root._tick % 2 === 1) pssProc.running = true
+        }
     }
 }

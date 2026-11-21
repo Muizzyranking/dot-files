@@ -4,7 +4,8 @@ import qs.core
 import qs.components
 import qs.services
 
-// Tabs: Memory and CPU show every process (search, scroll, kill).
+// Tabs: Memory and CPU group processes by app, so multi-process programs
+// (Chrome, Electron, shells) take one row; expand a row to see its PIDs.
 // Swap and Disk show a gauge. The list pauses while the mouse is over it,
 // so rows do not jump under your cursor.
 ColumnLayout {
@@ -16,8 +17,9 @@ ColumnLayout {
     readonly property bool listTab: tab < 2
     property var rows: []
     property bool desc: true          // highest first; the arrow button flips it
-    property string armedPid: ""
+    property string armedKey: ""
     property var termed: ({})
+    property var expanded: ({})       // group name -> true
 
     Component.onCompleted: { SysStats.watchProcs = true; refresh(true) }
     Component.onDestruction: SysStats.watchProcs = false
@@ -29,19 +31,74 @@ ColumnLayout {
         if (!force && listHover.hovered) return
         const q = search.text.trim().toLowerCase()
         let r = SysStats.procs
-        if (q) r = r.filter(p => p.name.toLowerCase().includes(q) || String(p.pid).includes(q))
+        if (q) {
+            r = r.filter(g => g.name.toLowerCase().includes(q) || g.pids.some(p => String(p.pid).includes(q)))
+        }
         const key = tab === 0 ? "kb" : "cpu"
         const dir = desc ? 1 : -1
-        rows = r.slice().sort((a, b) => dir * (b[key] - a[key]) || dir * (b.kb - a.kb) || a.name.localeCompare(b.name)).slice(0, 250)
+        const sorted = r.slice().sort((a, b) => dir * (b[key] - a[key]) || dir * (b.rssKb - a.rssKb) || a.name.localeCompare(b.name))
+        const out = []
+        for (const g of sorted) {
+            const showKids = expanded[g.name] === true || (q !== "" && g.pids.some(p => String(p.pid).includes(q)))
+            out.push({
+                kind: "group",
+                key: "g:" + g.name,
+                name: g.name,
+                user: g.user,
+                count: g.count,
+                kb: g.kb,
+                rssKb: g.rssKb,
+                cpu: g.cpu,
+                pids: g.pids,
+                roots: g.roots,
+                expanded: showKids
+            })
+            if (showKids) {
+                const kids = g.pids.slice().sort((a, b) => dir * (b[key] - a[key]) || dir * (b.rssKb - a.rssKb) || a.pid - b.pid)
+                for (const p of kids) {
+                    out.push({
+                        kind: "proc",
+                        key: "p:" + p.pid,
+                        name: g.name,
+                        pid: p.pid,
+                        kb: p.kb,
+                        cpu: p.cpu,
+                        isRoot: p.isRoot,
+                        group: g.name
+                    })
+                }
+            }
+        }
+        rows = out.slice(0, 250)
     }
-    function pressKill(pid) {
-        const k = String(pid)
-        if (armedPid !== k) { armedPid = k; armTimer.restart(); return; }
-        armedPid = ""
-        SysStats.kill(pid, termed[pid] === true)
-        const t = Object.assign({}, termed); t[pid] = true; termed = t
+    function pressKill(key, pid) {
+        if (armedKey !== key) {
+            armedKey = key
+            armTimer.restart()
+            return
+        }
+        armedKey = ""
+        SysStats.kill(pid, termed[key] === true)
+        const t = Object.assign({}, termed)
+        t[key] = true
+        termed = t
     }
-    Timer { id: armTimer; interval: 3000; onTriggered: root.armedPid = "" }
+    function toggle(name) {
+        const e = Object.assign({}, expanded)
+        e[name] = !e[name]
+        expanded = e
+        refresh(true)
+    }
+    // A group row kills its single root (the app's main process) when there is
+    // exactly one. Groups with several roots have no safe single target, so the
+    // kill button is hidden and the user expands the group instead.
+    function killTarget(g) {
+        if (g.kind === "proc") return g.pid
+        if (g.count === 1) return g.pids[0].pid
+        if (g.roots.length === 1) return g.roots[0]
+        return -1
+    }
+    Timer { id: armTimer; interval: 3000; onTriggered: root.armedKey = "" }
     Connections { target: SysStats; function onProcsChanged() { root.refresh(false) } }
 
     PanelHeader { icon: "monitoring"; title: "System" }
@@ -183,18 +240,49 @@ ColumnLayout {
                     delegate: Rectangle {
                         id: row
                         required property var modelData
-                        readonly property bool armed: root.armedPid === String(modelData.pid)
-                        readonly property bool termed: root.termed[modelData.pid] === true
+                        readonly property bool isGroup: modelData.kind === "group"
+                        readonly property bool expandable: row.isGroup && modelData.count > 1
+                        readonly property bool armed: root.armedKey === modelData.key
+                        readonly property bool termed: root.termed[modelData.key] === true
+                        readonly property int targetPid: root.killTarget(modelData)
                         width: ListView.view.width
-                        height: Theme.px(34)
+                        height: Theme.px(row.isGroup ? 34 : 30)
                         radius: Theme.px(10)
                         color: hh.hovered || armed ? Theme.surface : "transparent"
                         HoverHandler { id: hh }
+                        MouseArea {
+                            anchors.fill: parent
+                            enabled: row.expandable
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.toggle(row.modelData.name)
+                        }
                         RowLayout {
-                            anchors { fill: parent; leftMargin: Theme.px(10); rightMargin: Theme.px(6) }
-                            spacing: Theme.px(8)
-                            Label { text: row.modelData.name; Layout.fillWidth: true; elide: Text.ElideRight }
-                            Label { text: row.modelData.pid; color: Theme.textFaint; font.pixelSize: Theme.fontSize - 2 }
+                            anchors { fill: parent; leftMargin: Theme.px(row.isGroup ? 8 : 26); rightMargin: Theme.px(6) }
+                            spacing: Theme.px(6)
+                            Icon {
+                                visible: row.expandable
+                                name: row.modelData.expanded ? "expand_more" : "chevron_right"
+                                size: Theme.px(15)
+                                color: Theme.textDim
+                            }
+                            Label {
+                                text: row.modelData.name
+                                Layout.fillWidth: true
+                                elide: Text.ElideRight
+                                color: row.isGroup ? Theme.text : Theme.textDim
+                            }
+                            Label {
+                                visible: row.expandable
+                                text: "(" + row.modelData.count + ")"
+                                color: Theme.textFaint
+                                font.pixelSize: Theme.fontSize - 2
+                            }
+                            Label {
+                                visible: !row.isGroup || !row.expandable
+                                text: row.isGroup ? String(row.modelData.pids[0].pid) : String(row.modelData.pid)
+                                color: Theme.textFaint
+                                font.pixelSize: Theme.fontSize - 2
+                            }
                             Label {
                                 Layout.preferredWidth: Theme.px(62)
                                 horizontalAlignment: Text.AlignRight
@@ -202,6 +290,7 @@ ColumnLayout {
                                 color: Theme.textDim
                             }
                             Rectangle {
+                                visible: row.targetPid > 0
                                 implicitWidth: row.armed ? Theme.px(56) : Theme.px(26)
                                 implicitHeight: Theme.px(24)
                                 radius: Theme.px(8)
@@ -210,7 +299,7 @@ ColumnLayout {
                                 HoverHandler { id: kh }
                                 Icon { visible: !row.armed; anchors.centerIn: parent; name: "close"; size: Theme.px(14); color: kh.hovered ? Theme.bad : Theme.textFaint }
                                 Label { visible: row.armed; anchors.centerIn: parent; text: row.termed ? "Force?" : "Kill?"; color: Theme.accentText; font.pixelSize: Theme.fontSize - 1; font.weight: Font.DemiBold }
-                                MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.pressKill(row.modelData.pid) }
+                                MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.pressKill(row.modelData.key, row.targetPid) }
                             }
                         }
                     }
