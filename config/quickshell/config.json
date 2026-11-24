@@ -12,11 +12,11 @@
   "bar": {
     "height": 35,
     "border": 1,
-    "borderOpacity": 0.1,
+    "borderOpacity": 0.2,
     "opacity": 0.7,
-    "radius": 5,
-    "marginX": 5,
-    "marginY": 0,
+    "radius": 10,
+    "marginX": 10,
+    "marginY": 3,
     "outerPadding": 5,
     "spacing": 5,
     "pill": {
@@ -104,7 +104,7 @@
     }
   },
   "clock": {
-    "timeFormat": "h:mm AP",
+    "timeFormat": "hh:mm AP",
     "dateFormat": "ddd d"
   },
   "animation": {
@@ -143,7 +143,7 @@
   },
   "sounds": {
     "enabled": true,
-    "volume": 2,
+    "volume": 1,
     "chargerPlug": "/usr/share/sounds/freedesktop/stereo/power-plug.oga",
     "chargerUnplug": "/usr/share/sounds/freedesktop/stereo/power-unplug.oga",
     "usbAdd": "/usr/share/sounds/freedesktop/stereo/device-added.oga",
@@ -157,11 +157,12 @@
   },
   "ai": {
     "suspendInhibit": false,
-    "sleepyAfterMs": 600000
+    "sleepyAfterMs": 600000,
+    "notifyOnDone": true
   },
   "notifications": {
     "dnd": false,
-    "maxLines": 3
+    "maxLines": 10
   },
   "calendar": {
     "firstDay": 1
@@ -199,7 +200,7 @@
     "screenshotDir": "~/Pictures/Screenshots",
     "recordDir": "~/Videos",
     "annotate": "satty --filename - --output-filename \"$f\" --copy-command wl-copy",
-    "audio": "default"
+    "audio": ""
   },
   "clipboard": {
     "manageWatcher": false

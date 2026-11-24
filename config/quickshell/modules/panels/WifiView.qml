@@ -8,6 +8,7 @@ import qs.services
 ColumnLayout {
     id: root
     property real listMax: Theme.px(238)
+    property bool showHeader: true
     property string openSsid: ""
     property string pwFor: ""
     spacing: Theme.px(8)
@@ -21,6 +22,7 @@ ColumnLayout {
     }
 
     PanelHeader {
+        visible: root.showHeader
         icon: Net.icon
         title: "Wi-Fi"
         IconButton { visible: Net.wifiEnabled; name: "refresh"; onClicked: Net.scan() }

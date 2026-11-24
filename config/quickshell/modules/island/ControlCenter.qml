@@ -16,11 +16,16 @@ ColumnLayout {
     id: root
     spacing: Theme.px(12)
     property int tab: 0
-    property string detail: ""
+    property string page: ""
+    property bool shotExpanded: false
+    property bool recExpanded: false
     property bool powerMenu: false
     property int armed: -1
-    property string detailShown: ""
-    onDetailChanged: if (detail !== "") detailShown = detail
+    onTabChanged: {
+        page = ""
+        shotExpanded = false
+        recExpanded = false
+    }
     readonly property string nameText: Config.v.profile.name || SysInfo.host || "?"
     readonly property string avatarPath: (Config.v.profile.avatar || "").replace(/^~/, Quickshell.env("HOME"))
 
@@ -29,13 +34,19 @@ ColumnLayout {
     readonly property real micVol: mic && mic.audio ? mic.audio.volume : 0
     PwObjectTracker { objects: [root.mic] }
 
-    function toggleDetail(n) { detail = detail === n ? "" : n }
-    function done() { Panels.close(); IslandState.collapse() }
+    function done() {
+        page = ""
+        shotExpanded = false
+        recExpanded = false
+        Panels.close()
+        IslandState.collapse()
+    }
     function clock(s) { return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0") }
 
-    Component.onCompleted: { Backlight.screen.refresh(); Backlight.keys.refresh(); SysInfo.refresh() }
+    Component.onCompleted: { Backlight.screen.refresh(); SysInfo.refresh() }
     Timer { running: true; repeat: true; interval: 30000; onTriggered: SysInfo.refresh() }
     Timer { id: armTimer; interval: 3000; onTriggered: root.armed = -1 }
+    Shortcut { sequence: "Escape"; enabled: root.page !== ""; onActivated: root.page = "" }
 
     component Detail: Rectangle {
         default property alias body: inner.data
@@ -52,26 +63,48 @@ ColumnLayout {
     // header
     RowLayout {
         Layout.fillWidth: true
-        spacing: Theme.px(12)
-        Avatar { size: Theme.px(46) }
+        spacing: Theme.px(10)
+        Avatar { size: Theme.px(44) }
         ColumnLayout {
             spacing: 0
-            Label { text: root.nameText; color: Theme.islandText; font.pixelSize: Theme.fontSize + 4; font.weight: Font.DemiBold }
+            Label { text: root.nameText; color: Theme.islandText; font.pixelSize: Theme.fontSize + 3; font.weight: Font.DemiBold }
             Label { text: "Up " + SysInfo.fmtUptime(SysInfo.uptimeSec); color: Theme.islandTextDim; font.pixelSize: Theme.fontSize - 1 }
         }
         Item { Layout.fillWidth: true }
+
+        // Wallpaper button
         Rectangle {
-            implicitWidth: Theme.px(36); implicitHeight: implicitWidth; radius: width / 2
+            implicitWidth: Theme.px(34); implicitHeight: implicitWidth; radius: width / 2
+            color: wph.hovered ? Theme.surfaceHi : Theme.surface
+            HoverHandler { id: wph }
+            Icon { anchors.centerIn: parent; name: "wallpaper"; size: Theme.px(16) }
+            MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: { root.done(); Popups.toggle("wallpaper") } }
+        }
+
+        // Settings button
+        Rectangle {
+            implicitWidth: Theme.px(34); implicitHeight: implicitWidth; radius: width / 2
+            color: sth.hovered ? Theme.surfaceHi : Theme.surface
+            HoverHandler { id: sth }
+            Icon { anchors.centerIn: parent; name: "settings"; size: Theme.px(16) }
+            MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: { root.done(); Popups.toggle("settings") } }
+        }
+
+        // Lock button
+        Rectangle {
+            implicitWidth: Theme.px(34); implicitHeight: implicitWidth; radius: width / 2
             color: lh.hovered ? Theme.surfaceHi : Theme.surface
             HoverHandler { id: lh }
-            Icon { anchors.centerIn: parent; name: "lock" }
+            Icon { anchors.centerIn: parent; name: "lock"; size: Theme.px(16) }
             MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: { Session.lock(); root.done() } }
         }
+
+        // Power button
         Rectangle {
-            implicitWidth: Theme.px(36); implicitHeight: implicitWidth; radius: width / 2
+            implicitWidth: Theme.px(34); implicitHeight: implicitWidth; radius: width / 2
             color: root.powerMenu ? Theme.bad : ph.hovered ? Theme.surfaceHi : Theme.surface
             HoverHandler { id: ph }
-            Icon { anchors.centerIn: parent; name: "power_settings_new"; color: root.powerMenu ? Theme.accentText : Theme.text }
+            Icon { anchors.centerIn: parent; name: "power_settings_new"; size: Theme.px(16); color: root.powerMenu ? Theme.accentText : Theme.text }
             MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: { root.powerMenu = !root.powerMenu; root.armed = -1 } }
         }
     }
@@ -148,184 +181,608 @@ ColumnLayout {
     // ================= Quick =================
     Component {
         id: quickC
-        ColumnLayout {
-            spacing: Theme.px(12)
+        Item {
+            id: quickRoot
+            width: parent ? parent.width : 0
+            implicitHeight: root.page === "" ? mainQuickCol.implicitHeight : subPageCol.implicitHeight
+            Behavior on implicitHeight { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
 
-            GridLayout {
-                Layout.fillWidth: true
-                columns: 3
-                columnSpacing: Theme.px(8)
-                rowSpacing: Theme.px(8)
-
-                Tile {
-                    Layout.fillWidth: true; Layout.preferredWidth: 1
-                    icon: Net.icon; title: "Wi-Fi"
-                    sub: Net.wifiEnabled ? (Net.ssid || "Not connected") : "Off"
-                    active: Net.wifiEnabled; expandable: true; expanded: root.detail === "wifi"
-                    onClicked: m => m.button === Qt.RightButton ? Net.setEnabled(!Net.wifiEnabled) : root.toggleDetail("wifi")
-                }
-                Tile {
-                    Layout.fillWidth: true; Layout.preferredWidth: 1
-                    icon: Bt.icon; title: "Bluetooth"
-                    sub: Bt.enabled ? (Bt.connected > 0 ? Bt.connected + " connected" : "On") : "Off"
-                    active: Bt.enabled; expandable: true; expanded: root.detail === "bluetooth"
-                    onClicked: m => m.button === Qt.RightButton ? Bt.toggle() : root.toggleDetail("bluetooth")
-                }
-                Tile {
-                    Layout.fillWidth: true; Layout.preferredWidth: 1
-                    icon: Notifs.dnd ? "notifications_off" : "notifications"; title: "Do not disturb"
-                    sub: Notifs.dnd ? "On" : "Off"; active: Notifs.dnd
-                    onClicked: Notifs.toggleDnd()
-                }
-                Tile {
-                    Layout.fillWidth: true; Layout.preferredWidth: 1
-                    icon: Sounds.enabled ? "notifications_active" : "volume_off"; title: "Sounds"
-                    sub: Sounds.enabled ? "On" : "Muted"; active: Sounds.enabled
-                    onClicked: Sounds.muted = !Sounds.muted
-                }
-                Tile {
-                    Layout.fillWidth: true; Layout.preferredWidth: 1
-                    icon: PowerProfiles.profile === PowerProfile.Performance ? "speed"
-                        : PowerProfiles.profile === PowerProfile.PowerSaver ? "eco" : "balance"
-                    title: "Power mode"
-                    sub: PowerProfiles.profile === PowerProfile.Performance ? "Performance"
-                        : PowerProfiles.profile === PowerProfile.PowerSaver ? "Saver" : "Balanced"
-                    active: PowerProfiles.profile !== PowerProfile.Balanced
-                    expandable: true; expanded: root.detail === "power"
-                    onClicked: root.toggleDetail("power")
-                }
-                Tile {
-                    Layout.fillWidth: true; Layout.preferredWidth: 1
-                    icon: root.micMuted ? "mic_off" : "mic"; title: "Microphone"
-                    sub: root.micMuted ? "Muted" : Math.round(root.micVol * 100) + "%"
-                    active: !root.micMuted; expandable: true; expanded: root.detail === "mic"
-                    onClicked: m => {
-                        if (m.button === Qt.RightButton) { if (root.mic && root.mic.audio) root.mic.audio.muted = !root.micMuted }
-                        else root.toggleDetail("mic")
-                    }
-                }
-                Tile {
-                    Layout.fillWidth: true; Layout.preferredWidth: 1
-                    icon: "screenshot_region"; title: "Screenshot"
-                    expandable: true; expanded: root.detail === "shot"
-                    onClicked: root.toggleDetail("shot")
-                }
-                Tile {
-                    Layout.fillWidth: true; Layout.preferredWidth: 1
-                    icon: Capture.recording ? "stop_circle" : "videocam"; title: "Screen record"
-                    sub: Capture.recording ? "Recording " + root.clock(Capture.elapsed) : "Off"
-                    active: Capture.recording; expandable: true; expanded: root.detail === "rec"
-                    onClicked: root.toggleDetail("rec")
-                }
-                Tile {
-                    visible: Config.v.modules.idleInhibitor
-                    Layout.fillWidth: true; Layout.preferredWidth: 1
-                    icon: "coffee"; title: "Keep awake"
-                    sub: Idle.active ? "On" : "Off"; active: Idle.active
-                    onClicked: Idle.toggle()
-                }
-                Tile {
-                    Layout.fillWidth: true; Layout.preferredWidth: 1
-                    icon: "content_paste"; title: "Clipboard"
-                    expandable: true; expanded: root.detail === "clip"
-                    onClicked: root.toggleDetail("clip")
-                }
-                Tile {
-                    Layout.fillWidth: true; Layout.preferredWidth: 1
-                    icon: "wallpaper"; title: "Wallpaper"; sub: "Choose"
-                    onClicked: { root.done(); Popups.toggle("wallpaper") }
-                }
-                Tile {
-                    Layout.fillWidth: true; Layout.preferredWidth: 1
-                    icon: "palette"; title: "Palette"; sub: Theming.current
-                    expandable: true; expanded: root.detail === "palette"
-                    onClicked: root.toggleDetail("palette")
-                }
-                Tile {
-                    Layout.fillWidth: true; Layout.preferredWidth: 1
-                    icon: "settings"; title: "Settings"; sub: "config.json"
-                    onClicked: { root.done(); Popups.toggle("settings") }
-                }
-            }
-
-            // inline dropdown
-            Item {
-                id: dd
-                Layout.fillWidth: true
-                property real rev: root.detail !== "" ? 1 : 0
-                Behavior on rev { NumberAnimation { duration: Config.v.animation.normal; easing.type: Easing.OutCubic } }
-                visible: rev > 0.001
-                clip: true
-                implicitHeight: (ddl.item ? ddl.item.implicitHeight : 0) * rev
-                Loader {
-                    id: ddl
-                    width: parent.width
-                    opacity: dd.rev
-                    active: root.detail !== "" || dd.rev > 0.001
-                    sourceComponent: root.detailShown === "wifi" ? wifiD
-                        : root.detailShown === "bluetooth" ? btD
-                        : root.detailShown === "mic" ? micD
-                        : root.detailShown === "power" ? powerD
-                        : root.detailShown === "shot" ? shotD
-                        : root.detailShown === "rec" ? recD
-                        : root.detailShown === "clip" ? clipD
-                        : root.detailShown === "palette" ? palD : null
-                }
-            }
-
-            // sliders
+            // ================= SUB-PAGE VIEW =================
             ColumnLayout {
-                Layout.fillWidth: true
+                id: subPageCol
+                width: parent.width
                 spacing: Theme.px(10)
+                x: root.page !== "" ? 0 : Theme.px(24)
+                opacity: root.page !== "" ? 1 : 0
+                visible: opacity > 0.001
+                enabled: root.page !== ""
+                Behavior on x { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+                Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+
+                // Sub-page Navigation Header with Back Button
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: Theme.px(10)
-                    IconButton { name: Audio.icon; tone: Audio.muted ? Theme.islandTextDim : Theme.islandText; onClicked: Audio.toggleMute() }
-                    Slider {
-                        Layout.fillWidth: true
-                        thickness: Theme.px(10)
-                        value: Audio.volume / Config.v.audio.maxVolume
-                        marker: Config.v.audio.maxVolume > 1 ? 1 / Config.v.audio.maxVolume : -1
-                        tone: Audio.muted ? Theme.textFaint : Audio.volume > 1 ? Theme.warn : Theme.accent
-                        onMoved: v => Audio.setVolume(v * Config.v.audio.maxVolume)
+
+                    Rectangle {
+                        Layout.alignment: Qt.AlignVCenter
+                        implicitWidth: Theme.px(34); implicitHeight: implicitWidth; radius: width / 2
+                        color: backH.hovered ? Theme.surfaceHi : Theme.surface
+                        HoverHandler { id: backH }
+                        Icon { anchors.centerIn: parent; name: "arrow_back"; size: Theme.px(16); color: Theme.accent }
+                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.page = "" }
                     }
-                    Label { Layout.preferredWidth: Theme.px(40); horizontalAlignment: Text.AlignRight; text: Math.round(Audio.volume * 100) + "%"; color: Audio.volume > 1 ? Theme.warn : Theme.islandTextDim }
+
+                    Icon {
+                        Layout.alignment: Qt.AlignVCenter
+                        name: root.page === "wifi" ? Net.icon
+                            : root.page === "bluetooth" ? Bt.icon
+                            : root.page === "power" ? "speed"
+                            : root.page === "clip" ? "content_paste"
+                            : root.page === "palette" ? "palette" : "tune"
+                        size: Theme.px(18)
+                        color: Theme.accent
+                    }
+
+                    Label {
+                        Layout.alignment: Qt.AlignVCenter
+                        Layout.fillWidth: true
+                        text: root.page === "wifi" ? "Wi-Fi Networks"
+                            : root.page === "bluetooth" ? "Bluetooth Devices"
+                            : root.page === "power" ? "Power Profiles"
+                            : root.page === "clip" ? "Clipboard History"
+                            : root.page === "palette" ? "Color Palettes" : "Settings"
+                        font.weight: Font.DemiBold
+                        font.pixelSize: Theme.fontSize + 2
+                    }
+
+                    // Refresh/Scan button for Wi-Fi and Bluetooth
+                    IconButton {
+                        Layout.alignment: Qt.AlignVCenter
+                        visible: root.page === "wifi" || (root.page === "bluetooth" && Bt.enabled)
+                        name: root.page === "wifi" ? "refresh" : "search"
+                        onClicked: {
+                            if (root.page === "wifi") Net.scan()
+                            else if (root.page === "bluetooth") Bt.scan()
+                        }
+                    }
+
+                    // The ONE toggle switch on the sub-page
+                    Toggle {
+                        Layout.alignment: Qt.AlignVCenter
+                        visible: root.page === "wifi" || root.page === "bluetooth"
+                        checked: root.page === "wifi" ? Net.wifiEnabled : Bt.enabled
+                        onToggled: {
+                            if (root.page === "wifi") {
+                                Net.setEnabled(!Net.wifiEnabled)
+                            } else {
+                                Bt.toggle()
+                            }
+                        }
+                    }
                 }
-                RowLayout {
-                    visible: Backlight.screen.available
+
+                // Sub-page Content Container
+                Rectangle {
                     Layout.fillWidth: true
-                    spacing: Theme.px(10)
-                    Item { implicitWidth: Theme.px(24); implicitHeight: Theme.px(22); Icon { anchors.centerIn: parent; name: "light_mode"; color: Theme.islandText } }
-                    Slider { Layout.fillWidth: true; thickness: Theme.px(10); value: Backlight.screen.value; onMoved: v => Backlight.screen.set(v) }
-                    Label { Layout.preferredWidth: Theme.px(40); horizontalAlignment: Text.AlignRight; text: Math.round(Backlight.screen.value * 100) + "%"; color: Theme.islandTextDim }
+                    implicitHeight: subPageLoader.item ? subPageLoader.item.implicitHeight + Theme.px(20) : Theme.px(200)
+                    radius: Theme.px(16)
+                    color: Theme.barBg
+                    clip: true
+
+                    Loader {
+                        id: subPageLoader
+                        anchors {
+                            left: parent.left
+                            right: parent.right
+                            top: parent.top
+                            margins: Theme.px(10)
+                        }
+                        active: root.page !== ""
+                        sourceComponent: root.page === "wifi" ? wifiD
+                            : root.page === "bluetooth" ? btD
+                            : root.page === "power" ? powerD
+                            : root.page === "clip" ? clipD
+                            : root.page === "palette" ? palD : null
+                    }
                 }
+            }
+
+            // ================= MAIN QUICK CONTROLS VIEW =================
+            ColumnLayout {
+                id: mainQuickCol
+                width: parent.width
+                spacing: Theme.px(10)
+                x: root.page === "" ? 0 : -Theme.px(24)
+                opacity: root.page === "" ? 1 : 0
+                visible: opacity > 0.001
+                enabled: root.page === ""
+                Behavior on x { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+                Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+
+                // Top Cluster: 2 Featured Cards
                 RowLayout {
-                    visible: Backlight.keys.available
                     Layout.fillWidth: true
-                    spacing: Theme.px(10)
-                    Item { implicitWidth: Theme.px(24); implicitHeight: Theme.px(22); Icon { anchors.centerIn: parent; name: "keyboard"; color: Theme.islandText } }
-                    Slider { Layout.fillWidth: true; thickness: Theme.px(10); value: Backlight.keys.value; onMoved: v => Backlight.keys.set(v) }
-                    Label { Layout.preferredWidth: Theme.px(40); horizontalAlignment: Text.AlignRight; text: Math.round(Backlight.keys.value * 100) + "%"; color: Theme.islandTextDim }
+                    spacing: Theme.px(8)
+
+                    // Card 1: Wireless (Wi-Fi + Bluetooth)
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 1
+                        implicitHeight: Theme.px(104)
+                        radius: Theme.px(16)
+                        color: Theme.surface
+                        border.width: 1
+                        border.color: Qt.alpha(Theme.text, 0.06)
+
+                        ColumnLayout {
+                            anchors { fill: parent; margins: Theme.px(8) }
+                            spacing: Theme.px(4)
+
+                            // Wi-Fi Row
+                            Rectangle {
+                                Layout.fillWidth: true
+                                implicitHeight: Theme.px(42)
+                                radius: Theme.px(12)
+                                color: Net.wifiEnabled ? Qt.alpha(Theme.accent, 0.16) : areaWifi.containsMouse ? Theme.surfaceHi : "transparent"
+
+                                RowLayout {
+                                    anchors { fill: parent; leftMargin: Theme.px(8); rightMargin: Theme.px(8) }
+                                    spacing: Theme.px(8)
+
+                                    Rectangle {
+                                        Layout.alignment: Qt.AlignVCenter
+                                        implicitWidth: Theme.px(28); implicitHeight: Theme.px(28); radius: width / 2
+                                        color: Net.wifiEnabled ? Theme.accent : Theme.surfaceHi
+                                        Icon { anchors.centerIn: parent; name: Net.icon; size: Theme.px(15); color: Net.wifiEnabled ? Theme.accentText : Theme.text }
+                                        MouseArea {
+                                            anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                            onClicked: Net.setEnabled(!Net.wifiEnabled)
+                                        }
+                                    }
+
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        Layout.alignment: Qt.AlignVCenter
+                                        spacing: 0
+                                        Label { text: "Wi-Fi"; font.weight: Font.DemiBold; font.pixelSize: Theme.fontSize - 1 }
+                                        Label {
+                                            text: Net.wifiEnabled ? (Net.ssid || "Connected") : "Off"
+                                            color: Theme.textDim; font.pixelSize: Theme.fontSize - 2; elide: Text.ElideRight; Layout.fillWidth: true
+                                        }
+                                    }
+
+                                    Icon {
+                                        Layout.alignment: Qt.AlignVCenter
+                                        name: "chevron_right"
+                                        size: Theme.px(16); color: Theme.textDim
+                                    }
+                                }
+                                MouseArea {
+                                    id: areaWifi
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+                                    onClicked: m => {
+                                        if (m.button === Qt.RightButton) {
+                                            Net.setEnabled(!Net.wifiEnabled)
+                                        } else {
+                                            root.page = "wifi"
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Bluetooth Row
+                            Rectangle {
+                                Layout.fillWidth: true
+                                implicitHeight: Theme.px(42)
+                                radius: Theme.px(12)
+                                color: Bt.enabled ? Qt.alpha(Theme.accent, 0.16) : areaBt.containsMouse ? Theme.surfaceHi : "transparent"
+
+                                RowLayout {
+                                    anchors { fill: parent; leftMargin: Theme.px(8); rightMargin: Theme.px(8) }
+                                    spacing: Theme.px(8)
+
+                                    Rectangle {
+                                        Layout.alignment: Qt.AlignVCenter
+                                        implicitWidth: Theme.px(28); implicitHeight: Theme.px(28); radius: width / 2
+                                        color: Bt.enabled ? Theme.accent : Theme.surfaceHi
+                                        Icon { anchors.centerIn: parent; name: Bt.icon; size: Theme.px(15); color: Bt.enabled ? Theme.accentText : Theme.text }
+                                        MouseArea {
+                                            anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                            onClicked: Bt.toggle()
+                                        }
+                                    }
+
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        Layout.alignment: Qt.AlignVCenter
+                                        spacing: 0
+                                        Label { text: "Bluetooth"; font.weight: Font.DemiBold; font.pixelSize: Theme.fontSize - 1 }
+                                        Label {
+                                            text: Bt.enabled ? (Bt.connected > 0 ? Bt.connected + " connected" : "On") : "Off"
+                                            color: Theme.textDim; font.pixelSize: Theme.fontSize - 2; elide: Text.ElideRight; Layout.fillWidth: true
+                                        }
+                                    }
+
+                                    Icon {
+                                        Layout.alignment: Qt.AlignVCenter
+                                        name: "chevron_right"
+                                        size: Theme.px(16); color: Theme.textDim
+                                    }
+                                }
+                                MouseArea {
+                                    id: areaBt
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+                                    onClicked: m => {
+                                        if (m.button === Qt.RightButton) {
+                                            Bt.toggle()
+                                        } else {
+                                            root.page = "bluetooth"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Card 2: System Modes (Power Profile + Do Not Disturb)
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 1
+                        implicitHeight: Theme.px(104)
+                        radius: Theme.px(16)
+                        color: Theme.surface
+                        border.width: 1
+                        border.color: Qt.alpha(Theme.text, 0.06)
+
+                        ColumnLayout {
+                            anchors { fill: parent; margins: Theme.px(8) }
+                            spacing: Theme.px(4)
+
+                            // Power Profile Row
+                            Rectangle {
+                                Layout.fillWidth: true
+                                implicitHeight: Theme.px(42)
+                                radius: Theme.px(12)
+                                color: PowerProfiles.profile !== PowerProfile.Balanced ? Qt.alpha(Theme.accent, 0.16) : areaPower.containsMouse ? Theme.surfaceHi : "transparent"
+
+                                RowLayout {
+                                    anchors { fill: parent; leftMargin: Theme.px(8); rightMargin: Theme.px(8) }
+                                    spacing: Theme.px(8)
+
+                                    Rectangle {
+                                        Layout.alignment: Qt.AlignVCenter
+                                        implicitWidth: Theme.px(28); implicitHeight: Theme.px(28); radius: width / 2
+                                        color: PowerProfiles.profile !== PowerProfile.Balanced ? Theme.accent : Theme.surfaceHi
+                                        Icon {
+                                            anchors.centerIn: parent
+                                            name: PowerProfiles.profile === PowerProfile.Performance ? "speed"
+                                                : PowerProfiles.profile === PowerProfile.PowerSaver ? "eco" : "balance"
+                                            size: Theme.px(15)
+                                            color: PowerProfiles.profile !== PowerProfile.Balanced ? Theme.accentText : Theme.text
+                                        }
+                                    }
+
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        Layout.alignment: Qt.AlignVCenter
+                                        spacing: 0
+                                        Label { text: "Power mode"; font.weight: Font.DemiBold; font.pixelSize: Theme.fontSize - 1 }
+                                        Label {
+                                            text: PowerProfiles.profile === PowerProfile.Performance ? "Performance"
+                                                : PowerProfiles.profile === PowerProfile.PowerSaver ? "Saver" : "Balanced"
+                                            color: Theme.textDim; font.pixelSize: Theme.fontSize - 2; elide: Text.ElideRight; Layout.fillWidth: true
+                                        }
+                                    }
+
+                                    Icon {
+                                        Layout.alignment: Qt.AlignVCenter
+                                        name: "chevron_right"
+                                        size: Theme.px(16); color: Theme.textDim
+                                    }
+                                }
+                                MouseArea {
+                                    id: areaPower
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: root.page = "power"
+                                }
+                            }
+
+                            // Do Not Disturb Row
+                            Rectangle {
+                                Layout.fillWidth: true
+                                implicitHeight: Theme.px(42)
+                                radius: Theme.px(12)
+                                color: Notifs.dnd ? Qt.alpha(Theme.accent, 0.16) : areaDnd.containsMouse ? Theme.surfaceHi : "transparent"
+
+                                RowLayout {
+                                    anchors { fill: parent; leftMargin: Theme.px(8); rightMargin: Theme.px(8) }
+                                    spacing: Theme.px(8)
+
+                                    Rectangle {
+                                        Layout.alignment: Qt.AlignVCenter
+                                        implicitWidth: Theme.px(28); implicitHeight: Theme.px(28); radius: width / 2
+                                        color: Notifs.dnd ? Theme.accent : Theme.surfaceHi
+                                        Icon {
+                                            anchors.centerIn: parent
+                                            name: Notifs.dnd ? "notifications_off" : "notifications"
+                                            size: Theme.px(15)
+                                            color: Notifs.dnd ? Theme.accentText : Theme.text
+                                        }
+                                    }
+
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        Layout.alignment: Qt.AlignVCenter
+                                        spacing: 0
+                                        Label { text: "Do not disturb"; font.weight: Font.DemiBold; font.pixelSize: Theme.fontSize - 1 }
+                                        Label {
+                                            text: Notifs.dnd ? "On" : "Off"
+                                            color: Theme.textDim; font.pixelSize: Theme.fontSize - 2; elide: Text.ElideRight; Layout.fillWidth: true
+                                        }
+                                    }
+                                }
+                                MouseArea {
+                                    id: areaDnd
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: Notifs.toggleDnd()
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Sliders Card (Volume + Mic + Display Brightness; keyboard slider removed)
+                Rectangle {
+                    Layout.fillWidth: true
+                    implicitHeight: slidersCol.implicitHeight + Theme.px(20)
+                    radius: Theme.px(16)
+                    color: Theme.surface
+                    border.width: 1
+                    border.color: Qt.alpha(Theme.text, 0.06)
+
+                    ColumnLayout {
+                        id: slidersCol
+                        anchors {
+                            left: parent.left
+                            right: parent.right
+                            top: parent.top
+                            margins: Theme.px(10)
+                        }
+                        spacing: Theme.px(8)
+
+                        // 1. Output Volume Slider
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: Theme.px(10)
+                            IconButton {
+                                Layout.alignment: Qt.AlignVCenter
+                                name: Audio.icon
+                                tone: Audio.muted ? Theme.islandTextDim : Theme.islandText
+                                onClicked: Audio.toggleMute()
+                            }
+                            Slider {
+                                Layout.fillWidth: true
+                                Layout.alignment: Qt.AlignVCenter
+                                thickness: Theme.px(12)
+                                value: Audio.volume / Config.v.audio.maxVolume
+                                marker: Config.v.audio.maxVolume > 1 ? 1 / Config.v.audio.maxVolume : -1
+                                tone: Audio.muted ? Theme.textFaint : Audio.volume > 1 ? Theme.warn : Theme.accent
+                                onMoved: v => Audio.setVolume(v * Config.v.audio.maxVolume)
+                            }
+                            Label {
+                                Layout.preferredWidth: Theme.px(42)
+                                Layout.alignment: Qt.AlignVCenter
+                                horizontalAlignment: Text.AlignRight
+                                text: Math.round(Audio.volume * 100) + "%"
+                                color: Audio.volume > 1 ? Theme.warn : Theme.islandTextDim
+                                font.pixelSize: Theme.fontSize - 1
+                            }
+                        }
+
+                        // 2. Microphone Input Slider (moved to sliders as requested)
+                        RowLayout {
+                            visible: root.mic !== null
+                            Layout.fillWidth: true
+                            spacing: Theme.px(10)
+                            IconButton {
+                                Layout.alignment: Qt.AlignVCenter
+                                name: root.micMuted ? "mic_off" : "mic"
+                                tone: root.micMuted ? Theme.islandTextDim : Theme.accent
+                                onClicked: {
+                                    if (root.mic && root.mic.audio) root.mic.audio.muted = !root.micMuted
+                                }
+                            }
+                            Slider {
+                                Layout.fillWidth: true
+                                Layout.alignment: Qt.AlignVCenter
+                                thickness: Theme.px(12)
+                                value: root.micVol
+                                tone: root.micMuted ? Theme.textFaint : Theme.accent
+                                onMoved: v => {
+                                    if (root.mic && root.mic.audio) root.mic.audio.volume = v
+                                }
+                            }
+                            Label {
+                                Layout.preferredWidth: Theme.px(42)
+                                Layout.alignment: Qt.AlignVCenter
+                                horizontalAlignment: Text.AlignRight
+                                text: root.micMuted ? "Muted" : Math.round(root.micVol * 100) + "%"
+                                color: root.micMuted ? Theme.islandTextDim : Theme.accent
+                                font.pixelSize: Theme.fontSize - 1
+                            }
+                        }
+
+                        // 3. Screen Brightness Slider
+                        RowLayout {
+                            visible: Backlight.screen.available
+                            Layout.fillWidth: true
+                            spacing: Theme.px(10)
+                            Item {
+                                Layout.alignment: Qt.AlignVCenter
+                                implicitWidth: Theme.px(24); implicitHeight: Theme.px(22)
+                                Icon { anchors.centerIn: parent; name: "light_mode"; color: Theme.islandText }
+                            }
+                            Slider {
+                                Layout.fillWidth: true
+                                Layout.alignment: Qt.AlignVCenter
+                                thickness: Theme.px(12)
+                                value: Backlight.screen.value
+                                onMoved: v => Backlight.screen.set(v)
+                            }
+                            Label {
+                                Layout.preferredWidth: Theme.px(42)
+                                Layout.alignment: Qt.AlignVCenter
+                                horizontalAlignment: Text.AlignRight
+                                text: Math.round(Backlight.screen.value * 100) + "%"
+                                color: Theme.islandTextDim
+                                font.pixelSize: Theme.fontSize - 1
+                            }
+                        }
+                    }
+                }
+
+                // Row 1: Quick Toggles (3 Columns - Never Squashed!)
+                GridLayout {
+                    Layout.fillWidth: true
+                    columns: 3
+                    columnSpacing: Theme.px(8)
+                    rowSpacing: Theme.px(8)
+
+                    Tile {
+                        Layout.fillWidth: true; Layout.preferredWidth: 1
+                        implicitHeight: Theme.px(52)
+                        icon: Sounds.enabled ? "volume_up" : "volume_off"
+                        title: "Sounds"
+                        sub: Sounds.enabled ? "On" : "Muted"
+                        active: Sounds.enabled
+                        onClicked: Sounds.muted = !Sounds.muted
+                    }
+
+                    Tile {
+                        Layout.fillWidth: true; Layout.preferredWidth: 1
+                        implicitHeight: Theme.px(52)
+                        icon: "coffee"
+                        title: "Awake"
+                        sub: Idle.active ? "On" : "Off"
+                        active: Idle.active
+                        onClicked: Idle.toggle()
+                    }
+
+                    Tile {
+                        Layout.fillWidth: true; Layout.preferredWidth: 1
+                        implicitHeight: Theme.px(52)
+                        icon: Capture.recording ? "stop_circle" : "videocam"
+                        title: "Record"
+                        sub: Capture.recording ? root.clock(Capture.elapsed) : "Screen"
+                        active: Capture.recording
+                        onClicked: {
+                            if (Capture.recording) {
+                                Capture.stop()
+                            } else {
+                                root.recExpanded = !root.recExpanded
+                            }
+                        }
+                    }
+                }
+
+                // In-place Record Action Strip
+                RowLayout {
+                    visible: root.recExpanded && !Capture.recording
+                    Layout.fillWidth: true
+                    spacing: Theme.px(8)
+                    ActionButton {
+                        Layout.fillWidth: true; Layout.preferredWidth: 1
+                        icon: "desktop_windows"; text: "Record screen"
+                        onClicked: { Capture.record("screen", Panels.screenName); root.done() }
+                    }
+                    ActionButton {
+                        Layout.fillWidth: true; Layout.preferredWidth: 1
+                        icon: "crop"; text: "Record region"
+                        onClicked: { Capture.record("region", Panels.screenName); root.done() }
+                    }
+                }
+
+                // Row 2: Utilities (3 Columns - Never Squashed!)
+                GridLayout {
+                    Layout.fillWidth: true
+                    columns: 3
+                    columnSpacing: Theme.px(8)
+                    rowSpacing: Theme.px(8)
+
+                    Tile {
+                        Layout.fillWidth: true; Layout.preferredWidth: 1
+                        implicitHeight: Theme.px(52)
+                        icon: "screenshot_region"
+                        title: "Capture"
+                        sub: "Screenshot"
+                        expandable: true
+                        expanded: root.shotExpanded
+                        onClicked: root.shotExpanded = !root.shotExpanded
+                    }
+
+                    Tile {
+                        Layout.fillWidth: true; Layout.preferredWidth: 1
+                        implicitHeight: Theme.px(52)
+                        icon: "content_paste"
+                        title: "Clipboard"
+                        sub: "History"
+                        onClicked: root.page = "clip"
+                    }
+
+                    Tile {
+                        Layout.fillWidth: true; Layout.preferredWidth: 1
+                        implicitHeight: Theme.px(52)
+                        icon: "palette"
+                        title: "Palette"
+                        sub: Theming.current
+                        onClicked: root.page = "palette"
+                    }
+                }
+
+                // In-place Screenshot Action Strip
+                RowLayout {
+                    visible: root.shotExpanded
+                    Layout.fillWidth: true
+                    spacing: Theme.px(8)
+                    ActionButton {
+                        Layout.fillWidth: true; Layout.preferredWidth: 1
+                        icon: "crop"; text: "Region"
+                        onClicked: { Capture.screenshot("region", Panels.screenName); root.done() }
+                    }
+                    ActionButton {
+                        Layout.fillWidth: true; Layout.preferredWidth: 1
+                        icon: "desktop_windows"; text: "Screen"
+                        onClicked: { Capture.screenshot("screen", Panels.screenName); root.done() }
+                    }
+                    ActionButton {
+                        Layout.fillWidth: true; Layout.preferredWidth: 1
+                        icon: "draw"; text: "Annotate"
+                        onClicked: { Capture.screenshot("annotate", Panels.screenName); root.done() }
+                    }
                 }
             }
         }
     }
 
-    // dropdown bodies
-    Component { id: wifiD; Detail { WifiView { Layout.fillWidth: true; listMax: Theme.px(170) } } }
-    Component { id: btD; Detail { BluetoothView { Layout.fillWidth: true; listMax: Theme.px(170) } } }
-    Component {
-        id: micD
-        Detail {
-            AudioSection {
-                kind: "source"; title: "Microphone"; iconOn: "mic"; iconOff: "mic_off"
-                maxVol: Config.v.audio.maxInput; thickness: Theme.px(10)
-            }
-        }
-    }
+    // ================= Sub-page Bodies =================
+    Component { id: wifiD; ColumnLayout { Layout.fillWidth: true; spacing: 0; WifiView { Layout.fillWidth: true; listMax: Theme.px(360) } } }
+    Component { id: btD; ColumnLayout { Layout.fillWidth: true; spacing: 0; BluetoothView { Layout.fillWidth: true; listMax: Theme.px(360) } } }
     Component {
         id: powerD
-        Detail {
+        ColumnLayout {
+            Layout.fillWidth: true
+            spacing: Theme.px(6)
             Repeater {
                 model: [
                     { name: "Power saver", icon: "eco", p: PowerProfile.PowerSaver, show: true },
@@ -343,44 +800,15 @@ ColumnLayout {
             }
         }
     }
-    Component {
-        id: shotD
-        Detail {
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: Theme.px(8)
-                ActionButton { Layout.fillWidth: true; Layout.preferredWidth: 1; icon: "crop"; text: "Region"; onClicked: { Capture.screenshot("region", Panels.screenName); root.done() } }
-                ActionButton { Layout.fillWidth: true; Layout.preferredWidth: 1; icon: "desktop_windows"; text: "Screen"; onClicked: { Capture.screenshot("screen", Panels.screenName); root.done() } }
-                ActionButton { Layout.fillWidth: true; Layout.preferredWidth: 1; icon: "draw"; text: "Annotate"; onClicked: { Capture.screenshot("annotate", Panels.screenName); root.done() } }
-            }
-        }
-    }
-    Component {
-        id: recD
-        Detail {
-            RowLayout {
-                visible: !Capture.recording
-                Layout.fillWidth: true
-                spacing: Theme.px(8)
-                ActionButton { Layout.fillWidth: true; Layout.preferredWidth: 1; icon: "desktop_windows"; text: "Record screen"; onClicked: { Capture.record("screen", Panels.screenName); root.done() } }
-                ActionButton { Layout.fillWidth: true; Layout.preferredWidth: 1; icon: "crop"; text: "Record region"; onClicked: { Capture.record("region", Panels.screenName); root.done() } }
-            }
-            ActionButton {
-                visible: Capture.recording
-                Layout.fillWidth: true
-                icon: "stop_circle"; text: "Stop recording  " + root.clock(Capture.elapsed); danger: true
-                onClicked: { Capture.stop(); root.done() }
-            }
-        }
-    }
-    Component { id: clipD; Detail { ClipboardView { Layout.fillWidth: true; onPicked: root.done() } } }
+    Component { id: clipD; ColumnLayout { Layout.fillWidth: true; spacing: 0; ClipboardView { Layout.fillWidth: true; onPicked: root.done() } } }
     Component {
         id: palD
-        Detail {
-            PanelHeader { icon: "palette"; title: "Palette" }
+        ColumnLayout {
+            Layout.fillWidth: true
+            spacing: Theme.px(6)
             ListView {
                 Layout.fillWidth: true
-                Layout.preferredHeight: Math.min(contentHeight, Theme.px(210))
+                Layout.preferredHeight: Math.min(contentHeight, Theme.px(300))
                 clip: true
                 spacing: 2
                 interactive: contentHeight > height
@@ -391,7 +819,7 @@ ColumnLayout {
                     required property var modelData
                     readonly property bool cur: modelData.name === Theming.current
                     width: ListView.view.width
-                    height: Theme.px(34)
+                    height: Theme.px(36)
                     radius: Theme.px(10)
                     color: cur || ph.hovered ? Theme.surface : "transparent"
                     HoverHandler { id: ph }

@@ -12,6 +12,8 @@ import QtQuick
 Singleton {
     id: root
 
+    readonly property string name: "OpenCode"
+    readonly property string icon: "terminal"
     readonly property bool running: baseUrl !== ""
     readonly property bool ready: running
     readonly property bool busy: {
@@ -25,6 +27,22 @@ Singleton {
     property var sessions: []
     property var requests: []
     property double lastActivity: 0
+
+    readonly property string model: sessions.length > 0 && sessions[0].model && sessions[0].model.id ? sessions[0].model.id : "opencode"
+    readonly property double liveElapsedMs: busy ? Math.max(0, Date.now() - busySince) : 0
+    readonly property double elapsedMs: liveElapsedMs
+    readonly property string lastPrompt: sessions.length > 0 && sessions[0].title ? sessions[0].title : ""
+    readonly property int inputTokens: sessions.reduce((acc, s) => acc + (s.tokens && s.tokens.input ? s.tokens.input : 0), 0)
+    readonly property int outputTokens: sessions.reduce((acc, s) => acc + (s.tokens && s.tokens.output ? s.tokens.output : 0), 0)
+    readonly property int cacheReadTokens: sessions.reduce((acc, s) => acc + (s.tokens && s.tokens.cache && s.tokens.cache.read ? s.tokens.cache.read : 0), 0)
+
+    function fmtDuration(ms) {
+        const totalSecs = Math.max(0, Math.round(ms / 1000))
+        const mins = Math.floor(totalSecs / 60)
+        const secs = totalSecs % 60
+        if (mins > 0) return mins + "m " + secs + "s"
+        return secs + "s"
+    }
 
     // internals
     property string baseUrl: ""
@@ -40,6 +58,7 @@ Singleton {
             lastActivity = Date.now()
         }
     }
+
 
     function reset() {
         baseUrl = ""

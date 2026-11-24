@@ -14,7 +14,7 @@ Singleton {
     //   ready (bool, service reachable), busy (bool, a turn is running),
     //   attention (int, pending prompts that need the user),
     //   sessions (list, for the panel) and action functions.
-    readonly property var providers: [AiOpencode]
+    readonly property var providers: [AiAntigravity, AiOpencode]
 
     readonly property bool running: providers.some(p => p.ready)
     readonly property bool busy: providers.some(p => p.busy)

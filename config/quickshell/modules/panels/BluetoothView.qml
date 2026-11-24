@@ -8,6 +8,7 @@ import qs.components
 ColumnLayout {
     id: root
     property real listMax: Theme.px(238)
+    property bool showHeader: true
     property string openAddr: ""
     spacing: Theme.px(8)
     readonly property var adapter: Bluetooth.defaultAdapter
@@ -17,6 +18,7 @@ ColumnLayout {
         : []
 
     PanelHeader {
+        visible: root.showHeader
         icon: root.on ? "bluetooth" : "bluetooth_disabled"
         title: "Bluetooth"
         IconButton {
