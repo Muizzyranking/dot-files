@@ -29,7 +29,7 @@ Singleton {
     property double lastActivity: 0
 
     readonly property string model: sessions.length > 0 && sessions[0].model && sessions[0].model.id ? sessions[0].model.id : "opencode"
-    readonly property double liveElapsedMs: busy ? Math.max(0, Date.now() - busySince) : 0
+    property double liveElapsedMs: 0
     readonly property double elapsedMs: liveElapsedMs
     readonly property string lastPrompt: sessions.length > 0 && sessions[0].title ? sessions[0].title : ""
     readonly property int inputTokens: sessions.reduce((acc, s) => acc + (s.tokens && s.tokens.input ? s.tokens.input : 0), 0)
@@ -59,6 +59,14 @@ Singleton {
         }
     }
 
+    // liveElapsedMs used to be readonly, recomputed only on busy/busySince
+    // transitions; this timer ticks it while busy.
+    Timer {
+        id: elapsedT
+        interval: 1000
+        running: root.busy
+        onTriggered: root.liveElapsedMs = Math.max(0, Date.now() - root.busySince)
+    }
 
     function reset() {
         baseUrl = ""
