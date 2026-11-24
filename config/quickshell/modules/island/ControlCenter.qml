@@ -247,19 +247,6 @@ ColumnLayout {
                         }
                     }
 
-                    // The ONE toggle switch on the sub-page
-                    Toggle {
-                        Layout.alignment: Qt.AlignVCenter
-                        visible: root.page === "wifi" || root.page === "bluetooth"
-                        checked: root.page === "wifi" ? Net.wifiEnabled : Bt.enabled
-                        onToggled: {
-                            if (root.page === "wifi") {
-                                Net.setEnabled(!Net.wifiEnabled)
-                            } else {
-                                Bt.toggle()
-                            }
-                        }
-                    }
                 }
 
                 // Sub-page Content Container
