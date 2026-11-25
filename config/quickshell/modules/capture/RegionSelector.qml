@@ -25,6 +25,7 @@ Variants {
         property real ex: 0
         property real ey: 0
         property bool dragging: false
+        property bool selected: false
         readonly property real rx: Math.min(sx, ex)
         readonly property real ry: Math.min(sy, ey)
         readonly property real rw: dragging ? Math.abs(ex - sx) : 0
@@ -59,7 +60,7 @@ Variants {
             Label { id: sl; anchors.centerIn: parent; text: Math.round(win.rw) + " × " + Math.round(win.rh); font.pixelSize: Theme.fontSize - 1 }
         }
         Label {
-            visible: !win.dragging
+            visible: !win.dragging && !win.selected
             anchors.centerIn: parent
             text: "Drag to select an area  ·  Esc to cancel"
             color: "#ffffff"
@@ -74,6 +75,8 @@ Variants {
                 const ok = win.rw > 4 && win.rh > 4
                 const g = Math.round(win.modelData.x + win.rx) + "," + Math.round(win.modelData.y + win.ry)
                     + " " + Math.round(win.rw) + "x" + Math.round(win.rh)
+                // hide the idle hint: it must not show up in the screenshot
+                win.selected = true
                 win.dragging = false
                 if (ok) Selector.finish(g)
                 else Selector.cancel()
