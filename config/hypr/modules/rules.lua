@@ -16,7 +16,8 @@ end
 ---@return nil
 local function popup(match, w, h)
 	local rule = { match = match, float = true, center = true }
-	if w and h then
+	if w then
+		h = h or w
 		rule.size = { "monitor_w*" .. w, "monitor_h*" .. h }
 	end
 	hl.window_rule(rule)
@@ -46,7 +47,7 @@ tag_classes("settings", {
 })
 hl.window_rule({ match = { title = "^(ROG Control)$" }, tag = "+settings" })
 hl.window_rule({ match = { title = "(Kvantum Manager)" }, tag = "+settings" })
-hl.window_rule({ match = { class = "^thunar$", title = "^(Rename.*)$" }, tag = "+settings" })
+hl.window_rule({ match = { class = "^([tT]hunar)$", title = "^(Rename.*)$" }, tag = "+settings" })
 
 -- Projects
 tag_classes("projects", {
@@ -108,11 +109,12 @@ popup({ title = "^(Add Folder to Workspace|Save As)$" }, 0.7, 0.6)
 popup({ title = "^(SDDM Background)$" }, 0.16, 0.12)
 popup({ class = "^(thunar)$", title = "^(File Operation Progress)$" }, 0.26, 0.18)
 popup({ class = "^(thunar)$", title = "^(Thunar Preferences)$" }, 0.26, 0.18)
-popup({ class = "^(hyprland-share-picker)$" }, 0.4, 0.4)
-popup({ class = "^xdg-desktop-portal-gtk$", title = "^Open Folder$", float = true }, 0.6, 0.6)
+popup({ class = "^(hyprland-share-picker)$" }, 0.4)
+popup({ class = "^xdg-desktop-portal-gtk$", title = "^Open Folder$", float = true }, 0.6)
 popup({ initial_title = "(Open Files)" }, 0.7, 0.6)
 popup({ class = "^DesktopEditors$", title = "^$", float = true })
 popup({ title = "^(Open|Choose Files|Library|File Upload.*|Choose wallpaper.*|Confirm to replace files|.*dialog.*)$" })
+popup({ title = "[sS]atty", class = "^(com.gabm.satty)$" }, 0.7, 0.8)
 
 hl.window_rule({ match = { class = "^org.kde.plasma.emojier$" }, float = true, size = { 800, 600 } })
 hl.window_rule({
@@ -151,7 +153,7 @@ hl.window_rule({ match = { class = "^([Ss]potify)$" }, workspace = 7 })
 
 hl.workspace_rule({ workspace = "1", default_name = "一", layout = "scrolling" })
 hl.workspace_rule({ workspace = "2", default_name = "二", layout = "scrolling" })
-hl.workspace_rule({ workspace = "3", default_name = "三" })
+hl.workspace_rule({ workspace = "3", default_name = "三", layout = "scrolling" })
 hl.workspace_rule({ workspace = "4", default_name = "四" })
 hl.workspace_rule({ workspace = "5", default_name = "五" })
 hl.workspace_rule({ workspace = "6", default_name = "六" })
