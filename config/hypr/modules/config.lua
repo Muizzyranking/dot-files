@@ -4,11 +4,11 @@ hl.config({
 			active_border = COLORS.primary,
 			inactive_border = COLORS.outline,
 		},
-		border_size = 1,
+		border_size = 0,
 		resize_on_border = true,
 		allow_tearing = false,
 		layout = "dwindle",
-		gaps_in = 4,
+		gaps_in = 2,
 		gaps_out = 6,
 	},
 	group = {
